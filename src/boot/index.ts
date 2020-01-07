@@ -1,5 +1,5 @@
 import * as command_line_parser from "command-line-args"
-import { build_file_tree } from './file-adapter'
+import { build_file_tree } from '../core/file-adapter'
 
 const options = command_line_parser([
   { name: 'root', type: String, defaultOption: true, defaultValue: '.' },
