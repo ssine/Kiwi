@@ -1,0 +1,12 @@
+body {
+  background-color: blanchedalmond;
+}
+
+.item-flow {
+  margin: 0 auto;
+  width: 750px;
+}
+
+.item {
+  background-color: white;
+}

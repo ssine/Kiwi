@@ -13,5 +13,6 @@ export function serve(main: string, map: uri_item_map) {
   app.get('/', (req, res) => {
     res.send(main)
   })
+  app.use(express.static('build/ui'))
   app.listen(port, _ => console.log(`app listening on port ${port}`))
 }
