@@ -1,6 +1,6 @@
 import * as command_line_parser from "command-line-args"
 import { build_file_tree } from '../core/file'
-import { build_item_tree, item } from '../core/item'
+import { build_item_tree } from '../core/item'
 import { generate_uri } from '../core/uri'
 import { serve } from '../core/server'
 

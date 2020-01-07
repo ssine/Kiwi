@@ -35,7 +35,7 @@ async function build_file_tree_dfs(node: fs_node) {
 }
 
 /**
- * @breif build a tree representing the target folder
+ * @abstract build a tree representing the target folder
  */
 export async function build_file_tree(root_path: string): Promise<fs_node> {
   let root = new fs_node(root_path, null)
