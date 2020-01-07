@@ -1,5 +1,8 @@
 import * as command_line_parser from "command-line-args"
-import { build_file_tree } from '../core/file-adapter'
+import { build_file_tree } from '../core/file'
+import { build_item_tree, item } from '../core/item'
+import { generate_uri } from '../core/uri'
+import { serve } from '../core/server'
 
 const options = command_line_parser([
   { name: 'root', type: String, defaultOption: true, defaultValue: '.' },
@@ -7,9 +10,11 @@ const options = command_line_parser([
 ])
 
 async function run () {
-  console.log(`${await build_file_tree(options.root)}`)
+  let file_tree = await build_file_tree(options.root)
+  let item_tree = build_item_tree(file_tree)
+  let uri_map = generate_uri(item_tree)
+  console.log(`${file_tree}`)
+  serve(uri_map)
 }
-
-console.log(options)
 
 run()
