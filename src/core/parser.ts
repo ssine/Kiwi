@@ -16,7 +16,7 @@ type parser_input = {
  */
 abstract class parser {
   abstract init(): void
-  abstract parse(input: parser_input): void
+  abstract parse(input: string): void
   abstract render_html(): string
   abstract register_info(): string[]
   register(types: string[]) {
@@ -47,14 +47,14 @@ class markdown_parser extends parser {
       xhtml: false
     });
   }
-  parse(input: parser_input) {
-    this.input = input.content
+  parse(input: string) {
+    this.input = input
   }
   render_html() {
     return marked(this.input)
   }
   register_info() {
-    return ['md']
+    return ['md', 'markdown']
   }
 }
 
@@ -65,8 +65,8 @@ md.register(md.register_info())
 /**
  * @abstract parse a content and return html <div>
  */
-export function parse(input: parser_input): string {
-  let parser = parser_map.get(input.options['type'])
+export function parse(input: string, type: string): string {
+  let parser = parser_map.get(type)
   if (!parser) return ''
   parser.parse(input)
   return parser.render_html()

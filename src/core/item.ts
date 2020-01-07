@@ -1,6 +1,34 @@
-import { fs_node } from './file'
 import * as fs from 'fs'
+import * as moment from 'moment'
+import { safeLoad as load_yaml } from 'js-yaml' 
+import { fs_node } from './file'
 import { parse } from './parser'
+import { ext_to_content_type } from './common'
+
+type item_header = {
+  'title'?: string
+  'author'?: string
+  'create-time'?: moment.Moment
+  'modify-time'?: moment.Moment
+  'content-type'?: string
+}
+
+function split_item_header(raw: string): [item_header, string] {
+  let lst = raw.split(/\r\n|\n/)
+  if (lst[0] === '---') {
+    for (let i = 1; i < lst.length; i++) {
+      if (lst[i] === '---') {
+        let headers = load_yaml(lst.slice(1, i).join('\n'))
+        if ('create-time' in headers) headers['create-time'] = moment(headers['create-time'])
+        if ('modify-time' in headers) headers['modify-time'] = moment(headers['modify-time'])
+        return [headers, lst.slice(i+1).join('\n')]
+      }
+    }
+    return [{}, lst.join('\n')]
+  } else {
+    return [{}, lst.join('\n')]
+  }
+}
 
 /**
  * @classdesc item is the basic compose block of Kiwi
@@ -8,29 +36,47 @@ import { parse } from './parser'
 export class item {
   // underlying file system node
   fnode: fs_node
+  childs: item[]
   // properties defined in file header
-  properties: { [name:string]: string }[]
+  headers: item_header
   // raw file content
-  raw_content: string
-  uri: string
+  content: string
   // parsed <div> block
   parsed_content: string
   is_parsed: boolean
-  childs: item[]
+  uri: string
+
   constructor(node: fs_node) {
     this.fnode = node
-    this.properties = []
+    let raw_content: string
     if (node.type === 'file') {
-      this.raw_content = fs.readFileSync(node.absolute_path).toString()
-      this.parsed_content = parse({content: this.raw_content, options: {type: 'md'}})
-      this.is_parsed = true
+      raw_content = fs.readFileSync(node.absolute_path).toString()
+    } else if (node.type === 'directory' && node.childs.map(v => v.path.name).indexOf('index') != -1) {
+      let idx = node.childs.map(v => v.path.name).indexOf('index')
+      raw_content = fs.readFileSync(node.childs[idx].absolute_path).toString()
     } else {
-      this.raw_content = ''
-      this.parsed_content = ''
-      this.is_parsed = false
+      raw_content = ''
     }
+    [this.headers, this.content] = split_item_header(raw_content)
+    if (!this.headers["content-type"])
+      this.headers["content-type"] = ext_to_content_type(this.fnode.path.ext)
+    if (!this.headers["title"])
+      this.headers["title"] = this.fnode.path.name
+    this.parsed_content = '<p>Content not parsed</p>'
+    this.is_parsed = false
     this.childs = []
     this.uri = ''
+  }
+
+  parse() {
+    this.parsed_content = parse(this.content, this.headers["content-type"] || 'md')
+    this.is_parsed = true
+  }
+
+  render() {
+    if (!this.is_parsed)
+      this.parse()
+    return this.parsed_content
   }
 }
 
