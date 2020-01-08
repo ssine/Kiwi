@@ -1,3 +1,5 @@
+import * as cheerio from 'cheerio'
+
 let parser_map = new Map<string, parser>()
 
 type parser_input = {
@@ -51,7 +53,9 @@ class markdown_parser extends parser {
     this.input = input
   }
   render_html() {
-    return marked(this.input)
+    const $ = cheerio.load(marked(this.input))
+    $('a').addClass('item-link')
+    return $.html($('body'))
   }
   register_info() {
     return ['md', 'markdown']

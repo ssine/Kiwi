@@ -7,7 +7,7 @@ const port = 3000
 export function serve(main: string, map: uri_item_map) {
   for (let uri in map) {
     app.get(uri, (req, res) => {
-      res.send(map[uri].parsed_content)
+      res.send(map[uri].render())
     })
   }
   app.get('/', (req, res) => {

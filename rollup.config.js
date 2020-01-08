@@ -1,5 +1,7 @@
 // rollup.config.js
 import typescript from '@rollup/plugin-typescript';
+import resolve from '@rollup/plugin-node-resolve';
+import commonJS from '@rollup/plugin-commonjs';
 
 export default {
   input: 'src/ui/ts/main.ts',
@@ -7,5 +9,11 @@ export default {
     dir: 'build/ui/js/',
     format: 'cjs'
   },
-  plugins: [typescript({lib: ["es5", "es6", "dom"], target: "es5"})]
+  plugins: [
+    resolve(),
+    typescript({lib: ["es5", "es6", "dom"], target: "esnext"}),
+    commonJS({
+      include: 'node_modules/**'
+    })
+  ]
 };
