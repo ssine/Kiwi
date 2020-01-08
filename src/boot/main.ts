@@ -14,7 +14,7 @@ async function run () {
   let file_tree = await build_file_tree(options.root)
   let item_tree = build_item_tree(file_tree)
   let uri_map = generate_uri(item_tree)
-  console.log(`${file_tree  }`)
+  console.log(`${file_tree}`)
   serve(render(item_tree.childs), uri_map)
 }
 

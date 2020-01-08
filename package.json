@@ -8,11 +8,14 @@
   ],
   "scripts": {
     "test": "npm run build && node build/boot/main.js ../test",
-    "build": "tsc && shx cp -r src/ui build/"
+    "build": "npm run build:core && npm run build:ui",
+    "build:core": "tsc && shx cp -r src/ui build/",
+    "build:ui": "rollup --config"
   },
   "author": "Sine Liu",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-typescript": "^2.1.0",
     "@types/command-line-args": "^5.0.0",
     "@types/express": "^4.17.2",
     "@types/js-yaml": "^3.12.1",
@@ -20,7 +23,9 @@
     "@types/moment": "^2.13.0",
     "@types/node": "^13.1.4",
     "@types/pug": "^2.0.4",
+    "rollup": "^1.28.0",
     "shx": "^0.3.2",
+    "tslib": "^1.10.0",
     "typescript": "^3.7.4"
   },
   "dependencies": {
