@@ -2,7 +2,7 @@ import * as pug from 'pug'
 import * as path from 'path'
 import { item } from './item'
 
-const item_render = pug.compileFile('build/ui/template/item.pug')
+export const item_render = pug.compileFile('build/ui/template/item.pug')
 const base_render = pug.compileFile('build/ui/template/base.pug')
 
 /**
