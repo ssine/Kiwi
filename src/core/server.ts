@@ -10,7 +10,7 @@ export function serve(main: string, map: uri_item_map) {
     app.get(uri, (req, res) => {
       res.send(item_render({
         title: map[uri].headers.title,
-        content: map[uri].render()
+        content: map[uri].html()
       }))
     })
   }

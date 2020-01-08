@@ -1,27 +1,38 @@
 import * as cheerio from 'cheerio'
-
-let parser_map = new Map<string, parser>()
-
-type parser_input = {
-  content: string
-  options: { [name:string]: string }
-}
+import { MIME } from './common'
 
 /**
- * @classdesc interface of all content parsers
+ * Map recording all registered parsers
+ */
+let parser_map = new Map<MIME, parser>()
+
+/**
+ * Interface of all content parsers
  * 
  * They accept the raw strings whose file extension or declared type is in
- * register_info() and returns parsed html <div> block.
- * Table of content is optional
+ * `supported_types()` and returns parsed html `<div>` block.
  * 
- * Provide the register api to impls later, jsut hard code it now
+ * @todo support for table of contents
+ * @todo Provide the register api to impls later, jsut hard code it now
  */
 abstract class parser {
+  /**
+   * Initialize the parser
+   */
   abstract init(): void
-  abstract parse(input: string): void
-  abstract render_html(): string
-  abstract register_info(): string[]
-  register(types: string[]) {
+  /**
+   * Parse input into HTML `<div>` block
+   */
+  abstract parse(input: string): string
+  /**
+   * A list of supported content type in MIME format
+   */
+  abstract supported_types(): MIME[]
+
+  /**
+   * Ask to be called on content with supported types
+   */
+  register(types: MIME[]) {
     for (let type of types) {
       parser_map.set(type, this)
     }
@@ -32,11 +43,7 @@ abstract class parser {
 import * as marked from 'marked'
 
 class markdown_parser extends parser {
-  input: string
-  constructor () {
-    super()
-    this.input = ''
-  }
+
   init() {
     marked.setOptions({
       renderer: new marked.Renderer(),
@@ -49,29 +56,32 @@ class markdown_parser extends parser {
       xhtml: false
     });
   }
-  parse(input: string) {
-    this.input = input
-  }
-  render_html() {
-    const $ = cheerio.load(marked(this.input))
+
+  parse(input: string): string {
+    const $ = cheerio.load(marked(input))
     $('a').addClass('item-link')
-    return $.html($('body'))
+    return $.html($('body'))  
   }
-  register_info() {
-    return ['md', 'markdown']
+
+  supported_types(): MIME[] {
+    return ['text/markdown']
   }
 }
 
+
 let md = new markdown_parser()
 md.init()
-md.register(md.register_info())
+md.register(md.supported_types())
 
 /**
- * @abstract parse a content and return html <div>
+ * Parse a content and return html <div>
  */
-export function parse(input: string, type: string): string {
+function parse(input: string, type: MIME): string {
   let parser = parser_map.get(type)
   if (!parser) return ''
-  parser.parse(input)
-  return parser.render_html()
+  return parser.parse(input)
+}
+
+export {
+  parse
 }

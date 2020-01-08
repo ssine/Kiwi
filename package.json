@@ -9,8 +9,9 @@
   "scripts": {
     "test": "npm run build && node build/boot/main.js ../test",
     "build": "npm run build:core && npm run build:ui",
-    "build:core": "tsc && shx cp -r src/ui build/",
-    "build:ui": "rollup --config"
+    "build:core": "tsc && shx cp -r src/ui build/ && shx rm -r build/ui/ts",
+    "build:ui": "rollup --config",
+    "build:doc": "typedoc src --out build/doc --exclude src/ui/**/*"
   },
   "author": "Sine Liu",
   "license": "ISC",
@@ -30,6 +31,7 @@
     "rollup": "^1.28.0",
     "shx": "^0.3.2",
     "tslib": "^1.10.0",
+    "typedoc": "^0.15.6",
     "typescript": "^3.7.4"
   },
   "dependencies": {
