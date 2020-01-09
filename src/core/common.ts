@@ -3,11 +3,11 @@
  * Partially supported
  */
 type MIME = 
-  'application/x-pug' |
   'application/pdf' |
   'text/plain' |
   'text/markdown' |
   'text/html' |
+  'text/x-sqrl' |
   'image/gif' |
   'image/x-icon' |
   'image/jpeg' |
@@ -25,7 +25,8 @@ editable_content_type.add('text/html')
 function ext_to_content_type(ext: string): MIME | null {
   ext = ext.replace(/^\.+/, '')
   const dict: { [name: string]: MIME } = {
-    'md': 'text/markdown'
+    'md': 'text/markdown',
+    'sqrl': 'text/x-sqrl'
   }
   return dict[ext] || null
 }
@@ -40,6 +41,7 @@ function content_type_to_ext(ct: MIME | null): string {
   map.set('text/plain', 'txt')
   map.set('text/markdown', 'md')
   map.set('text/html', 'html')
+  map.set('text/x-sqrl', 'sqrl')
   map.set('image/gif', 'gif')
   map.set('image/x-icon', 'ico')
   map.set('image/jpeg', 'jpg')

@@ -1,6 +1,13 @@
+/**
+ * This part runs in browser
+ * @packageDocumentation
+ */
+
 import $ from 'jquery'
 import { client_item as item } from './item'
-import runtime from 'pug-runtime'
+import sqrl from 'squirrelly'
+
+sqrl.autoEscaping(false)
 
 async function init() {
   let all = document.querySelectorAll(".item-link")
@@ -14,14 +21,27 @@ async function init() {
       let it = new item()
       it.uri = e.getAttribute('href')
       await it.load()
-      let new_el = document.createElement('div')
-      new_el.innerHTML = it.html()
+      let tmpl = new item()
+      tmpl.uri = 'item.sqrl'
+      await tmpl.load()
+      let new_el = sqrl.Render(tmpl.content, {
+        title: it.title,
+        content: it.html()
+      })
       console.log(it)
       $('.item-flow').append(new_el)
       return false;
     }
   }
 }
+
+const template = `
+<div>{{title}}</div>
+`
+
+console.log(sqrl.Render(template, {
+  title: 'Nothing more'
+}))
 
 async function run() {
   await init()

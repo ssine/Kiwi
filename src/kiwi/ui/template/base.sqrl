@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <meta content="charset=UTF-8">
+    <title>{{title}}</title>
+    <script src="/$kiwi/ui/js/main.js"></script>
+  </head>
+  <body>
+    <div class="item-flow">
+      {{items}}
+    </div>
+  </body>
+</html>

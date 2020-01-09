@@ -9,7 +9,7 @@
   "scripts": {
     "test": "npm run build && node build/boot/main.js ../test",
     "build": "npm run build:core && npm run build:ui",
-    "build:core": "tsc && shx cp -r src/ui build/ && shx rm -r build/ui/ts",
+    "build:core": "tsc && shx cp -r src/kiwi build/",
     "build:ui": "rollup --config",
     "build:doc": "typedoc src --out build/doc --exclude src/ui/**/*"
   },
@@ -28,7 +28,7 @@
     "@types/marked": "^0.7.2",
     "@types/moment": "^2.13.0",
     "@types/node": "^13.1.4",
-    "@types/pug": "^2.0.4",
+    "@types/squirrelly": "^7.1.0",
     "@types/winston": "^2.4.4",
     "rollup": "^1.28.0",
     "shx": "^0.3.2",
@@ -45,8 +45,7 @@
     "js-yaml": "^3.13.1",
     "marked": "^0.8.0",
     "moment": "^2.24.0",
-    "pug": "^2.0.4",
-    "pug-runtime": "^2.0.5",
+    "squirrelly": "^7.9.0",
     "winston": "^3.2.1"
   }
 }

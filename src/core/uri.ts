@@ -67,7 +67,14 @@ function generate_uri(root_item: item): uri_item_map {
   return uri_map
 }
 
+function generate_system_uri(root_item: item): uri_item_map {
+  for (let child of root_item.childs)
+    uri_dfs(child, '$kiwi/')
+  return uri_map
+}
+
 export {
   uri_item_map,
-  generate_uri
+  generate_uri,
+  generate_system_uri
 }

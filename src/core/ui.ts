@@ -2,22 +2,21 @@
  * @todo Make pug an internal supported type and pass template function to
  * client side.
  */
-
-import * as pug from 'pug'
+import * as sqrl from 'squirrelly'
 import { item } from './item_base'
 
-export const item_render = pug.compileFile('build/ui/template/item.pug')
-const base_render = pug.compileFile('build/ui/template/base.pug')
+sqrl.autoEscaping(false)
 
 /**
  * Render the main page
  */
-export function render(items: item[]) {
-  return base_render({
+export function render(template: string, item_tmpl: string, items: item[]): string {
+  return sqrl.Render(template, {
     title: "Sine's Wiki",
-    items: items.map(it => item_render({
+    items: items.map(it => sqrl.Render(item_tmpl, {
       title: it.headers.title || 'No title',
       content: it.html()
-    })).join('\n')
+    })).join('')
   })
+  
 }

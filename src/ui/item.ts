@@ -21,7 +21,8 @@ class client_item extends item {
    */
   async load() {
     let obj = await post_json('/get_item', {uri: this.uri})
-    this.parsed_content = obj.parsed_content
+    for (let key in obj)
+      this[key] = obj[key]
   }
 
   html(): string {

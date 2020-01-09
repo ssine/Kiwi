@@ -1,0 +1,13 @@
+<div class="item">
+  <div class="item-titlebar">
+    <h2 class="item-title">
+      {{title}}
+    </h2>
+    <div class="item-controls"></div>
+  </div>
+  <div class="item-info"></div>
+  <div class="item-tags"></div>
+  <div class="item-content">
+    {{content}}
+  </div>
+</div>
