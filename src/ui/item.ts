@@ -6,7 +6,7 @@
  * @packageDocumentation
  */
 
-import { item } from '../core/item_base'
+import { item } from '../core/item'
 import { post_json } from './common'
 
 /**

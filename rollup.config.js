@@ -10,7 +10,7 @@ export default {
     format: 'cjs'
   },
   plugins: [
-    resolve({ preferBuiltins: true, mainFields: ['browser'] }),
+    resolve({ preferBuiltins: true, browser: true, mainFields: ['browser'] }),
     typescript({lib: ["es5", "es6", "dom"], target: "esnext"}),
     commonJS({
       include: 'node_modules/**'

@@ -16,7 +16,7 @@
  * @packageDocumentation
  */
 
-import { item } from './item_base'
+import { item } from './item'
 import { get_logger } from './log'
 import { editable_content_type, content_type_to_ext } from './common'
 

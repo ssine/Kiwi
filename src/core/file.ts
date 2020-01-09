@@ -26,8 +26,8 @@ import * as fs from "fs"
 import * as path from "path"
 import * as moment from 'moment'
 import { safeLoad as load_yaml } from 'js-yaml' 
-import { item_header } from './item_base'
-import { server_item as item } from './item'
+import { item_header } from './item'
+import { server_item as item } from './server_item'
 import { ext_to_content_type } from './common'
 
 /**

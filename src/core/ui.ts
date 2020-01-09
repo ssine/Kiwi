@@ -3,7 +3,7 @@
  * client side.
  */
 import * as sqrl from 'squirrelly'
-import { item } from './item_base'
+import { item } from './item'
 
 sqrl.autoEscaping(false)
 
