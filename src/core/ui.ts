@@ -1,6 +1,10 @@
+/**
+ * @todo Make pug an internal supported type and pass template function to
+ * client side.
+ */
+
 import * as pug from 'pug'
-import * as path from 'path'
-import { item } from './item'
+import { item } from './item_base'
 
 export const item_render = pug.compileFile('build/ui/template/item.pug')
 const base_render = pug.compileFile('build/ui/template/base.pug')

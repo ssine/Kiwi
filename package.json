@@ -19,6 +19,7 @@
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-node-resolve": "^7.0.0",
     "@rollup/plugin-typescript": "^2.1.0",
+    "@types/body-parser": "^1.17.1",
     "@types/cheerio": "^0.22.15",
     "@types/command-line-args": "^5.0.0",
     "@types/express": "^4.17.2",
@@ -28,6 +29,7 @@
     "@types/moment": "^2.13.0",
     "@types/node": "^13.1.4",
     "@types/pug": "^2.0.4",
+    "@types/winston": "^2.4.4",
     "rollup": "^1.28.0",
     "shx": "^0.3.2",
     "tslib": "^1.10.0",
@@ -35,6 +37,7 @@
     "typescript": "^3.7.4"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.3",
     "command-line-args": "^5.1.1",
     "express": "^4.17.1",
@@ -42,6 +45,8 @@
     "js-yaml": "^3.13.1",
     "marked": "^0.8.0",
     "moment": "^2.24.0",
-    "pug": "^2.0.4"
+    "pug": "^2.0.4",
+    "pug-runtime": "^2.0.5",
+    "winston": "^3.2.1"
   }
 }

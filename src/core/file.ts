@@ -1,8 +1,33 @@
+/**
+ * Filesystems Adaption
+ * 
+ * The filesystem part is responsible for mapping between files and items.
+ * Some interfaces should be exported:
+ * 
+ * Function to construct all the items from a root folder.
+ * @todo Function to save modified / newly created / deleted items back.
+ * @todo Function to notify the system on file / folder changes.
+ * 
+ * There is also rules when parsing and serializing items:
+ * 
+ * - headers
+ *   - headers are stored in yaml format enclosed by two lines of '---' for text files
+ *   - headers are stored in [filename].meta for binary files
+ *   - headers can be inferred from other file attributes (creation time, modification time, etc)
+ *   - automatic completion on save?
+ * - contents
+ *   - raw string after removing headers
+ *   - provide a absolute path when the file is binary
+ * 
+ * @packageDocumentation
+ */
+
 import * as fs from "fs"
 import * as path from "path"
 import * as moment from 'moment'
 import { safeLoad as load_yaml } from 'js-yaml' 
-import { item, item_header } from './item'
+import { item_header } from './item_base'
+import { server_item as item } from './item'
 import { ext_to_content_type } from './common'
 
 /**
@@ -92,6 +117,7 @@ async function build_item_from_node(node: fs_node): Promise<item> {
     cur_item.type = ext_to_content_type(node.path.ext)
   if (!cur_item.headers["title"])
     cur_item.headers["title"] = node.path.name
+  cur_item.title = cur_item.headers["title"]
   cur_item.parsed_content = '<p>Content not parsed</p>'
   cur_item.content_parsed = false
   cur_item.childs = []

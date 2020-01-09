@@ -7,6 +7,7 @@
  * We use "uri-name" in item header if present, and fallback to use item titles.
  * If the title contains only number, alphabets and spaces, we convert them to lower-case
  * and replace spaces with slash `-`.
+ * If the content type is not renderable markup language, we add an extension to it.
  * Finally we URL encodes the result.
  * 
  * This does not ensure a bijection, but is feasible most of the time. So I plan to provide
@@ -15,7 +16,13 @@
  * @packageDocumentation
  */
 
-import { item } from './item'
+import { item } from './item_base'
+import { get_logger } from './log'
+import { editable_content_type, content_type_to_ext } from './common'
+
+const logger = get_logger('uri')
+
+const is_num_alpha_blank = /^[0-9a-zA-Z ]*$/.compile()
 
 type uri_item_map = {
   [uri: string]: item
@@ -29,24 +36,34 @@ function normalize_uri(ori: string): string {
   return ori
 }
 
-/**
- * It's late. Let's do this tomorrow.
- */
-function uri_dfs(item: item, root_path: string) {
-  if (item.fnode.path.dir.startsWith(root_path)) {
-    item.uri = '/' + item.fnode.path.dir.substr(root_path.length) + '/' + item.fnode.path.name
+function item_to_uri(it: item) {
+  let uri: string
+  if (is_num_alpha_blank.test(it.title)) {
+    uri = it.title.toLowerCase().replace(/[ ]/g, '-')
   } else {
-    item.uri = '/' + item.fnode.path.dir + '/' + item.fnode.path.name
+    uri = encodeURI(it.title)
   }
-  item.uri = normalize_uri(item.uri)
+  if (!it.type || editable_content_type.has(it.type)) return uri
+  return `${uri}.${content_type_to_ext(it.type)}`
+}
+
+function uri_dfs(item: item, prefix: string) {
+  let uri = `${prefix}${item_to_uri(item)}`
+  logger.info(`assigning uri ${uri} to item ${item.title}`)
+  item.uri = uri
   uri_map[item.uri] = item
   for (let child of item.childs) {
-    uri_dfs(child, root_path)
+    uri_dfs(child, `${uri}/`)
   }
 }
 
+/**
+ * Genarate an unique uri for each of the items
+ * Returns the mapping from uri to item
+ */
 function generate_uri(root_item: item): uri_item_map {
-  uri_dfs(root_item, '/')
+  for (let child of root_item.childs)
+    uri_dfs(child, '')
   return uri_map
 }
 

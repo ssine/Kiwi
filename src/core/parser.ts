@@ -21,7 +21,9 @@ abstract class parser {
    */
   abstract init(): void
   /**
-   * Parse input into HTML `<div>` block
+   * Parse input into HTML `<div>` block.
+   * The parser is also responsible for recognizing local links in <a> tag and
+   * adding class '.item-link'
    */
   abstract parse(input: string): string
   /**

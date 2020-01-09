@@ -1,5 +1,6 @@
 import $ from 'jquery'
-import { load_item } from './common'
+import { client_item as item } from './item'
+import runtime from 'pug-runtime'
 
 async function init() {
   let all = document.querySelectorAll(".item-link")
@@ -10,9 +11,12 @@ async function init() {
       evt.stopPropagation();
       evt.preventDefault();
       console.log(evt, 'clicked!')
-      let content = await load_item(e.getAttribute('href'))
+      let it = new item()
+      it.uri = e.getAttribute('href')
+      await it.load()
       let new_el = document.createElement('div')
-      new_el.innerHTML = content
+      new_el.innerHTML = it.html()
+      console.log(it)
       $('.item-flow').append(new_el)
       return false;
     }
