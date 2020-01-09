@@ -13,8 +13,10 @@ const app = express()
 const port = 3000
 app.use(body_parser.json())
 
-export function serve(main: string, map: uri_item_map) {
+export function serve(main: string, map: uri_item_map, root: string) {
   console.log('main: ', main)
+  app.use('/\\$kiwi/', express.static(root))
+  logger.info(`serving static folder ${root}`)
   app.post('/get_item', (req, res) => {
     let uri: string = req.body.uri
     res.send(map[uri].json())

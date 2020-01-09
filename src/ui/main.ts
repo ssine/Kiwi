@@ -35,14 +35,6 @@ async function init() {
   }
 }
 
-const template = `
-<div>{{title}}</div>
-`
-
-console.log(sqrl.Render(template, {
-  title: 'Nothing more'
-}))
-
 async function run() {
   await init()
 }

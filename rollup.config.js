@@ -4,9 +4,9 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonJS from '@rollup/plugin-commonjs'
 
 export default {
-  input: 'src/ui/ts/main.ts',
+  input: 'src/ui/main.ts',
   output: {
-    dir: 'build/ui/js/',
+    dir: 'build/kiwi/ui/js/',
     format: 'cjs'
   },
   plugins: [

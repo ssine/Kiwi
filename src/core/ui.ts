@@ -18,5 +18,4 @@ export function render(template: string, item_tmpl: string, items: item[]): stri
       content: it.html()
     })).join('')
   })
-  
 }
