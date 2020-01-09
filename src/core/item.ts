@@ -32,6 +32,10 @@ abstract class item {
    * The URI of this item
    */
   uri: string = ''
+  /**
+   * This item has not been created yet
+   */
+  missing: boolean = true
 
   /**
    * The raw content of this item
@@ -62,6 +66,7 @@ abstract class item {
       type: this.type,
       headers: this.headers,
       uri: this.uri,
+      missing: this.missing,
       content: this.content,
       parsed_content: this.parsed_content,
       content_parsed: this.content_parsed

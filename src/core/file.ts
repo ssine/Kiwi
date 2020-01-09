@@ -122,6 +122,7 @@ async function build_item_from_node(node: fs_node): Promise<item> {
   cur_item.content_parsed = false
   cur_item.childs = []
   cur_item.uri = ''
+  cur_item.missing = false
   return cur_item
 }
 

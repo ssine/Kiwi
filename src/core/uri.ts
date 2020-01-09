@@ -16,7 +16,7 @@
  * @packageDocumentation
  */
 
-import { item } from './item'
+import { server_item as item } from './server_item'
 import { get_logger } from './log'
 import { editable_content_type, content_type_to_ext } from './common'
 
@@ -24,9 +24,7 @@ const logger = get_logger('uri')
 
 const is_num_alpha_blank = /^[0-9a-zA-Z ]*$/.compile()
 
-type uri_item_map = {
-  [uri: string]: item
-}
+type uri_item_map = Record<string, item>
 
 let uri_map: uri_item_map = {}
 

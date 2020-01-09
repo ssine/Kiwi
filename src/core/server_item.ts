@@ -5,6 +5,7 @@ import { parse } from './parser'
  * Server Side Item Class
  */
 class server_item extends item {
+  childs: server_item[] = []
   /**
    * The absolute path of this item on local filesystem
    */
