@@ -3,6 +3,4 @@ export const template = {
   item: '$kiwi/ui/template/item.sqrl'
 }
 
-export const default_items = [
-  'the-new-wiki'
-]
+export const default_items_uri = '$kiwi/config/default_items'

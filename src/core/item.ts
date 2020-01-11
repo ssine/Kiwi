@@ -8,8 +8,6 @@ type item_header = {
   'modify-time'?: moment.Moment
 }
 
-
-
 /**
  * Item is the basic compose block of Kiwi, representing a basic piece of information.
  */

@@ -15,12 +15,15 @@ const port = 3000
 app.use(body_parser.json())
 
 export function serve(main: string) {
-  console.log('main: ', main)
   app.use('/\\$kiwi/', express.static(manager.system_path))
-  logger.info(`serving static folder ${manager.system_path}`)
+
   app.post('/get_item', (req, res) => {
     let uri: string = req.body.uri
     res.send(manager.get_item(uri).json())
+  })
+
+  app.post('/get_system_items', (req, res) => {
+    res.send(JSON.stringify(manager.get_system_items()))
   })
 
   app.get('/', (req, res) => {
@@ -28,4 +31,5 @@ export function serve(main: string) {
   })
 
   app.listen(port, _ => console.log(`app listening on port ${port}`))
+
 }

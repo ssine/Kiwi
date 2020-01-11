@@ -51,6 +51,16 @@ export class item_manager {
   get_items(uris: string[]): item[] {
     return uris.map(u => this.get_item(u))
   }
+
+  get_system_items(): item[] {
+    let lst = []
+    for (let k in this.map) {
+      if (k[0] === '$')
+        lst.push(this.map[k])
+    }
+    return lst
+  }
+
 }
 
 export const manager = new item_manager()

@@ -15,6 +15,8 @@ import { post_json } from './common'
 class client_item extends item {
   need_load: boolean = true
   need_save: boolean = false
+  displaied: boolean = false
+  html_element: Element | null = null
 
 
   /**
