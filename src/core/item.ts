@@ -8,6 +8,8 @@ type item_header = {
   'modify-time'?: moment.Moment
 }
 
+
+
 /**
  * Item is the basic compose block of Kiwi, representing a basic piece of information.
  */
@@ -61,16 +63,7 @@ abstract class item {
   json(): string {
     if (!this.content_parsed)
       this.html()
-    return JSON.stringify({
-      title: this.title,
-      type: this.type,
-      headers: this.headers,
-      uri: this.uri,
-      missing: this.missing,
-      content: this.content,
-      parsed_content: this.parsed_content,
-      content_parsed: this.content_parsed
-    })
+    return JSON.stringify(this)
   }
 
 }

@@ -13,8 +13,9 @@ import { post_json } from './common'
  * A client side item can have everything empty except its uri
  */
 class client_item extends item {
-  need_load: boolean
-  need_save: boolean
+  need_load: boolean = true
+  need_save: boolean = false
+
 
   /**
    * Load all the contents of current item from server
