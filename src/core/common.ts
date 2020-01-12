@@ -26,7 +26,8 @@ function ext_to_content_type(ext: string): MIME | null {
   ext = ext.replace(/^\.+/, '')
   const dict: { [name: string]: MIME } = {
     'md': 'text/markdown',
-    'sqrl': 'text/x-sqrl'
+    'sqrl': 'text/x-sqrl',
+    'svg': 'image/svg+xml'
   }
   return dict[ext] || null
 }

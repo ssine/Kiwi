@@ -10,3 +10,17 @@ body {
 .item {
   background-color: white;
 }
+
+.item-edit {
+  float: right;
+  width: 40px;
+  cursor: hand;
+}
+
+.edit-item-title {
+  font-size: large;
+}
+
+.edit-item-content {
+  height: 400px;
+}

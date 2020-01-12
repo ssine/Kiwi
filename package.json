@@ -10,15 +10,12 @@
     "test": "npm run build && node build/boot/main.js ../test",
     "build": "npm run build:core && npm run build:ui",
     "build:core": "tsc && shx cp -r src/kiwi build/",
-    "build:ui": "rollup --config",
+    "build:ui": "webpack",
     "build:doc": "typedoc src --out build/doc --exclude src/ui/**/*"
   },
   "author": "Sine Liu",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^11.0.1",
-    "@rollup/plugin-node-resolve": "^7.0.0",
-    "@rollup/plugin-typescript": "^2.1.0",
     "@types/body-parser": "^1.17.1",
     "@types/cheerio": "^0.22.15",
     "@types/command-line-args": "^5.0.0",
@@ -30,11 +27,18 @@
     "@types/node": "^13.1.4",
     "@types/squirrelly": "^7.1.0",
     "@types/winston": "^2.4.4",
-    "rollup": "^1.28.0",
+    "css-loader": "^3.4.2",
+    "file-loader": "^5.0.2",
+    "html-webpack-plugin": "^3.2.0",
+    "monaco-editor": "^0.19.2",
     "shx": "^0.3.2",
+    "style-loader": "^1.1.2",
+    "ts-loader": "^6.2.1",
     "tslib": "^1.10.0",
     "typedoc": "^0.15.6",
-    "typescript": "^3.7.4"
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
