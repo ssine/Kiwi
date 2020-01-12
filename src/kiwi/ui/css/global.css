@@ -8,16 +8,18 @@ body {
 }
 
 .item {
+  margin-top: 50px;
   background-color: white;
 }
 
-.item-edit {
+.item-edit, .item-save {
   float: right;
   width: 40px;
   cursor: hand;
 }
 
 .edit-item-title {
+  padding: 20px;
   font-size: large;
 }
 

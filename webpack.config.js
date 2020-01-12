@@ -1,15 +1,11 @@
 const path = require("path");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
   mode: "development",
   entry: {
-    app: "./src/ui/main.ts",
-    "editor.worker": "monaco-editor/esm/vs/editor/editor.worker.js",
-    "json.worker": "monaco-editor/esm/vs/language/json/json.worker",
-    "css.worker": "monaco-editor/esm/vs/language/css/css.worker",
-    "html.worker": "monaco-editor/esm/vs/language/html/html.worker",
-    "ts.worker": "monaco-editor/esm/vs/language/typescript/ts.worker"
+    app: "./src/ui/main.ts"
   },
   resolve: {
     extensions: [".ts", ".js"]
@@ -41,6 +37,7 @@ module.exports = {
   plugins: [
     new HtmlWebPackPlugin({
       title: "Monaco Editor Sample"
-    })
+    }),
+    new MonacoWebpackPlugin()
   ]
 };

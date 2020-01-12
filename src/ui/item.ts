@@ -28,6 +28,13 @@ class client_item extends item {
       this[key] = obj[key]
   }
 
+  /**
+   * Save this item back to server
+   */
+  async save() {
+
+  }
+
   html(): string {
     return this.parsed_content
   }

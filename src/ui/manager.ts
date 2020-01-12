@@ -79,10 +79,18 @@ class item_manager {
       title: it.title
     })
     it.html_element.innerHTML = html
-    monaco.editor.create(it.html_element.querySelector('.edit-item-content'), {
+    let editor = monaco.editor.create(it.html_element.querySelector('.edit-item-content'), {
       value: it.content,
       language: 'markdown'
     })
+    let save_button = it.html_element.querySelector('.item-save') as HTMLElement;
+    save_button.innerHTML = (await this.get_item_from_uri('$kiwi/ui/icon/item-save.svg')).content
+    save_button.onclick = _ => {
+      it.content = editor.getValue()
+      console.log(it.content)
+      it.content_parsed = false
+      // editor = null
+    }
   }
 
 }

@@ -7,8 +7,9 @@ sqrl.autoEscaping(false)
 
 /**
  * Render the main page with default items
+ * Not used for now, but in future for server-side rendering
  */
-export function render(items: item[]): string {
+function render(items: item[]): string {
   const map = manager.get_uri_item_map()
   const base_tmpl = map[tmpl_cfg.base].content
   const item_tmpl = map[tmpl_cfg.item].content
