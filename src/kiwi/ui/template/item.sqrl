@@ -1,7 +1,7 @@
 <div class="item">
   <div class="item-titlebar">
     <div class="item-controls">
-      <div class="item-edit"></div>
+      <button class="item-edit"></button>
     </div>
     <h2 class="item-title">
       {{title}}

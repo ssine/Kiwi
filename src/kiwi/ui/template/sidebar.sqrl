@@ -1,0 +1,16 @@
+<div class="sidebar">
+  <h1 class="site-title">{{site_title}}</h1>
+  <div class="site-subtitle">{{site_subtitle}}</div>
+  <div class="page-controls"></div>
+  <div class="sidebar-search">
+    <input type="text" id="sidebar-search">
+    <button id="sidebar-search-button"></button>
+  </div>
+  <div class="sidebar-tabs">
+    <div class="tab-buttons">
+      <button id="new-item-button"></button>
+    </div>
+    <div class="tab-divider"></div>
+    <div class="tab-content"></div>
+  </div>
+</div>

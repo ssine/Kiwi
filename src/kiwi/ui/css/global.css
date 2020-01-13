@@ -1,5 +1,5 @@
 body {
-  background-color: blanchedalmond;
+  background-color: #c8bfe7;
 }
 
 .item-flow {
@@ -25,4 +25,12 @@ body {
 
 .edit-item-content {
   height: 400px;
+}
+
+.sidebar {
+  float: left;
+}
+
+#sidebar-search-button, #new-item-button {
+  width: 40px;
 }

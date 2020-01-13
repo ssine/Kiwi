@@ -18,17 +18,40 @@ class item_manager {
 
   /**
    * Get all system items on startup
+   * Render sidebar (move to renderer class later)
    */
   async init() {
-    this.item_flow_div = document.createElement('div')
-    this.item_flow_div.id = 'item-flow'
-    this.item_flow_div.className = 'item-flow'
-    document.body.append(this.item_flow_div)
+    // get system items
     let sys_items = await post_json('/get_system_items', {})
     for (let k in sys_items) {
       this.map[sys_items[k].uri] = (new item()).assign(sys_items[k])
     }
     this.map[default_items_uri].content.split('\n').forEach(l => this.display_item(l))
+
+    // render sidebar
+    let tmpl = await this.get_item_from_uri(template.sidebar)
+    let sidebar_str = sqrl.Render(tmpl.content, {
+      site_title: `Sine's Wiki`,
+      site_subtitle: `Happiness is a choice`
+    })
+    let sidebar_frag = document.createRange().createContextualFragment(sidebar_str)
+    document.body.append(sidebar_frag)
+    let new_item_button = document.querySelector('#new-item-button') as HTMLElement;
+    new_item_button.innerHTML = (await this.get_item_from_uri('$kiwi/ui/icon/new-item.svg')).content
+    new_item_button.onclick = async _ => {
+      // emit a new event?
+      // event bus not implemented yet
+      console.log('new item!')
+    }
+    let search_button = document.querySelector('#sidebar-search-button') as HTMLElement;
+    search_button.innerHTML = (await this.get_item_from_uri('$kiwi/ui/icon/search.svg')).content
+
+
+    // render item flow
+    this.item_flow_div = document.createElement('div')
+    this.item_flow_div.id = 'item-flow'
+    this.item_flow_div.className = 'item-flow'
+    document.body.append(this.item_flow_div)
   }
   
   async get_item_from_uri(uri: string): Promise<item|null> {

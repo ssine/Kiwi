@@ -36,7 +36,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebPackPlugin({
-      title: "Monaco Editor Sample"
+      title: "Kiwi"
     }),
     new MonacoWebpackPlugin()
   ]

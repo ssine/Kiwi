@@ -1,4 +1,3 @@
-import { resolve } from 'path'
 import * as command_line_parser from "command-line-args"
 import { manager } from '../core/item_manager'
 import { serve } from '../core/server'

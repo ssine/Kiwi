@@ -16,7 +16,7 @@ const port = 3000
 app.use(body_parser.json())
 
 export function serve(main: string) {
-  app.use('/\\$kiwi/', express.static(manager.system_path))
+  // app.use('/\\$kiwi/', express.static(manager.system_path))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
 

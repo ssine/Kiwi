@@ -1,7 +1,7 @@
 <div class="item">
   <div class="item-titlebar">
     <div class="item-controls">
-      <div class="item-save"></div>
+      <button class="item-save"></button>
     </div>
     <input type="text" class="edit-item-title" value="{{title}}" />
   </div>
