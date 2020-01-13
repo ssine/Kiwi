@@ -1,6 +1,6 @@
 import { item } from './item'
 import { parse } from './parser'
-
+import { fs_node } from './file'
 /**
  * Server Side Item Class
  */
@@ -9,7 +9,7 @@ class server_item extends item {
   /**
    * The absolute path of this item on local filesystem
    */
-  file_path: string = ''
+  fnode: fs_node | null = null
 
   html() {
     if (!this.content_parsed) {

@@ -43,9 +43,6 @@ class item_manager {
     return cur_item
   }
 
-  /**
-   * @todo: clean up nested div.item elements
-   */
   async display_item(uri: string) {
     let item = await this.get_item_from_uri(uri)
 

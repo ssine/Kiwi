@@ -25,7 +25,7 @@
 import * as fs from "fs"
 import * as path from "path"
 import * as moment from 'moment'
-import { safeLoad as load_yaml } from 'js-yaml' 
+import { safeLoad as load_yaml, dump as dump_yaml, dump } from 'js-yaml' 
 import { item_header } from './item'
 import { server_item as item } from './server_item'
 import { ext_to_content_type } from './common'
@@ -62,6 +62,22 @@ class fs_node {
    */
   toString(): string {
     return this.absolute_path + '\n' + this.childs.map(v => v.toString()).join('')
+  }
+}
+
+async function save_item(it: item) {
+  if (it.fnode !== null) {
+    // save back to existing file
+    let fd = await fs.promises.open(it.fnode.absolute_path, 'w')
+    let file_str = `---\n${
+      dump_yaml({
+        title: it.title,
+        ...it.headers
+      }).trim()
+    }\n---\n\n` + it.content.trim() + '\n'
+    fd.write(file_str)
+  } else {
+    // create a new file
   }
 }
 
@@ -123,6 +139,7 @@ async function build_item_from_node(node: fs_node): Promise<item> {
   cur_item.childs = []
   cur_item.uri = ''
   cur_item.missing = false
+  cur_item.fnode = node
   return cur_item
 }
 
@@ -144,5 +161,7 @@ async function build_item_tree_from_path(root_path: string): Promise<item> {
 }
 
 export {
+  fs_node,
+  save_item,
   build_item_tree_from_path
 }
