@@ -26,7 +26,7 @@ class item_manager {
     document.body.append(this.item_flow_div)
     let sys_items = await post_json('/get_system_items', {})
     for (let k in sys_items) {
-      this.map[sys_items[k].uri] = sys_items[k]
+      this.map[sys_items[k].uri] = (new item()).assign(sys_items[k])
     }
     this.map[default_items_uri].content.split('\n').forEach(l => this.display_item(l))
   }
@@ -43,18 +43,23 @@ class item_manager {
     return cur_item
   }
 
+  /**
+   * @todo: clean up nested div.item elements
+   */
   async display_item(uri: string) {
     let item = await this.get_item_from_uri(uri)
-    if (item.displaied) return
+
+    if (item.displaied && !item.editing) return
+
     let tmpl = await this.get_item_from_uri(template.item)
     let html = sqrl.Render(tmpl.content, {
       title: item.title,
       content: item.html()
     })
-    let _ = document.createElement('div')
-    _.innerHTML = html
-    item.html_element = _.firstElementChild
-    let links = item.html_element.querySelectorAll('.item-link')
+
+    let frag = document.createRange().createContextualFragment(html)
+
+    let links = frag.querySelectorAll('.item-link')
     links.forEach(el => {
       let e = el as HTMLElement
       e.onclick = async evt => {
@@ -65,31 +70,48 @@ class item_manager {
         return false;
       }
     })
-    let edit_button = item.html_element.querySelector('.item-edit') as HTMLElement;
+  
+    let edit_button = frag.querySelector('.item-edit') as HTMLElement;
     edit_button.innerHTML = (await this.get_item_from_uri('$kiwi/ui/icon/item-edit.svg')).content
-    edit_button.onclick = _ => this.edit_item(item)
+    edit_button.onclick = _ => this.edit_item(uri)
+
+    if (item.editing) {
+      item.html_element.innerHTML = ''
+      item.html_element.append(frag)
+      item.editing = false
+    } else {
+      let el = document.createElement('div')
+      el.className = 'item-container'
+      el.append(frag)
+      item.html_element = el
+      this.item_flow.push(item)
+      this.item_flow_div.appendChild(item.html_element)
+    }
+
     item.displaied = true
-    this.item_flow.push(item)
-    this.item_flow_div.appendChild(item.html_element)
   }
 
-  async edit_item(it: item) {
+  async edit_item(uri: string) {
+    let it = await this.get_item_from_uri(uri)
+    it.editing = true
+
     let tmpl = await this.get_item_from_uri(template.item_editor)
     let html = sqrl.Render(tmpl.content, {
       title: it.title
     })
     it.html_element.innerHTML = html
+
     let editor = monaco.editor.create(it.html_element.querySelector('.edit-item-content'), {
       value: it.content,
       language: 'markdown'
     })
     let save_button = it.html_element.querySelector('.item-save') as HTMLElement;
     save_button.innerHTML = (await this.get_item_from_uri('$kiwi/ui/icon/item-save.svg')).content
-    save_button.onclick = _ => {
+    save_button.onclick = async _ => {
       it.content = editor.getValue()
-      console.log(it.content)
       it.content_parsed = false
-      // editor = null
+      await it.save()
+      this.display_item(it.uri)
     }
   }
 

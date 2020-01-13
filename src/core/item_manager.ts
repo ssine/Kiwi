@@ -7,6 +7,7 @@ import { server_item as item } from './server_item'
 import { build_item_tree_from_path } from './file'
 import { generate_uri, generate_system_uri } from './uri'
 import { uri_item_map } from './uri'
+import { assign_target_properties } from './common'
 
 /**
  * Wrapper class of functions when manageing items
@@ -46,6 +47,16 @@ export class item_manager {
       this.map[uri] = missing
     }
     return this.map[uri]
+  }
+
+  /**
+   * sync an item back to filesystem, create one if not exist
+   */
+  async put_item(it: item): Promise<item> {
+    let _it = this.get_item(it.uri)
+    assign_target_properties(_it, it)
+    _it.html()
+    return _it
   }
 
   get_items(uris: string[]): item[] {

@@ -51,9 +51,23 @@ function content_type_to_ext(ct: MIME | null): string {
   return map.get(ct) || 'txt' 
 }
 
+/**
+ * assign all properties in obj that also appeared in target to target
+ */
+function assign_target_properties(target: Object, obj: Object) {
+  for (let k in target) {
+    if (target.hasOwnProperty(k) && obj.hasOwnProperty(k)) {
+      // ugly to ts but fits our need
+      // @ts-ignore
+      target[k] = obj[k]
+    }
+  }
+}
+
 export {
   MIME,
   editable_content_type,
   ext_to_content_type,
-  content_type_to_ext
+  content_type_to_ext,
+  assign_target_properties
 }

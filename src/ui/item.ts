@@ -7,6 +7,7 @@
  */
 
 import { item } from '../core/item'
+import { assign_target_properties } from '../core/common'
 import { post_json } from './common'
 
 /**
@@ -16,6 +17,7 @@ class client_item extends item {
   need_load: boolean = true
   need_save: boolean = false
   displaied: boolean = false
+  editing: boolean = false
   html_element: Element | null = null
 
 
@@ -24,15 +26,20 @@ class client_item extends item {
    */
   async load() {
     let obj = await post_json('/get_item', {uri: this.uri})
-    for (let key in obj)
-      this[key] = obj[key]
+    assign_target_properties(this, obj)
   }
-
+  
   /**
    * Save this item back to server
    */
   async save() {
+    let obj = await post_json('/put_item', {item: this})
+    assign_target_properties(this, obj)
+  }
 
+  assign(obj: Object): client_item {
+    assign_target_properties(this, obj)
+    return this
   }
 
   html(): string {

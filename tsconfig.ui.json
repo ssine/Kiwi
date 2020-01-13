@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "target": "es5",
     "outDir": "./build/kiwi/ui/js",
-    "lib": ["dom", "es5", "es2015.collection", "es2015.promise"],
+    "lib": ["dom", "es5", "es2015.collection", "es2015.promise", "es6"],
     "types": [],
     "baseUrl": "./node_modules",
     "jsx": "preserve",

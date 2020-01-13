@@ -25,6 +25,11 @@ export function serve(main: string) {
     res.send(manager.get_item(uri).json())
   })
 
+  app.post('/put_item', async (req, res) => {
+    let it = req.body.item
+    res.send((await manager.put_item(it)).json())
+  })
+
   app.post('/get_system_items', (req, res) => {
     res.send(JSON.stringify(manager.get_system_items()))
   })

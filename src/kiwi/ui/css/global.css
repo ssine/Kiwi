@@ -15,7 +15,7 @@ body {
 .item-edit, .item-save {
   float: right;
   width: 40px;
-  cursor: hand;
+  cursor: pointer;
 }
 
 .edit-item-title {
