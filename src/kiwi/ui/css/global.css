@@ -10,6 +10,7 @@ body {
 .item {
   margin-top: 50px;
   background-color: white;
+  padding: 10px;
 }
 
 .item-edit, .item-save {

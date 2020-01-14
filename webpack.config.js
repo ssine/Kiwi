@@ -4,11 +4,12 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
   mode: "development",
+  devtool: "source-map",
   entry: {
-    app: "./src/ui/main.ts"
+    app: "./src/ui/main.tsx"
   },
   resolve: {
-    extensions: [".ts", ".js"]
+    extensions: [".ts", ".js", ".tsx"]
   },
   output: {
     globalObject: "self",
@@ -18,7 +19,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts?$/,
+        test: /\.tsx?$/,
         loader: 'ts-loader',
         options: { 
           configFile: 'tsconfig.ui.json'
@@ -31,6 +32,11 @@ module.exports = {
       {
         test: /\.ttf$/,
         use: ['file-loader']
+      },
+      {
+        enforce: "pre",
+        test: /\.js$/,
+        loader: "source-map-loader"
       }
     ]
   },

@@ -5,7 +5,6 @@
 import '../kiwi/ui/css/global.css'
 import { manager } from './manager'
 
-
 async function run() {
   await manager.init()
 }
