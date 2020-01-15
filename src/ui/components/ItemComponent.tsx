@@ -4,6 +4,8 @@ import * as React from 'react'
 import { IconButton } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
+import { TextField } from 'office-ui-fabric-react/lib/TextField'
+import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 
 type ItemButtonProperty = {
   iconName: string
@@ -25,11 +27,35 @@ const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButt
 export class ItemComponent extends React.Component<{ item: client_item }, {}> {
   content_ref: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
+  editingItem: Partial<client_item>
 
   constructor(props: { item: client_item }) {
     super(props);
     this.content_ref = React.createRef();
     this.editor = null
+    this.editingItem = {
+      title: props.item.title,
+      type: props.item.type,
+      uri: props.item.uri,
+      content: props.item.content,
+      headers: props.item.headers,
+    }
+  }
+
+  async onSave() {
+    console.log('save clicked', this.editor)
+    this.editingItem.content = this.editor.getValue()
+    for (let k in this.editingItem) {
+      if (this.props.item[k] !== this.editingItem[k]) {
+        this.props.item[k] = this.editingItem[k]
+        this.props.item.need_save = true
+        this.props.item.content_parsed = false
+      }
+    }
+    this.props.item.editing = false
+    this.editor = null
+    await this.props.item.save()
+    this.forceUpdate()
   }
 
   shouldComponentUpdate() {
@@ -52,11 +78,12 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
           return false;
         }
       })
-    } else {
+    } else if (this.editor === null) {
       this.editor = monaco.editor.create(this.content_ref.current, {
         value: this.props.item.content,
         language: 'markdown'
       })
+      console.log(this.editor)
     }
   }
   componentDidUpdate() {
@@ -88,8 +115,30 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
                 }}
               />
             </div>
+            <div style={{ display: 'flow-root', height: 40 }}>
+              <Breadcrumb
+                items={this.props.item.uri.split('/').map((p) => {
+                  return {
+                    text: p,
+                    key: p
+                  }
+                })}
+                maxDisplayedItems={3}
+                overflowAriaLabel="More links"
+                styles={{
+                  root: {
+                    margin: 0,
+                  }, list: {
+                    height: 40
+                  }
+                }}
+              />
+            </div>
             <div className="item-titlebar">
-              <h2 className="item-title">
+              <h2 className="item-title" style={{
+                marginTop: 7,
+                marginBottom: 7,
+              }}>
                 {this.props.item.title}
               </h2>
             </div>
@@ -99,29 +148,32 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
           </div>
         ) : (
             <div>
-              <div className="item-controls">
+              <span className="item-controls">
                 <ItemButton
                   iconName='Accept'
                   label='Save'
-                  onClick={async evt => {
-                    this.props.item.editing = false
-                    this.props.item.content = this.editor.getValue()
-                    this.props.item.content_parsed = false
-                    await this.props.item.save()
-                    this.forceUpdate()
-                  }}
+                  onClick={this.onSave.bind(this)}
                 />
                 <ItemButton
                   iconName='RevToggleKey'
                   label='Cancel'
                   onClick={async evt => {
+                    console.log('cancel clicked', this.editor)
                     this.props.item.editing = false
+                    this.editor = null
                     this.forceUpdate()
                   }}
                 />
+              </span>
+              <div className="item-uri-edit" style={{ display: 'flow-root', height: 40 }}>
+                <TextField value={this.editingItem.uri} onChange={(evt, value) => {
+                  this.editingItem.uri = value, this.forceUpdate()
+                }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 27 } }} />
               </div>
-              <div className="item-titlebar">
-                <input type="text" className="edit-item-title" value={this.props.item.title} onChange={_ => { console.log(_) }} />
+              <div className="item-title-edit" style={{ display: 'flow-root', height: 40, fontSize: 35 }}>
+                <TextField value={this.editingItem.title} onChange={(evt, value) => {
+                  this.editingItem.title = value, this.forceUpdate()
+                }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30 } }} />
               </div>
               <div className="item-info"></div>
               <div className="item-tags"></div>
