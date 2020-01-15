@@ -6,6 +6,8 @@ import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
 import { TextField } from 'office-ui-fabric-react/lib/TextField'
 import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
+// import anime from 'animejs'
+import anime from 'animejs/lib/anime.es'
 
 type ItemButtonProperty = {
   iconName: string
@@ -26,12 +28,16 @@ const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButt
 
 export class ItemComponent extends React.Component<{ item: client_item }, {}> {
   content_ref: React.RefObject<HTMLDivElement>
+  rootRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
   editingItem: Partial<client_item>
 
   constructor(props: { item: client_item }) {
+    // @ts-ignore
+    window.anime = anime
     super(props);
     this.content_ref = React.createRef();
+    this.rootRef = React.createRef();
     this.editor = null
     this.editingItem = {
       title: props.item.title,
@@ -55,7 +61,28 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
     this.props.item.editing = false
     this.editor = null
     await this.props.item.save()
+    await anime.timeline({
+      targets: this.rootRef.current,
+      rotateY: 90,
+      duration: 100,
+      easing: function(...args) {
+        return function(t) {
+          return Math.sin(t*Math.PI/2)
+        }
+      }
+    }).add({ }).finished
     this.forceUpdate()
+    await anime.timeline({
+      targets: this.rootRef.current,
+      rotateY: 0,
+      duration: 100,
+      easing: function(...args) {
+        return function(t) {
+          return Math.sin(t*Math.PI/2)
+        }
+      }
+    }).add({ }).finished
+    // this.forceUpdate()
   }
 
   shouldComponentUpdate() {
@@ -91,16 +118,37 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
   }
   render() {
     return (
-      <div className="item" style={{ boxShadow: Depths.depth8 }}>
+      <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
         {!this.props.item.editing ? (
           <div>
             <div className="item-controls">
               <ItemButton
                 iconName='Edit'
                 label='Edit'
-                onClick={evt => {
+                onClick={async evt => {
                   this.props.item.editing = true
+                  console.log(this.rootRef.current.parentElement)
+                  await anime.timeline({
+                    targets: this.rootRef.current,
+                    rotateY: 90,
+                    duration: 100,
+                    easing: function(...args) {
+                      return function(t) {
+                        return Math.sin(t*Math.PI/2)
+                      }
+                    }
+                  }).add({ }).finished
                   this.forceUpdate()
+                  await anime.timeline({
+                    targets: this.rootRef.current,
+                    rotateY: 0,
+                    duration: 100,
+                    easing: function(...args) {
+                      return function(t) {
+                        return Math.sin(t*Math.PI/2)
+                      }
+                    }
+                  }).add({ }).finished
                   console.log('editing!')
                 }}
               />
@@ -161,7 +209,27 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
                     console.log('cancel clicked', this.editor)
                     this.props.item.editing = false
                     this.editor = null
+                    await anime.timeline({
+                      targets: this.rootRef.current,
+                      rotateY: 90,
+                      duration: 100,
+                      easing: function(...args) {
+                        return function(t) {
+                          return Math.sin(t*Math.PI/2)
+                        }
+                      }
+                    }).add({ }).finished
                     this.forceUpdate()
+                    await anime.timeline({
+                      targets: this.rootRef.current,
+                      rotateY: 0,
+                      duration: 100,
+                      easing: function(...args) {
+                        return function(t) {
+                          return Math.sin(t*Math.PI/2)
+                        }
+                      }
+                    }).add({ }).finished
                   }}
                 />
               </span>
