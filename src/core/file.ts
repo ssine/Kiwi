@@ -75,7 +75,8 @@ async function save_item(it: item) {
         ...it.headers
       }).trim()
     }\n---\n\n` + it.content.trim() + '\n'
-    fd.write(file_str)
+    await fd.write(file_str)
+    await fd.close()
   } else {
     // create a new file
   }

@@ -6,7 +6,7 @@ module.exports = {
   mode: "development",
   devtool: "source-map",
   entry: {
-    app: "./src/ui/main.tsx"
+    app: "./src/ui/main.ts"
   },
   resolve: {
     extensions: [".ts", ".js", ".tsx"]

@@ -33,7 +33,8 @@ class client_item extends item {
    * Save this item back to server
    */
   async save() {
-    let obj = await post_json('/put_item', {item: this})
+    const { html_element, ...no_html_el_this } = this
+    let obj = await post_json('/put_item', {item: no_html_el_this})
     assign_target_properties(this, obj)
   }
 

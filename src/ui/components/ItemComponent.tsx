@@ -5,7 +5,24 @@ import { IconButton } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
 
-export class ItemComp extends React.Component<{ item: client_item }, {}> {
+type ItemButtonProperty = {
+  iconName: string
+  label: string
+  onClick: (evt: any) => void
+}
+
+const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButtonProperty) => {
+  return (
+    <IconButton
+      iconProps={{ iconName: props.iconName, style: { fontSize: 25 } }}
+      title={props.label} ariaLabel={props.label}
+      onClick={props.onClick}
+      style={{ color: 'purple', width: 40, height: 40 }}
+    />
+  )
+}
+
+export class ItemComponent extends React.Component<{ item: client_item }, {}> {
   content_ref: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
 
@@ -20,7 +37,7 @@ export class ItemComp extends React.Component<{ item: client_item }, {}> {
   }
   componentDidMount() {
     if (!this.props.item.editing) {
-      
+
       let links = this.content_ref.current.querySelectorAll('.item-link')
       links.forEach(el => {
         let e = el as HTMLElement
@@ -47,17 +64,31 @@ export class ItemComp extends React.Component<{ item: client_item }, {}> {
   }
   render() {
     return (
-      <div className="item" style={{boxShadow: Depths.depth8}}>
+      <div className="item" style={{ boxShadow: Depths.depth8 }}>
         {!this.props.item.editing ? (
           <div>
-            <div className="item-titlebar">
-              <div className="item-controls">
-                <IconButton iconProps={{ iconName: 'Edit' }} title="Edit" ariaLabel="Edit" onClick={evt => {
+            <div className="item-controls">
+              <ItemButton
+                iconName='Edit'
+                label='Edit'
+                onClick={evt => {
                   this.props.item.editing = true
                   this.forceUpdate()
                   console.log('editing!')
-                }} style={{ color: 'purple' }} className="item-edit" />
-              </div>
+                }}
+              />
+              <ItemButton
+                iconName='Cancel'
+                label='Close'
+                onClick={evt => {
+                  bus.emit('item-close-clicked', {
+                    uri: this.props.item.uri
+                  })
+                  console.log('closed!')
+                }}
+              />
+            </div>
+            <div className="item-titlebar">
               <h2 className="item-title">
                 {this.props.item.title}
               </h2>
@@ -68,18 +99,29 @@ export class ItemComp extends React.Component<{ item: client_item }, {}> {
           </div>
         ) : (
             <div>
+              <div className="item-controls">
+                <ItemButton
+                  iconName='Accept'
+                  label='Save'
+                  onClick={async evt => {
+                    this.props.item.editing = false
+                    this.props.item.content = this.editor.getValue()
+                    this.props.item.content_parsed = false
+                    await this.props.item.save()
+                    this.forceUpdate()
+                  }}
+                />
+                <ItemButton
+                  iconName='RevToggleKey'
+                  label='Cancel'
+                  onClick={async evt => {
+                    this.props.item.editing = false
+                    this.forceUpdate()
+                  }}
+                />
+              </div>
               <div className="item-titlebar">
-                <div className="item-controls">
-                    <IconButton iconProps={{ iconName: 'Save' }} title="Save" ariaLabel="Save" onClick={async evt => {
-                      this.props.item.editing = false
-                      this.props.item.content = this.editor.getValue()
-                      this.props.item.content_parsed = false
-                      await this.props.item.save()
-                      this.forceUpdate()
-                      console.log('finished!')
-                    }} style={{ color: 'purple' }} className="item-save" />
-                </div>
-                <input type="text" className="edit-item-title" value={this.props.item.title} onChange={_=>{console.log(_)}} />
+                <input type="text" className="edit-item-title" value={this.props.item.title} onChange={_ => { console.log(_) }} />
               </div>
               <div className="item-info"></div>
               <div className="item-tags"></div>

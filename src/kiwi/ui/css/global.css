@@ -10,13 +10,11 @@ body {
 .item {
   margin-top: 50px;
   background-color: white;
-  padding: 10px;
+  /* padding: 10px; */
 }
 
-.item-edit, .item-save {
+.item-controls {
   float: right;
-  width: 40px;
-  cursor: pointer;
 }
 
 .edit-item-title {

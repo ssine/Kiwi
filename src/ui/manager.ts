@@ -34,23 +34,13 @@ class item_manager {
     this.renderer = new Renderer()
 
     // render sidebar
-    let tmpl = await this.get_item_from_uri(template.sidebar)
-    let sidebar_str = sqrl.Render(tmpl.content, {
-      site_title: `Sine's Wiki`,
-      site_subtitle: `Happiness is a choice`
-    })
-    let sidebar_frag = document.createRange().createContextualFragment(sidebar_str)
-    document.body.append(sidebar_frag)
-    let new_item_button = document.querySelector('#new-item-button') as HTMLElement;
-    new_item_button.innerHTML = (await this.get_item_from_uri('$kiwi/ui/icon/new-item.svg')).content
-    new_item_button.onclick = async _ => {
-      // emit a new event?
-      // event bus not implemented yet
-      console.log('new item!')
-    }
-    let search_button = document.querySelector('#sidebar-search-button') as HTMLElement;
-    search_button.innerHTML = (await this.get_item_from_uri('$kiwi/ui/icon/search.svg')).content
-
+    let sidebarElement = document.createElement('div')
+    this.renderer.render_sidebar({
+      title: `Sine's Wiki`,
+      subTitle: `Happiness is a choice`,
+      itemFlow: this.item_flow,
+    }, sidebarElement)
+    document.body.append(sidebarElement)
 
     // render item flow
     this.item_flow_div = document.createElement('div')
@@ -59,6 +49,7 @@ class item_manager {
     document.body.append(this.item_flow_div)
 
     bus.on('item-link-clicked', (data) => this.display_item(data.targetLink))
+    bus.on('item-close-clicked', (data) => this.close_item(data.uri))
   }
   
   async get_item_from_uri(uri: string): Promise<item|null> {
@@ -82,9 +73,26 @@ class item_manager {
     el.className = 'item-container'
     this.renderer.render_item(item, el)
     this.item_flow_div.append(el)
+    item.html_element = el
+    console.log(item.html_element)
     this.item_flow.push(item)
 
     item.displaied = true
+    bus.emit('item-displaied')
+  }
+
+  async close_item(uri: string) {
+    let item = await this.get_item_from_uri(uri)
+
+    if (!item.displaied) return
+
+    let flow_idx = this.item_flow.indexOf(item)
+    this.item_flow.splice(flow_idx, 1)
+    this.item_flow_div.removeChild(item.html_element)
+    item.html_element = null
+
+    item.displaied = false
+    bus.emit('item-closed')
   }
 
 }
