@@ -67,7 +67,7 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
       duration: 100,
       easing: function(...args) {
         return function(t) {
-          return Math.sin(t*Math.PI/2)
+          return t
         }
       }
     }).add({ }).finished
@@ -78,7 +78,7 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
       duration: 100,
       easing: function(...args) {
         return function(t) {
-          return Math.sin(t*Math.PI/2)
+          return t
         }
       }
     }).add({ }).finished
@@ -134,7 +134,7 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
                     duration: 100,
                     easing: function(...args) {
                       return function(t) {
-                        return Math.sin(t*Math.PI/2)
+                        return t
                       }
                     }
                   }).add({ }).finished
@@ -145,7 +145,7 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
                     duration: 100,
                     easing: function(...args) {
                       return function(t) {
-                        return Math.sin(t*Math.PI/2)
+                        return t
                       }
                     }
                   }).add({ }).finished
@@ -215,7 +215,7 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
                       duration: 100,
                       easing: function(...args) {
                         return function(t) {
-                          return Math.sin(t*Math.PI/2)
+                          return t
                         }
                       }
                     }).add({ }).finished
@@ -226,7 +226,7 @@ export class ItemComponent extends React.Component<{ item: client_item }, {}> {
                       duration: 100,
                       easing: function(...args) {
                         return function(t) {
-                          return Math.sin(t*Math.PI/2)
+                          return t
                         }
                       }
                     }).add({ }).finished

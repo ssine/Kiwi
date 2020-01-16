@@ -90,7 +90,7 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
         <div className="site-subtitle">{this.props.subTitle}</div>
         <div className="page-controls">
           <IconButton iconProps={{ iconName: 'Add' }} title="New Item" ariaLabel="New Item" onClick={evt => {
-            bus.emit('create-new-item', {})
+            bus.emit('create-item', {})
             console.log('create new item!')
           }} style={{ color: 'purple' }} className="item-close" />
         </div>

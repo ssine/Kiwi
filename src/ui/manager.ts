@@ -50,6 +50,7 @@ class item_manager {
 
     bus.on('item-link-clicked', (data) => this.display_item(data.targetLink))
     bus.on('item-close-clicked', (data) => this.close_item(data.uri))
+    bus.on('create-item', this.createItem.bind(this))
   }
   
   async get_item_from_uri(uri: string): Promise<item|null> {
@@ -93,6 +94,10 @@ class item_manager {
 
     item.displaied = false
     bus.emit('item-closed')
+  }
+
+  async createItem() {
+    
   }
 
 }
