@@ -5,4 +5,4 @@ export const template = {
   sidebar: '$kiwi/ui/template/sidebar.sqrl'
 }
 
-export const default_items_uri = '$kiwi/config/default_items'
+export const defaultItemsURI = '$kiwi/config/default_items'

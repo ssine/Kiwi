@@ -1,11 +1,16 @@
-import * as cheerio from 'cheerio'
-import { MIME } from './common'
+import { MIME } from './Common'
+import { getLogger } from './Log'
+
+const logger = getLogger('parser')
+
 
 /**
  * Map recording all registered parsers
  */
-let parser_map = new Map<MIME, parser>()
+const parserMap = new Map<MIME, Parser>()
 
+console.log('parser imported')
+// console.log(require.cache)
 /**
  * Interface of all content parsers
  * 
@@ -15,7 +20,7 @@ let parser_map = new Map<MIME, parser>()
  * @todo support for table of contents
  * @todo Provide the register api to impls later, jsut hard code it now
  */
-abstract class parser {
+abstract class Parser {
   /**
    * Initialize the parser
    */
@@ -29,61 +34,34 @@ abstract class parser {
   /**
    * A list of supported content type in MIME format
    */
-  abstract supported_types(): MIME[]
+  abstract supportedTypes(): MIME[]
 
   /**
    * Ask to be called on content with supported types
    */
-  register(types: MIME[]) {
-    for (let type of types) {
-      parser_map.set(type, this)
+  register() {
+    for (const type of this.supportedTypes()) {
+      parserMap.set(type, this)
+      logger.info(`Parser for type ${type} registered.`)
+      console.log(parserMap.get('text/markdown'))
     }
   }
 }
 
-
-import * as marked from 'marked'
-
-class markdown_parser extends parser {
-
-  init() {
-    marked.setOptions({
-      renderer: new marked.Renderer(),
-      pedantic: false,
-      gfm: true,
-      breaks: false,
-      sanitize: false,
-      smartLists: true,
-      smartypants: false,
-      xhtml: false
-    });
-  }
-
-  parse(input: string): string {
-    const $ = cheerio.load(marked(input))
-    $('a').addClass('item-link')
-    return $.html($('body'))  
-  }
-
-  supported_types(): MIME[] {
-    return ['text/markdown']
-  }
-}
-
-
-let md = new markdown_parser()
-md.init()
-md.register(md.supported_types())
-
 /**
  * Parse a content and return html <div>
  */
-function parse(input: string, type: MIME): string {
-  let parser = parser_map.get(type)
-  if (!parser) return ''
+const parse = function parse(input: string, type: MIME): string {
+  let parser = parserMap.get(type)
+  console.log(parserMap.get('text/markdown'))
+  if (!parser) {
+    logger.info(`Parser for type ${type} not found, empty string returned.`)
+    return ''
+  }
   return parser.parse(input)
 }
 
 export {
-  parse
+  Parser,
+  parse,
 }

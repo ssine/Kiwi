@@ -1,5 +1,5 @@
 import bus from '../eventBus'
-import { client_item } from '../item'
+import ClientItem from '../ClientItem'
 import * as React from 'react'
 import { IconButton } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
@@ -26,13 +26,13 @@ const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButt
   )
 }
 
-export class ItemComponent extends React.Component<{ item: client_item }, {}> {
+export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
   content_ref: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
-  editingItem: Partial<client_item>
+  editingItem: Partial<ClientItem>
 
-  constructor(props: { item: client_item }) {
+  constructor(props: { item: ClientItem }) {
     // @ts-ignore
     window.anime = anime
     super(props);

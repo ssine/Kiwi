@@ -1,15 +1,17 @@
-import { item } from './item'
-import { parse } from './parser'
-import { fs_node } from './file'
+import { BaseItem } from './BaseItem'
+import { parse } from './Parser'
+import { FSNode } from './FileSynchronizer'
+
 /**
  * Server Side Item Class
  */
-class server_item extends item {
-  childs: server_item[] = []
+class ServerItem extends BaseItem {
+
+  childs: ServerItem[] = []
   /**
    * The absolute path of this item on local filesystem
    */
-  fnode: fs_node | null = null
+  fnode: FSNode | null = null
 
   html() {
     if (!this.content_parsed) {
@@ -21,5 +23,5 @@ class server_item extends item {
 }
 
 export {
-  server_item
+  ServerItem
 }

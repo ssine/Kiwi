@@ -14,47 +14,51 @@ type MIME =
   'image/png' |
   'image/svg+xml'
 
-const editable_content_type = new Set<MIME>()
-editable_content_type.add('text/plain')
-editable_content_type.add('text/markdown')
-editable_content_type.add('text/html')
+const renderableMIME = new Set<MIME>([
+  'text/plain',
+  'text/markdown',
+  'text/html',
+])
 
-/**
- * Infer the MIME content type from file extension
- */
-function ext_to_content_type(ext: string): MIME | null {
-  ext = ext.replace(/^\.+/, '')
-  const dict: { [name: string]: MIME } = {
-    'md': 'text/markdown',
-    'sqrl': 'text/x-sqrl',
-    'svg': 'image/svg+xml'
-  }
-  return dict[ext] || null
+const extMIMEDict: { [name: string]: MIME } = {
+  'md': 'text/markdown',
+  'sqrl': 'text/x-sqrl',
+  'svg': 'image/svg+xml',
+}
+
+const MIMEextDict: { [mime: string]: string } = {
+  'application/pdf': 'pdf',
+  'text/plain': 'txt',
+  'text/markdown': 'md',
+  'text/html': 'html',
+  'text/x-sqrl': 'sqrl',
+  'image/gif': 'gif',
+  'image/x-icon': 'ico',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/svg+xml': 'svg',
 }
 
 /**
  * Provide a file extension for content types
  */
-function content_type_to_ext(ct: MIME | null): string {
-  if (!ct) return 'unk'
-  let map = new Map<MIME, string>()
-  map.set('application/pdf', 'pdf')
-  map.set('text/plain', 'txt')
-  map.set('text/markdown', 'md')
-  map.set('text/html', 'html')
-  map.set('text/x-sqrl', 'sqrl')
-  map.set('image/gif', 'gif')
-  map.set('image/x-icon', 'ico')
-  map.set('image/jpeg', 'jpg')
-  map.set('image/png', 'png')
-  map.set('image/svg+xml', 'svg')
-  return map.get(ct) || 'txt' 
+function getExtensionFromMIME(ct: MIME | null): string {
+  if (ct === null) return ''
+  return MIMEextDict[ct] || 'txt' 
 }
 
 /**
- * assign all properties in obj that also appeared in target to target
+ * Infer the MIME content type from file extension
  */
-function assign_target_properties(target: Object, obj: Object) {
+function getMIMEFromExtension(ext: string): MIME | null {
+  ext = ext.replace(/^\.+/, '')
+  return extMIMEDict[ext] || null
+}
+
+/**
+ * assign all properties in obj that appeared in both objects to target
+ */
+function assignCommonProperties(target: Object, obj: Object) {
   for (let k in target) {
     if (target.hasOwnProperty(k) && obj.hasOwnProperty(k)) {
       // ugly to ts but fits our need
@@ -66,8 +70,8 @@ function assign_target_properties(target: Object, obj: Object) {
 
 export {
   MIME,
-  editable_content_type,
-  ext_to_content_type,
-  content_type_to_ext,
-  assign_target_properties
+  renderableMIME,
+  getMIMEFromExtension,
+  getExtensionFromMIME,
+  assignCommonProperties
 }

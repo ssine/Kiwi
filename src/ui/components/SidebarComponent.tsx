@@ -1,17 +1,13 @@
 import bus from '../eventBus'
-import { client_item } from '../item'
+import ClientItem from '../ClientItem'
 import * as React from 'react'
 import { IconButton } from 'office-ui-fabric-react'
-import * as monaco from 'monaco-editor'
-import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox'
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
 import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot';
 import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
 import { List } from 'office-ui-fabric-react/lib/List'
 import { ITheme, mergeStyleSets, getTheme, getFocusStyle } from 'office-ui-fabric-react/lib/Styling'
-import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
-import { Image, ImageFit } from 'office-ui-fabric-react/lib/Image';
 
 const theme: ITheme = getTheme();
 const { palette, semanticColors, fonts } = theme;
@@ -67,7 +63,7 @@ const classNames = mergeStyleSets({
 type SidebarComponentProperty = {
   title: string
   subTitle: string
-  itemFlow: client_item[]
+  itemFlow: ClientItem[]
 }
 
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {

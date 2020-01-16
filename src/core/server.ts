@@ -2,38 +2,39 @@
  * The server 
  * @packageDocumentation
  */
-import { uri_item_map } from './uri'
 import * as express from 'express'
 import * as body_parser from 'body-parser'
-import { get_logger } from './log'
-import { manager } from './item_manager'
+import { getLogger } from './Log'
+import manager from './ItemManager'
 import { resolve } from 'path'
 
-const logger = get_logger('server')
+const logger = getLogger('server')
 
 const app = express()
 const port = 3000
 app.use(body_parser.json())
 
-export function serve(main: string) {
+const serve = function serve() {
+  // also serve system items as static file, not used for now
   // app.use('/\\$kiwi/', express.static(manager.system_path))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
 
-  app.post('/get_item', (req, res) => {
+  app.post('/get-item', (req, res) => {
     let uri: string = req.body.uri
-    res.send(manager.get_item(uri).json())
+    res.send(manager.getItem(uri).json())
   })
 
-  app.post('/put_item', async (req, res) => {
+  app.post('/put-item', async (req, res) => {
     let it = req.body.item
-    res.send((await manager.put_item(it)).json())
+    res.send((await manager.putItem(it)).json())
   })
 
-  app.post('/get_system_items', (req, res) => {
-    res.send(JSON.stringify(manager.get_system_items()))
+  app.post('/get-system-items', (req, res) => {
+    res.send(JSON.stringify(manager.getSystemItems()))
   })
 
-  app.listen(port, _ => console.log(`app listening on port ${port}`))
-
+  app.listen(port, _ => logger.info(`Server set up on port ${port}`))
 }
+
+export default serve

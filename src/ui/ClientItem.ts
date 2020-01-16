@@ -6,14 +6,14 @@
  * @packageDocumentation
  */
 
-import { item } from '../core/item'
-import { assign_target_properties } from '../core/common'
-import { post_json } from './common'
+import { BaseItem } from '../core/BaseItem'
+import { assignCommonProperties } from '../core/Common'
+import { postJSON } from './Common'
 
 /**
  * A client side item can have everything empty except its uri
  */
-class client_item extends item {
+class ClientItem extends BaseItem {
   need_load: boolean = true
   need_save: boolean = false
   displaied: boolean = false
@@ -25,8 +25,9 @@ class client_item extends item {
    * Load all the contents of current item from server
    */
   async load() {
-    let obj = await post_json('/get_item', {uri: this.uri})
-    assign_target_properties(this, obj)
+    let obj = await postJSON('/get-item', {uri: this.uri})
+    console.log(obj)
+    assignCommonProperties(this, obj)
   }
   
   /**
@@ -34,12 +35,12 @@ class client_item extends item {
    */
   async save() {
     const { html_element, ...no_html_el_this } = this
-    let obj = await post_json('/put_item', {item: no_html_el_this})
-    assign_target_properties(this, obj)
+    let obj = await postJSON('/put-item', {item: no_html_el_this})
+    assignCommonProperties(this, obj)
   }
 
-  assign(obj: Object): client_item {
-    assign_target_properties(this, obj)
+  assign(obj: Object): ClientItem {
+    assignCommonProperties(this, obj)
     return this
   }
 
@@ -48,6 +49,4 @@ class client_item extends item {
   }
 }
 
-export {
-  client_item
-}
+export default ClientItem

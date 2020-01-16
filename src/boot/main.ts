@@ -1,17 +1,18 @@
-import * as command_line_parser from "command-line-args"
-import { manager } from '../core/item_manager'
-import { serve } from '../core/server'
-import { init as init_logger } from '../core/log'
+import * as commandLineParser from "command-line-args"
+import manager from '../core/ItemManager'
+import serve from '../core/server'
+import { initLogger } from '../core/Log'
 
-const options = command_line_parser([
+const options = commandLineParser([
   { name: 'root', type: String, defaultOption: true, defaultValue: '.' },
   { name: 'log', alias: 'l', type: String, defaultValue: 'debug' }
 ])
 
+initLogger(options.log)
+
 async function run () {
-  init_logger(options.log)
-  await manager.load_items(options.root)
-  serve('')
+  await manager.loadItems(options.root)
+  serve()
 }
 
 run()

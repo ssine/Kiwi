@@ -1,7 +1,7 @@
 import * as moment from 'moment'
-import { MIME } from './common'
+import { MIME } from './Common'
 
-type item_header = {
+type ItemHeader = {
   'title'?: string
   'author'?: string
   'create-time'?: moment.Moment
@@ -11,7 +11,7 @@ type item_header = {
 /**
  * Item is the basic compose block of Kiwi, representing a basic piece of information.
  */
-abstract class item {
+abstract class BaseItem {
   /**
    * Every item has a title, this is unique under the same namespace
    */
@@ -23,11 +23,11 @@ abstract class item {
   /**
    * Other metadata used to describe this item
    */
-  headers: item_header = {}
+  headers: ItemHeader = {}
   /**
    * Chlid items if this item is a namespace
    */
-  childs: item[] = []
+  childs: BaseItem[] = []
   /**
    * The URI of this item
    */
@@ -67,6 +67,6 @@ abstract class item {
 }
 
 export {
-  item_header,
-  item
+  ItemHeader,
+  BaseItem
 }

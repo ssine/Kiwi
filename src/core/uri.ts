@@ -16,42 +16,50 @@
  * @packageDocumentation
  */
 
-import { server_item as item } from './server_item'
-import { get_logger } from './log'
-import { editable_content_type, content_type_to_ext } from './common'
+import { ServerItem } from './ServerItem'
+import { getLogger } from './Log'
+import { renderableMIME } from './Common'
 
-const logger = get_logger('uri')
+const logger = getLogger('uri')
 
-const is_num_alpha_blank = /^[0-9a-zA-Z ]*$/.compile()
+const isNumAlphaBlankBracket = /^[0-9a-zA-Z ()]*$/.compile()
 
-type uri_item_map = Record<string, item>
+type URIItemMap = Record<string, ServerItem>
 
-let uri_map: uri_item_map = {}
+let URIMap: URIItemMap = {}
 
-function normalize_uri(ori: string): string {
+const normalizeURI = function normalizeURI(ori: string): string {
   ori = ori.replace(/\\+/g, '/')
   ori = ori.replace(/\/+/g, '/')
   return ori
 }
 
-function item_to_uri(it: item) {
+const getNewItemURI = function generateURIFromNewItem(item: ServerItem) {
   let uri: string
-  if (is_num_alpha_blank.test(it.title)) {
-    uri = it.title.toLowerCase().replace(/[ ]/g, '-')
+  if (isNumAlphaBlankBracket.test(item.title)) {
+    uri = item.title.toLowerCase().replace(/[ ]/g, '-')
   } else {
-    uri = encodeURI(it.title)
+    uri = encodeURI(item.title)
   }
-  if (!it.type || editable_content_type.has(it.type)) return uri
-  return `${uri}.${content_type_to_ext(it.type)}`
+  // remove file extension only when the type is renderable
+  if (!!item.type && renderableMIME.has(item.type)) return uri
+  return `${uri}${item.fnode?.path.ext}`
 }
 
-function uri_dfs(item: item, prefix: string) {
-  let uri = `${prefix}${item_to_uri(item)}`
-  logger.info(`assigning uri ${uri} to item ${item.title}`)
+const getItemURI = function generateURIFromItem(item: ServerItem): string {
+  if (item.fnode === null) throw `Item doesn't have a corresponding file node!`
+  // remove file extension only when the type is renderable
+  if (!!item.type && renderableMIME.has(item.type)) return item.fnode.path.name
+  else return item.fnode.path.base
+}
+
+const URIDFS = function URIDFS(item: ServerItem, prefix: string) {
+  const uri = `${prefix}${getItemURI(item)}`
   item.uri = uri
-  uri_map[item.uri] = item
-  for (let child of item.childs) {
-    uri_dfs(child, `${uri}/`)
+  URIMap[item.uri] = item
+  logger.info(`Assign URI [${uri}] to item [${item.title}].`)
+  for (const child of item.childs) {
+    URIDFS(child, `${uri}/`)
   }
 }
 
@@ -59,20 +67,14 @@ function uri_dfs(item: item, prefix: string) {
  * Genarate an unique uri for each of the items
  * Returns the mapping from uri to item
  */
-function generate_uri(root_item: item): uri_item_map {
-  for (let child of root_item.childs)
-    uri_dfs(child, '')
-  return uri_map
-}
-
-function generate_system_uri(root_item: item): uri_item_map {
-  for (let child of root_item.childs)
-    uri_dfs(child, '$kiwi/')
-  return uri_map
+const generateURI =
+function generateURIFromItemTree(rootItem: ServerItem, prefix: string): URIItemMap {
+  for (const child of rootItem.childs)
+    URIDFS(child, prefix)
+  return URIMap
 }
 
 export {
-  uri_item_map,
-  generate_uri,
-  generate_system_uri
+  URIItemMap,
+  generateURI,
 }

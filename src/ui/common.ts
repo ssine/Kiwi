@@ -1,7 +1,7 @@
 /**
  * Post an Object ot server and get a responed json object
  */
-async function post_json(url: string, data: Object): Promise<any> {
+async function postJSON(url: string, data: Object): Promise<any> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -13,5 +13,5 @@ async function post_json(url: string, data: Object): Promise<any> {
 }
 
 export {
-  post_json
+  postJSON
 }

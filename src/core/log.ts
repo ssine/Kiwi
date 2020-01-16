@@ -1,18 +1,18 @@
 import { createLogger, format, transports } from 'winston'
 import * as logform from 'logform'
 
-let logging_level: string = 'debug'
+let loggingLevel: string = 'debug'
 
-function init(level: string) {
-  logging_level = level
+function initLogger(level: string) {
+  loggingLevel = level
 }
 
-function get_logger(module_name: string) {
+function getLogger(moduleName: string) {
   const logger = createLogger({
-    level: logging_level,
+    level: loggingLevel,
     format: format.combine(
       format.printf((info: logform.TransformableInfo): string => {
-        return `[${info.level}] ${module_name}: ${info.message}`
+        return `[${info.level}] ${moduleName}: ${info.message}`
       })
     ),
     transports: [
@@ -23,6 +23,6 @@ function get_logger(module_name: string) {
 }
 
 export {
-  init,
-  get_logger
+  initLogger,
+  getLogger
 }

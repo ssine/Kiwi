@@ -1,21 +1,17 @@
 import bus from './eventBus'
-import { template, default_items_uri } from '../boot/config'
-import { client_item as item } from './item'
-import { post_json } from './common'
-import * as sqrl from 'squirrelly'
-import * as monaco from 'monaco-editor'
-import { Renderer } from './renderer'
+import { defaultItemsURI } from '../boot/config'
+import ClientItem from './ClientItem'
+import { postJSON } from './Common'
+import Renderer from './Renderer'
 
-sqrl.autoEscaping(false)
-
-type uri_item_map = Record<string, item>
+type URIItemMap = Record<string, ClientItem>
 
 /**
  * Front end item layer.
  */
-class item_manager {
-  map: uri_item_map = {}
-  item_flow: item[] = []
+class ItemManager {
+  map: URIItemMap = {}
+  item_flow: ClientItem[] = []
   item_flow_div!: Element
   renderer: Renderer
 
@@ -25,11 +21,11 @@ class item_manager {
    */
   async init() {
     // get system items
-    let sys_items = await post_json('/get_system_items', {})
+    let sys_items = await postJSON('/get-system-items', {})
     for (let k in sys_items) {
-      this.map[sys_items[k].uri] = (new item()).assign(sys_items[k])
+      this.map[sys_items[k].uri] = (new ClientItem()).assign(sys_items[k])
     }
-    this.map[default_items_uri].content.split('\n').forEach(l => this.display_item(l))
+    this.map[defaultItemsURI].content.split('\n').forEach(l => this.display_item(l))
 
     this.renderer = new Renderer()
 
@@ -53,13 +49,14 @@ class item_manager {
     bus.on('create-item', this.createItem.bind(this))
   }
   
-  async get_item_from_uri(uri: string): Promise<item|null> {
+  async get_item_from_uri(uri: string): Promise<ClientItem|null> {
     if (this.map[uri])
       return this.map[uri]
     // fetch from server
-    let cur_item = new item()
+    let cur_item = new ClientItem()
     cur_item.uri = uri
     await cur_item.load()
+    console.log(cur_item)
     if(cur_item.title === '') return null
     this.map[uri] = cur_item
     return cur_item
@@ -102,6 +99,6 @@ class item_manager {
 
 }
 
-let manager = new item_manager()
+const manager = new ItemManager()
 
-export { manager }
+export default manager

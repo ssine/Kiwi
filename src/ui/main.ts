@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 import '../kiwi/ui/css/global.css'
-import { manager } from './manager'
+import manager from './ItemManager'
 
 async function run() {
   await manager.init()
