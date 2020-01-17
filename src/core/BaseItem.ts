@@ -44,11 +44,11 @@ abstract class BaseItem {
   /**
    * Parsed content of this item, a string of HTML <div> element
    */
-  parsed_content: string = ''
+  parsedContent: string = ''
   /**
    * Weather the newest content has been parsed, used to avoid repeated parsing
    */
-  content_parsed: boolean = false
+  isContentParsed: boolean = false
 
   /**
    * Return the HTML content generated, parse content if not
@@ -59,7 +59,7 @@ abstract class BaseItem {
    * Return the json representation of this item (serialization), without chlids
    */
   json(): string {
-    if (!this.content_parsed)
+    if (!this.isContentParsed)
       this.html()
     return JSON.stringify(this)
   }

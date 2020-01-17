@@ -7,7 +7,7 @@ import { ServerItem } from './ServerItem'
 import { FileSynchronizer } from './FileSynchronizer'
 import { generateURI, URIItemMap } from './URI'
 import { assignCommonProperties } from './Common'
-import MarkdownParser from '../core/MarkdownParser'
+// import MarkdownParser from '../core/MarkdownParser'
 
 /**
  * Wrapper class of functions when manageing items
@@ -27,9 +27,9 @@ class ItemManager {
     this.itemMap = generateURI(await this.synchronizer.getItemTree(), '')
     this.systemItemMap = generateURI(await this.synchronizer.getSystemItemTree(), '$kiwi/')
     this.itemLoaded = this.systemItemLoaded = false
-    const md = new MarkdownParser()
-    md.init()
-    md.register()
+    // const md = new MarkdownParser()
+    // md.init()
+    // md.register()
   }
 
   getItem(uri: string): ServerItem {

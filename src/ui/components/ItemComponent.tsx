@@ -8,6 +8,7 @@ import { TextField } from 'office-ui-fabric-react/lib/TextField'
 import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
+import { isLinkInternal } from '../Common'
 
 type ItemButtonProperty = {
   iconName: string
@@ -27,16 +28,17 @@ const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButt
 }
 
 export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
-  content_ref: React.RefObject<HTMLDivElement>
+  contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
   editingItem: Partial<ClientItem>
+  lastRect: DOMRect
 
   constructor(props: { item: ClientItem }) {
     // @ts-ignore
     window.anime = anime
     super(props);
-    this.content_ref = React.createRef();
+    this.contentRef = React.createRef();
     this.rootRef = React.createRef();
     this.editor = null
     this.editingItem = {
@@ -54,8 +56,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
     for (let k in this.editingItem) {
       if (this.props.item[k] !== this.editingItem[k]) {
         this.props.item[k] = this.editingItem[k]
-        this.props.item.need_save = true
-        this.props.item.content_parsed = false
+        this.props.item.needSave = true
+        this.props.item.isContentParsed = false
       }
     }
     this.props.item.editing = false
@@ -72,6 +74,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
       }
     }).add({ }).finished
     this.forceUpdate()
+    bus.emit('item-flow-layout')
     await anime.timeline({
       targets: this.rootRef.current,
       rotateY: 0,
@@ -90,29 +93,50 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
   }
   componentDidMount() {
     if (!this.props.item.editing) {
-
-      let links = this.content_ref.current.querySelectorAll('.item-link')
-      links.forEach(el => {
-        let e = el as HTMLElement
-        e.onclick = async evt => {
-          evt.cancelBubble = true;
-          evt.stopPropagation();
-          evt.preventDefault();
-          bus.emit('item-link-clicked', {
-            emitter: e,
-            targetLink: e.getAttribute('href'),
-          })
-          return false;
+      let links = this.contentRef.current.querySelectorAll('a')
+      links.forEach((el: HTMLAnchorElement) => {
+        if (isLinkInternal(el)) {
+          el.onclick = async evt => {
+            evt.cancelBubble = true;
+            evt.stopPropagation();
+            evt.preventDefault();
+            bus.emit('item-link-clicked', {
+              emitter: el,
+              targetLink: el.getAttribute('href'),
+            })
+            return false;
+          }
+        } else {
+          el.target = '_blank'
         }
       })
     } else if (this.editor === null) {
-      this.editor = monaco.editor.create(this.content_ref.current, {
+      this.editor = monaco.editor.create(this.contentRef.current, {
         value: this.props.item.content,
         language: 'markdown'
       })
       console.log(this.editor)
     }
+    this.lastRect = this.rootRef.current.getBoundingClientRect()
+    // bus.on('item-flow-layout', this.smoothLayoutChange.bind(this))
   }
+
+  async smoothLayoutChange() {
+    const rect = this.rootRef.current.getBoundingClientRect()
+    const dy = this.lastRect.top - rect.top
+    anime.timeline({
+      targets: this.rootRef.current,
+      translateY: dy,
+      duration: 100,
+      easing: function(...args) {
+        return function(t) {
+          return 1-t
+        }
+      }
+    }).add({ }).finished
+    this.lastRect = rect
+  }
+
   componentDidUpdate() {
     this.componentDidMount()
   }
@@ -139,6 +163,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
                     }
                   }).add({ }).finished
                   this.forceUpdate()
+                  bus.emit('item-flow-layout')
                   await anime.timeline({
                     targets: this.rootRef.current,
                     rotateY: 0,
@@ -192,7 +217,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
             </div>
             <div className="item-info"></div>
             <div className="item-tags"></div>
-            <div className="item-content" ref={this.content_ref} dangerouslySetInnerHTML={{ __html: this.props.item.parsed_content }} />
+            <div className="item-content" ref={this.contentRef} dangerouslySetInnerHTML={{ __html: this.props.item.parsedContent }} />
           </div>
         ) : (
             <div>
@@ -220,6 +245,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
                       }
                     }).add({ }).finished
                     this.forceUpdate()
+                    bus.emit('item-flow-layout')
                     await anime.timeline({
                       targets: this.rootRef.current,
                       rotateY: 0,
@@ -245,7 +271,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
               </div>
               <div className="item-info"></div>
               <div className="item-tags"></div>
-              <div className="edit-item-content" ref={this.content_ref} >
+              <div className="edit-item-content" ref={this.contentRef} >
               </div>
             </div>
           )}

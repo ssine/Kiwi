@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 import * as express from 'express'
-import * as body_parser from 'body-parser'
+import * as bodyParser from 'body-parser'
 import { getLogger } from './Log'
 import manager from './ItemManager'
 import { resolve } from 'path'
@@ -12,7 +12,7 @@ const logger = getLogger('server')
 
 const app = express()
 const port = 3000
-app.use(body_parser.json())
+app.use(bodyParser.json())
 
 const serve = function serve() {
   // also serve system items as static file, not used for now

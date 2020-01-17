@@ -50,8 +50,8 @@ class FSNode {
    */
   childs: FSNode[]
 
-  constructor(node_path: string) {
-    this.absolutePath = path.resolve(node_path)
+  constructor(nodePath: string) {
+    this.absolutePath = path.resolve(nodePath)
     this.path = path.parse(this.absolutePath)
     this.type = fs.lstatSync(this.absolutePath).isFile() ? 'file' : 'directory'
     this.childs = []
@@ -97,13 +97,13 @@ class FileSynchronizer {
     if (item.fnode !== null) {
       // save back to existing file
       let fd = await fs.promises.open(item.fnode.absolutePath, 'w')
-      let file_str = `---\n${
+      let fileString = `---\n${
         dumpYaml({
           title: item.title,
           ...item.headers
         }).trim()
       }\n---\n\n` + item.content.trim() + '\n'
-      await fd.write(file_str)
+      await fd.write(fileString)
       await fd.close()
     } else {
       // create a new file
@@ -117,8 +117,8 @@ class FileSynchronizer {
   private async buildFileTreeDFS(node: FSNode) {
     if (node.type === 'file') return
     const childs = await fs.promises.readdir(node.absolutePath)
-    for (let child_path of childs) {
-      const child = new FSNode(path.join(node.absolutePath, child_path))
+    for (let childPath of childs) {
+      const child = new FSNode(path.join(node.absolutePath, childPath))
       await this.buildFileTreeDFS(child)
       node.childs.push(child)
     }
@@ -151,29 +151,29 @@ class FileSynchronizer {
   }
 
   private async getItemFromNode(node: FSNode): Promise<ServerItem> {
-    let cur_item = new ServerItem()
-    let raw_content: string
+    let currentItem = new ServerItem()
+    let rawContent: string
     if (node.type === 'file') {
-      raw_content = (await fs.promises.readFile(node.absolutePath)).toString()
+      rawContent = (await fs.promises.readFile(node.absolutePath)).toString()
     } else if (node.type === 'directory' && node.childs.map(v => v.path.name).indexOf('index') != -1) {
       let idx = node.childs.map(v => v.path.name).indexOf('index')
-      raw_content = (await fs.promises.readFile(node.childs[idx].absolutePath)).toString()
+      rawContent = (await fs.promises.readFile(node.childs[idx].absolutePath)).toString()
     } else {
-      raw_content = ''
+      rawContent = ''
     }
-    [cur_item.headers, cur_item.content] = this.splitHeaderContent(raw_content)
-    if (!cur_item.type)
-      cur_item.type = getMIMEFromExtension(node.path.ext)
-    if (!cur_item.headers["title"])
-      cur_item.headers["title"] = node.path.name
-    cur_item.title = cur_item.headers["title"]
-    cur_item.parsed_content = '<p>Content not parsed</p>'
-    cur_item.content_parsed = false
-    cur_item.childs = []
-    cur_item.uri = ''
-    cur_item.missing = false
-    cur_item.fnode = node
-    return cur_item
+    [currentItem.headers, currentItem.content] = this.splitHeaderContent(rawContent)
+    if (!currentItem.type)
+      currentItem.type = getMIMEFromExtension(node.path.ext)
+    if (!currentItem.headers["title"])
+      currentItem.headers["title"] = node.path.name
+    currentItem.title = currentItem.headers["title"]
+    currentItem.parsedContent = '<p>Content not parsed</p>'
+    currentItem.isContentParsed = false
+    currentItem.childs = []
+    currentItem.uri = ''
+    currentItem.missing = false
+    currentItem.fnode = node
+    return currentItem
   }
   
   private async buildItemTreeFromNode(rootNode: FSNode): Promise<ServerItem> {

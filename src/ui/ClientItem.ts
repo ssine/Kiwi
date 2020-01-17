@@ -14,11 +14,10 @@ import { postJSON } from './Common'
  * A client side item can have everything empty except its uri
  */
 class ClientItem extends BaseItem {
-  need_load: boolean = true
-  need_save: boolean = false
+  needSave: boolean = false
   displaied: boolean = false
   editing: boolean = false
-  html_element: Element | null = null
+  DOMElement: Element | null = null
 
 
   /**
@@ -34,8 +33,8 @@ class ClientItem extends BaseItem {
    * Save this item back to server
    */
   async save() {
-    const { html_element, ...no_html_el_this } = this
-    let obj = await postJSON('/put-item', {item: no_html_el_this})
+    const { DOMElement, ...itemToSave } = this
+    let obj = await postJSON('/put-item', {item: itemToSave})
     assignCommonProperties(this, obj)
   }
 
@@ -45,7 +44,7 @@ class ClientItem extends BaseItem {
   }
 
   html(): string {
-    return this.parsed_content
+    return this.parsedContent
   }
 }
 

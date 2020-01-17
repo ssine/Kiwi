@@ -9,8 +9,6 @@ const logger = getLogger('parser')
  */
 const parserMap = new Map<MIME, Parser>()
 
-console.log('parser imported')
-// console.log(require.cache)
 /**
  * Interface of all content parsers
  * 

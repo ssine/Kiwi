@@ -14,11 +14,11 @@ class ServerItem extends BaseItem {
   fnode: FSNode | null = null
 
   html() {
-    if (!this.content_parsed) {
-      this.parsed_content = parse(this.content, this.type || 'text/markdown')
-      this.content_parsed = true
+    if (!this.isContentParsed) {
+      this.parsedContent = parse(this.content, this.type || 'text/markdown')
+      this.isContentParsed = true
     }
-    return this.parsed_content
+    return this.parsedContent
   }
 }
 

@@ -16,16 +16,15 @@ export default class Renderer {
       }
     });
   }
-  render_item(it: ClientItem, el: Element) {
+
+  renderItem(it: ClientItem, el: Element) {
     ReactDOM.render(
       <ItemComponent item={it} />,
       el
     )
   }
-  render_item_editor(it: ClientItem, el: Element) {
-    
-  }
-  render_sidebar(config: {title: string, subTitle: string, itemFlow: ClientItem[]}, el: Element) {    
+
+  renderSidebar(config: {title: string, subTitle: string, itemFlow: ClientItem[]}, el: Element) {    
     ReactDOM.render(
       React.createElement(SidebarComponent, config),
       el

@@ -12,6 +12,14 @@ async function postJSON(url: string, data: Object): Promise<any> {
   return await response.json();
 }
 
+/**
+ * Check if a link is external of internal
+ */
+function isLinkInternal(el: HTMLAnchorElement): boolean {
+  return el.host === window.location.host
+}
+
 export {
-  postJSON
+  postJSON,
+  isLinkInternal
 }

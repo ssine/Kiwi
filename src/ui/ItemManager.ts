@@ -11,8 +11,8 @@ type URIItemMap = Record<string, ClientItem>
  */
 class ItemManager {
   map: URIItemMap = {}
-  item_flow: ClientItem[] = []
-  item_flow_div!: Element
+  itemFlow: ClientItem[] = []
+  itemFlowDiv!: Element
   renderer: Renderer
 
   /**
@@ -21,76 +21,78 @@ class ItemManager {
    */
   async init() {
     // get system items
-    let sys_items = await postJSON('/get-system-items', {})
-    for (let k in sys_items) {
-      this.map[sys_items[k].uri] = (new ClientItem()).assign(sys_items[k])
+    let systemItems = await postJSON('/get-system-items', {})
+    for (let k in systemItems) {
+      this.map[systemItems[k].uri] = (new ClientItem()).assign(systemItems[k])
     }
-    this.map[defaultItemsURI].content.split('\n').forEach(l => this.display_item(l))
+    this.map[defaultItemsURI].content.split('\n').forEach(l => this.displayItem(l))
 
     this.renderer = new Renderer()
 
     // render sidebar
     let sidebarElement = document.createElement('div')
-    this.renderer.render_sidebar({
+    this.renderer.renderSidebar({
       title: `Sine's Wiki`,
       subTitle: `Happiness is a choice`,
-      itemFlow: this.item_flow,
+      itemFlow: this.itemFlow,
     }, sidebarElement)
     document.body.append(sidebarElement)
 
     // render item flow
-    this.item_flow_div = document.createElement('div')
-    this.item_flow_div.id = 'item-flow'
-    this.item_flow_div.className = 'item-flow'
-    document.body.append(this.item_flow_div)
+    this.itemFlowDiv = document.createElement('div')
+    this.itemFlowDiv.id = 'item-flow'
+    this.itemFlowDiv.className = 'item-flow'
+    document.body.append(this.itemFlowDiv)
 
-    bus.on('item-link-clicked', (data) => this.display_item(data.targetLink))
-    bus.on('item-close-clicked', (data) => this.close_item(data.uri))
+    bus.on('item-link-clicked', (data) => this.displayItem(data.targetLink))
+    bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
     bus.on('create-item', this.createItem.bind(this))
   }
   
-  async get_item_from_uri(uri: string): Promise<ClientItem|null> {
+  async getItemFromURI(uri: string): Promise<ClientItem|null> {
     if (this.map[uri])
       return this.map[uri]
     // fetch from server
-    let cur_item = new ClientItem()
-    cur_item.uri = uri
-    await cur_item.load()
-    console.log(cur_item)
-    if(cur_item.title === '') return null
-    this.map[uri] = cur_item
-    return cur_item
+    let currentItem = new ClientItem()
+    currentItem.uri = uri
+    await currentItem.load()
+    console.log(currentItem)
+    if(currentItem.title === '') return null
+    this.map[uri] = currentItem
+    return currentItem
   }
 
-  async display_item(uri: string) {
-    let item = await this.get_item_from_uri(uri)
+  async displayItem(uri: string) {
+    let item = await this.getItemFromURI(uri)
 
     if (item.displaied) return
 
     let el = document.createElement('div')
     el.className = 'item-container'
-    this.renderer.render_item(item, el)
-    this.item_flow_div.append(el)
-    item.html_element = el
-    console.log(item.html_element)
-    this.item_flow.push(item)
+    this.renderer.renderItem(item, el)
+    this.itemFlowDiv.append(el)
+    item.DOMElement = el
+    console.log(item.DOMElement)
+    this.itemFlow.push(item)
 
     item.displaied = true
     bus.emit('item-displaied')
+    bus.emit('item-flow-layout')
   }
 
-  async close_item(uri: string) {
-    let item = await this.get_item_from_uri(uri)
+  async closeItem(uri: string) {
+    let item = await this.getItemFromURI(uri)
 
     if (!item.displaied) return
 
-    let flow_idx = this.item_flow.indexOf(item)
-    this.item_flow.splice(flow_idx, 1)
-    this.item_flow_div.removeChild(item.html_element)
-    item.html_element = null
+    let flowIdx = this.itemFlow.indexOf(item)
+    this.itemFlow.splice(flowIdx, 1)
+    this.itemFlowDiv.removeChild(item.DOMElement)
+    item.DOMElement = null
 
     item.displaied = false
     bus.emit('item-closed')
+    bus.emit('item-flow-layout')
   }
 
   async createItem() {
