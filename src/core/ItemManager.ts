@@ -50,6 +50,7 @@ class ItemManager {
   async putItem(it: ServerItem): Promise<ServerItem> {
     let _it = this.getItem(it.uri)
     assignCommonProperties(_it, it)
+    _it.missing = false
     // should we await this, i.e., response after item is written to disk?
     this.synchronizer.saveItem(_it)
     _it.html()

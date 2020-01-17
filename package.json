@@ -59,6 +59,7 @@
     "js-yaml": "^3.13.1",
     "marked": "^0.8.0",
     "moment": "^2.24.0",
+    "react-monaco-editor": "^0.33.0",
     "squirrelly": "^7.9.0",
     "winston": "^3.2.1"
   }

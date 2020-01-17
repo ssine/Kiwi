@@ -24,11 +24,12 @@
 
 import * as fs from "fs"
 import * as path from "path"
+import { promisify } from 'util'
 import * as moment from 'moment'
 import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml' 
 import { ItemHeader } from './BaseItem'
 import { ServerItem } from './ServerItem'
-import { getMIMEFromExtension } from './Common'
+import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME } from './Common'
 
 /**
  * FSNode class represents a file or a folder on local filesystem
@@ -66,12 +67,14 @@ class FSNode {
 }
 
 class FileSynchronizer {
+  rootPath: string = ''
   fileTree: FSNode | null = null
   systemFileTree: FSNode | null = null
   itemTree: ServerItem | null = null
   systemItemTree: ServerItem | null = null
 
   async init(rootPath: string) {
+    this.rootPath = path.resolve(rootPath)
     this.fileTree = await this.buildFileTreeFromPath(rootPath)
     this.systemFileTree = await this.buildFileTreeFromPath(path.resolve(__dirname, '../kiwi'))
   }
@@ -88,26 +91,37 @@ class FileSynchronizer {
     return this.systemItemTree
   }
 
+  async writeFile(filePath: string, content: string) {
+    const folder = path.resolve(filePath, '..')
+    if (! await promisify(fs.exists)(folder)) {
+      await fs.promises.mkdir(folder, { recursive: true })
+    }
+    await fs.promises.writeFile(filePath, content)
+  }
+
   /**
    * Save an item back.
    * Just write back if the uri has not changed.
    * If the uri is changed or there is no file node, create one.
    */
   async saveItem(item: ServerItem) {
-    if (item.fnode !== null) {
-      // save back to existing file
-      let fd = await fs.promises.open(item.fnode.absolutePath, 'w')
-      let fileString = `---\n${
-        dumpYaml({
-          title: item.title,
-          ...item.headers
-        }).trim()
-      }\n---\n\n` + item.content.trim() + '\n'
-      await fd.write(fileString)
-      await fd.close()
-    } else {
+    let filePath = ''
+    if (item.fnode === null) {
       // create a new file
+      filePath = path.resolve(this.rootPath, item.uri)
+      if (!!item.type && renderableMIME.has(item.type)) {
+        filePath += '.' + getExtensionFromMIME(item.type)
+      }
+    } else {
+      filePath = item.fnode.absolutePath
     }
+    let fileString = `---\n${
+      dumpYaml({
+        title: item.title,
+        ...item.headers
+      }).trim()
+    }\n---\n\n` + item.content.trim() + '\n'
+    await this.writeFile(filePath, fileString)
   }
 
   async deleteItem() {

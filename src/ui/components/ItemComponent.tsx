@@ -9,6 +9,7 @@ import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal } from '../Common'
+import MonacoEditor from 'react-monaco-editor'
 
 type ItemButtonProperty = {
   iconName: string
@@ -35,9 +36,11 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
   lastRect: DOMRect
 
   constructor(props: { item: ClientItem }) {
+    super(props);
     // @ts-ignore
     window.anime = anime
-    super(props);
+    // @ts-ignore
+    window.item = this
     this.contentRef = React.createRef();
     this.rootRef = React.createRef();
     this.editor = null
@@ -61,6 +64,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
       }
     }
     this.props.item.editing = false
+    this.props.item.type = 'text/markdown'
     this.editor = null
     await this.props.item.save()
     await anime.timeline({
@@ -88,9 +92,10 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
     // this.forceUpdate()
   }
 
-  shouldComponentUpdate() {
-    return false
-  }
+  // shouldComponentUpdate() {
+    // return false
+  // }
+
   componentDidMount() {
     if (!this.props.item.editing) {
       let links = this.contentRef.current.querySelectorAll('a')
@@ -110,12 +115,6 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
           el.target = '_blank'
         }
       })
-    } else if (this.editor === null) {
-      this.editor = monaco.editor.create(this.contentRef.current, {
-        value: this.props.item.content,
-        language: 'markdown'
-      })
-      console.log(this.editor)
     }
     this.lastRect = this.rootRef.current.getBoundingClientRect()
     // bus.on('item-flow-layout', this.smoothLayoutChange.bind(this))
@@ -140,6 +139,15 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
   componentDidUpdate() {
     this.componentDidMount()
   }
+
+  editorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco) {
+    this.editor = editor
+    // don't know why should i do a immediate defferd call to get it work
+    setTimeout(() => {
+      this.editor.layout()
+    }, 0);
+  }
+
   render() {
     return (
       <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
@@ -272,6 +280,12 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
               <div className="item-info"></div>
               <div className="item-tags"></div>
               <div className="edit-item-content" ref={this.contentRef} >
+              <MonacoEditor
+                language="markdown"
+                value={this.props.item.content}
+                // height={500}
+                editorDidMount={this.editorDidMount.bind(this)}
+              />
               </div>
             </div>
           )}

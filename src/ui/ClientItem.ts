@@ -17,7 +17,7 @@ class ClientItem extends BaseItem {
   needSave: boolean = false
   displaied: boolean = false
   editing: boolean = false
-  DOMElement: Element | null = null
+  containerDiv: Element | null = null
 
 
   /**
@@ -33,7 +33,7 @@ class ClientItem extends BaseItem {
    * Save this item back to server
    */
   async save() {
-    const { DOMElement, ...itemToSave } = this
+    const { containerDiv, ...itemToSave } = this
     let obj = await postJSON('/put-item', {item: itemToSave})
     assignCommonProperties(this, obj)
   }

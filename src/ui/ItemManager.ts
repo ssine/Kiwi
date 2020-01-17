@@ -46,7 +46,7 @@ class ItemManager {
 
     bus.on('item-link-clicked', (data) => this.displayItem(data.targetLink))
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
-    bus.on('create-item', this.createItem.bind(this))
+    bus.on('create-item-clicked', this.createItem.bind(this))
   }
   
   async getItemFromURI(uri: string): Promise<ClientItem|null> {
@@ -71,8 +71,8 @@ class ItemManager {
     el.className = 'item-container'
     this.renderer.renderItem(item, el)
     this.itemFlowDiv.append(el)
-    item.DOMElement = el
-    console.log(item.DOMElement)
+    item.containerDiv = el
+    console.log(item.containerDiv)
     this.itemFlow.push(item)
 
     item.displaied = true
@@ -87,8 +87,8 @@ class ItemManager {
 
     let flowIdx = this.itemFlow.indexOf(item)
     this.itemFlow.splice(flowIdx, 1)
-    this.itemFlowDiv.removeChild(item.DOMElement)
-    item.DOMElement = null
+    this.itemFlowDiv.removeChild(item.containerDiv)
+    item.containerDiv = null
 
     item.displaied = false
     bus.emit('item-closed')
@@ -96,7 +96,13 @@ class ItemManager {
   }
 
   async createItem() {
-    
+    const item = new ClientItem()
+    item.title = 'New Item'
+    item.content = '???'
+    item.uri = 'new-item'
+    item.editing = true
+    this.map['new-item'] = item
+    this.displayItem('new-item')
   }
 
 }

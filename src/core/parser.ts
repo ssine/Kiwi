@@ -41,7 +41,6 @@ abstract class Parser {
     for (const type of this.supportedTypes()) {
       parserMap.set(type, this)
       logger.info(`Parser for type ${type} registered.`)
-      console.log(parserMap.get('text/markdown'))
     }
   }
 }
@@ -51,7 +50,6 @@ abstract class Parser {
  */
 const parse = function parse(input: string, type: MIME): string {
   let parser = parserMap.get(type)
-  console.log(parserMap.get('text/markdown'))
   if (!parser) {
     logger.info(`Parser for type ${type} not found, empty string returned.`)
     return ''
