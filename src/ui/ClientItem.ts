@@ -25,7 +25,6 @@ class ClientItem extends BaseItem {
    */
   async load() {
     let obj = await postJSON('/get-item', {uri: this.uri})
-    console.log(obj)
     assignCommonProperties(this, obj)
   }
   

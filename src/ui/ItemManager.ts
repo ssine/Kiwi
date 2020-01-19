@@ -15,10 +15,6 @@ class ItemManager {
   itemFlowDiv!: Element
   renderer: Renderer
 
-  /**
-   * Get all system items on startup
-   * Render sidebar (move to renderer class later)
-   */
   async init() {
     // get system items
     let systemItems = await postJSON('/get-system-items', {})
@@ -44,8 +40,10 @@ class ItemManager {
     this.itemFlowDiv.className = 'item-flow'
     document.body.append(this.itemFlowDiv)
 
-    bus.on('item-link-clicked', (data) => this.displayItem(data.targetLink))
+    // register event listeners
+    bus.on('item-link-clicked', (data) => this.displayItem(data.targetURI))
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
+    bus.on('item-delete-clicked', (data) => this.closeItem(data.uri))
     bus.on('create-item-clicked', this.createItem.bind(this))
   }
   
@@ -56,7 +54,6 @@ class ItemManager {
     let currentItem = new ClientItem()
     currentItem.uri = uri
     await currentItem.load()
-    console.log(currentItem)
     if(currentItem.title === '') return null
     this.map[uri] = currentItem
     return currentItem
@@ -72,7 +69,6 @@ class ItemManager {
     this.renderer.renderItem(item, el)
     this.itemFlowDiv.append(el)
     item.containerDiv = el
-    console.log(item.containerDiv)
     this.itemFlow.push(item)
 
     item.displaied = true
@@ -103,6 +99,10 @@ class ItemManager {
     item.editing = true
     this.map['new-item'] = item
     this.displayItem('new-item')
+  }
+
+  async deleteItem(uri: string) {
+    
   }
 
 }

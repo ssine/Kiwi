@@ -73,7 +73,6 @@ const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
 export default class SidebarComponent extends React.Component<SidebarComponentProperty, {}> {
   componentDidMount() {
     const rerender = () => { 
-      console.log('rerender: ', this.props.itemFlow)
       this.forceUpdate()
     }
     bus.on('item-displaied', rerender)
@@ -87,7 +86,6 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
         <div className="page-controls">
           <IconButton iconProps={{ iconName: 'Add' }} title="New Item" ariaLabel="New Item" onClick={evt => {
             bus.emit('create-item-clicked', {})
-            console.log('create new item!')
           }} style={{ color: 'purple' }} className="item-close" />
         </div>
         <SearchBox
@@ -103,10 +101,7 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
             }}
           >
             <Label styles={labelStyles}>
-              <List items={this.props.itemFlow.map(it => {
-                console.log('mapped!', it)
-                return it.uri
-              })} onRenderCell={this._onRenderCell} />
+              <List items={this.props.itemFlow.map(it => it.uri)} onRenderCell={this._onRenderCell} />
             </Label>
           </PivotItem>
           <PivotItem headerText="Index">
