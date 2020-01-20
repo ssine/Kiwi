@@ -10,6 +10,7 @@ import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal } from '../Common'
 import MonacoEditor from 'react-monaco-editor'
+import { promisify } from 'util'
 
 type ItemButtonProperty = {
   iconName: string
@@ -189,17 +190,17 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
     this.props.item.editing = true
     await this.rotateOut()
     this.forceUpdate()
-    bus.emit('item-flow-layout')
     await this.rotateIn()
+    // bus.emit('item-flow-layout')
   }
 
   async onCancelEdit() {
     this.props.item.editing = false
     this.editor = null
     await this.rotateOut()
-    this.forceUpdate()
-    bus.emit('item-flow-layout')
+    await promisify(this.forceUpdate.bind(this))()
     await this.rotateIn()
+    // bus.emit('item-flow-layout')
   }
 
   /**
@@ -229,26 +230,24 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
    * Animation: rotate 90 deg to hide
    */
   async rotateOut() {
-    await anime.timeline({
+    return anime({
       targets: this.rootRef.current,
       rotateY: 90,
       duration: 100,
-      easing: () => (t: number) => t
-    }).add({}).finished
-    return
+      easing: 'linear'
+    }).finished
   }
 
   /**
    * Animation: rotate 90 deg to display
    */
   async rotateIn() {
-    await anime.timeline({
+    return anime({
       targets: this.rootRef.current,
       rotateY: 0,
       duration: 100,
-      easing: () => (t: number) => t
-    }).add({}).finished
-    return
+      easing: 'linear',
+    }).finished
   }
 
   /**

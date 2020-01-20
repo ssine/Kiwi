@@ -3,48 +3,31 @@ import ClientItem from '../ClientItem'
 import * as React from 'react'
 import { IconButton } from 'office-ui-fabric-react'
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox'
-import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
-import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot';
-import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
+import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label'
+import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot'
+import { IStyleSet } from 'office-ui-fabric-react/lib/Styling'
 import { List } from 'office-ui-fabric-react/lib/List'
-import { ITheme, mergeStyleSets, getTheme, getFocusStyle } from 'office-ui-fabric-react/lib/Styling'
-
-const theme: ITheme = getTheme();
-const { palette, semanticColors, fonts } = theme;
+import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling'
+import { GroupedList, IGroup } from 'office-ui-fabric-react/lib/GroupedList'
+import { IColumn, DetailsRow } from 'office-ui-fabric-react/lib/DetailsList'
+import { Selection, SelectionMode } from 'office-ui-fabric-react/lib/Selection'
 
 const ROW_HEIGHT = 26
 const FONT_SIZE = 13
 
-const classNames = mergeStyleSets({
-  listItem: [{
-    margin: 0,
-    paddingTop: 3,
-    paddingLeft: 10,
-    paddingBottom: 5,
-    selectors: {
-      '&:hover': { background: '#d5cfe7' }
-    }
-  }]
-});
-
-import { GroupedList, IGroup } from 'office-ui-fabric-react/lib/GroupedList';
-import { IColumn, DetailsRow } from 'office-ui-fabric-react/lib/DetailsList';
-import { Selection, SelectionMode, SelectionZone } from 'office-ui-fabric-react/lib/Selection';
-
-
-export class GroupedListBasicExample extends React.Component<{}, {}> {
-  private _items: { uri: string, title: string }[];
-  private _columns: IColumn[];
-  private _groups: IGroup[];
-  private _selection: Selection;
+class GroupedListBasicExample extends React.Component<{}, {}> {
+  private _items: { uri: string, title: string }[]
+  private _columns: IColumn[]
+  private _groups: IGroup[]
+  private _selection: Selection
 
   constructor(props: {}) {
-    super(props);
+    super(props)
 
     this._items = [
       { uri: 'fold/sub', title: 'sub' },
       { uri: 'the-new-wiki', title: 'The New Wiki' },
-    ];
+    ]
     this._columns = [{
           key: 'uri',
           name: 'uri',
@@ -53,11 +36,11 @@ export class GroupedListBasicExample extends React.Component<{}, {}> {
         }]
     this._groups = [
       { count: 1, key: 'fold', name: 'fold', startIndex: 0, level: -1 }
-    ];
+    ]
     console.log(this._items)
     console.log(this._groups)
 
-    this._selection = new Selection();
+    this._selection = new Selection()
 
   }
 
@@ -98,7 +81,7 @@ export class GroupedListBasicExample extends React.Component<{}, {}> {
           compact={true}
         />
       </div>
-    );
+    )
   }
 
   private _onRenderCell = (nestingDepth: number, item: { uri: string, title: string }, itemIndex: number): JSX.Element => {
@@ -116,12 +99,11 @@ export class GroupedListBasicExample extends React.Component<{}, {}> {
         }}
         compact={true}
       />
-    );
-  };
+    )
+  }
 
-  private _onChangeCompactMode = (ev: React.MouseEvent<HTMLElement>, checked: boolean): void => {
-    this.setState({ true: checked });
-  };
+
+
 }
 
 
@@ -136,7 +118,7 @@ type SidebarComponentProperty = {
 
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
-};
+}
 
 export default class SidebarComponent extends React.Component<SidebarComponentProperty, {}> {
   componentDidMount() {
@@ -147,8 +129,7 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
   render() {
     return (
       <div className="sidebar" style={{
-        height: '100vh',
-        overflow: 'auto'
+        height: '100%',
       }}>
         <h1 className="site-title">{this.props.title}</h1>
         <div className="site-subtitle">{this.props.subTitle}</div>
@@ -188,7 +169,19 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
 
   private _onRenderCell(item: string, index: number, isScrolling: boolean): JSX.Element {
     return (
-      <div data-is-focusable={true} className={classNames.listItem}>
+      <div data-is-focusable={true} 
+      className={mergeStyleSets({
+        listItem: [{
+          margin: 0,
+          paddingTop: 3,
+          paddingLeft: 10,
+          paddingBottom: 5,
+          selectors: {
+            '&:hover': { background: '#d5cfe7' }
+          }
+        }]
+      }).listItem}
+      >
       {item}
     </div>
     )

@@ -6,6 +6,7 @@ body {
 
 .item-flow {
   margin: 0 auto;
+  padding-top: 40px;
   width: 750px;
 }
 
@@ -31,6 +32,7 @@ body {
 .sidebar {
   float: left;
   padding-left: 10px;
+  padding-top: 70px;
   width: 250px;
 }
 
