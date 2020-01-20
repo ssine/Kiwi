@@ -14,6 +14,7 @@ import { postJSON } from './Common'
  * A client side item can have everything empty except its uri
  */
 class ClientItem extends BaseItem {
+  contentLoaded: boolean = true
   needSave: boolean = false
   displaied: boolean = false
   editing: boolean = false

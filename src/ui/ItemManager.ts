@@ -21,9 +21,22 @@ class ItemManager {
     for (let k in systemItems) {
       this.map[systemItems[k].uri] = (new ClientItem()).assign(systemItems[k])
     }
+    console.log(this.map[defaultItemsURI].content)
+    // get skinny items
+    let skinnyItems = await postJSON('/get-skinny-items', {})
+    for (let k in skinnyItems) {
+      console.log(k)
+      let it = new ClientItem()
+      it.assign(skinnyItems[k])
+      it.contentLoaded = false
+      this.map[it.uri] = it
+    }
     this.map[defaultItemsURI].content.split('\n').forEach(l => this.displayItem(l))
+    console.log(this.map[defaultItemsURI])
 
     this.renderer = new Renderer()
+
+    const rootDiv = document.createElement('div')
 
     // render sidebar
     let sidebarElement = document.createElement('div')
@@ -31,14 +44,17 @@ class ItemManager {
       title: `Sine's Wiki`,
       subTitle: `Happiness is a choice`,
       itemFlow: this.itemFlow,
+      
     }, sidebarElement)
-    document.body.append(sidebarElement)
+    rootDiv.append(sidebarElement)
 
     // render item flow
     this.itemFlowDiv = document.createElement('div')
     this.itemFlowDiv.id = 'item-flow'
     this.itemFlowDiv.className = 'item-flow'
-    document.body.append(this.itemFlowDiv)
+    rootDiv.append(this.itemFlowDiv)
+
+    document.body.append(rootDiv)
 
     // register event listeners
     bus.on('item-link-clicked', (data) => this.displayItem(data.targetURI))
@@ -48,7 +64,8 @@ class ItemManager {
   }
   
   async getItemFromURI(uri: string): Promise<ClientItem|null> {
-    if (this.map[uri])
+    console.log(uri)
+    if (this.map[uri] && this.map[uri].contentLoaded)
       return this.map[uri]
     // fetch from server
     let currentItem = new ClientItem()

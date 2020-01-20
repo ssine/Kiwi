@@ -15,8 +15,7 @@ const port = 3000
 app.use(bodyParser.json())
 
 const serve = function serve() {
-  // also serve system items as static file, not used for now
-  // app.use('/\\$kiwi/', express.static(manager.system_path))
+  app.use('/\\$kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
 
@@ -32,6 +31,10 @@ const serve = function serve() {
 
   app.post('/get-system-items', (req, res) => {
     res.send(JSON.stringify(manager.getSystemItems()))
+  })
+
+  app.post('/get-skinny-items', (req, res) => {
+    res.send(JSON.stringify(manager.getSkinnyItems()))
   })
 
   app.listen(port, _ => logger.info(`Server set up on port ${port}`))

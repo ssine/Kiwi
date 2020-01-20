@@ -69,9 +69,10 @@ const URIDFS = function URIDFS(item: ServerItem, prefix: string) {
  */
 const generateURI =
 function generateURIFromItemTree(rootItem: ServerItem, prefix: string): URIItemMap {
+  URIMap = {}
   for (const child of rootItem.childs)
     URIDFS(child, prefix)
-  return URIMap
+  return Object.assign({}, URIMap)
 }
 
 export {

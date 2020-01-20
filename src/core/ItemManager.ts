@@ -64,8 +64,18 @@ class ItemManager {
   getSystemItems(): ServerItem[] {
     const lst = []
     for (const k in this.systemItemMap) {
-      if (k[0] === '$')
-        lst.push(this.systemItemMap[k])
+      lst.push(this.systemItemMap[k])
+    }
+    return lst
+  }
+
+  getSkinnyItems(): ServerItem[] {
+    const lst = []
+    for (const k in this.itemMap) {
+      let it = new ServerItem()
+      it.uri = k
+      it.title = this.itemMap[k].title
+      lst.push(it)
     }
     return lst
   }
