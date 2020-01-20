@@ -12,53 +12,121 @@ import { ITheme, mergeStyleSets, getTheme, getFocusStyle } from 'office-ui-fabri
 const theme: ITheme = getTheme();
 const { palette, semanticColors, fonts } = theme;
 
+const ROW_HEIGHT = 26
+const FONT_SIZE = 13
+
 const classNames = mergeStyleSets({
-  container: {
-    overflow: 'auto',
-    maxHeight: 500
-  },
-  itemCell: [
-    getFocusStyle(theme, { inset: -1 }),
-    {
-      minHeight: 54,
-      padding: 10,
-      boxSizing: 'border-box',
-      borderBottom: `1px solid ${semanticColors.bodyDivider}`,
-      display: 'flex',
-      selectors: {
-        '&:hover': { background: palette.neutralLight }
-      }
+  listItem: [{
+    margin: 0,
+    paddingTop: 3,
+    paddingLeft: 10,
+    paddingBottom: 5,
+    selectors: {
+      '&:hover': { background: '#d5cfe7' }
     }
-  ],
-  itemImage: {
-    flexShrink: 0
-  },
-  itemContent: {
-    marginLeft: 10,
-    overflow: 'hidden',
-    flexGrow: 1
-  },
-  itemName: [
-    fonts.xLarge,
-    {
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }
-  ],
-  itemIndex: {
-    fontSize: fonts.small.fontSize,
-    color: palette.neutralTertiary,
-    marginBottom: 10
-  },
-  chevron: {
-    alignSelf: 'center',
-    marginLeft: 10,
-    color: palette.neutralTertiary,
-    fontSize: fonts.large.fontSize,
-    flexShrink: 0
-  }
+  }]
 });
+
+import { GroupedList, IGroup } from 'office-ui-fabric-react/lib/GroupedList';
+import { IColumn, DetailsRow } from 'office-ui-fabric-react/lib/DetailsList';
+import { Selection, SelectionMode, SelectionZone } from 'office-ui-fabric-react/lib/Selection';
+
+
+export class GroupedListBasicExample extends React.Component<{}, {}> {
+  private _items: { uri: string, title: string }[];
+  private _columns: IColumn[];
+  private _groups: IGroup[];
+  private _selection: Selection;
+
+  constructor(props: {}) {
+    super(props);
+
+    this._items = [
+      { uri: 'fold/sub', title: 'sub' },
+      { uri: 'the-new-wiki', title: 'The New Wiki' },
+    ];
+    this._columns = [{
+          key: 'uri',
+          name: 'uri',
+          fieldName: 'uri',
+          minWidth: 200
+        }]
+    this._groups = [
+      { count: 1, key: 'fold', name: 'fold', startIndex: 0, level: -1 }
+    ];
+    console.log(this._items)
+    console.log(this._groups)
+
+    this._selection = new Selection();
+
+  }
+
+  public render(): JSX.Element {
+
+    return (
+      <div>
+        <input type="checkbox" hidden></input>
+        <GroupedList
+          items={this._items}
+          onRenderCell={this._onRenderCell}
+          selectionMode={SelectionMode.none}
+          groups={this._groups}
+          compact={true}
+          groupProps={{
+            headerProps: {
+              indentWidth: ROW_HEIGHT / 2,
+              styles: { 
+                root: { border: 0 },
+                groupHeaderContainer: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, fontSize: FONT_SIZE },
+                expand: {height: ROW_HEIGHT, width: ROW_HEIGHT, fontSize: FONT_SIZE }, // the arrow icon button
+                title: {paddingLeft: 3, fontSize: FONT_SIZE },
+              }
+            }
+          }}
+        />
+        <DetailsRow
+          columns={this._columns}
+          groupNestingDepth={0}
+          item={this._items[1]}
+          itemIndex={0}
+          selection={this._selection}
+          selectionMode={SelectionMode.none}
+          indentWidth={ROW_HEIGHT / 2}
+          styles={{
+            root: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, width: '100%', background: '#f5f3fc' },
+          }}
+          compact={true}
+        />
+      </div>
+    );
+  }
+
+  private _onRenderCell = (nestingDepth: number, item: { uri: string, title: string }, itemIndex: number): JSX.Element => {
+    return (
+      <DetailsRow
+        columns={this._columns}
+        groupNestingDepth={nestingDepth}
+        item={item}
+        itemIndex={itemIndex}
+        selection={this._selection}
+        selectionMode={SelectionMode.none}
+        indentWidth={ROW_HEIGHT / 2}
+        styles={{
+          root: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, width: '100%', background: '#f5f3fc' },
+        }}
+        compact={true}
+      />
+    );
+  };
+
+  private _onChangeCompactMode = (ev: React.MouseEvent<HTMLElement>, checked: boolean): void => {
+    this.setState({ true: checked });
+  };
+}
+
+
+
+
 
 type SidebarComponentProperty = {
   title: string
@@ -67,20 +135,21 @@ type SidebarComponentProperty = {
 }
 
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
-  root: { marginTop: 10, marginLeft: 10 }
+  root: { marginTop: 10 }
 };
 
 export default class SidebarComponent extends React.Component<SidebarComponentProperty, {}> {
   componentDidMount() {
-    const rerender = () => { 
-      this.forceUpdate()
-    }
-    bus.on('item-displaied', rerender)
-    bus.on('item-closed', rerender)
+    bus.on('item-displaied', this.forceUpdate.bind(this))
+    bus.on('item-closed', this.forceUpdate.bind(this))
   }
+
   render() {
     return (
-      <div className="sidebar">
+      <div className="sidebar" style={{
+        height: '100vh',
+        overflow: 'auto'
+      }}>
         <h1 className="site-title">{this.props.title}</h1>
         <div className="site-subtitle">{this.props.subTitle}</div>
         <div className="page-controls">
@@ -92,7 +161,7 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
           placeholder="search..."
           onChange={(_, newValue) => console.log('SearchBox onChange fired: ' + newValue)}
         />
-        <Pivot aria-label="Status">
+        <Pivot aria-label="Status" style={{marginTop: 10}}>
           <PivotItem
             headerText="Opened"
             headerButtonProps={{
@@ -105,7 +174,9 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
             </Label>
           </PivotItem>
           <PivotItem headerText="Index">
-            <Label styles={labelStyles}>Pivot #2</Label>
+            <Label styles={labelStyles}>
+            <GroupedListBasicExample />
+            </Label>
           </PivotItem>
           <PivotItem headerText="More">
             <Label styles={labelStyles}>Pivot #3</Label>
@@ -117,9 +188,10 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
 
   private _onRenderCell(item: string, index: number, isScrolling: boolean): JSX.Element {
     return (
-      <div className={classNames.itemCell} data-is-focusable={true}>
+      <div data-is-focusable={true} className={classNames.listItem}>
       {item}
     </div>
     )
   }
+
 }

@@ -100,14 +100,14 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
             />
           </div>
           <div className="item-titlebar">
-            <h2 className="item-title" style={{ marginTop: 7, marginBottom: 7 }}>
+            <h2 className="item-title" style={{ margin: 7 }}>
               {this.props.item.title}
             </h2>
           </div>
           <div className="item-info"></div>
           <div className="item-tags"></div>
           <div className="item-content" ref={this.contentRef}
-            style={{margin: 28}}
+            style={{paddingLeft: 28, paddingRight: 28, paddingBottom: 28}}
             dangerouslySetInnerHTML={{ __html: this.props.item.parsedContent }}
           />
         </div>
