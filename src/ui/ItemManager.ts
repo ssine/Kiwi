@@ -136,11 +136,16 @@ class ItemManager {
       item.uri = `${item.uri}${cnt}`
     }
     this.map[item.uri] = item
+    this.updateURI()
     this.displayItem(item.uri)
   }
 
   async deleteItem(uri: string) {
     
+  }
+
+  updateURI() {
+    this.URIParser.parseItemTree(this.map)
   }
 
 }

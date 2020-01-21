@@ -153,6 +153,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
 
   /**
    * Handlers on button click events
+   * TODO: move logic to ItemManager.saveItem(originURI, newItem) and receive the saved item
    */
   async onSave() {
     this.editingItem.content = this.editor.getValue()

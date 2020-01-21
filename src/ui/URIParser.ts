@@ -9,19 +9,19 @@ class URINode {
   constructor(URI: string, title: string) {
     this.URI = URI
     this.title = title
-    this,this.absoluteURI = ''
+    this.absoluteURI = ''
     this.childs = []
   }
 }
 
 class URIParser {
-  rootNode: URINode | null = null
+  rootNode: URINode = new URINode('/', '/')
 
   /**
    * Given a map of all items, construct a hierachical tree of URIs.
    */
   parseItemTree(items: Record<string, ClientItem>) {
-    this.rootNode = new URINode('/', '/')
+    this.rootNode.childs = []
 
     // TODO: performance issue, consider changing algorithm
     const traverse = (uris: string[]): URINode => {
