@@ -63,7 +63,7 @@ class ItemManager {
     bus.on('item-link-clicked', (data) => this.displayItem(data.targetURI))
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
     bus.on('item-delete-clicked', (data) => this.closeItem(data.uri))
-    bus.on('create-item-clicked', this.createItem.bind(this))
+    bus.on('create-item-clicked', (data) => this.createItem(data))
   }
   
   async getItemFromURI(uri: string): Promise<ClientItem|null> {
@@ -121,14 +121,22 @@ class ItemManager {
     bus.emit('item-flow-layout')
   }
 
-  async createItem() {
+  async createItem(data: {uri: string}) {
     const item = new ClientItem()
     item.title = 'New Item'
-    item.content = '???'
-    item.uri = 'new-item'
+    item.content = ''
+    if (data.uri) item.uri = data.uri
+    else item.uri = 'new-item'
     item.editing = true
-    this.map['new-item'] = item
-    this.displayItem('new-item')
+    if (this.map[item.uri]) {
+      let cnt = 1
+      while (this.map[`${item.uri}${cnt}`]) {
+        cnt += 1
+      }
+      item.uri = `${item.uri}${cnt}`
+    }
+    this.map[item.uri] = item
+    this.displayItem(item.uri)
   }
 
   async deleteItem(uri: string) {

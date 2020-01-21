@@ -26,12 +26,25 @@ import { EventEmitter } from 'events'
  * create-item-clicked:
  *   triggered when create button is clicked.
  * 
+ *   uri: custom uri for new items to override default one.
+ * 
  * item-displaied:
  *   triggered when an item was displaied in item flow.
  *   
  * item-closed:
  *   triggered when an item was removed from item flow
+ * 
+ * 
+ * Relayed messages --- triggered by bus when events in a category is triggered.
+ * 
+ * item-tree-changed:
+ *   triggered when the structure of item tree is changed, including the creation
+ *   and deletion of items.
+ * 
  */
 const eventBus = new EventEmitter()
+
+eventBus.on('item-delete-clicked', () => eventBus.emit('item-tree-changed'))
+eventBus.on('create-item-clicked', () => eventBus.emit('item-tree-changed'))
 
 export default eventBus
