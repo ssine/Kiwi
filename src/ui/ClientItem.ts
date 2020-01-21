@@ -19,6 +19,7 @@ class ClientItem extends BaseItem {
   displaied: boolean = false
   editing: boolean = false
   containerDiv: Element | null = null
+  childs: ClientItem[]
 
 
   /**

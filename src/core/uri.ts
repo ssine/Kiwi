@@ -57,7 +57,7 @@ const URIDFS = function URIDFS(item: ServerItem, prefix: string) {
   const uri = `${prefix}${getItemURI(item)}`
   item.uri = uri
   URIMap[item.uri] = item
-  logger.info(`Assign URI [${uri}] to item [${item.title}].`)
+  logger.debug(`Assign URI [${uri}] to item [${item.title}].`)
   for (const child of item.childs) {
     URIDFS(child, `${uri}/`)
   }
