@@ -11,49 +11,48 @@ import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling'
 import { GroupedList, IGroup } from 'office-ui-fabric-react/lib/GroupedList'
 import { IColumn, DetailsRow } from 'office-ui-fabric-react/lib/DetailsList'
 import { Selection, SelectionMode } from 'office-ui-fabric-react/lib/Selection'
+import { URINode } from '../URIParser'
 
 const ROW_HEIGHT = 26
 const FONT_SIZE = 13
 
-class GroupedListBasicExample extends React.Component<{}, {}> {
-  private _items: { uri: string, title: string }[]
-  private _columns: IColumn[]
-  private _groups: IGroup[]
-  private _selection: Selection
+type IndexTreeProperty = {
+  itemTree: URINode
+}
 
-  constructor(props: {}) {
+class IndexTree extends React.Component<IndexTreeProperty, {}> {
+  private items: URINode[]
+  private columns: IColumn[]
+  private groups: IGroup[]
+  private selection: Selection
+
+  constructor(props: IndexTreeProperty) {
     super(props)
 
-    this._items = [
-      { uri: 'fold/sub', title: 'sub' },
-      { uri: 'the-new-wiki', title: 'The New Wiki' },
-    ]
-    this._columns = [{
-          key: 'uri',
-          name: 'uri',
-          fieldName: 'uri',
-          minWidth: 200
-        }]
-    this._groups = [
-      { count: 1, key: 'fold', name: 'fold', startIndex: 0, level: -1 }
-    ]
-    console.log(this._items)
-    console.log(this._groups)
+    const [it, gp] = this.convertURIToGroupedList(this.props.itemTree)
 
-    this._selection = new Selection()
+    this.items = it
+    this.groups = [gp]
 
+    this.columns = [{
+      key: 'URI',
+      name: 'URI',
+      fieldName: 'URI',
+      minWidth: 200
+    }]
+
+    this.selection = new Selection()
   }
 
   public render(): JSX.Element {
-
     return (
       <div>
         <input type="checkbox" hidden></input>
         <GroupedList
-          items={this._items}
+          items={this.items}
           onRenderCell={this._onRenderCell}
           selectionMode={SelectionMode.none}
-          groups={this._groups}
+          groups={this.groups}
           compact={true}
           groupProps={{
             headerProps: {
@@ -67,60 +66,119 @@ class GroupedListBasicExample extends React.Component<{}, {}> {
             }
           }}
         />
-        <DetailsRow
-          columns={this._columns}
-          groupNestingDepth={0}
-          item={this._items[1]}
-          itemIndex={0}
-          selection={this._selection}
-          selectionMode={SelectionMode.none}
-          indentWidth={ROW_HEIGHT / 2}
-          styles={{
-            root: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, width: '100%', background: '#f5f3fc' },
-          }}
-          compact={true}
-        />
       </div>
     )
   }
 
   private _onRenderCell = (nestingDepth: number, item: { uri: string, title: string }, itemIndex: number): JSX.Element => {
     return (
+      <div onClick={(_) => {
+        bus.emit('item-link-clicked', {
+          // @ts-ignore
+          targetURI: item.absoluteURI
+        })
+        console.log('! click event triggered on ', _)
+      }}>
+        
       <DetailsRow
-        columns={this._columns}
+        columns={this.columns}
         groupNestingDepth={nestingDepth}
         item={item}
         itemIndex={itemIndex}
-        selection={this._selection}
+        selection={this.selection}
         selectionMode={SelectionMode.none}
         indentWidth={ROW_HEIGHT / 2}
+        eventsToRegister={[{
+          eventName: 'click',
+          callback: (item, index, event) => {
+            console.log('! click event triggered on ', item, index, event)
+          }
+        }]}
         styles={{
           root: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, width: '100%', background: '#f5f3fc' },
         }}
         compact={true}
-      />
+        />
+        </div>
     )
   }
 
+  private convertURIToGroupedList(root: URINode): [URINode[], IGroup] {
+    const items = []
 
+    const dfs = (node: URINode, level: number): (IGroup | null) => {
+      if (node.childs.length === 0) {
+        items.push(node)
+        return null
+      }
+      
+      const gp: IGroup = {
+        count: 0,
+        key: node.URI,
+        name: node.title,
+        startIndex: items.length,
+        level: level,
+        children: [],
+        isCollapsed: true
+      }
+
+      let hasItem = false
+      let hasGroup = false
+      let childItems = []
+
+      for (const nd of node.childs) {
+        const cgp = dfs(nd, level + 1)
+        if (cgp !== null ) {
+          hasGroup = true
+          gp.children.push(cgp)
+          gp.count += cgp.count
+        } else {
+          hasItem = true
+          childItems.push(items.pop())
+          gp.count += 1
+        }
+      }
+
+      if (hasItem) {
+        if (hasGroup) {
+          const idxGroup: IGroup = {
+            count: childItems.length,
+            key: 'index',
+            name: 'Index',
+            startIndex: items.length,
+            level: level + 1,
+            children: [],
+            isCollapsed: false,
+          }
+          gp.children.push(idxGroup)
+        }
+        items.push(...childItems)
+      }
+
+      return gp
+    }
+
+    const gp = dfs(root, 0)
+    gp.isCollapsed = false
+
+    return [items, gp]
+  }
 
 }
 
 
-
-
-
-type SidebarComponentProperty = {
+export type SidebarComponentProperty = {
   title: string
   subTitle: string
   itemFlow: ClientItem[]
+  rootNode: URINode
 }
 
 const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
   root: { marginTop: 10 }
 }
 
-export default class SidebarComponent extends React.Component<SidebarComponentProperty, {}> {
+export class SidebarComponent extends React.Component<SidebarComponentProperty, {}> {
   componentDidMount() {
     bus.on('item-displaied', this.forceUpdate.bind(this))
     bus.on('item-closed', this.forceUpdate.bind(this))
@@ -156,7 +214,9 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
           </PivotItem>
           <PivotItem headerText="Index">
             <Label styles={labelStyles}>
-            <GroupedListBasicExample />
+            <IndexTree 
+              itemTree={this.props.rootNode}
+            />
             </Label>
           </PivotItem>
           <PivotItem headerText="More">
@@ -181,6 +241,7 @@ export default class SidebarComponent extends React.Component<SidebarComponentPr
           }
         }]
       }).listItem}
+      onClick={_ => bus.emit('item-link-clicked', {targetURI: item})}
       >
       {item}
     </div>

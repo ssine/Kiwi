@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: #f5f3fc;
   font-family: Constantia, Arial, Helvetica, sans-serif;
@@ -30,13 +34,16 @@ body {
 }
 
 .sidebar {
+  position: fixed;
   float: left;
   padding-left: 10px;
-  padding-top: 70px;
-  width: 250px;
+  /* padding-top: 70px; */
+  width: 300px;
+  overflow: auto;
 }
 
 .site-title {
+  padding-top: 60px;
   margin-bottom: 10px;
 }
 

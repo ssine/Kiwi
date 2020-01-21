@@ -1,8 +1,9 @@
 import bus from './eventBus'
 import { defaultItemsURI } from '../boot/config'
 import ClientItem from './ClientItem'
-import { postJSON } from './Common'
+import { postJSON, getPositionToDocument } from './Common'
 import Renderer from './Renderer'
+import { URIParser } from './URIParser'
 
 type URIItemMap = Record<string, ClientItem>
 
@@ -14,6 +15,7 @@ class ItemManager {
   itemFlow: ClientItem[] = []
   itemFlowDiv!: Element
   renderer: Renderer
+  URIParser: URIParser = new URIParser()
 
   async init() {
     // get system items
@@ -35,6 +37,7 @@ class ItemManager {
     console.log(this.map[defaultItemsURI])
 
     this.renderer = new Renderer()
+    this.URIParser.parseItemTree(this.map)
 
     const rootDiv = document.createElement('div')
 
@@ -44,7 +47,7 @@ class ItemManager {
       title: `Sine's Wiki`,
       subTitle: `Happiness is a choice`,
       itemFlow: this.itemFlow,
-      
+      rootNode: this.URIParser.rootNode
     }, sidebarElement)
     rootDiv.append(sidebarElement)
 
@@ -76,10 +79,19 @@ class ItemManager {
     return currentItem
   }
 
+  scrollToItem(it: ClientItem) {
+    const pos = getPositionToDocument(it.containerDiv)
+    scrollTo(pos.left, pos.top)
+  }
+
   async displayItem(uri: string) {
+    console.log(uri)
     let item = await this.getItemFromURI(uri)
 
-    if (item.displaied) return
+    if (item.displaied) {
+      this.scrollToItem(item)
+      return
+    }
 
     let el = document.createElement('div')
     el.className = 'item-container'
@@ -87,10 +99,11 @@ class ItemManager {
     this.itemFlowDiv.append(el)
     item.containerDiv = el
     this.itemFlow.push(item)
-
+    
     item.displaied = true
     bus.emit('item-displaied')
     bus.emit('item-flow-layout')
+    this.scrollToItem(item)
   }
 
   async closeItem(uri: string) {
