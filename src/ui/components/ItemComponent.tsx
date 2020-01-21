@@ -8,7 +8,7 @@ import { TextField } from 'office-ui-fabric-react/lib/TextField'
 import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
-import { isLinkInternal } from '../Common'
+import { isLinkInternal, getPositionToDocument } from '../Common'
 import MonacoEditor from 'react-monaco-editor'
 import { promisify } from 'util'
 
@@ -34,7 +34,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
   rootRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
   editingItem: Partial<ClientItem>
-  lastRect: DOMRect
+  lastPosition: { left: number, top: number }
 
   constructor(props: { item: ClientItem }) {
     super(props);
@@ -54,8 +54,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
     if (!this.props.item.editing) {
       this.parseItemLinks()
     }
-    this.lastRect = this.rootRef.current.getBoundingClientRect()
-    // bus.on('item-flow-layout', this.smoothLayoutChange.bind(this))
+    this.lastPosition = getPositionToDocument(this.rootRef.current)
+    bus.on('item-flow-layout', this.smoothLayoutChange.bind(this))
   }
 
   componentDidUpdate() {
@@ -181,6 +181,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
   }
 
   async onClose() {
+    await this.slideOut()
     bus.emit('item-close-clicked', {
       uri: this.props.item.uri
     })
@@ -190,17 +191,17 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
     this.props.item.editing = true
     await this.rotateOut()
     this.forceUpdate()
-    await this.rotateIn()
-    // bus.emit('item-flow-layout')
+    bus.emit('item-flow-layout')
+    this.rotateIn()
   }
-
+  
   async onCancelEdit() {
     this.props.item.editing = false
     this.editor = null
     await this.rotateOut()
     await promisify(this.forceUpdate.bind(this))()
-    await this.rotateIn()
-    // bus.emit('item-flow-layout')
+    bus.emit('item-flow-layout')
+    this.rotateIn()
   }
 
   /**
@@ -230,38 +231,55 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
    * Animation: rotate 90 deg to hide
    */
   async rotateOut() {
-    return anime({
+    const done = anime.timeline({
       targets: this.rootRef.current,
       rotateY: 90,
       duration: 100,
-      easing: 'linear'
-    }).finished
+      easing: 'linear',
+    }).add({}).finished
+    return done
+  }
+
+  /**
+   * Animation: slide 400px while fading out
+   */
+  async slideOut() {
+    const done = anime({
+      targets: this.rootRef.current,
+      translateX: -200,
+      opacity: 0,
+      duration: 100,
+      easing: 'easeOutQuad',
+    }).add({}).finished
+    return done
   }
 
   /**
    * Animation: rotate 90 deg to display
    */
   async rotateIn() {
-    return anime({
+    const done = anime.timeline({
       targets: this.rootRef.current,
       rotateY: 0,
       duration: 100,
       easing: 'linear',
-    }).finished
+    }).add({}).finished
+    return done
   }
 
   /**
    * Animation: slide to new position (vertically)
    */
   async smoothLayoutChange() {
-    const rect = this.rootRef.current.getBoundingClientRect()
-    const dy = this.lastRect.top - rect.top
-    anime.timeline({
+    this.rootRef.current.style.transform = ''
+    const newPosition = getPositionToDocument(this.rootRef.current)
+    const dy = this.lastPosition.top - newPosition.top
+    anime({
       targets: this.rootRef.current,
       translateY: dy,
       duration: 100,
-      easing: () => (t: number) => 1 - t
-    }).add({}).finished
-    this.lastRect = rect
+      easing: () => (t: number) => 1 - t,
+    })
+    this.lastPosition = newPosition
   }
 }

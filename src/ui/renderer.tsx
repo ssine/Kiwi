@@ -3,7 +3,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons'
 import { ItemComponent } from './components/ItemComponent'
-import SidebarComponent from './components/SidebarComponent'
+import { SidebarComponentProperty, SidebarComponent } from './components/SidebarComponent'
 import { loadTheme } from 'office-ui-fabric-react/lib/Styling'
 
 export default class Renderer {
@@ -44,7 +44,7 @@ export default class Renderer {
     )
   }
 
-  renderSidebar(config: {title: string, subTitle: string, itemFlow: ClientItem[]}, el: Element) {    
+  renderSidebar(config: SidebarComponentProperty, el: Element) {    
     ReactDOM.render(
       React.createElement(SidebarComponent, config),
       el
