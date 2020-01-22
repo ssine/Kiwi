@@ -46,7 +46,7 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
     bus.on('item-tree-changed', this.forceUpdate.bind(this))
   }
 
-  componentWillUpdate() {
+  UNSAFE_componentWillUpdate() {
     const [it, gp] = this.convertURIToGroupedList(this.props.itemTree)
 
     this.items = it

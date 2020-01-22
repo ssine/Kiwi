@@ -1,7 +1,15 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import * as React from 'react'
-import { IconButton } from 'office-ui-fabric-react'
+import { IconButton, ComboBox , DefaultButton, CommandBarButton,
+  Fabric,
+  IComboBox,
+  IComboBoxOption,
+  IComboBoxProps,
+  mergeStyles,
+  PrimaryButton,
+  SelectableOptionMenuItemType
+} from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
 import { TextField } from 'office-ui-fabric-react/lib/TextField'
@@ -11,6 +19,7 @@ import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument } from '../Common'
 import MonacoEditor from 'react-monaco-editor'
 import { promisify } from 'util'
+import { MIME } from '../../core/Common'
 
 type ItemButtonProperty = {
   iconName: string
@@ -29,7 +38,7 @@ const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButt
   )
 }
 
-export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
+export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any }, {}> {
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
@@ -41,6 +50,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
     this.contentRef = React.createRef();
     this.rootRef = React.createRef();
     this.editor = null
+    console.log(this.props)
     this.editingItem = {
       title: props.item.title,
       type: props.item.type,
@@ -106,11 +116,25 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
             </h2>
           </div>
           <div className="item-info"></div>
-          <div className="item-tags"></div>
           <div className="item-content" ref={this.contentRef}
             style={{paddingLeft: 28, paddingRight: 28, paddingBottom: 28}}
             dangerouslySetInnerHTML={{ __html: this.props.item.parsedContent }}
           />
+          <div className="item-tags">{this.props.item.headers.tags?.map(tag => {
+            const menuProps = this.props.sys?.tagMap[tag]
+              ?.filter((it: ClientItem) => it.uri !== this.props.item.uri)
+              .map((it: ClientItem) => { return {
+                key: it.uri,
+                text: it.title,
+                onClick: () => bus.emit('item-link-clicked', {targetURI: it.uri})
+              }
+            })
+            if (menuProps && menuProps.length !== 0) {
+              return <CommandBarButton text={tag} key={tag} styles={{root: {height: 40}}} menuProps={{ items: menuProps }}/>
+            } else {
+              return <CommandBarButton text={tag} key={tag} styles={{root: {height: 40}}} />
+            }
+          })}</div>
         </div>
       ) : (
         <div>
@@ -143,8 +167,36 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, {}> {
               editorDidMount={this.onEditorDidMount.bind(this)}
             />
           </div>
-          <div className="item-info"></div>
+          <div className="item-type" style={{width: 170}}>
+            <ComboBox
+              allowFreeform
+              autoComplete="on"
+              defaultSelectedKey={this.props.item.type}
+              styles={{
+                callout: {width: 170}
+              }}
+              options={[
+                { key: 'Content Header', text: 'Content', itemType: SelectableOptionMenuItemType.Header },
+                { key: 'text/markdown', text: 'text/markdown' },
+                { key: 'text/plain', text: 'text/plain' },
+                { key: 'text/html', text: 'text/html' },
+                { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
+                { key: 'Code Header', text: 'Code', itemType: SelectableOptionMenuItemType.Header },
+                { key: 'application/javascript', text: 'application/javascript' },
+                { key: 'text/x-python', text: 'text/x-python' },
+                { key: 'text/x-c', text: 'text/x-c' },
+              ]}
+              onChange={(event, options, index, value: MIME) => {
+                if (options)
+                  this.editingItem.type = options.text as MIME
+                else
+                  this.editingItem.type = value
+                console.log('item type changed to ', this.editingItem.type)
+              }}
+            />
+          </div>
           <div className="item-tags"></div>
+          <div className="item-info"></div>
         </div>
       )}
       </div>

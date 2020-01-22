@@ -6,6 +6,7 @@ type ItemHeader = {
   'author'?: string
   'create-time'?: moment.Moment
   'modify-time'?: moment.Moment
+  'tags'?: string[]
 }
 
 /**
@@ -18,6 +19,8 @@ abstract class BaseItem {
   title: string = ''
   /**
    * The MIME type of item content, null if unknown
+   * as user can have their own types, we will only maintain a runtime guarantee,
+   * but not compile time.
    */
   type: MIME | null = null
   /**

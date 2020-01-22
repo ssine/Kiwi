@@ -19,6 +19,9 @@ function isLinkInternal(el: HTMLAnchorElement): boolean {
   return el.host === window.location.host
 }
 
+/**
+ * Get the postition of an element relative to the root document
+ */
 function getPositionToDocument(el: Element): {top: number, left: number} {
   const rect = el.getBoundingClientRect()
   const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft

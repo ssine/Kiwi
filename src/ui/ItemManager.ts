@@ -16,6 +16,8 @@ class ItemManager {
   itemFlowDiv!: Element
   renderer: Renderer
   URIParser: URIParser = new URIParser()
+  tagMap: { [tag: string]: ClientItem[] } = {}
+  itemTypes: Set<string> = new Set()
 
   async init() {
     // get system items
@@ -23,22 +25,22 @@ class ItemManager {
     for (let k in systemItems) {
       this.map[systemItems[k].uri] = (new ClientItem()).assign(systemItems[k])
     }
-    console.log(this.map[defaultItemsURI].content)
+
     // get skinny items
     let skinnyItems = await postJSON('/get-skinny-items', {})
     for (let k in skinnyItems) {
-      console.log(k)
       let it = new ClientItem()
       it.assign(skinnyItems[k])
       it.contentLoaded = false
       this.map[it.uri] = it
     }
-    this.map[defaultItemsURI].content.split('\n').forEach(l => this.displayItem(l))
-    console.log(this.map[defaultItemsURI])
 
-    this.renderer = new Renderer()
+    this.generateTagMap()
+    this.generateItemTypes()
+
     this.URIParser.parseItemTree(this.map)
-
+    
+    this.renderer = new Renderer()
     const rootDiv = document.createElement('div')
 
     // render sidebar
@@ -64,6 +66,9 @@ class ItemManager {
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
     bus.on('item-delete-clicked', (data) => this.closeItem(data.uri))
     bus.on('create-item-clicked', (data) => this.createItem(data))
+
+    // render default items
+    this.map[defaultItemsURI].content.split('\n').forEach(l => this.displayItem(l))
   }
   
   async getItemFromURI(uri: string): Promise<ClientItem|null> {
@@ -79,14 +84,31 @@ class ItemManager {
     return currentItem
   }
 
+  generateTagMap() {
+    for (const k in this.map) {
+      if (! this.map[k].headers.tags) continue
+      for (const tag of this.map[k].headers.tags) {
+        if (! this.tagMap[tag]) this.tagMap[tag] = [this.map[k]]
+        else this.tagMap[tag].push(this.map[k])
+      }
+    }
+  }
+  
+  generateItemTypes() {
+    for (const k in this.map) {
+      if (! this.map[k].type) continue
+      this.itemTypes.add(this.map[k].type)
+    }
+  }
+
   scrollToItem(it: ClientItem) {
     const pos = getPositionToDocument(it.containerDiv)
     scrollTo(pos.left, pos.top)
   }
 
   async displayItem(uri: string) {
-    console.log(uri)
     let item = await this.getItemFromURI(uri)
+    console.log('displaing ', item)
 
     if (item.displaied) {
       this.scrollToItem(item)
@@ -95,7 +117,7 @@ class ItemManager {
 
     let el = document.createElement('div')
     el.className = 'item-container'
-    this.renderer.renderItem(item, el)
+    this.renderer.renderItem(item, el, { tagMap: this.tagMap, itemTypes: this.itemTypes })
     this.itemFlowDiv.append(el)
     item.containerDiv = el
     this.itemFlow.push(item)

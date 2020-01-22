@@ -6,6 +6,7 @@ type MIME =
   'application/pdf' |
   'text/plain' |
   'text/markdown' |
+  'text/javascript' |
   'text/html' |
   'text/x-sqrl' |
   'image/gif' |
