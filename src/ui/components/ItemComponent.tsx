@@ -1,18 +1,12 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import * as React from 'react'
-import { IconButton, ComboBox , DefaultButton, CommandBarButton,
-  Fabric,
-  IComboBox,
-  IComboBoxOption,
-  IComboBoxProps,
-  mergeStyles,
-  PrimaryButton,
+import {
+  IconButton, ComboBox, DefaultButton, CommandBarButton, TextField, ITextField,
   SelectableOptionMenuItemType
 } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
-import { TextField } from 'office-ui-fabric-react/lib/TextField'
 import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
@@ -38,6 +32,72 @@ const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButt
   )
 }
 
+class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boolean[] }> {
+  stagedValues: string[]
+  textRefs: (ITextField | null)[]
+  constructor(props: { tags: string[] }) {
+    super(props)
+    this.state = {
+      isEditing: Array(this.props.tags.length).fill(false)
+    }
+    this.textRefs = Array(this.props.tags.length).fill(null)
+    this.stagedValues = JSON.parse(JSON.stringify(this.props.tags))
+  }
+  render() {
+    return <div>{this.stagedValues.map((tag, idx) => {
+      if (this.state.isEditing[idx]) {
+        return <div key={idx} style={{ display: 'inline-flex', paddingLeft: 8 }}>
+          <TextField
+            defaultValue={tag}
+            componentRef={ref => this.textRefs[idx] = ref}
+            styles={{ root: { width: 80, userSelect: 'text' } }}
+            onChange={(_, newValue) => {
+              this.stagedValues[idx] = newValue
+            }}
+          />
+          <IconButton
+            iconProps={{ iconName: 'Accept' }}
+            onClick={_ => {
+              if (this.stagedValues[idx] !== '') {
+                this.props.tags[idx] = this.stagedValues[idx]
+                this.state.isEditing[idx] = false
+                this.setState(this.state)
+              }
+            }}
+          />
+        </div>
+      } else {
+        return <div style={{ paddingLeft: 8, display: 'inline-flex' }}><DefaultButton
+          split
+          key={idx}
+          text={tag}
+          onClick={_ => {
+            this.state.isEditing[idx] = true
+            this.setState(this.state)
+          }}
+          menuProps={{ items: [], hidden: true }}
+          menuIconProps={{
+            iconName: 'Delete',
+          }}
+          onMenuClick={_ => {
+            this.props.tags.splice(idx, 1)
+            this.state.isEditing.splice(idx, 1)
+            this.stagedValues.splice(idx, 1)
+            this.setState(this.state)
+          }}
+        /></div>
+      }
+    }
+
+    )
+    } <IconButton iconProps={{ iconName: 'Add' }} disabled={this.stagedValues[this.stagedValues.length-1] === ''} onClick={_ => {
+      this.state.isEditing.push(true)
+      this.stagedValues.push('')
+      this.setState(this.state)
+    }} /> </div>
+  }
+}
+
 export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any }, {}> {
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
@@ -50,14 +110,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     this.contentRef = React.createRef();
     this.rootRef = React.createRef();
     this.editor = null
-    console.log(this.props)
-    this.editingItem = {
-      title: props.item.title,
-      type: props.item.type,
-      uri: props.item.uri,
-      content: props.item.content,
-      headers: props.item.headers,
-    }
+    this.generateEditingItem()
   }
 
   componentDidMount() {
@@ -83,122 +136,126 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   render() {
     return (
       <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
-      {!this.props.item.editing ? (
-        <div>
-          <div className="item-controls">
-            <ItemButton
-              iconName='Delete'
-              label='Delete'
-              onClick={this.onDelete.bind(this)}
+        {!this.props.item.editing ? (
+          <div>
+            <div className="item-controls">
+              <ItemButton
+                iconName='Delete'
+                label='Delete'
+                onClick={this.onDelete.bind(this)}
+              />
+              <ItemButton
+                iconName='Edit'
+                label='Edit'
+                onClick={this.onBeginEdit.bind(this)}
+              />
+              <ItemButton
+                iconName='Cancel'
+                label='Close'
+                onClick={this.onClose.bind(this)}
+              />
+            </div>
+            <div style={{ display: 'flow-root', height: 40 }}>
+              <Breadcrumb
+                items={this.props.item.uri.split('/').map((p) => { return { text: p, key: p } })}
+                maxDisplayedItems={3}
+                overflowAriaLabel="More links"
+                styles={{ root: { margin: 0 }, list: { height: 40 } }}
+              />
+            </div>
+            <div className="item-titlebar">
+              <h2 className="item-title" style={{ margin: 7 }}>
+                {this.props.item.title}
+              </h2>
+            </div>
+            <div className="item-info"></div>
+            <div className="item-content" ref={this.contentRef}
+              style={{ paddingLeft: 28, paddingRight: 28, paddingBottom: 28 }}
+              dangerouslySetInnerHTML={{ __html: this.props.item.parsedContent }}
             />
-            <ItemButton
-              iconName='Edit'
-              label='Edit'
-              onClick={this.onBeginEdit.bind(this)}
-            />
-            <ItemButton
-              iconName='Cancel'
-              label='Close'
-              onClick={this.onClose.bind(this)}
-            />
-          </div>
-          <div style={{ display: 'flow-root', height: 40 }}>
-            <Breadcrumb
-              items={this.props.item.uri.split('/').map((p) => {return {text: p, key: p}})}
-              maxDisplayedItems={3}
-              overflowAriaLabel="More links"
-              styles={{ root: { margin: 0 }, list: { height: 40 } }}
-            />
-          </div>
-          <div className="item-titlebar">
-            <h2 className="item-title" style={{ margin: 7 }}>
-              {this.props.item.title}
-            </h2>
-          </div>
-          <div className="item-info"></div>
-          <div className="item-content" ref={this.contentRef}
-            style={{paddingLeft: 28, paddingRight: 28, paddingBottom: 28}}
-            dangerouslySetInnerHTML={{ __html: this.props.item.parsedContent }}
-          />
-          <div className="item-tags">{this.props.item.headers.tags?.map(tag => {
-            const menuProps = this.props.sys?.tagMap[tag]
-              ?.filter((it: ClientItem) => it.uri !== this.props.item.uri)
-              .map((it: ClientItem) => { return {
-                key: it.uri,
-                text: it.title,
-                onClick: () => bus.emit('item-link-clicked', {targetURI: it.uri})
+            <div className="item-tags">{this.props.item.headers.tags?.map(tag => {
+              const menuProps = this.props.sys?.tagMap[tag]
+                ?.filter((it: ClientItem) => it.uri !== this.props.item.uri)
+                .map((it: ClientItem) => {
+                  return {
+                    key: it.uri,
+                    text: it.title,
+                    onClick: () => bus.emit('item-link-clicked', { targetURI: it.uri })
+                  }
+                })
+              if (menuProps && menuProps.length !== 0) {
+                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 40 } }} menuProps={{ items: menuProps }} />
+              } else {
+                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 40 } }} />
               }
-            })
-            if (menuProps && menuProps.length !== 0) {
-              return <CommandBarButton text={tag} key={tag} styles={{root: {height: 40}}} menuProps={{ items: menuProps }}/>
-            } else {
-              return <CommandBarButton text={tag} key={tag} styles={{root: {height: 40}}} />
-            }
-          })}</div>
-        </div>
-      ) : (
-        <div>
-          <span className="item-controls">
-            <ItemButton
-              iconName='Accept'
-              label='Save'
-              onClick={this.onSave.bind(this)}
-            />
-            <ItemButton
-              iconName='RevToggleKey'
-              label='Cancel'
-              onClick={this.onCancelEdit.bind(this)}
-            />
-          </span>
-          <div className="item-uri-edit" style={{ display: 'flow-root', height: 40 }}>
-            <TextField value={this.editingItem.uri} onChange={(evt, value) => {
-              this.editingItem.uri = value, this.forceUpdate()
-            }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 27 } }} />
+            })}</div>
           </div>
-          <div className="item-title-edit" style={{ display: 'flow-root', height: 40, fontSize: 35 }}>
-            <TextField value={this.editingItem.title} onChange={(evt, value) => {
-              this.editingItem.title = value, this.forceUpdate()
-            }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30 } }} />
-          </div>
-          <div className="edit-item-content" ref={this.contentRef} >
-            <MonacoEditor
-              language="markdown"
-              value={this.props.item.content}
-              editorDidMount={this.onEditorDidMount.bind(this)}
-            />
-          </div>
-          <div className="item-type" style={{width: 170}}>
-            <ComboBox
-              allowFreeform
-              autoComplete="on"
-              defaultSelectedKey={this.props.item.type}
-              styles={{
-                callout: {width: 170}
-              }}
-              options={[
-                { key: 'Content Header', text: 'Content', itemType: SelectableOptionMenuItemType.Header },
-                { key: 'text/markdown', text: 'text/markdown' },
-                { key: 'text/plain', text: 'text/plain' },
-                { key: 'text/html', text: 'text/html' },
-                { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-                { key: 'Code Header', text: 'Code', itemType: SelectableOptionMenuItemType.Header },
-                { key: 'application/javascript', text: 'application/javascript' },
-                { key: 'text/x-python', text: 'text/x-python' },
-                { key: 'text/x-c', text: 'text/x-c' },
-              ]}
-              onChange={(event, options, index, value: MIME) => {
-                if (options)
-                  this.editingItem.type = options.text as MIME
-                else
-                  this.editingItem.type = value
-                console.log('item type changed to ', this.editingItem.type)
-              }}
-            />
-          </div>
-          <div className="item-tags"></div>
-          <div className="item-info"></div>
-        </div>
-      )}
+        ) : (
+            <div>
+              <span className="item-controls">
+                <ItemButton
+                  iconName='Accept'
+                  label='Save'
+                  onClick={this.onSave.bind(this)}
+                />
+                <ItemButton
+                  iconName='RevToggleKey'
+                  label='Cancel'
+                  onClick={this.onCancelEdit.bind(this)}
+                />
+              </span>
+              <div className="item-uri-edit" style={{ display: 'flow-root', height: 40 }}>
+                <TextField value={this.editingItem.uri} onChange={(evt, value) => {
+                  this.editingItem.uri = value, this.forceUpdate()
+                }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 27 } }} />
+              </div>
+              <div className="item-title-edit" style={{ display: 'flow-root', height: 40, fontSize: 35 }}>
+                <TextField value={this.editingItem.title} onChange={(evt, value) => {
+                  this.editingItem.title = value, this.forceUpdate()
+                }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30 } }} />
+              </div>
+              <div className="edit-item-content" ref={this.contentRef} >
+                <MonacoEditor
+                  language="markdown"
+                  value={this.props.item.content}
+                  editorDidMount={this.onEditorDidMount.bind(this)}
+                />
+              </div>
+              <div className="item-type" style={{ width: 170 }}>
+                <ComboBox
+                  allowFreeform
+                  autoComplete="on"
+                  defaultSelectedKey={this.props.item.type}
+                  styles={{
+                    root: { float: 'left' },
+                    callout: { width: 170 }
+                  }}
+                  options={[
+                    { key: 'Content Header', text: 'Content', itemType: SelectableOptionMenuItemType.Header },
+                    { key: 'text/markdown', text: 'text/markdown' },
+                    { key: 'text/plain', text: 'text/plain' },
+                    { key: 'text/html', text: 'text/html' },
+                    { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
+                    { key: 'Code Header', text: 'Code', itemType: SelectableOptionMenuItemType.Header },
+                    { key: 'application/javascript', text: 'application/javascript' },
+                    { key: 'text/x-python', text: 'text/x-python' },
+                    { key: 'text/x-c', text: 'text/x-c' },
+                  ]}
+                  onChange={(event, options, index, value: MIME) => {
+                    if (options)
+                      this.editingItem.type = options.text as MIME
+                    else
+                      this.editingItem.type = value
+                    console.log('item type changed to ', this.editingItem.type)
+                  }}
+                />
+              </div>
+              <div className="item-tags">
+                <TagsComponent tags={this.editingItem.headers.tags} />
+              </div>
+              <div className="item-info"></div>
+            </div>
+          )}
       </div>
     )
   }
@@ -247,7 +304,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     bus.emit('item-flow-layout')
     this.rotateIn()
   }
-  
+
   async onCancelEdit() {
     this.props.item.editing = false
     this.editor = null
@@ -255,6 +312,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     await promisify(this.forceUpdate.bind(this))()
     bus.emit('item-flow-layout')
     this.rotateIn()
+    this.generateEditingItem()
   }
 
   /**
@@ -278,6 +336,16 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
         el.target = '_blank'
       }
     })
+  }
+
+  generateEditingItem() {
+    this.editingItem = {
+      title: this.props.item.title,
+      type: this.props.item.type,
+      uri: this.props.item.uri,
+      content: this.props.item.content,
+      headers: JSON.parse(JSON.stringify(this.props.item.headers)),
+    }
   }
 
   /**
