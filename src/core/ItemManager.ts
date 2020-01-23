@@ -76,6 +76,8 @@ class ItemManager {
       it.title = this.itemMap[k].title
       it.type = this.itemMap[k].type
       it.headers = this.itemMap[k].headers
+      if (it.uri.startsWith('$'))
+        it.content = this.itemMap[k].content
       lst.push(it)
     }
     return lst

@@ -54,7 +54,11 @@ const getItemURI = function generateURIFromItem(item: ServerItem): string {
 }
 
 const URIDFS = function URIDFS(item: ServerItem, prefix: string) {
-  const uri = `${prefix}${getItemURI(item)}`
+  let uri = `${prefix}${getItemURI(item)}`
+  if (item.headers.uri) {
+    logger.info(`Custom URI [${item.headers.uri}] supressed default one for [${item.title}].`)
+    uri = item.headers.uri
+  }
   item.uri = uri
   URIMap[item.uri] = item
   logger.debug(`Assign URI [${uri}] to item [${item.title}].`)

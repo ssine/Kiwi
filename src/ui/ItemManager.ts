@@ -1,5 +1,5 @@
 import bus from './eventBus'
-import { defaultItemsURI } from '../boot/config'
+import { defaultItemsURI, pageConfigs } from '../boot/config'
 import ClientItem from './ClientItem'
 import { postJSON, getPositionToDocument } from './Common'
 import Renderer from './Renderer'
@@ -35,6 +35,14 @@ class ItemManager {
       this.map[it.uri] = it
     }
 
+    document.title = this.map[pageConfigs.title].content.trim()
+
+    const link = document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'shortcut icon';
+    link.href = '/' + pageConfigs.favicon;
+    document.getElementsByTagName('head')[0].appendChild(link);
+
     this.generateTagMap()
     this.generateItemTypes()
 
@@ -46,8 +54,8 @@ class ItemManager {
     // render sidebar
     let sidebarElement = document.createElement('div')
     this.renderer.renderSidebar({
-      title: `Sine's Wiki`,
-      subTitle: `Happiness is a choice`,
+      title: this.map[pageConfigs.title].content.trim(),
+      subTitle: this.map[pageConfigs.subTitle].content.trim(),
       itemFlow: this.itemFlow,
       rootNode: this.URIParser.rootNode
     }, sidebarElement)

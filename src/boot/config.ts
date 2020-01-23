@@ -6,3 +6,9 @@ export const template = {
 }
 
 export const defaultItemsURI = '$kiwi/config/default_items'
+
+export const pageConfigs = {
+  title: '$kiwi/config/site-title',
+  subTitle: '$kiwi/config/site-sub-title',
+  favicon: '$kiwi/ui/icon/favicon.ico'
+}
