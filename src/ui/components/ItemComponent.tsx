@@ -67,7 +67,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
           />
         </div>
       } else {
-        return <div style={{ paddingLeft: 8, display: 'inline-flex' }}><DefaultButton
+        return <div key={idx} style={{ paddingLeft: 8, display: 'inline-flex' }}><DefaultButton
           split
           key={idx}
           text={tag}
@@ -121,11 +121,14 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     bus.on('item-flow-layout', this.smoothLayoutChange.bind(this))
   }
 
+  componentWillUnmount() {
+    bus.off('item-flow-layout', this.smoothLayoutChange.bind(this))
+  }
+
   componentDidUpdate() {
     if (!this.props.item.editing) {
       this.parseItemLinks()
     }
-    bus.on('item-flow-layout', this.smoothLayoutChange.bind(this))
   }
 
   onEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco) {

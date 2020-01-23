@@ -25,6 +25,7 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
   private columns: IColumn[]
   private groups: IGroup[]
   private selection: Selection
+  update: any
 
   constructor(props: IndexTreeProperty) {
     super(props)
@@ -42,8 +43,14 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
     }]
 
     this.selection = new Selection()
-
-    bus.on('item-tree-changed', this.forceUpdate.bind(this))
+    this.update = () => { this.forceUpdate() }
+  }
+  
+  componentDidMount() {
+    bus.on('item-tree-changed', this.update)
+  }
+  componentWillUnmount() {
+    bus.off('item-tree-changed', this.update)
   }
 
   UNSAFE_componentWillUpdate() {
@@ -265,9 +272,20 @@ type ItemFlowVisProperty = {
 }
 
 class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}> {
+  update: any
+
+  constructor(props: ItemFlowVisProperty) {
+    super(props)
+    this.update = () => { this.forceUpdate() }
+  }
   componentDidMount() {
-    bus.on('item-displaied', this.forceUpdate.bind(this))
-    bus.on('item-closed', this.forceUpdate.bind(this))
+    bus.on('item-displaied', this.update)
+    bus.on('item-closed', this.update)
+  }
+  
+  componentWillUnmount() {
+    bus.off('item-displaied', this.update)
+    bus.off('item-closed', this.update)
   }
 
   render() {
