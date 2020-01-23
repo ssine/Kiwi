@@ -38,10 +38,10 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   constructor(props: { tags: string[] }) {
     super(props)
     this.state = {
-      isEditing: Array(this.props.tags.length).fill(false)
+      isEditing: Array(props.tags.length).fill(false)
     }
-    this.textRefs = Array(this.props.tags.length).fill(null)
-    this.stagedValues = JSON.parse(JSON.stringify(this.props.tags))
+    this.textRefs = Array(props.tags.length).fill(null)
+    this.stagedValues = JSON.parse(JSON.stringify(props.tags))
   }
   render() {
     return <div>{this.stagedValues.map((tag, idx) => {
@@ -122,7 +122,10 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   }
 
   componentDidUpdate() {
-    this.componentDidMount()
+    if (!this.props.item.editing) {
+      this.parseItemLinks()
+    }
+    bus.on('item-flow-layout', this.smoothLayoutChange.bind(this))
   }
 
   onEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco) {
@@ -221,11 +224,11 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   editorDidMount={this.onEditorDidMount.bind(this)}
                 />
               </div>
-              <div className="item-type" style={{ width: 170 }}>
+              <div className="item-type" style={{ width: 170, height: 32 }}>
                 <ComboBox
                   allowFreeform
                   autoComplete="on"
-                  defaultSelectedKey={this.props.item.type}
+                  defaultSelectedKey={this.props.item.type ? this.props.item.type : 'text/markdown'}
                   styles={{
                     root: { float: 'left' },
                     callout: { width: 170 }
@@ -251,7 +254,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 />
               </div>
               <div className="item-tags">
-                <TagsComponent tags={this.editingItem.headers.tags} />
+                {this.editingItem.headers.tags && <TagsComponent tags={this.editingItem.headers.tags} />}
               </div>
               <div className="item-info"></div>
             </div>
@@ -350,42 +353,66 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
 
   /**
    * Animation: rotate 90 deg to hide
+   * Note: .finished promise returned by anime.js is fucking erroneous,
+   *       so I'm using a custom promisified style
    */
   async rotateOut() {
-    const done = anime.timeline({
-      targets: this.rootRef.current,
-      rotateY: 90,
-      duration: 100,
-      easing: 'linear',
-    }).add({}).finished
-    return done
+    return new Promise((res, rej) => {
+      anime({
+        targets: this.rootRef.current,
+        rotateY: 90,
+        duration: 100,
+        easing: 'linear',
+        complete: () => res()
+      })
+    })
   }
 
   /**
    * Animation: slide 400px while fading out
    */
   async slideOut() {
-    const done = anime({
-      targets: this.rootRef.current,
-      translateX: -200,
-      opacity: 0,
-      duration: 100,
-      easing: 'easeOutQuad',
-    }).add({}).finished
-    return done
+    return new Promise((res, rej) => {
+      anime({
+        targets: this.rootRef.current,
+        translateX: -200,
+        opacity: 0,
+        duration: 100,
+        easing: 'easeOutQuad',
+        complete: () => res()
+      })
+    })
   }
 
   /**
    * Animation: rotate 90 deg to display
    */
   async rotateIn() {
-    const done = anime.timeline({
-      targets: this.rootRef.current,
-      rotateY: 0,
-      duration: 100,
-      easing: 'linear',
-    }).add({}).finished
-    return done
+    return new Promise((res, rej) => {
+      anime({
+        targets: this.rootRef.current,
+        rotateY: 0,
+        duration: 100,
+        easing: 'linear',
+        complete: () => res()
+      })
+    })
+  }
+
+  /**
+   * Animation: Perform FLIP operation given delta x y
+   */
+  async FLIPOperation(dx: number, dy: number) {
+    return new Promise((res, rej) => {
+      anime({
+        targets: this.rootRef.current,
+        translateX: dx,
+        translateY: dy,
+        duration: 100,
+        easing: () => (t: number) => 1 - t,
+        complete: () => res()
+      })
+    })
   }
 
   /**
@@ -394,13 +421,14 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   async smoothLayoutChange() {
     this.rootRef.current.style.transform = ''
     const newPosition = getPositionToDocument(this.rootRef.current)
+    if (this.lastPosition.left === 0) {
+      await this.FLIPOperation(newPosition.left, 0)
+      this.lastPosition = newPosition
+      return
+    }
+    const dx = this.lastPosition.left - newPosition.left
     const dy = this.lastPosition.top - newPosition.top
-    anime({
-      targets: this.rootRef.current,
-      translateY: dy,
-      duration: 100,
-      easing: () => (t: number) => 1 - t,
-    })
+    await this.FLIPOperation(dx, dy)
     this.lastPosition = newPosition
   }
 }
