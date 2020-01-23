@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as commandLineParser from "command-line-args"
 import manager from '../core/ItemManager'
 import serve from '../core/server'

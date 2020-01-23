@@ -1,11 +1,14 @@
 {
   "name": "kiwi-wiki",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "a flat file personal wiki.",
   "main": "build/boot/main.js",
   "files": [
     "build/**/*"
   ],
+  "bin": {
+    "kiwi": "build/boot/main.js"
+  },
   "scripts": {
     "test": "npm run build && node build/boot/main.js ../test",
     "prepare": "shx rm -rf build && npm run build:core && npm run build:ui_prod",
@@ -23,7 +26,6 @@
     "@types/cheerio": "^0.22.15",
     "@types/command-line-args": "^5.0.0",
     "@types/express": "^4.17.2",
-    "@types/jquery": "^3.3.31",
     "@types/js-yaml": "^3.12.1",
     "@types/marked": "^0.7.2",
     "@types/moment": "^2.13.0",
@@ -42,6 +44,7 @@
     "office-ui-fabric-react": "^7.82.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-monaco-editor": "^0.33.0",
     "shx": "^0.3.2",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.1.2",
@@ -57,11 +60,9 @@
     "cheerio": "^1.0.0-rc.3",
     "command-line-args": "^5.1.1",
     "express": "^4.17.1",
-    "jquery": "^3.4.1",
     "js-yaml": "^3.13.1",
     "marked": "^0.8.0",
     "moment": "^2.24.0",
-    "react-monaco-editor": "^0.33.0",
     "squirrelly": "^7.9.0",
     "winston": "^3.2.1"
   }
