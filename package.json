@@ -1,16 +1,18 @@
 {
-  "name": "kiwi",
+  "name": "kiwi-wiki",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "description": "a flat file personal wiki.",
+  "main": "build/boot/main.js",
   "files": [
     "build/**/*"
   ],
   "scripts": {
     "test": "npm run build && node build/boot/main.js ../test",
+    "prepare": "shx rm -rf build && npm run build:core && npm run build:ui_prod",
     "build": "npm run build:core && npm run build:ui",
     "build:core": "tsc && shx cp -r src/kiwi build/",
-    "build:ui": "webpack && shx cp -r node_modules/@uifabric/icons/fonts build/browser/uifabric-icons",
+    "build:ui": "webpack --mode=development && shx cp -r node_modules/@uifabric/icons/fonts build/browser/uifabric-icons",
+    "build:ui_prod": "webpack --mode=production && shx cp -r node_modules/@uifabric/icons/fonts build/browser/uifabric-icons",
     "build:doc": "typedoc src --out build/doc --exclude src/ui/**/*"
   },
   "author": "Sine Liu",

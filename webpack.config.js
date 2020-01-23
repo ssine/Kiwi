@@ -3,7 +3,6 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
-  mode: "development",
   devtool: "source-map",
   entry: {
     app: "./src/ui/main.ts"
