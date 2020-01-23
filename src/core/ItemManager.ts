@@ -7,6 +7,9 @@ import { ServerItem } from './ServerItem'
 import { FileSynchronizer } from './FileSynchronizer'
 import { generateURI, URIItemMap } from './URI'
 import { assignCommonProperties } from './Common'
+import { getLogger } from './log'
+
+const logger = getLogger('itemm')
 
 /**
  * Wrapper class of functions when manageing items
@@ -76,6 +79,18 @@ class ItemManager {
       lst.push(it)
     }
     return lst
+  }
+
+  getSearchResult(input: string): ServerItem[] {
+    const res = []
+    const pattern = new RegExp(input, 'gim')
+    for (const k in this.itemMap) {
+      const it = this.itemMap[k]
+      if (pattern.test(it.title) || pattern.test(it.uri) || pattern.test(it.content))
+        res.push(it)
+    }
+    logger.info(`${res.length} result for search ${input} found`)
+    return res
   }
 
 }

@@ -3,9 +3,19 @@ import { EventEmitter } from 'events'
 /**
  * List of events and their arguments:
  * 
+ * ---   UI Category   ---
+ * 
  * item-flow-layout:
  *   triggered when the item-flow div was rerendered, so that other childs can
  *   animate to ease their motion.
+ * 
+ * item-displaied:
+ *   triggered when an item was displaied in item flow.
+ *   
+ * item-closed:
+ *   triggered when an item was removed from item flow
+ * 
+ * ---   Control Category   ---
  * 
  * item-link-clicked:
  *   triggered when a link pointing to an item is clicked.
@@ -28,12 +38,17 @@ import { EventEmitter } from 'events'
  * 
  *   uri: custom uri for new items to override default one.
  * 
- * item-displaied:
- *   triggered when an item was displaied in item flow.
- *   
- * item-closed:
- *   triggered when an item was removed from item flow
+ * ---   Data Transfer Category   ---
  * 
+ * search-triggered:
+ *   triggered when a search is submitted.
+ * 
+ *   input: the search string
+ *   token: string to append in return event
+ * 
+ *  Return event:  search-result-[token]
+ *    
+ *    items: ClientItems[]
  * 
  * Relayed messages --- triggered by bus when events in a category is triggered.
  * 

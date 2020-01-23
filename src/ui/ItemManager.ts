@@ -66,6 +66,7 @@ class ItemManager {
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
     bus.on('item-delete-clicked', (data) => this.closeItem(data.uri))
     bus.on('create-item-clicked', (data) => this.createItem(data))
+    bus.on('search-triggered', (data) => this.processSearch(data))
 
     // render default items
     this.map[defaultItemsURI].content.split('\n').forEach(l => this.displayItem(l))
@@ -164,6 +165,20 @@ class ItemManager {
 
   async deleteItem(uri: string) {
     
+  }
+
+  async processSearch(data: { input: string, token: string }) {
+    const result = await postJSON('/get-search-result', { input: data.input })
+    const lst = []
+    for (const res of result) {
+      if (!this.map[res.uri]) {
+        const cur = new ClientItem()
+        cur.assign(res)
+        this.map[res.uri] = cur
+      }
+      lst.push(this.map[res.uri])
+    }
+    bus.emit(`search-result-${data.token}`, { items: lst })
   }
 
   updateURI() {

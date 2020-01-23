@@ -37,6 +37,11 @@ const serve = function serve() {
     res.send(JSON.stringify(manager.getSkinnyItems()))
   })
 
+  app.post('/get-search-result', (req, res) => {
+    logger.info(`search request ${req.body.input} got`)
+    res.send(JSON.stringify(manager.getSearchResult(req.body.input)))
+  })
+
   app.listen(port, _ => logger.info(`Server set up on port ${port}`))
 }
 
