@@ -6,6 +6,7 @@ import MarkdownParser from '../core/MarkdownParser'
 
 const options = commandLineParser([
   { name: 'root', type: String, defaultOption: true, defaultValue: '.' },
+  { name: 'port', alias: 'p', type: Number, defaultValue: 3000 },
   { name: 'log', alias: 'l', type: String, defaultValue: 'debug' }
 ])
 
@@ -17,7 +18,7 @@ md.register()
 
 async function run () {
   await manager.loadItems(options.root)
-  serve()
+  serve(options.port)
 }
 
 run()

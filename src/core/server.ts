@@ -11,10 +11,9 @@ import { resolve } from 'path'
 const logger = getLogger('server')
 
 const app = express()
-const port = 3000
 app.use(bodyParser.json())
 
-const serve = function serve() {
+const serve = function serve(port: number) {
   app.use('/\\$kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
