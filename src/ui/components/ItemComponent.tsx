@@ -229,13 +229,12 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   editorDidMount={this.onEditorDidMount.bind(this)}
                 />
               </div>
-              <div className="item-type" style={{ width: 170, height: 32 }}>
+              <div className="item-type" style={{ width: 170, height: 32, float: 'left' }}>
                 <ComboBox
                   allowFreeform
                   autoComplete="on"
                   defaultSelectedKey={this.props.item.type ? this.props.item.type : 'text/markdown'}
                   styles={{
-                    root: { float: 'left' },
                     callout: { width: 170 }
                   }}
                   options={[
@@ -259,7 +258,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 />
               </div>
               <div className="item-tags">
-                {this.editingItem.headers.tags && <TagsComponent tags={this.editingItem.headers.tags} />}
+                <TagsComponent tags={this.editingItem.headers.tags} />
               </div>
               <div className="item-info"></div>
             </div>
