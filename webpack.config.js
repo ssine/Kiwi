@@ -45,6 +45,10 @@ module.exports = {
       title: "Kiwi"
     }),
     new MonacoWebpackPlugin(),
-    new BundleAnalyzerPlugin()
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'disabled',
+      generateStatsFile: true,
+      statsOptions: { source: false }
+    })
   ]
 };
