@@ -10,7 +10,7 @@
     "kiwi": "build/boot/main.js"
   },
   "scripts": {
-    "test": "npm run build && node build/boot/main.js serve ../test",
+    "test": "npm run build && node build/boot/main.js serve ../wiki",
     "prepare": "shx rm -rf build && npm run build:core && npm run build:ui_prod",
     "build": "shx rm -rf build && npm run build:core && npm run build:ui",
     "build:core": "tsc && shx cp -r src/kiwi build/",
