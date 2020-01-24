@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   devtool: "source-map",
@@ -43,6 +44,7 @@ module.exports = {
     new HtmlWebPackPlugin({
       title: "Kiwi"
     }),
-    new MonacoWebpackPlugin()
+    new MonacoWebpackPlugin(),
+    new BundleAnalyzerPlugin()
   ]
 };
