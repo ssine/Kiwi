@@ -224,6 +224,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 <MonacoEditor
                   language="markdown"
                   value={this.props.item.content}
+                  options={{ lineDecorationsWidth: 0 }}
                   editorDidMount={this.onEditorDidMount.bind(this)}
                 />
               </div>
