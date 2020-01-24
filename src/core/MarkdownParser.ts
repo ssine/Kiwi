@@ -2,6 +2,7 @@ import { Parser } from './Parser'
 import { MIME } from './Common'
 import * as cheerio from 'cheerio'
 import * as marked from 'marked'
+import * as hljs from 'highlight.js'
 
 class MarkdownParser extends Parser {
 
@@ -14,7 +15,10 @@ class MarkdownParser extends Parser {
       sanitize: false,
       smartLists: true,
       smartypants: false,
-      xhtml: false
+      xhtml: false,
+      highlight: (code, lang, callback) => {
+        return hljs.highlight(lang, code).value
+      }
     });
   }
 
