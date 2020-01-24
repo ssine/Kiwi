@@ -81,9 +81,12 @@ class ItemManager {
   }
   
   async getItemFromURI(uri: string): Promise<ClientItem|null> {
-    console.log(uri)
-    if (this.map[uri] && this.map[uri].contentLoaded)
+    const possibleIndex = this.concatURI(uri, 'index')
+    if (this.map[possibleIndex])
+      return this.getItemFromURI(possibleIndex)
+    if (this.map[uri] && this.map[uri].contentLoaded) {
       return this.map[uri]
+    }
     // fetch from server
     let currentItem = new ClientItem()
     currentItem.uri = uri
@@ -115,8 +118,29 @@ class ItemManager {
     scrollTo(pos.left, pos.top)
   }
 
+  resolveURI(a: string, b: string): string {
+    if (a.endsWith('/')) {
+      while (a.endsWith('/')) a = a.slice(0, a.length-1)
+    } else if (a.search('/') !== -1) {
+      while (! a.endsWith('/')) a = a.slice(0, a.length-1)
+      while (a.endsWith('/')) a = a.slice(0, a.length-1)
+    }
+    while (b.startsWith('/')) b = b.slice(1)
+    return `${a}/${b}`
+  }
+
+  concatURI(a: string, b: string): string {
+    while (a.endsWith('/')) a = a.slice(0, a.length-1)
+    while (b.startsWith('/')) b = b.slice(1)
+    return `${a}/${b}`
+  }
+
   async displayItem(uri: string) {
     let item = await this.getItemFromURI(uri)
+    if (! item) {
+      console.log(`item to display [${uri}] dose not exist!`)
+      return
+    }
     console.log('displaing ', item)
 
     if (item.displaied) {

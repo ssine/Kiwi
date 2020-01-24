@@ -30,6 +30,9 @@ import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml'
 import { ItemHeader } from './BaseItem'
 import { ServerItem } from './ServerItem'
 import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME } from './Common'
+import { getLogger } from './log'
+
+const logger = getLogger('fs')
 
 /**
  * FSNode class represents a file or a folder on local filesystem
@@ -82,12 +85,20 @@ class FileSynchronizer {
   async getItemTree(): Promise<ServerItem> {
     if (this.fileTree === null) throw 'Synchronizer not initialized!'
     this.itemTree = await this.buildItemTreeFromNode(this.fileTree)
+    if (! this.itemTree) {
+      logger.error('cannot parse item from root node!')
+      throw 'cannot parse item from root node!'
+    }
     return this.itemTree
   }
   
   async getSystemItemTree(): Promise<ServerItem> {
     if (this.systemFileTree === null) throw 'Synchronizer not initialized!'
     this.systemItemTree = await this.buildItemTreeFromNode(this.systemFileTree)
+    if (! this.systemItemTree) {
+      logger.error('cannot parse item from root node!')
+      throw 'cannot parse item from root node!'
+    }
     return this.systemItemTree
   }
 
@@ -164,14 +175,11 @@ class FileSynchronizer {
     return [headers, lines.slice(divideIndex).join('\n')]
   }
 
-  private async getItemFromNode(node: FSNode): Promise<ServerItem> {
+  private async getItemFromNode(node: FSNode): Promise<ServerItem | null> {
     let currentItem = new ServerItem()
     let rawContent: string
     if (node.type === 'file') {
       rawContent = (await fs.promises.readFile(node.absolutePath)).toString()
-    } else if (node.type === 'directory' && node.childs.map(v => v.path.name).indexOf('index') != -1) {
-      let idx = node.childs.map(v => v.path.name).indexOf('index')
-      rawContent = (await fs.promises.readFile(node.childs[idx].absolutePath)).toString()
     } else {
       rawContent = ''
     }
@@ -190,10 +198,13 @@ class FileSynchronizer {
     return currentItem
   }
   
-  private async buildItemTreeFromNode(rootNode: FSNode): Promise<ServerItem> {
-    let rootItem = await this.getItemFromNode(rootNode)
-    for (let nd of rootNode.childs) {
-      rootItem.childs.push(await this.buildItemTreeFromNode(nd))
+  private async buildItemTreeFromNode(rootNode: FSNode): Promise<ServerItem | null> {
+    const rootItem = await this.getItemFromNode(rootNode)
+    if (!rootItem) return null
+    for (const nd of rootNode.childs) {
+      const child = await this.buildItemTreeFromNode(nd)
+      if (!! child)
+        rootItem.childs.push(child)
     }
     return rootItem
   }

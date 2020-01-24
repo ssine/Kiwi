@@ -218,7 +218,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
               <div className="item-title-edit" style={{ display: 'flow-root', height: 40, fontSize: 35 }}>
                 <TextField value={this.editingItem.title} onChange={(evt, value) => {
                   this.editingItem.title = value, this.forceUpdate()
-                }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30 } }} />
+                }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30, fontFamily: 'Constantia' } }} />
               </div>
               <div className="edit-item-content" ref={this.contentRef} >
                 <MonacoEditor

@@ -20,10 +20,12 @@ type IndexTreeProperty = {
   itemTree: URINode
 }
 
+type GroupWithURI = IGroup & { absoluteURI: string }
+
 class IndexTree extends React.Component<IndexTreeProperty, {}> {
   private items: URINode[]
   private columns: IColumn[]
-  private groups: IGroup[]
+  private groups: GroupWithURI[]
   private selection: Selection
   update: any
 
@@ -36,9 +38,9 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
     this.groups = [gp]
 
     this.columns = [{
-      key: 'URI',
-      name: 'URI',
-      fieldName: 'URI',
+      key: 'title',
+      name: 'title',
+      fieldName: 'title',
       minWidth: 200
     }]
 
@@ -78,6 +80,12 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
                 groupHeaderContainer: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, fontSize: FONT_SIZE },
                 expand: {height: ROW_HEIGHT, width: ROW_HEIGHT, fontSize: FONT_SIZE }, // the arrow icon button
                 title: {paddingLeft: 3, fontSize: FONT_SIZE },
+              },
+              onGroupHeaderClick: (group) => {
+                bus.emit('item-link-clicked', {
+                  // @ts-ignore
+                  targetURI: group.absoluteURI
+                })
               }
             }
           }}
@@ -88,12 +96,11 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
 
   private _onRenderCell = (nestingDepth: number, item: { uri: string, title: string }, itemIndex: number): JSX.Element => {
     return (
-      <div onClick={(_) => {
+      <div onClick={() => {
         bus.emit('item-link-clicked', {
           // @ts-ignore
           targetURI: item.absoluteURI
         })
-        console.log('! click event triggered on ', _)
       }}>
         
       <DetailsRow
@@ -119,19 +126,20 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
     )
   }
 
-  private convertURIToGroupedList(root: URINode): [URINode[], IGroup] {
-    const items = []
+  private convertURIToGroupedList(root: URINode): [URINode[], GroupWithURI] {
+    const items: URINode[] = []
 
-    const dfs = (node: URINode, level: number): (IGroup | null) => {
+    const dfs = (node: URINode, level: number): (GroupWithURI | null) => {
       if (node.childs.length === 0) {
         items.push(node)
         return null
       }
       
-      const gp: IGroup = {
+      const gp: GroupWithURI = {
         count: 0,
         key: node.URI,
         name: node.title,
+        absoluteURI: node.absoluteURI,
         startIndex: items.length,
         level: level,
         children: [],
@@ -150,17 +158,21 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
           gp.count += cgp.count
         } else {
           hasItem = true
-          childItems.push(items.pop())
+          const cit = items.pop()
+          childItems.push(cit)
+          if (cit.URI === 'index')
+            gp.name = cit.title
           gp.count += 1
         }
       }
 
       if (hasItem) {
         if (hasGroup) {
-          const idxGroup: IGroup = {
+          const idxGroup: GroupWithURI = {
             count: childItems.length,
             key: 'index',
             name: 'Index',
+            absoluteURI: node.absoluteURI,
             startIndex: items.length,
             level: level + 1,
             children: [],
