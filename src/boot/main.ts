@@ -1,26 +1,39 @@
 #!/usr/bin/env node
-
-import * as commandLineParser from "command-line-args"
+import * as yargs from 'yargs'
 import manager from '../core/ItemManager'
 import serve from '../core/server'
 import { initLogger } from '../core/Log'
 import MarkdownParser from '../core/MarkdownParser'
 
-const options = commandLineParser([
-  { name: 'root', type: String, defaultOption: true, defaultValue: '.' },
-  { name: 'port', alias: 'p', type: Number, defaultValue: 3000 },
-  { name: 'log', alias: 'l', type: String, defaultValue: 'debug' }
-])
+const args = yargs
+  .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {
+    yargs.option('port', {
+      alias: 'p',
+      describe: 'local port to listen on',
+      default: 3000
+    })
+  })
+  .option('log', {
+    alias: 'l',
+    describe: 'log level, possible levels: trace, debug, info, warn, severe',
+    default: 'debug'
+  })
+  .demandCommand()
+  .help()
+  .argv as any
 
-initLogger(options.log)
+
+initLogger(args.log)
 
 const md = new MarkdownParser()
 md.init()
 md.register()
 
 async function run () {
-  await manager.loadItems(options.root)
-  serve(options.port)
+  await manager.loadItems(args.folder)
+  if (args._[0] === 'serve') {
+    serve(args.port)
+  }
 }
 
 run()
