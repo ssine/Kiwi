@@ -14,6 +14,7 @@ import { isLinkInternal, getPositionToDocument } from '../Common'
 import MonacoEditor from 'react-monaco-editor'
 import { promisify } from 'util'
 import { MIME } from '../../core/Common'
+import { typesetMath } from '../mathjax'
 
 type ItemButtonProperty = {
   iconName: string
@@ -286,6 +287,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     await this.props.item.save()
     await this.rotateOut()
     this.forceUpdate()
+    typesetMath()
     bus.emit('item-flow-layout')
     await this.rotateIn()
     // this.forceUpdate()
@@ -316,7 +318,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     this.props.item.editing = false
     this.editor = null
     await this.rotateOut()
-    await promisify(this.forceUpdate.bind(this))()
+    this.forceUpdate()
+    typesetMath()
     bus.emit('item-flow-layout')
     this.rotateIn()
     this.generateEditingItem()
@@ -430,9 +433,9 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
       this.lastPosition = newPosition
       return
     }
-    const dx = this.lastPosition.left - newPosition.left
+    // const dx = this.lastPosition.left - newPosition.left
     const dy = this.lastPosition.top - newPosition.top
-    await this.FLIPOperation(dx, dy)
+    await this.FLIPOperation(0, dy)
     this.lastPosition = newPosition
   }
 }
