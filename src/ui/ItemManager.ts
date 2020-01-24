@@ -4,6 +4,7 @@ import ClientItem from './ClientItem'
 import { postJSON, getPositionToDocument } from './Common'
 import Renderer from './Renderer'
 import { URIParser } from './URIParser'
+import { typesetMath } from './mathjax'
 
 type URIItemMap = Record<string, ClientItem>
 
@@ -155,6 +156,8 @@ class ItemManager {
     item.containerDiv = el
     this.itemFlow.push(item)
     
+    typesetMath()
+
     item.displaied = true
     bus.emit('item-displaied')
     bus.emit('item-flow-layout')
