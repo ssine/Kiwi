@@ -85,6 +85,10 @@ body {
   min-height: 20px !important;
 }
 
+mjx-container, pre {
+  overflow: auto;
+}
+
 pre > code {
   font-size: 16px;
   font-family: consolas;

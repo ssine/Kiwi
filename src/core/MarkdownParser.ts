@@ -17,8 +17,11 @@ class MarkdownParser extends Parser {
       smartypants: false,
       xhtml: false,
       highlight: (code, lang, callback) => {
-        if (!lang || lang === '') return code
-        return hljs.highlight(lang, code).value
+        try {
+          return hljs.highlight(lang, code).value
+        } catch {
+          return code
+        }
       }
     });
   }
