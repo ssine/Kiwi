@@ -4,6 +4,8 @@ import manager from '../core/ItemManager'
 import serve from '../core/server'
 import { initLogger } from '../core/Log'
 import MarkdownParser from '../core/MarkdownParser'
+import WikitextParser from '../core/WikitextParser'
+import AsciidocParser from '../core/AsciidocParser'
 
 const args = yargs
   .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {
@@ -28,6 +30,12 @@ initLogger(args.log)
 const md = new MarkdownParser()
 md.init()
 md.register()
+const wt = new WikitextParser()
+wt.init()
+wt.register()
+const adoc = new AsciidocParser()
+adoc.init()
+adoc.register()
 
 async function run () {
   await manager.loadItems(args.folder)

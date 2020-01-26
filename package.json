@@ -60,6 +60,7 @@
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
+    "asciidoctor": "^2.0.3",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.3",
     "express": "^4.17.1",
@@ -70,6 +71,7 @@
     "moment": "^2.24.0",
     "squirrelly": "^7.9.0",
     "winston": "^3.2.1",
+    "wtf_wikipedia": "^7.8.1",
     "yargs": "^15.1.0"
   }
 }

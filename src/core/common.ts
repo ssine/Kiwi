@@ -8,6 +8,8 @@ type MIME =
   'text/markdown' |
   'text/javascript' |
   'text/html' |
+  'text/asciidoc' |
+  'text/wikitext' |
   'text/x-sqrl' |
   'image/gif' |
   'image/x-icon' |
@@ -18,11 +20,15 @@ type MIME =
 const renderableMIME = new Set<MIME>([
   'text/plain',
   'text/markdown',
+  'text/asciidoc',
+  'text/wikitext',
   'text/html',
 ])
 
 const extMIMEDict: { [name: string]: MIME } = {
   'md': 'text/markdown',
+  'adoc': 'text/asciidoc',
+  'wiki': 'text/wikitext',
   'sqrl': 'text/x-sqrl',
   'svg': 'image/svg+xml',
 }
@@ -31,6 +37,8 @@ const MIMEextDict: { [mime: string]: string } = {
   'application/pdf': 'pdf',
   'text/plain': 'txt',
   'text/markdown': 'md',
+  'text/asciidoc': 'adoc',
+  'text/wikitext': 'wiki',
   'text/html': 'html',
   'text/x-sqrl': 'sqrl',
   'image/gif': 'gif',
