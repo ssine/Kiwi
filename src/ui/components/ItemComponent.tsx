@@ -44,6 +44,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
     this.textRefs = Array(props.tags.length).fill(null)
     this.stagedValues = JSON.parse(JSON.stringify(props.tags))
   }
+
   render() {
     return <div>{this.stagedValues.map((tag, idx) => {
       if (this.state.isEditing[idx]) {
@@ -240,6 +241,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   options={[
                     { key: 'Content Header', text: 'Content', itemType: SelectableOptionMenuItemType.Header },
                     { key: 'text/markdown', text: 'text/markdown' },
+                    { key: 'text/asciidoc', text: 'text/asciidoc' },
+                    { key: 'text/wikitext', text: 'text/wikitext' },
                     { key: 'text/plain', text: 'text/plain' },
                     { key: 'text/html', text: 'text/html' },
                     { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
@@ -281,7 +284,6 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
       }
     }
     this.props.item.editing = false
-    this.props.item.type = 'text/markdown'
     this.editor = null
     await this.props.item.save()
     await this.rotateOut()
