@@ -1,6 +1,6 @@
 import { Parser } from './Parser'
 import { MIME } from './Common'
-import * as cheerio from 'cheerio'
+// import * as cheerio from 'cheerio'
 import * as marked from 'marked'
 import * as hljs from 'highlight.js'
 
@@ -27,9 +27,10 @@ class MarkdownParser extends Parser {
   }
 
   parse(input: string): string {
-    const $ = cheerio.load(marked(input))
-    $('a').addClass('item-link')
-    return $.html($('body'))  
+    return `<div>${marked(input)}</div>`
+    // const $ = cheerio.load(marked(input))
+    // $('a').addClass('item-link')
+    // return $.html($('body'))  
   }
 
   supportedTypes(): MIME[] {
