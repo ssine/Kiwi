@@ -186,6 +186,7 @@ class ItemManager {
     if (data.uri) item.uri = data.uri
     else item.uri = 'new-item'
     item.editing = true
+    item.headers.tags = []
     if (this.map[item.uri]) {
       let cnt = 1
       while (this.map[`${item.uri}${cnt}`]) {
