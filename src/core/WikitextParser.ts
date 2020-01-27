@@ -1,3 +1,10 @@
+/**
+ * Important Note: Support for parsing wikitext to html is very limited.
+ * basic blocks (font, link, lists) works fine, but lists are out-of-order,
+ * see [this](https://github.com/spencermountain/wtf_wikipedia/issues/88).
+ * @packageDocumentation
+ */
+
 import { Parser } from './Parser'
 import { MIME } from './Common'
 // @ts-ignore (es6 import gets the namespace, sign)
