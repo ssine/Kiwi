@@ -182,21 +182,24 @@ class ItemManager {
 
   async saveItem(data: {uri: string, editedItem: Partial<ClientItem>, token: string}) {
     let item = await this.getItemFromURI(data.uri)
-    const originalTitle = item.title
+    const changedKeys = {}
     for (let k in data.editedItem) {
       if (item[k] !== data.editedItem[k]) {
+        changedKeys[k] = true
         item[k] = data.editedItem[k]
         item.isContentParsed = false
       }
     }
-    if (data.uri !== data.editedItem.uri) {
+    if (changedKeys['uri']) {
       this.map[data.editedItem.uri] = item
       delete this.map[data.uri]
       this.updateURI()
     }
-    if (originalTitle !== data.editedItem.title) {
+    if (changedKeys['title'] && !changedKeys['uri']) {
       this.updateURI()
     }
+    // TODO: performance issue?
+    this.generateTagMap()
     item.editing = false
     await item.save()
     bus.emit(`item-saved-${data.token}`, {item: item})
