@@ -15,7 +15,6 @@ import { postJSON } from './Common'
  */
 class ClientItem extends BaseItem {
   contentLoaded: boolean = true
-  needSave: boolean = false
   displaied: boolean = false
   editing: boolean = false
   containerDiv: Element | null = null
