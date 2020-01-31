@@ -142,8 +142,16 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     }
   }
 
-  onEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor, monaco) {
+  onEditorDidMount(editor: monaco.editor.IStandaloneCodeEditor) {
     this.editor = editor
+    editor.addAction({
+      id: 'save',
+      label: 'save',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
+      run: () => {
+        this.onSave()
+      }
+    })
     // don't know why should i do a immediate defferd call to get it work
     setTimeout(() => {
       this.editor.layout()
