@@ -27,7 +27,7 @@ class URIParser {
     const traverse = (uris: string[]): URINode => {
       let cur_node = this.rootNode
 
-      for (const uri of uris) {
+      for (const [idx, uri] of uris.entries()) {
         if (uri === '') continue
         let found = false
         for (const nd of cur_node.childs) {
@@ -39,6 +39,7 @@ class URIParser {
         }
         if (!found) {
           const nx = new URINode(uri, uri)
+          nx.absoluteURI = uris.slice(0, idx + 1).join('/')
           cur_node.childs.push(nx)
           cur_node = nx
         }

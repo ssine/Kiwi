@@ -20,12 +20,15 @@ type IndexTreeProperty = {
   itemTree: URINode
 }
 
+type IndexTreeState = {
+  items: URINode[]
+  group: GroupWithURI
+}
+
 type GroupWithURI = IGroup & { absoluteURI: string }
 
-class IndexTree extends React.Component<IndexTreeProperty, {}> {
-  private items: URINode[]
+class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
   private columns: IColumn[]
-  private groups: GroupWithURI[]
   private selection: Selection
   update: any
 
@@ -34,8 +37,10 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
 
     const [it, gp] = this.convertURIToGroupedList(this.props.itemTree)
 
-    this.items = it
-    this.groups = [gp]
+    this.state = {
+      items: it,
+      group: gp
+    }
 
     this.columns = [{
       key: 'title',
@@ -45,7 +50,7 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
     }]
 
     this.selection = new Selection()
-    this.update = () => { this.forceUpdate() }
+    this.update = () => { this.onTreeUpdate() }
   }
   
   componentDidMount() {
@@ -55,11 +60,28 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
     bus.off('item-tree-changed', this.update)
   }
 
-  UNSAFE_componentWillUpdate() {
-    const [it, gp] = this.convertURIToGroupedList(this.props.itemTree)
+  onTreeUpdate() {
+    console.log('updating with item tree: ', this.props.itemTree)
+    const [newIt, newGp] = this.convertURIToGroupedList(this.props.itemTree)
+    let oldGp = this.state.group
+    this.collapseStateAssign(oldGp, newGp)
+    this.setState({
+      items: newIt,
+      group: newGp
+    })
+  }
 
-    this.items = it
-    this.groups = [gp]
+  collapseStateAssign(from: GroupWithURI, to: GroupWithURI) {
+    to.isCollapsed = from.isCollapsed
+    console.log(`collapse state ${from.isCollapsed} passed from ${from.absoluteURI} to ${to.absoluteURI}`)
+    for (const fc of from.children as GroupWithURI[]) {
+      for (const tc of to.children as GroupWithURI[]) {
+        if (fc.absoluteURI === tc.absoluteURI) {
+          this.collapseStateAssign(fc, tc)
+          break
+        }
+      }
+    }
   }
 
   public render(): JSX.Element {
@@ -67,10 +89,10 @@ class IndexTree extends React.Component<IndexTreeProperty, {}> {
       <div>
         <input type="checkbox" hidden></input>
         <GroupedList
-          items={this.items}
+          items={this.state.items}
           onRenderCell={this._onRenderCell}
           selectionMode={SelectionMode.none}
-          groups={this.groups}
+          groups={this.state.group.children}
           compact={true}
           groupProps={{
             headerProps: {
@@ -291,11 +313,13 @@ class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}> {
     this.update = () => { this.forceUpdate() }
   }
   componentDidMount() {
+    bus.on('item-saved', this.update)
     bus.on('item-displaied', this.update)
     bus.on('item-closed', this.update)
   }
   
   componentWillUnmount() {
+    bus.off('item-saved', this.update)
     bus.off('item-displaied', this.update)
     bus.off('item-closed', this.update)
   }
