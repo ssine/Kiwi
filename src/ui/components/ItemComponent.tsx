@@ -3,7 +3,7 @@ import ClientItem from '../ClientItem'
 import * as React from 'react'
 import {
   IconButton, ComboBox, DefaultButton, CommandBarButton, TextField, ITextField,
-  SelectableOptionMenuItemType
+  SelectableOptionMenuItemType, Callout, PrimaryButton
 } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
@@ -17,6 +17,7 @@ import { MIME } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 
 type ItemButtonProperty = {
+  divRef?: any
   iconName: string
   label: string
   onClick: (evt: any) => void
@@ -24,12 +25,14 @@ type ItemButtonProperty = {
 
 const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButtonProperty) => {
   return (
-    <IconButton
-      iconProps={{ iconName: props.iconName, style: { fontSize: 25 } }}
-      title={props.label} ariaLabel={props.label}
-      onClick={props.onClick}
-      style={{ color: 'purple', width: 40, height: 40 }}
-    />
+    <div ref={props.divRef ? props.divRef : () => {}}>
+      <IconButton
+        iconProps={{ iconName: props.iconName, style: { fontSize: 25 } }}
+        title={props.label} ariaLabel={props.label}
+        onClick={props.onClick}
+        style={{ color: 'purple', width: 40, height: 40 }}
+      />
+    </div>
   )
 }
 
@@ -100,9 +103,10 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   }
 }
 
-export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any }, {}> {
+export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any }, { deleteCalloutVisible: boolean }> {
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
+  deleteButtonElement: HTMLElement | null
   editor: monaco.editor.IStandaloneCodeEditor | null
   item: ClientItem
   editingItem: Partial<ClientItem>
@@ -114,6 +118,9 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     this.rootRef = React.createRef()
     this.editor = null
     this.item = this.props.item
+    this.state = {
+      deleteCalloutVisible: false
+    }
     this.generateEditingItem(this.item)
   }
 
@@ -148,12 +155,25 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
       <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
         {!this.item.editing ? (
           <div>
-            <div className="item-controls">
+            <div className="item-controls" style={{display: 'flex'}}>
               <ItemButton
+                divRef={el => this.deleteButtonElement = el}
                 iconName='Delete'
                 label='Delete'
-                onClick={this.onDelete.bind(this)}
+                onClick={_ => this.setState({deleteCalloutVisible: true})}
               />
+              {this.state.deleteCalloutVisible ? (
+                <Callout
+                  onDismiss={_ => this.setState({deleteCalloutVisible: false})}
+                  target={this.deleteButtonElement}
+                  coverTarget={true}
+                  isBeakVisible={false}
+                  gapSpace={0}
+                  setInitialFocus={true}
+                >
+                  <PrimaryButton text="Confirm Delete" onClick={this.onDelete.bind(this)} />
+                </Callout>
+              ): null}
               <ItemButton
                 iconName='Edit'
                 label='Edit'
@@ -202,7 +222,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
           </div>
         ) : (
             <div>
-              <span className="item-controls">
+              <span className="item-controls" style={{display: 'flex'}}>
                 <ItemButton
                   iconName='Accept'
                   label='Save'
@@ -236,7 +256,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 <ComboBox
                   allowFreeform
                   autoComplete="on"
-                  defaultSelectedKey={this.item.type ? this.item.type : 'text/markdown'}
+                  defaultSelectedKey={this.editingItem.type ? this.editingItem.type : (this.editingItem.type = 'text/markdown')}
                   styles={{
                     callout: { width: 170 }
                   }}
@@ -297,6 +317,10 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   }
 
   async onDelete() {
+    this.setState({
+      deleteCalloutVisible: false
+    })
+    await this.slideOut()
     bus.emit('item-delete-clicked', {
       uri: this.item.uri
     })

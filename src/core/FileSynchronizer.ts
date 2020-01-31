@@ -133,10 +133,33 @@ class FileSynchronizer {
       }).trim()
     }\n---\n\n` + item.content.trim() + '\n'
     await this.writeFile(filePath, fileString)
+    if (item.fnode === null) {
+      item.fnode = new FSNode(filePath)
+    }
   }
 
-  async deleteItem() {
+  async deleteItem(item: ServerItem) {
+    if (item.fnode === null) return
+    logger.debug(`file ${item.fnode.absolutePath} deleted`)
+    await this.removeWithEmptyParents(item.fnode.absolutePath)
+  }
 
+  /**
+   * Remove a file together with its empty parents after removing
+   */
+  private async removeWithEmptyParents(target: string) {
+    await fs.promises.unlink(target)
+    while (true) {
+      const parent = path.resolve(target, '../')
+      const files = await fs.promises.readdir(parent)
+      if (files.length === 0) {
+        await fs.promises.rmdir(parent)
+        logger.debug(`folder ${parent} deleted because of empty`)
+        target = parent
+      } else {
+        break
+      }
+    }
   }
 
   private async buildFileTreeDFS(node: FSNode) {

@@ -5,6 +5,7 @@ import { postJSON, getPositionToDocument } from './Common'
 import Renderer from './Renderer'
 import { URIParser } from './URIParser'
 import { typesetMath } from './mathjax'
+import { assignCommonProperties } from '../core/Common'
 
 type URIItemMap = Record<string, ClientItem>
 
@@ -74,7 +75,7 @@ class ItemManager {
     bus.on('item-link-clicked', (data) => this.displayItem(data.targetURI))
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
     bus.on('item-save-clicked', (data) => this.saveItem(data))
-    bus.on('item-delete-clicked', (data) => this.closeItem(data.uri))
+    bus.on('item-delete-clicked', (data) => this.deleteItem(data.uri))
     bus.on('create-item-clicked', (data) => this.createItem(data))
     bus.on('search-triggered', (data) => this.processSearch(data))
 
@@ -201,7 +202,12 @@ class ItemManager {
     // TODO: performance issue?
     this.generateTagMap()
     item.editing = false
-    await item.save()
+    const { containerDiv, ...itemToSave } = item
+    const savedItem = await postJSON('/save-item', {
+      uri: data.uri,
+      item: itemToSave
+    })
+    assignCommonProperties(item, savedItem)
     bus.emit(`item-saved-${data.token}`, {item: item})
     bus.emit('item-saved')
   }
@@ -227,7 +233,12 @@ class ItemManager {
   }
 
   async deleteItem(uri: string) {
-    
+    this.closeItem(uri)
+    delete this.map[uri]
+    console.log(uri, 'deleted from map')
+    this.updateURI()
+    postJSON('/delete-item', {uri: uri})
+    bus.emit('item-deleted')
   }
 
   async processSearch(data: { input: string, token: string }) {

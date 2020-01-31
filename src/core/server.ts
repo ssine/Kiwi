@@ -28,6 +28,23 @@ const serve = function serve(port: number) {
     res.send((await manager.putItem(it)).json())
   })
 
+  /**
+   * Save an item back
+   * uri: original uri
+   * item: the item to save
+   */
+  app.post('/save-item', async (req, res) => {
+    let uri = req.body.uri
+    let it = req.body.item
+    res.send((await manager.saveItem(uri, it)).json())
+  })
+
+  app.post('/delete-item', async (req, res) => {
+    let uri = req.body.uri
+    manager.deleteItem(uri)
+    res.send({status: true})
+  })
+
   app.post('/get-system-items', (req, res) => {
     res.send(JSON.stringify(manager.getSystemItems()))
   })

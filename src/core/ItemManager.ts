@@ -51,9 +51,30 @@ class ItemManager {
     assignCommonProperties(_it, it)
     _it.missing = false
     // should we await this, i.e., response after item is written to disk?
-    this.synchronizer.saveItem(_it)
+    await this.synchronizer.saveItem(_it)
     _it.html()
     return _it
+  }
+
+  async saveItem(uri: string, it: ServerItem): Promise<ServerItem> {
+    logger.debug(`saving item [${it.uri}] with original uri [${uri}]`)
+    if (uri !== it.uri) {
+      await this.deleteItem(uri)
+    }
+    let _it = this.getItem(it.uri)
+    assignCommonProperties(_it, it)
+    _it.missing = false
+    // should we await this, i.e., response after item is written to disk?
+    await this.synchronizer.saveItem(_it)
+    _it.html()
+    return _it
+  }
+
+  async deleteItem(uri: string) {
+    let _it = this.getItem(uri)
+    await this.synchronizer.deleteItem(_it)
+    delete this.itemMap[uri]
+    return true
   }
 
   getItems(uris: string[]): ServerItem[] {

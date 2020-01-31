@@ -48,6 +48,9 @@ import { EventEmitter } from 'events'
  * item-saved:
  *   triggered when an item is saved.
  * 
+ * item-deleted:
+ *   triggered when an item is deleted.
+ * 
  * ---   Data Transfer Category   ---
  * 
  * search-triggered:
@@ -72,5 +75,6 @@ const eventBus = new EventEmitter()
 eventBus.on('item-delete-clicked', () => eventBus.emit('item-tree-changed'))
 eventBus.on('create-item-clicked', () => eventBus.emit('item-tree-changed'))
 eventBus.on('item-saved', () => eventBus.emit('item-tree-changed'))
+eventBus.on('item-deleted', () => eventBus.emit('item-tree-changed'))
 
 export default eventBus
