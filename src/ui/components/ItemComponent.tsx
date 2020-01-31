@@ -104,19 +104,21 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
+  item: ClientItem
   editingItem: Partial<ClientItem>
   lastPosition: { left: number, top: number }
 
   constructor(props: { item: ClientItem }) {
     super(props);
-    this.contentRef = React.createRef();
-    this.rootRef = React.createRef();
+    this.contentRef = React.createRef()
+    this.rootRef = React.createRef()
     this.editor = null
-    this.generateEditingItem()
+    this.item = this.props.item
+    this.generateEditingItem(this.item)
   }
 
   componentDidMount() {
-    if (!this.props.item.editing) {
+    if (!this.item.editing) {
       this.parseItemLinks()
     }
     this.lastPosition = getPositionToDocument(this.rootRef.current)
@@ -128,7 +130,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   }
 
   componentDidUpdate() {
-    if (!this.props.item.editing) {
+    if (!this.item.editing) {
       this.parseItemLinks()
     }
   }
@@ -144,7 +146,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   render() {
     return (
       <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
-        {!this.props.item.editing ? (
+        {!this.item.editing ? (
           <div>
             <div className="item-controls">
               <ItemButton
@@ -165,7 +167,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
             </div>
             <div style={{ display: 'flow-root', height: 40 }}>
               <Breadcrumb
-                items={this.props.item.uri.split('/').map((p) => { return { text: p, key: p } })}
+                items={this.item.uri.split('/').map((p) => { return { text: p, key: p } })}
                 maxDisplayedItems={3}
                 overflowAriaLabel="More links"
                 styles={{ root: { margin: 0 }, list: { height: 40 } }}
@@ -173,17 +175,17 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
             </div>
             <div className="item-titlebar">
               <h2 className="item-title" style={{ margin: 7 }}>
-                {this.props.item.title}
+                {this.item.title}
               </h2>
             </div>
             <div className="item-info"></div>
             <div className="item-content" ref={this.contentRef}
               style={{ paddingLeft: 28, paddingRight: 28, paddingBottom: 28 }}
-              dangerouslySetInnerHTML={{ __html: this.props.item.parsedContent }}
+              dangerouslySetInnerHTML={{ __html: this.item.parsedContent }}
             />
-            <div className="item-tags">{this.props.item.headers.tags?.map(tag => {
+            <div className="item-tags">{this.item.headers.tags?.map(tag => {
               const menuProps = this.props.sys?.tagMap[tag]
-                ?.filter((it: ClientItem) => it.uri !== this.props.item.uri)
+                ?.filter((it: ClientItem) => it.uri !== this.item.uri)
                 .map((it: ClientItem) => {
                   return {
                     key: it.uri,
@@ -225,7 +227,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
               <div className="edit-item-content" ref={this.contentRef} >
                 <MonacoEditor
                   language="markdown"
-                  value={this.props.item.content}
+                  value={this.item.content}
                   options={{ lineDecorationsWidth: 0 }}
                   editorDidMount={this.onEditorDidMount.bind(this)}
                 />
@@ -234,7 +236,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 <ComboBox
                   allowFreeform
                   autoComplete="on"
-                  defaultSelectedKey={this.props.item.type ? this.props.item.type : 'text/markdown'}
+                  defaultSelectedKey={this.item.type ? this.item.type : 'text/markdown'}
                   styles={{
                     callout: { width: 170 }
                   }}
@@ -272,43 +274,43 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
 
   /**
    * Handlers on button click events
-   * TODO: move logic to ItemManager.saveItem(originURI, newItem) and receive the saved item
    */
   async onSave() {
+    const saveToken = Math.random().toString().slice(2)
     this.editingItem.content = this.editor.getValue()
-    for (let k in this.editingItem) {
-      if (this.props.item[k] !== this.editingItem[k]) {
-        this.props.item[k] = this.editingItem[k]
-        this.props.item.needSave = true
-        this.props.item.isContentParsed = false
-      }
-    }
-    this.props.item.editing = false
+    bus.emit('item-save-clicked', {
+      uri: this.item.uri,
+      editedItem: this.editingItem,
+      token: saveToken
+    })
     this.editor = null
-    await this.props.item.save()
-    await this.rotateOut()
-    this.forceUpdate()
-    typesetMath()
-    bus.emit('item-flow-layout')
-    await this.rotateIn()
-    // this.forceUpdate()
+    const rotateOutFinished = this.rotateOut()
+    bus.once(`item-saved-${saveToken}`, async (data) => {
+      this.item = data.item
+      this.generateEditingItem(this.item)
+      await rotateOutFinished
+      this.forceUpdate()
+      typesetMath()
+      bus.emit('item-flow-layout')
+      this.rotateIn()
+    })
   }
 
   async onDelete() {
     bus.emit('item-delete-clicked', {
-      uri: this.props.item.uri
+      uri: this.item.uri
     })
   }
 
   async onClose() {
     await this.slideOut()
     bus.emit('item-close-clicked', {
-      uri: this.props.item.uri
+      uri: this.item.uri
     })
   }
 
   async onBeginEdit() {
-    this.props.item.editing = true
+    this.item.editing = true
     await this.rotateOut()
     this.forceUpdate()
     bus.emit('item-flow-layout')
@@ -316,14 +318,14 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   }
 
   async onCancelEdit() {
-    this.props.item.editing = false
+    this.item.editing = false
     this.editor = null
     await this.rotateOut()
     this.forceUpdate()
     typesetMath()
     bus.emit('item-flow-layout')
     this.rotateIn()
-    this.generateEditingItem()
+    this.generateEditingItem(this.item)
   }
 
   /**
@@ -338,7 +340,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
           evt.stopPropagation();
           evt.preventDefault();
           bus.emit('item-link-clicked', {
-            emitterURI: this.props.item.uri,
+            emitterURI: this.item.uri,
             targetURI: el.getAttribute('href'),
           })
           return false;
@@ -349,13 +351,13 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     })
   }
 
-  generateEditingItem() {
+  generateEditingItem(item: ClientItem) {
     this.editingItem = {
-      title: this.props.item.title,
-      type: this.props.item.type,
-      uri: this.props.item.uri,
-      content: this.props.item.content,
-      headers: JSON.parse(JSON.stringify(this.props.item.headers)),
+      title: item.title,
+      type: item.type,
+      uri: item.uri,
+      content: item.content,
+      headers: JSON.parse(JSON.stringify(item.headers)),
     }
   }
 

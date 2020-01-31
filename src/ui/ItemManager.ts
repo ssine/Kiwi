@@ -73,6 +73,7 @@ class ItemManager {
     // register event listeners
     bus.on('item-link-clicked', (data) => this.displayItem(data.targetURI))
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
+    bus.on('item-save-clicked', (data) => this.saveItem(data))
     bus.on('item-delete-clicked', (data) => this.closeItem(data.uri))
     bus.on('create-item-clicked', (data) => this.createItem(data))
     bus.on('search-triggered', (data) => this.processSearch(data))
@@ -179,6 +180,29 @@ class ItemManager {
     bus.emit('item-flow-layout')
   }
 
+  async saveItem(data: {uri: string, editedItem: Partial<ClientItem>, token: string}) {
+    let item = await this.getItemFromURI(data.uri)
+    const originalTitle = item.title
+    for (let k in data.editedItem) {
+      if (item[k] !== data.editedItem[k]) {
+        item[k] = data.editedItem[k]
+        item.isContentParsed = false
+      }
+    }
+    if (data.uri !== data.editedItem.uri) {
+      this.map[data.editedItem.uri] = item
+      delete this.map[data.uri]
+      this.updateURI()
+    }
+    if (originalTitle !== data.editedItem.title) {
+      this.updateURI()
+    }
+    item.editing = false
+    await item.save()
+    bus.emit(`item-saved-${data.token}`, {item: item})
+    bus.emit('item-saved')
+  }
+
   async createItem(data: {uri: string}) {
     const item = new ClientItem()
     item.title = 'New Item'
@@ -219,6 +243,7 @@ class ItemManager {
 
   updateURI() {
     this.URIParser.parseItemTree(this.map)
+    console.log('parsed tree: ', this.URIParser.rootNode)
   }
 
 }

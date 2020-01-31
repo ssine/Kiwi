@@ -28,6 +28,13 @@ import { EventEmitter } from 'events'
  * 
  *   uri: URI of the item whose close button was clicked
  * 
+ * item-save-clicked:
+ *   triggered when save button of an displaied item is clicked.
+ * 
+ *   uri: uri of the item triggering this event,
+ *   editedItem: data of the item after edit,
+ *   token: string to append in return event
+ * 
  * item-delete-clicked:
  *   triggered when delete button of an item is clicked.
  * 
@@ -37,6 +44,9 @@ import { EventEmitter } from 'events'
  *   triggered when create button is clicked.
  * 
  *   uri: custom uri for new items to override default one.
+ * 
+ * item-saved:
+ *   triggered when an item is saved.
  * 
  * ---   Data Transfer Category   ---
  * 
@@ -61,5 +71,6 @@ const eventBus = new EventEmitter()
 
 eventBus.on('item-delete-clicked', () => eventBus.emit('item-tree-changed'))
 eventBus.on('create-item-clicked', () => eventBus.emit('item-tree-changed'))
+eventBus.on('item-saved', () => eventBus.emit('item-tree-changed'))
 
 export default eventBus
