@@ -208,7 +208,7 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
       return gp
     }
 
-    const gp = dfs(root, 0)
+    const gp = dfs(root, -1)
     gp.isCollapsed = false
 
     return [items, gp]
