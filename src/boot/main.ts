@@ -7,6 +7,8 @@ import MarkdownParser from '../core/MarkdownParser'
 import WikitextParser from '../core/WikitextParser'
 import AsciidocParser from '../core/AsciidocParser'
 
+import GraphvizPlugin from '../core/GraphvizPlugin'
+
 const args = yargs
   .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {
     yargs.option('port', {
@@ -36,6 +38,10 @@ wt.register()
 const adoc = new AsciidocParser()
 adoc.init()
 adoc.register()
+
+const hwp = new GraphvizPlugin()
+hwp.init()
+hwp.register()
 
 async function run () {
   await manager.loadItems(args.folder)

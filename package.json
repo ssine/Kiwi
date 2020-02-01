@@ -72,6 +72,7 @@
     "mathjax-full": "^3.0.0",
     "moment": "^2.24.0",
     "squirrelly": "^7.9.0",
+    "viz.js": "^2.1.2",
     "winston": "^3.2.1",
     "wtf_wikipedia": "^7.8.1",
     "yargs": "^15.1.0"
