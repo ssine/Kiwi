@@ -377,6 +377,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
           })
           return false;
         }
+        el.classList.add('item-link')
       } else {
         el.target = '_blank'
       }

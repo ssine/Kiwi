@@ -20,6 +20,15 @@ body {
   /* padding: 10px; */
 }
 
+.item-link {
+  color: #7e489d;
+  text-decoration: none;
+}
+
+.item-link:hover {
+  text-decoration: underline;
+}
+
 .item-controls {
   float: right;
 }
