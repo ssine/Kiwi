@@ -14,7 +14,7 @@ export default class GraphvizPlugin extends RenderPlugin {
     return async (input: string): Promise<string> => {
       return new Promise((res, rej) => {
         this.viz.renderString(input)
-          .then((v: string) => res(v))
+          .then((v: string) => res(`<div>${v}</div>`))
           .catch((err:string) => {
             this.viz = new Viz({ Module, render });
             res(err)
