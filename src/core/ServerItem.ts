@@ -16,8 +16,10 @@ class ServerItem extends BaseItem {
 
   async html() {
     if (!this.isContentParsed) {
-      const html = parse(this.content, this.type || 'text/markdown')
-      this.parsedContent = await processRenderPlugin(this.uri, html)
+      const plged = await processRenderPlugin(this.uri, this.content)
+      this.parsedContent = parse(plged, this.type || 'text/markdown')
+      // const html = parse(this.content, this.type || 'text/markdown')
+      // this.parsedContent = await processRenderPlugin(this.uri, html)
       this.isContentParsed = true
     }
     return this.parsedContent
