@@ -1,8 +1,8 @@
 import { MIME } from './Common'
 import { getLogger } from './Log'
+import * as he from 'he'
 
 const logger = getLogger('parser')
-
 
 /**
  * Map recording all registered parsers
@@ -43,16 +43,57 @@ abstract class Parser {
   }
 }
 
+const forEachPiece = function forEachPieceOfString(
+  input: string,
+  patt: RegExp,
+  matched: (s: string) => void,
+  unmatched: (s: string) => void) {
+  let match: RegExpExecArray | null = null
+  let lastIndex = 0
+  while (true) {
+    match = patt.exec(input)
+    if (!match) {
+      unmatched(input.slice(lastIndex))
+      break
+    }
+    unmatched(input.slice(lastIndex, match.index))
+    matched(match[0])
+    lastIndex = match.index + match[0].length
+  }
+}
+
+const excludeReg = /<pre>[\s\S]*?<\/pre>/igm
+const macroReg = /\{\{[\s\S]*?\}\}/gm
+
 /**
  * Parse a content and return html <div>
  */
 const parse = function parse(input: string, type: MIME): string {
-  let parser = parserMap.get(type)
+  const parser = parserMap.get(type)
   if (!parser) {
     logger.info(`Parser for type ${type} not found, empty string returned.`)
     return ''
   }
-  return parser.parse(input)
+  let html = parser.parse(input)
+  let processed = ''
+  let global: any = {}
+  global.eval = eval
+  forEachPiece(html, excludeReg,
+    (s) => { processed += s },
+    (s) => { forEachPiece(s, macroReg,
+      (s) => {
+        logger.info(`eval macro call ${he.decode(s).slice(2, -2)}`)
+        try {
+          if (/d[\s]/.test(s.slice(2, 4))) global.eval(he.decode(s).slice(3, -2))
+          else processed += global.eval(he.decode(s).slice(2, -2))
+        } catch (err) {
+          processed += err
+        }
+      },
+      (s) => { processed += s }
+    )}
+  )
+  return processed
 }
 
 export {
