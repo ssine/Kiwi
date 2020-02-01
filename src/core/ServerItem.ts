@@ -1,5 +1,6 @@
 import { BaseItem } from './BaseItem'
 import { parse } from './Parser'
+import { processRenderPlugin } from './Plugin'
 import { FSNode } from './FileSynchronizer'
 
 /**
@@ -13,9 +14,10 @@ class ServerItem extends BaseItem {
    */
   fnode: FSNode | null = null
 
-  html() {
+  async html() {
     if (!this.isContentParsed) {
-      this.parsedContent = parse(this.content, this.type || 'text/markdown')
+      const html = parse(this.content, this.type || 'text/markdown')
+      this.parsedContent = await processRenderPlugin(this.uri, html)
       this.isContentParsed = true
     }
     return this.parsedContent

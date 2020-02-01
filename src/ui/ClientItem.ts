@@ -43,7 +43,7 @@ class ClientItem extends BaseItem {
     return this
   }
 
-  html(): string {
+  async html(): Promise<string> {
     return this.parsedContent
   }
 }

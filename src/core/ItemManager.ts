@@ -52,7 +52,7 @@ class ItemManager {
     _it.missing = false
     // should we await this, i.e., response after item is written to disk?
     await this.synchronizer.saveItem(_it)
-    _it.html()
+    await _it.html()
     return _it
   }
 
@@ -66,7 +66,7 @@ class ItemManager {
     _it.missing = false
     // should we await this, i.e., response after item is written to disk?
     await this.synchronizer.saveItem(_it)
-    _it.html()
+    await _it.html()
     return _it
   }
 

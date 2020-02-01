@@ -18,14 +18,14 @@ const serve = function serve(port: number) {
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
 
-  app.post('/get-item', (req, res) => {
+  app.post('/get-item', async (req, res) => {
     let uri: string = req.body.uri
-    res.send(manager.getItem(uri).json())
+    res.send(await manager.getItem(uri).json())
   })
 
   app.post('/put-item', async (req, res) => {
     let it = req.body.item
-    res.send((await manager.putItem(it)).json())
+    res.send(await (await manager.putItem(it)).json())
   })
 
   /**
@@ -36,7 +36,7 @@ const serve = function serve(port: number) {
   app.post('/save-item', async (req, res) => {
     let uri = req.body.uri
     let it = req.body.item
-    res.send((await manager.saveItem(uri, it)).json())
+    res.send(await (await manager.saveItem(uri, it)).json())
   })
 
   app.post('/delete-item', async (req, res) => {

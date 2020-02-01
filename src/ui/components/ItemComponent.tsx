@@ -12,7 +12,6 @@ import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument } from '../Common'
 import MonacoEditor from 'react-monaco-editor'
-import { promisify } from 'util'
 import { MIME } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 

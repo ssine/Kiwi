@@ -57,14 +57,14 @@ abstract class BaseItem {
   /**
    * Return the HTML content generated, parse content if not
    */
-  abstract html(): string
+  abstract async html(): Promise<string>
 
   /**
    * Return the json representation of this item (serialization), without chlids
    */
-  json(): string {
+  async json(): Promise<string> {
     if (!this.isContentParsed)
-      this.html()
+      await this.html()
     return JSON.stringify(this)
   }
 
