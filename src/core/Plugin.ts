@@ -41,7 +41,8 @@ const forEachPiece = async function forEachPieceOfString(
 }
 
 const excludeReg = /<pre>[\s\S]*?<\/pre>/igm
-const macroReg = /\{\{[\s\S]*?\}\}/gm
+// const macroReg = /\{\{[\s\S]*?\}\}/gm
+const macroReg = /(?<!\\)\{\{[\s\S]*?\}\}/gm
 
 class ItemContext {
   ctx: vm.Context
@@ -63,23 +64,43 @@ class ItemContext {
 const processRenderPlugin = async function processRenderPlugin(uri: string, html: string): Promise<string> {
   let processed = ''
   const ctx = new ItemContext()
-  await forEachPiece(html, excludeReg,
-    async (s) => { processed += s },
-    async (s) => { await forEachPiece(s, macroReg,
-      async (s) => {
-        logger.debug(`eval macro call ${he.decode(s).slice(2, -2)}`)
-        try {
-          if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
-          else processed += await ctx.eval(he.decode(s).slice(2, -2))
-        } catch (err) {
-          processed += err
-        }
-      },
-      async (s) => { processed += s }
-    )}
+  await forEachPiece(html, macroReg,
+    async (s) => {
+      logger.debug(`eval macro call ${he.decode(s).slice(2, -2)}`)
+      try {
+        if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
+        else processed += await ctx.eval(he.decode(s).slice(2, -2))
+      } catch (err) {
+        processed += err
+      }
+    },
+    async (s) => {
+      processed += s.replace('\\{{', '{{')
+    }
   )
   return processed
 }
+
+// const processRenderPlugin = async function processRenderPlugin(uri: string, html: string): Promise<string> {
+//   let processed = ''
+//   const ctx = new ItemContext()
+//   await forEachPiece(html, excludeReg,
+//     async (s) => { processed += s },
+//     async (s) => { await forEachPiece(s, macroReg,
+//       async (s) => {
+//         logger.debug(`eval macro call ${he.decode(s).slice(2, -2)}`)
+//         try {
+//           if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
+//           else processed += await ctx.eval(he.decode(s).slice(2, -2))
+//         } catch (err) {
+//           processed += err
+//         }
+//       },
+//       async (s) => { processed += s }
+//     )}
+//   )
+//   return processed
+// }
 
 export {
   RenderPlugin,
