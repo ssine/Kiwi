@@ -366,8 +366,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     let links = this.contentRef.current.querySelectorAll('a')
     links.forEach((el: HTMLAnchorElement | SVGAElement) => {
       if (el instanceof SVGAElement) {
-        if (el.href.baseVal.startsWith('http')) {
-          el.target.baseVal = '_blanl'
+        if (el.href.baseVal.trim().startsWith('http')) {
+          el.target.baseVal = '_blank'
         } else {
           el.onclick = async evt => {
             evt.cancelBubble = true;
@@ -380,6 +380,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
             return false;
           }
           el.classList.add('item-link')
+          el.querySelector('text').setAttribute('style', 'fill: #7e489d;')
         }
         return
       }
