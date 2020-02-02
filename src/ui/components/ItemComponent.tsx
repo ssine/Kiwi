@@ -364,7 +364,25 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
    */
   parseItemLinks() {
     let links = this.contentRef.current.querySelectorAll('a')
-    links.forEach((el: HTMLAnchorElement) => {
+    links.forEach((el: HTMLAnchorElement | SVGAElement) => {
+      if (el instanceof SVGAElement) {
+        if (el.href.baseVal.startsWith('http')) {
+          el.target.baseVal = '_blanl'
+        } else {
+          el.onclick = async evt => {
+            evt.cancelBubble = true;
+            evt.stopPropagation();
+            evt.preventDefault();
+            bus.emit('item-link-clicked', {
+              emitterURI: this.item.uri,
+              targetURI: el.href.baseVal,
+            })
+            return false;
+          }
+          el.classList.add('item-link')
+        }
+        return
+      }
       if (isLinkInternal(el)) {
         el.onclick = async evt => {
           evt.cancelBubble = true;
@@ -378,9 +396,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
         }
         el.classList.add('item-link')
       } else {
-        try {
-          el.target = '_blank'
-        } catch {}
+        el.target = '_blank'
       }
     })
   }
