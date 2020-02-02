@@ -72,7 +72,7 @@ class ItemManager {
     document.body.append(rootDiv)
 
     // register event listeners
-    bus.on('item-link-clicked', (data) => this.displayItem(data.targetURI))
+    bus.on('item-link-clicked', (data) => this.displayItem(this.resolveURI(data.targetURI, data.emitterURI)))
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
     bus.on('item-save-clicked', (data) => this.saveItem(data))
     bus.on('item-delete-clicked', (data) => this.deleteItem(data.uri))
@@ -121,21 +121,29 @@ class ItemManager {
     scrollTo(pos.left, pos.top)
   }
 
-  resolveURI(a: string, b: string): string {
-    if (a.endsWith('/')) {
-      while (a.endsWith('/')) a = a.slice(0, a.length-1)
-    } else if (a.search('/') !== -1) {
-      while (! a.endsWith('/')) a = a.slice(0, a.length-1)
-      while (a.endsWith('/')) a = a.slice(0, a.length-1)
-    }
-    while (b.startsWith('/')) b = b.slice(1)
-    return `${a}/${b}`
-  }
-
   concatURI(a: string, b: string): string {
     while (a.endsWith('/')) a = a.slice(0, a.length-1)
     while (b.startsWith('/')) b = b.slice(1)
     return `${a}/${b}`
+  }
+
+  resolveURI(uri: string, from: string | null): string {
+    let stack = []
+
+    const parseToStack = function (input: string) {
+      let arr = input.split(/[\\\/]+/g)
+      for (let unit of arr) {
+        if (unit === '.' || unit === '') continue
+        if (unit === '..') stack.pop()
+        else stack.push(unit)
+      }
+    }
+
+    if (typeof from === 'string')
+      parseToStack(from)
+    parseToStack(uri)
+
+    return stack.join('/')
   }
 
   async displayItem(uri: string) {
