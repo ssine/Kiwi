@@ -200,7 +200,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
             <div style={{ display: 'flow-root', height: 40 }}>
               <Breadcrumb
                 items={this.item.uri.split('/').map((p) => { return { text: p, key: p } })}
-                maxDisplayedItems={3}
+                maxDisplayedItems={5}
                 overflowAriaLabel="More links"
                 styles={{ root: { margin: 0 }, list: { height: 40 } }}
               />

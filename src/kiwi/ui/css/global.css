@@ -98,7 +98,7 @@ mjx-container, pre {
   overflow: auto;
 }
 
-pre > code {
+code {
   font-size: 16px;
   font-family: consolas;
   line-height: 22px;
