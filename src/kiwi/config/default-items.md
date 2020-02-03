@@ -1,1 +1,1 @@
-the-new-wiki
+$kiwi/doc/hello-there

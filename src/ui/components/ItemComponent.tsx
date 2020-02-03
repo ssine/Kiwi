@@ -147,14 +147,14 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
 
   onEditorDidMount(editor: any, monaco: any) {
     this.editor = editor
-    editor.addAction({
-      id: 'save',
-      label: 'save',
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
-      run: () => {
-        this.onSave()
-      }
-    })
+    // editor.addAction({
+    //   id: 'save',
+    //   label: 'save',
+    //   keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
+    //   run: () => {
+    //     this.onSave()
+    //   }
+    // })
     // don't know why should i do a immediate defferd call to get it work
     setTimeout(() => {
       this.editor.layout()
@@ -233,7 +233,14 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
             })}</div>
           </div>
         ) : (
-            <div>
+            <div 
+              onKeyDown={(evt) => {
+                if (evt.ctrlKey && evt.keyCode === 83) {
+                  this.onSave()
+                  evt.preventDefault()
+                }
+              }}
+            >
               <span className="item-controls" style={{display: 'flex'}}>
                 <ItemButton
                   iconName='Accept'
