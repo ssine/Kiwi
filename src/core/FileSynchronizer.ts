@@ -214,6 +214,7 @@ class FileSynchronizer {
     if (!currentItem.headers["title"])
       currentItem.headers["title"] = node.path.name
     currentItem.title = currentItem.headers["title"]
+    delete currentItem.headers["title"]
     currentItem.headers.tags = []
     currentItem.parsedContent = '<p>Content not parsed</p>'
     currentItem.isContentParsed = false
