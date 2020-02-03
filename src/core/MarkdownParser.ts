@@ -17,6 +17,7 @@ class MarkdownParser extends Parser {
       smartypants: false,
       xhtml: false,
       highlight: (code, lang, callback) => {
+        if (!lang) return code
         try {
           return hljs.highlight(lang, code).value
         } catch {
