@@ -363,6 +363,10 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   async onCancelEdit() {
     this.item.editing = false
     this.editor = null
+    if (this.item.missing) {
+      await this.onDelete()
+      return
+    }
     await this.rotateOut()
     this.forceUpdate()
     typesetMath()
