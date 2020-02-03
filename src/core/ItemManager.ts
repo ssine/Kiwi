@@ -28,6 +28,7 @@ class ItemManager {
     await this.synchronizer.init(rootPath)
     this.itemMap = generateURI(await this.synchronizer.getItemTree(), '')
     this.systemItemMap = generateURI(await this.synchronizer.getSystemItemTree(), '$kiwi/')
+    await Promise.all(Object.keys(this.systemItemMap).map(k => this.systemItemMap[k].html()))
     this.itemLoaded = this.systemItemLoaded = false
   }
 

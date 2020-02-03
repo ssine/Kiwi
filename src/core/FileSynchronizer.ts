@@ -123,6 +123,7 @@ class FileSynchronizer {
       if (!!item.type && renderableMIME.has(item.type)) {
         filePath += '.' + getExtensionFromMIME(item.type)
       }
+      logger.debug(`file not exist, creating new file [${filePath}]`)
     } else {
       filePath = item.fnode.absolutePath
     }
@@ -133,6 +134,7 @@ class FileSynchronizer {
       }).trim()
     }\n---\n\n` + item.content.trim() + '\n'
     await this.writeFile(filePath, fileString)
+    logger.info(`item content written to [${filePath}]`)
     if (item.fnode === null) {
       item.fnode = new FSNode(filePath)
     }
