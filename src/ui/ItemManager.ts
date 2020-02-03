@@ -144,10 +144,12 @@ class ItemManager {
       }
     }
 
-    if (typeof from === 'string')
+    if (typeof from === 'string' && uri.trim()[0] !== '/')
       parseToStack(from)
     stack.pop()
     parseToStack(uri)
+
+    while (stack[0] === '') stack.shift()
 
     return stack.join('/')
   }
