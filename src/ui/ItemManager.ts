@@ -80,7 +80,12 @@ class ItemManager {
     bus.on('search-triggered', (data) => this.processSearch(data))
 
     // render default items
-    this.map[defaultItemsURI].content.split('\n').forEach(l => this.displayItem(l))
+    this.map[defaultItemsURI].content.split('\n').forEach(l => {
+      if (l) {
+        console.log('opening default item ', l)
+        this.displayItem(l)
+      }
+    })
   }
   
   async getItemFromURI(uri: string): Promise<ClientItem|null> {
@@ -133,7 +138,7 @@ class ItemManager {
     const parseToStack = function (input: string) {
       let arr = input.split(/[\\\/]+/g)
       for (let unit of arr) {
-        if (unit === '.' || unit === '') continue
+        if (unit === '.') continue
         if (unit === '..') stack.pop()
         else stack.push(unit)
       }
@@ -141,6 +146,7 @@ class ItemManager {
 
     if (typeof from === 'string')
       parseToStack(from)
+    stack.pop()
     parseToStack(uri)
 
     return stack.join('/')
@@ -149,7 +155,8 @@ class ItemManager {
   async displayItem(uri: string) {
     let item = await this.getItemFromURI(uri)
     if (! item) {
-      console.log(`item to display [${uri}] dose not exist!`)
+      console.log(`item to display [${uri}] dose not exist, creating a missing one`)
+      await this.createItem({ uri: uri })
       return
     }
     console.log('displaing ', item)
