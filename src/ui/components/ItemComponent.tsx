@@ -5,13 +5,12 @@ import {
   IconButton, ComboBox, DefaultButton, CommandBarButton, TextField, ITextField,
   SelectableOptionMenuItemType, Callout, PrimaryButton
 } from 'office-ui-fabric-react'
-// import * as monaco from 'monaco-editor'
+import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
 import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument } from '../Common'
-// import MonacoEditor from 'react-monaco-editor'
 import { MIME } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
@@ -111,8 +110,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
   deleteButtonElement: HTMLElement | null
-  // editor: monaco.editor.IStandaloneCodeEditor | null
-  editor: any | null
+  editor: monaco.editor.IStandaloneCodeEditor | null
   item: ClientItem
   editingItem: Partial<ClientItem>
   lastPosition: { left: number, top: number }
@@ -160,6 +158,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     // don't know why should i do a immediate defferd call to get it work
     setTimeout(() => {
       this.editor.layout()
+      this.editor.focus()
     }, 0);
   }
 
@@ -261,7 +260,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 <MonacoEditor
                   language="markdown"
                   value={this.item.content}
-                  options={{ lineDecorationsWidth: 0, wordWrap: 'on', wrappingIndent: 'same' }}
+                  options={{ lineDecorationsWidth: 0, wordWrap: 'on', wrappingIndent: 'same', tabSize: 2 }}
                   editorDidMount={this.onEditorDidMount.bind(this)}
                 />
               </div>
