@@ -50,8 +50,9 @@ class ItemContext {
     this.ctx = {}
     for (const name in pluginMap) {
       this.ctx[name] = pluginMap[name]
-      logger.debug(`${name} bind to this`)
+      logger.debug(`${name} added to item context`)
     }
+    this.ctx.setTimeout = setTimeout
     this.ctx = vm.createContext(this.ctx)
   }
   async eval(x: string): Promise<any> {
@@ -75,7 +76,7 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, html
       }
     },
     async (s) => {
-      processed += s.replace('\\{{', '{{')
+      processed += s.replace(/\\{{/g, '{{')
     }
   )
   return processed

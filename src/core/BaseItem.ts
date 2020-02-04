@@ -2,7 +2,6 @@ import * as moment from 'moment'
 import { MIME } from './Common'
 
 type ItemHeader = {
-  'title'?: string
   'author'?: string
   'create-time'?: moment.Moment
   'modify-time'?: moment.Moment
@@ -20,8 +19,8 @@ abstract class BaseItem {
   title: string = ''
   /**
    * The MIME type of item content, null if unknown
-   * as user can have their own types, we will only maintain a runtime guarantee,
-   * but not compile time.
+   * as user can have their own types, we will only maintain a compile time guarantee,
+   * but not runtime.
    */
   type: MIME | null = null
   /**
@@ -65,7 +64,8 @@ abstract class BaseItem {
   async json(): Promise<string> {
     if (!this.isContentParsed)
       await this.html()
-    return JSON.stringify(this)
+    const { childs, ...thisToSend } = this
+    return JSON.stringify(thisToSend)
   }
 
 }
