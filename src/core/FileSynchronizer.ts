@@ -232,11 +232,14 @@ class FileSynchronizer {
   }
   
   private async parseFileTreeToMap(rootNode: FSNode, prefix: string): Promise<void> {
-    const rootItem = await this.getItemFromNode(rootNode, prefix)
-    if (!rootItem) return
-    this.URIMap[rootItem.uri] = rootItem
-    await Promise.all(rootNode.childs.map(nd => this.parseFileTreeToMap(nd, `${rootItem.uri}/`)))
-    return
+    const dfs = async (node: FSNode, prefix: string): Promise<void> => {
+      const item = await this.getItemFromNode(node, prefix)
+      if (!item) return
+      this.URIMap[item.uri] = item
+      await Promise.all(node.childs.map(nd => dfs(nd, `${item.uri}/`)))
+    }
+
+    await Promise.all(rootNode.childs.map(nd => dfs(nd, prefix)))
   }
 }
 
