@@ -1,14 +1,14 @@
 /**
  * Filesystems Adaption
  * 
- * The filesystem part is responsible for mapping between files and items.
- * Some interfaces should be exported:
+ * The filesystem part is responsible for the mapping between files and items.
+ * Main functions include:
  * 
- * Function to construct all the items from a root folder.
- * @todo Function to save modified / newly created / deleted items back.
- * @todo Function to notify the system on file / folder changes.
+ * Construct all the items from a root folder.
+ * Save modified / newly created / deleted items back.
+ * @todo Notify the system on file / folder changes.
  * 
- * There is also rules when parsing and serializing items:
+ * Rules when parsing and serializing items:
  * 
  * - headers
  *   - headers are stored in yaml format enclosed by two lines of '---' for text files
@@ -69,45 +69,34 @@ class FSNode {
   }
 }
 
+export type URIItemMap = Record<string, ServerItem>
+
 class FileSynchronizer {
   rootPath: string = ''
   fileTree: FSNode | null = null
   systemFileTree: FSNode | null = null
-  itemTree: ServerItem | null = null
-  systemItemTree: ServerItem | null = null
+  /**
+   * Temp variable, the map belongs to item manager, don't use it.
+   */
+  URIMap: URIItemMap = {}
+  itemNodeMap: Map<ServerItem, FSNode> = new Map()
 
   async init(rootPath: string) {
     this.rootPath = path.resolve(rootPath)
-    this.fileTree = await this.buildFileTreeFromPath(rootPath)
-    this.systemFileTree = await this.buildFileTreeFromPath(path.resolve(__dirname, '../kiwi'))
   }
 
-  async getItemTree(): Promise<ServerItem> {
-    if (this.fileTree === null) throw 'Synchronizer not initialized!'
-    this.itemTree = await this.buildItemTreeFromNode(this.fileTree)
-    if (! this.itemTree) {
-      logger.error('cannot parse item from root node!')
-      throw 'cannot parse item from root node!'
-    }
-    return this.itemTree
-  }
-  
-  async getSystemItemTree(): Promise<ServerItem> {
-    if (this.systemFileTree === null) throw 'Synchronizer not initialized!'
-    this.systemItemTree = await this.buildItemTreeFromNode(this.systemFileTree)
-    if (! this.systemItemTree) {
-      logger.error('cannot parse item from root node!')
-      throw 'cannot parse item from root node!'
-    }
-    return this.systemItemTree
+  async getItemMap(): Promise<Record<string, ServerItem>> {
+    const fileTree = await this.buildFileTreeFromPath(this.rootPath)
+    this.URIMap = {}
+    await this.parseFileTreeToMap(fileTree, '')
+    return this.URIMap
   }
 
-  async writeFile(filePath: string, content: string) {
-    const folder = path.resolve(filePath, '..')
-    if (! await promisify(fs.exists)(folder)) {
-      await fs.promises.mkdir(folder, { recursive: true })
-    }
-    await fs.promises.writeFile(filePath, content)
+  async getSystemItemMap(): Promise<Record<string, ServerItem>> {
+    const systemFileTree = await this.buildFileTreeFromPath(path.resolve(__dirname, '../kiwi'))
+    this.URIMap = {}
+    await this.parseFileTreeToMap(systemFileTree, '$kiwi/')
+    return this.URIMap
   }
 
   /**
@@ -117,7 +106,8 @@ class FileSynchronizer {
    */
   async saveItem(item: ServerItem) {
     let filePath = ''
-    if (item.fnode === null) {
+    const fnode = this.itemNodeMap.get(item)
+    if (fnode === undefined) {
       // create a new file
       filePath = path.resolve(this.rootPath, item.uri)
       if (!!item.type && renderableMIME.has(item.type)) {
@@ -125,7 +115,7 @@ class FileSynchronizer {
       }
       logger.debug(`file not exist, creating new file [${filePath}]`)
     } else {
-      filePath = item.fnode.absolutePath
+      filePath = fnode.absolutePath
     }
     let fileString = `---\n${
       dumpYaml({
@@ -135,52 +125,63 @@ class FileSynchronizer {
     }\n---\n\n` + item.content.trim() + '\n'
     await this.writeFile(filePath, fileString)
     logger.info(`item content written to [${filePath}]`)
-    if (item.fnode === null) {
-      item.fnode = new FSNode(filePath)
+    if (fnode === null) {
+      this.itemNodeMap.set(item, new FSNode(filePath))
     }
   }
 
   async deleteItem(item: ServerItem) {
-    if (item.fnode === null) return
-    logger.debug(`file ${item.fnode.absolutePath} deleted`)
-    await this.removeWithEmptyParents(item.fnode.absolutePath)
+    const fnode = this.itemNodeMap.get(item)
+    if (fnode === undefined) {
+      logger.warn(`Item to delete [${item.title}] do not have a corresponding file!`)
+      return
+    }
+    await this.removeWithEmptyParents(fnode.absolutePath)
+    logger.debug(`file [${fnode.absolutePath}] deleted`)
+  }
+
+  private async writeFile(filePath: string, content: string) {
+    const folder = path.resolve(filePath, '..')
+    if (! await promisify(fs.exists)(folder)) {
+      await fs.promises.mkdir(folder, { recursive: true })
+    }
+    await fs.promises.writeFile(filePath, content)
   }
 
   /**
    * Remove a file together with its empty parents after removing
    */
-  private async removeWithEmptyParents(target: string) {
-    await fs.promises.unlink(target)
+  private async removeWithEmptyParents(filePath: string) {
+    await fs.promises.unlink(filePath)
     while (true) {
-      const parent = path.resolve(target, '../')
+      const parent = path.resolve(filePath, '../')
       const files = await fs.promises.readdir(parent)
       if (files.length === 0) {
         await fs.promises.rmdir(parent)
         logger.debug(`folder ${parent} deleted because of empty`)
-        target = parent
+        filePath = parent
       } else {
         break
       }
     }
   }
 
-  private async buildFileTreeDFS(node: FSNode) {
-    if (node.type === 'file') return
-    const childs = await fs.promises.readdir(node.absolutePath)
-    for (let childPath of childs) {
-      const child = new FSNode(path.join(node.absolutePath, childPath))
-      await this.buildFileTreeDFS(child)
-      node.childs.push(child)
-    }
-  }
-  
   private async buildFileTreeFromPath(rootPath: string): Promise<FSNode> {
+    const buildFileTreeDFS = async (node: FSNode) => {
+      if (node.type === 'file') return
+      const childs = await fs.promises.readdir(node.absolutePath)
+      for (let childPath of childs) {
+        const child = new FSNode(path.join(node.absolutePath, childPath))
+        await buildFileTreeDFS(child)
+        node.childs.push(child)
+      }
+    }
     const root = new FSNode(rootPath)
-    await this.buildFileTreeDFS(root)
+    await buildFileTreeDFS(root)
     return root
   }
 
-  private splitHeaderContent(raw: string): [ItemHeader, string] {
+  private splitHeaderContent(raw: string): [ItemHeader & {title?: string}, string] {
     const lines = raw.replace(/\r/g, '').split('\n')
     let headers: ItemHeader = {}
     let divideIndex = 0
@@ -200,7 +201,7 @@ class FileSynchronizer {
     return [headers, lines.slice(divideIndex).join('\n')]
   }
 
-  private async getItemFromNode(node: FSNode): Promise<ServerItem | null> {
+  private async getItemFromNode(node: FSNode, uriPrefix: string): Promise<ServerItem | null> {
     let currentItem = new ServerItem()
     let rawContent: string
     if (node.type === 'file') {
@@ -208,32 +209,34 @@ class FileSynchronizer {
     } else {
       rawContent = ''
     }
-    [currentItem.headers, currentItem.content] = this.splitHeaderContent(rawContent)
-    if (!currentItem.type)
-      currentItem.type = getMIMEFromExtension(node.path.ext)
-    if (!currentItem.headers["title"])
-      currentItem.headers["title"] = node.path.name
-    currentItem.title = currentItem.headers["title"]
-    delete currentItem.headers["title"]
+    const [headers, content] = this.splitHeaderContent(rawContent)
+    currentItem.headers = headers
+    currentItem.content = content
+    currentItem.type = getMIMEFromExtension(node.path.ext)
+    currentItem.title = headers["title"] || node.path.name
     currentItem.headers.tags = []
     currentItem.parsedContent = '<p>Content not parsed</p>'
     currentItem.isContentParsed = false
     currentItem.childs = []
-    currentItem.uri = ''
+    if (headers.uri) {
+      logger.info(`Custom URI [${headers.uri}] supressed default one for [${currentItem.title}].`)
+      currentItem.uri = headers.uri
+    } else {
+      const localURI = currentItem.type && renderableMIME.has(currentItem.type) ? node.path.name : node.path.base
+      currentItem.uri = `${uriPrefix}${localURI}`
+      logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
+    }
     currentItem.missing = false
-    currentItem.fnode = node
+    this.itemNodeMap.set(currentItem, node)
     return currentItem
   }
   
-  private async buildItemTreeFromNode(rootNode: FSNode): Promise<ServerItem | null> {
-    const rootItem = await this.getItemFromNode(rootNode)
-    if (!rootItem) return null
-    for (const nd of rootNode.childs) {
-      const child = await this.buildItemTreeFromNode(nd)
-      if (!! child)
-        rootItem.childs.push(child)
-    }
-    return rootItem
+  private async parseFileTreeToMap(rootNode: FSNode, prefix: string): Promise<void> {
+    const rootItem = await this.getItemFromNode(rootNode, prefix)
+    if (!rootItem) return
+    this.URIMap[rootItem.uri] = rootItem
+    await Promise.all(rootNode.childs.map(nd => this.parseFileTreeToMap(nd, `${rootItem.uri}/`)))
+    return
   }
 }
 

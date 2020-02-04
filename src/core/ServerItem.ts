@@ -9,10 +9,6 @@ import { FSNode } from './FileSynchronizer'
 class ServerItem extends BaseItem {
 
   childs: ServerItem[] = []
-  /**
-   * The absolute path of this item on local filesystem
-   */
-  fnode: FSNode | null = null
 
   async html() {
     if (!this.isContentParsed) {

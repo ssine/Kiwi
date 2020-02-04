@@ -4,8 +4,7 @@
  */
 
 import { ServerItem } from './ServerItem'
-import { FileSynchronizer } from './FileSynchronizer'
-import { generateURI, URIItemMap } from './URI'
+import { FileSynchronizer, URIItemMap } from './FileSynchronizer'
 import { assignCommonProperties } from './Common'
 import { getLogger } from './log'
 
@@ -26,8 +25,8 @@ class ItemManager {
    */
   async loadItems(rootPath: string) {
     await this.synchronizer.init(rootPath)
-    this.itemMap = generateURI(await this.synchronizer.getItemTree(), '')
-    this.systemItemMap = generateURI(await this.synchronizer.getSystemItemTree(), '$kiwi/')
+    this.itemMap = await this.synchronizer.getItemMap()
+    this.systemItemMap = await this.synchronizer.getSystemItemMap()
     await Promise.all(Object.keys(this.systemItemMap).map(k => this.systemItemMap[k].html()))
     this.itemLoaded = this.systemItemLoaded = false
   }
