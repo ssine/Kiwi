@@ -24,7 +24,11 @@ class ItemManager {
    * Load system and user items with user root path specified.
    */
   async loadItems(rootPath: string) {
-    await this.synchronizer.init(rootPath)
+    this.synchronizer.init(rootPath, {
+      onItemChange: this.onStorageChange.bind(this),
+      onItemCreate: this.onStorageCreate.bind(this),
+      onItemDelete: this.onStorageDelete.bind(this),
+    })
     this.itemMap = await this.synchronizer.getItemMap()
     this.systemItemMap = await this.synchronizer.getSystemItemMap()
     await Promise.all(Object.keys(this.systemItemMap).map(k => this.systemItemMap[k].html()))
@@ -114,6 +118,19 @@ class ItemManager {
     }
     logger.info(`${res.length} result for search ${input} found`)
     return res
+  }
+
+  onStorageChange(item: ServerItem) {
+    // notify ui
+  }
+  
+  onStorageDelete(item: ServerItem) {
+    delete this.itemMap[item.uri]
+    // notify ui
+  }
+  onStorageCreate(item: ServerItem) {
+    this.itemMap[item.uri] = item
+    // notify ui
   }
 
 }
