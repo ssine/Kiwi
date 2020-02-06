@@ -2,7 +2,9 @@
  * The server 
  * @packageDocumentation
  */
+import * as http from 'http'
 import * as express from 'express'
+import * as socketIO from 'socket.io'
 import * as bodyParser from 'body-parser'
 import { getLogger } from './Log'
 import manager from './ItemManager'
@@ -11,9 +13,13 @@ import { resolve } from 'path'
 const logger = getLogger('server')
 
 const app = express()
+const server = http.createServer(app)
+const io = socketIO(server)
 app.use(bodyParser.json())
 
 const serve = function serve(port: number) {
+  manager.setUINotifier(io)
+
   app.use('/\\$kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
@@ -58,7 +64,7 @@ const serve = function serve(port: number) {
     res.send(JSON.stringify(manager.getSearchResult(req.body.input)))
   })
 
-  app.listen(port, _ => logger.info(`Server set up on port ${port}`))
+  server.listen(port, () => logger.info(`Server set up on port ${port}`))
 }
 
 export default serve

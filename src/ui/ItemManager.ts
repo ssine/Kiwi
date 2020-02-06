@@ -1,3 +1,4 @@
+import socketIO from 'socket.io-client'
 import bus from './eventBus'
 import { defaultItemsURI, pageConfigs } from '../boot/config'
 import ClientItem from './ClientItem'
@@ -20,6 +21,7 @@ class ItemManager {
   URIParser: URIParser = new URIParser()
   tagMap: { [tag: string]: ClientItem[] } = {}
   itemTypes: Set<string> = new Set()
+  io = socketIO()
 
   async init() {
     // get system items
@@ -78,6 +80,30 @@ class ItemManager {
     bus.on('item-delete-clicked', (data) => this.deleteItem(data.uri))
     bus.on('create-item-clicked', (data) => this.createItem(data))
     bus.on('search-triggered', (data) => this.processSearch(data))
+
+    this.io.on('item-change', async (data) => {
+      let item: ClientItem = data.item
+      item = this.map[item.uri].assign(item)
+      bus.emit('item-saved')
+      const idx = this.itemFlow.indexOf(item)
+      if (idx !== -1) {
+        this.itemFlowDiv.children[idx].querySelector('.item-content').innerHTML = await item.html()
+      }
+    })
+    this.io.on('item-create', (data) => {
+      let item: ClientItem = data.item
+      this.map[item.uri] = item
+      this.updateURI()
+      bus.emit('item-saved')
+    })
+    this.io.on('item-delete', (data) => {
+      const uri: string = data.uri
+      this.closeItem(uri)
+      delete this.map[uri]
+      console.log(uri, 'deleted from map')
+      this.updateURI()
+      bus.emit('item-deleted')
+    })
 
     // render default items
     this.map[defaultItemsURI].content.split('\n').forEach(l => {
