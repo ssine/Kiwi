@@ -31,15 +31,16 @@ import { ItemHeader } from './BaseItem'
 import { ServerItem } from './ServerItem'
 import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME } from './Common'
 import { getLogger } from './log'
+import * as chokidar from 'chokidar'
 
 const logger = getLogger('fs')
 
 /**
- * FSNode class represents a file or a folder on local filesystem
+ * FSNode represents a file or a folder on local filesystem
  * 
  * Provides the ability to save changes back and notify file changes from filesystem
  */
-class FSNode {
+type FSNode = {
   /**
    * The absolute path of this file or folder
    */
@@ -49,54 +50,61 @@ class FSNode {
    */
   path: path.ParsedPath
   type: 'file' | 'directory'
-  /**
-   * Child nodes when current node is a directory
-   */
-  childs: FSNode[]
+}
 
-  constructor(nodePath: string) {
-    this.absolutePath = path.resolve(nodePath)
-    this.path = path.parse(this.absolutePath)
-    this.type = fs.lstatSync(this.absolutePath).isFile() ? 'file' : 'directory'
-    this.childs = []
-  }
-
-  /**
-   * Stringify the file tree using current node as root
-   */
-  toString(): string {
-    return this.absolutePath + '\n' + this.childs.map(v => v.toString()).join('')
+async function getFSNode(nodePath: string): Promise<FSNode> {
+  return {
+    absolutePath: path.resolve(nodePath),
+    path: path.parse(nodePath),
+    type: (await fs.promises.lstat(nodePath)).isFile() ? 'file' : 'directory'  
   }
 }
 
 export type URIItemMap = Record<string, ServerItem>
 
+type SynchronizerCallback = (item: ServerItem) => void
+
+type SynchronizerCallbacks = {
+  onItemCreate?: SynchronizerCallback
+  onItemDelete?: SynchronizerCallback
+  onItemChange?: SynchronizerCallback
+}
+
 class FileSynchronizer {
   rootPath: string = ''
-  fileTree: FSNode | null = null
-  systemFileTree: FSNode | null = null
-  /**
-   * Temp variable, the map belongs to item manager, don't use it.
-   */
-  URIMap: URIItemMap = {}
-  itemNodeMap: Map<ServerItem, FSNode> = new Map()
+  watcher: chokidar.FSWatcher | null = null
+  callbacks: SynchronizerCallbacks | null = null
+  itemPathMap: Map<ServerItem, string> = new Map()
+  pathItemMap: Map<string, ServerItem> = new Map()
 
-  async init(rootPath: string) {
+  init(rootPath: string, callbacks: SynchronizerCallbacks) {
     this.rootPath = path.resolve(rootPath)
+    this.callbacks = callbacks
+    this.watcher = chokidar.watch(this.rootPath, {ignoreInitial: true})
+    this.watcher.on('add', (path) => this.onNodeCreated(path, false))
+    this.watcher.on('addDir', (path) => this.onNodeCreated(path, true))
+    this.watcher.on('unlink', (path) => this.onNodeDeleted(path, false))
+    this.watcher.on('unlinkDir', (path) => this.onNodeDeleted(path, true))
+    this.watcher.on('change', this.onNodeChanged.bind(this))
   }
 
   async getItemMap(): Promise<Record<string, ServerItem>> {
-    const fileTree = await this.buildFileTreeFromPath(this.rootPath)
-    this.URIMap = {}
-    await this.parseFileTreeToMap(fileTree, '')
-    return this.URIMap
+    const nodes = await this.getAllNodes(this.rootPath)
+    const [URIMap, pathMap] = await this.parseNodesToItems(nodes, this.rootPath, '')
+    Object.keys(pathMap).forEach(uri => {
+      this.link(uri, pathMap[uri])
+    })
+    return URIMap
   }
 
   async getSystemItemMap(): Promise<Record<string, ServerItem>> {
-    const systemFileTree = await this.buildFileTreeFromPath(path.resolve(__dirname, '../kiwi'))
-    this.URIMap = {}
-    await this.parseFileTreeToMap(systemFileTree, '$kiwi/')
-    return this.URIMap
+    const systemPath = path.resolve(__dirname, '../kiwi')
+    const nodes = await this.getAllNodes(systemPath)
+    const [URIMap, pathMap] = await this.parseNodesToItems(nodes, systemPath, '$kiwi/')
+    Object.keys(pathMap).forEach(uri => {
+      this.link(uri, pathMap[uri])
+    })
+    return URIMap
   }
 
   /**
@@ -105,17 +113,14 @@ class FileSynchronizer {
    * If the uri is changed or there is no file node, create one.
    */
   async saveItem(item: ServerItem) {
-    let filePath = ''
-    const fnode = this.itemNodeMap.get(item)
-    if (fnode === undefined) {
+    let filePath = this.itemPathMap.get(item)
+    if (filePath === undefined) {
       // create a new file
       filePath = path.resolve(this.rootPath, item.uri)
       if (!!item.type && renderableMIME.has(item.type)) {
         filePath += '.' + getExtensionFromMIME(item.type)
       }
       logger.debug(`file not exist, creating new file [${filePath}]`)
-    } else {
-      filePath = fnode.absolutePath
     }
     let fileString = `---\n${
       dumpYaml({
@@ -125,39 +130,99 @@ class FileSynchronizer {
     }\n---\n\n` + item.content.trim() + '\n'
     await this.writeFile(filePath, fileString)
     logger.info(`item content written to [${filePath}]`)
-    if (fnode === null) {
-      this.itemNodeMap.set(item, new FSNode(filePath))
-    }
+    this.link(filePath, item)
   }
 
   async deleteItem(item: ServerItem) {
-    const fnode = this.itemNodeMap.get(item)
-    if (fnode === undefined) {
+    const path = this.itemPathMap.get(item)
+    if (path === undefined) {
       logger.warn(`Item to delete [${item.title}] do not have a corresponding file!`)
       return
     }
-    await this.removeWithEmptyParents(fnode.absolutePath)
-    logger.debug(`file [${fnode.absolutePath}] deleted`)
+    await this.removeWithEmptyParents(path)
+    this.unlink(path)
+    logger.debug(`file [${path}] deleted`)
+  }
+
+  onNodeDeleted(path: string, isDir: boolean) {
+    const item = this.pathItemMap.get(path)
+    if (!item) {
+      logger.warn(`deleted path ${path} don't have an item!`)
+      return
+    }
+    if (this.callbacks?.onItemDelete) {
+      this.callbacks.onItemDelete(item)
+    }
+    this.unlink(path)
+  }
+
+  async onNodeCreated(nodePath: string, isDir: boolean) {
+    if (this.pathItemMap.get(nodePath)) return
+    logger.debug(`created path [${nodePath}]`)
+    const item = await this.getItemFromNode(await getFSNode(nodePath), this.rootPath)
+    this.link(nodePath, item)
+    if (this.callbacks?.onItemCreate) {
+      this.callbacks.onItemCreate(item)
+    }
+  }
+
+  async onNodeChanged(path: string) {
+    const item = this.pathItemMap.get(path)
+    if (!item) {
+      logger.warn(`changed path ${path} don't have an item!`)
+      return
+    }
+    const newItem = await this.getItemFromNode(await getFSNode(path), this.rootPath)
+    for (let k in newItem) {
+      if (k !== 'uri')
+        // @ts-ignore
+        item[k] = newItem[k]
+    }
+    if (this.callbacks?.onItemChange)
+      this.callbacks.onItemChange(item)
   }
 
   private async writeFile(filePath: string, content: string) {
+    const exists = promisify(fs.exists)
+    // get the topmost existing folder and unwatch it
+    let tryPath = filePath
+    let nextPath = path.resolve(tryPath, '..')
+    let pathsToAdd = []
+    while (!await exists(nextPath)) {
+      tryPath = nextPath
+      nextPath = path.resolve(tryPath, '..')
+      if (nextPath === tryPath) break
+      pathsToAdd.push(tryPath)
+    }
+    if (tryPath.indexOf(this.rootPath) === -1)
+      throw `topmost existing folder ${tryPath} goes beyond root!`
+    this.watcher?.unwatch(tryPath)
     const folder = path.resolve(filePath, '..')
-    if (! await promisify(fs.exists)(folder)) {
+    if (! await exists(folder)) {
       await fs.promises.mkdir(folder, { recursive: true })
     }
     await fs.promises.writeFile(filePath, content)
+    this.watcher?.add(tryPath)
+    pathsToAdd.forEach(p => this.onNodeCreated(p, true))
   }
 
   /**
    * Remove a file together with its empty parents after removing
    */
   private async removeWithEmptyParents(filePath: string) {
+    this.watcher?.unwatch(filePath)
     await fs.promises.unlink(filePath)
     while (true) {
       const parent = path.resolve(filePath, '../')
       const files = await fs.promises.readdir(parent)
       if (files.length === 0) {
+        this.watcher?.unwatch(parent)
         await fs.promises.rmdir(parent)
+        const parentItem = this.pathItemMap.get(parent)
+        if (parentItem) {
+          this.callbacks?.onItemDelete ? this.callbacks?.onItemDelete(parentItem) : null
+          this.unlink(parent)
+        }
         logger.debug(`folder ${parent} deleted because of empty`)
         filePath = parent
       } else {
@@ -166,19 +231,42 @@ class FileSynchronizer {
     }
   }
 
-  private async buildFileTreeFromPath(rootPath: string): Promise<FSNode> {
-    const buildFileTreeDFS = async (node: FSNode) => {
-      if (node.type === 'file') return
-      const childs = await fs.promises.readdir(node.absolutePath)
-      for (let childPath of childs) {
-        const child = new FSNode(path.join(node.absolutePath, childPath))
-        await buildFileTreeDFS(child)
-        node.childs.push(child)
+  /**
+   * Get all the folders and files recursively under rootPath
+   */
+  private async getAllNodes(rootPath: string): Promise<FSNode[]> {
+    const list: FSNode[] = []
+    const dfs = async (nodePath: string) => {
+      console.log(nodePath)
+      const node = await getFSNode(nodePath)
+      list.push(node)
+      if (node.type === 'directory') {
+        await Promise.all((await fs.promises.readdir(node.absolutePath)).map(p => dfs(path.resolve(nodePath, p))))
       }
+      return
     }
-    const root = new FSNode(rootPath)
-    await buildFileTreeDFS(root)
-    return root
+    await dfs(rootPath)
+    return list
+  }
+
+  /**
+   * Given a list of FSNode, return:
+   *   - map from uri to items
+   *   - map from path to items
+   */
+  private async parseNodesToItems(nodes: FSNode[], rootPath: string, URIPrefix: string): Promise<[URIItemMap, URIItemMap]> {
+    let URIMap: URIItemMap = {}
+    let pathMap: URIItemMap = {}
+
+    await Promise.all(nodes.map(async node => {
+      const item = await this.getItemFromNode(node, rootPath)
+      if (!item) return
+      item.uri = `${URIPrefix}${item.uri}`
+      URIMap[item.uri] = item
+      pathMap[node.absolutePath] = item  
+    }))
+
+    return [URIMap, pathMap]
   }
 
   private splitHeaderContent(raw: string): [ItemHeader & {title?: string}, string] {
@@ -201,7 +289,10 @@ class FileSynchronizer {
     return [headers, lines.slice(divideIndex).join('\n')]
   }
 
-  private async getItemFromNode(node: FSNode, uriPrefix: string): Promise<ServerItem | null> {
+  /**
+   * Pure function
+   */
+  private async getItemFromNode(node: FSNode, rootPath: string): Promise<ServerItem> {
     let currentItem = new ServerItem()
     let rawContent: string
     if (node.type === 'file') {
@@ -222,24 +313,31 @@ class FileSynchronizer {
       logger.info(`Custom URI [${headers.uri}] supressed default one for [${currentItem.title}].`)
       currentItem.uri = headers.uri
     } else {
-      const localURI = currentItem.type && renderableMIME.has(currentItem.type) ? node.path.name : node.path.base
-      currentItem.uri = `${uriPrefix}${localURI}`
+      const absURI = path.resolve(node.path.dir,
+        (currentItem.type && renderableMIME.has(currentItem.type)) ? node.path.name : node.path.base)
+      currentItem.uri = path.relative(rootPath, absURI).replace(/\\+/g, '/')
       logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
     }
     currentItem.missing = false
-    this.itemNodeMap.set(currentItem, node)
     return currentItem
   }
-  
-  private async parseFileTreeToMap(rootNode: FSNode, prefix: string): Promise<void> {
-    const dfs = async (node: FSNode, prefix: string): Promise<void> => {
-      const item = await this.getItemFromNode(node, prefix)
-      if (!item) return
-      this.URIMap[item.uri] = item
-      await Promise.all(node.childs.map(nd => dfs(nd, `${item.uri}/`)))
-    }
 
-    await Promise.all(rootNode.childs.map(nd => dfs(nd, prefix)))
+  /**
+   * construct linking between path and item
+   */
+  private link(path: string, item: ServerItem) {
+    this.pathItemMap.set(path, item)
+    this.itemPathMap.set(item, path)
+  }
+
+  /**
+   * remove linking between node and item
+   */
+  private unlink(path: string) {
+    const item = this.pathItemMap.get(path)
+    if (!item) throw `path to unlink ${path} don't have an item!`
+    this.pathItemMap.delete(path)
+    this.itemPathMap.delete(item)
   }
 }
 
