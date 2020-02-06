@@ -237,7 +237,6 @@ class FileSynchronizer {
   private async getAllNodes(rootPath: string): Promise<FSNode[]> {
     const list: FSNode[] = []
     const dfs = async (nodePath: string) => {
-      console.log(nodePath)
       const node = await getFSNode(nodePath)
       list.push(node)
       if (node.type === 'directory') {
