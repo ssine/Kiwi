@@ -100,10 +100,10 @@ class FileSynchronizer {
   async getSystemItemMap(): Promise<Record<string, ServerItem>> {
     const systemPath = path.resolve(__dirname, '../kiwi')
     const nodes = await this.getAllNodes(systemPath)
-    const [URIMap, pathMap] = await this.parseNodesToItems(nodes, systemPath, '$kiwi/')
+    const [URIMap, pathMap] = await this.parseNodesToItems(nodes, systemPath, 'kiwi/')
     Object.keys(pathMap).forEach(uri => {
+      // system items are read-only so do not save path info
       pathMap[uri].isSystem = true
-      this.link(uri, pathMap[uri])
     })
     return URIMap
   }
