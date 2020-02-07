@@ -18,8 +18,6 @@ class ClientItem extends BaseItem {
   displaied: boolean = false
   editing: boolean = false
   containerDiv: Element | null = null
-  childs: ClientItem[]
-
 
   /**
    * Load all the contents of current item from server
