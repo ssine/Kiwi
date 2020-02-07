@@ -81,11 +81,21 @@ class ItemManager {
     bus.on('item-delete-clicked', (data) => this.deleteItem(data.uri))
     bus.on('create-item-clicked', (data) => this.createItem(data))
     bus.on('search-triggered', (data) => this.processSearch(data))
+    bus.on('item-saved', async (data) => {
+      if (data.uri === pageConfigs.title) {
+        document.title = (await this.getItemFromURI(pageConfigs.title)).content.trim()
+        // ugly hack, but who cares? going through react is troublesome
+        document.getElementById('site-title').innerHTML = document.title
+      } else if (data.uri === pageConfigs.subTitle) {
+        document.getElementById('site-subtitle').innerHTML = 
+          (await this.getItemFromURI(pageConfigs.subTitle)).content.trim()
+      }
+    })
 
     this.io.on('item-change', async (data) => {
       let item: ClientItem = data.item
       item = this.map[item.uri].assign(item)
-      bus.emit('item-saved')
+      bus.emit('item-saved', { uri: item.uri })
       const idx = this.itemFlow.indexOf(item)
       if (idx !== -1) {
         this.itemFlowDiv.children[idx].querySelector('.item-content').innerHTML = await item.html()
@@ -96,7 +106,7 @@ class ItemManager {
       item.assign(data.item)
       this.map[item.uri] = item
       this.updateURI()
-      bus.emit('item-saved')
+      bus.emit('item-saved', { uri: item.uri })
     })
     this.io.on('item-delete', async (data) => {
       const uri: string = data.uri
@@ -261,7 +271,7 @@ class ItemManager {
     })
     assignCommonProperties(item, savedItem)
     bus.emit(`item-saved-${data.token}`, {item: item})
-    bus.emit('item-saved')
+    bus.emit('item-saved', { uri: item.uri })
   }
 
   async createItem(data: {uri: string}) {

@@ -379,8 +379,8 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
       <div className="sidebar" style={{
         height: '100%',
       }}>
-        <h1 className="site-title">{this.props.title}</h1>
-        <div className="site-subtitle">{this.props.subTitle}</div>
+        <h1 className="site-title" id="site-title">{this.props.title}</h1>
+        <div className="site-subtitle" id="site-subtitle">{this.props.subTitle}</div>
         <div className="page-controls">
           <IconButton iconProps={{ iconName: 'Add' }} title="New Item" ariaLabel="New Item" onClick={evt => {
             bus.emit('create-item-clicked', {})
