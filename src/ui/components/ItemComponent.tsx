@@ -169,8 +169,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
         {!this.item.editing ? (
           <div>
             <div className="item-controls" style={{display: 'flex'}}>
-            { !this.item.isSystem ? (
-              <div style={{display: 'flex'}}>
+
               <ItemButton
                 divRef={el => this.deleteButtonElement = el}
                 iconName='Delete'
@@ -193,8 +192,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 iconName='Edit'
                 label='Edit'
                 onClick={this.onBeginEdit.bind(this)}
-              /></div>)
-            : null }
+              />
               <ItemButton
                 iconName='Cancel'
                 label='Close'
@@ -301,7 +299,6 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                       this.editingItem.type = options.text as MIME
                     else
                       this.editingItem.type = value
-                    console.log('item type changed to ', this.editingItem.type)
                   }}
                 />
               </div>
@@ -329,6 +326,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     this.editor = null
     const rotateOutFinished = this.rotateOut()
     bus.once(`item-saved-${saveToken}`, async (data) => {
+      this.item.editing = false
       this.item = data.item
       this.generateEditingItem(this.item)
       await rotateOutFinished
