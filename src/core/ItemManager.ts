@@ -72,6 +72,10 @@ class ItemManager {
       await this.deleteItem(uri)
     }
     let _it = this.getItem(it.uri)
+    if (_it.isSystem) {
+      _it = new ServerItem()
+      this.itemMap[it.uri] = _it
+    }
     assignCommonProperties(_it, it)
     _it.missing = false
     // should we await this, i.e., response after item is written to disk?

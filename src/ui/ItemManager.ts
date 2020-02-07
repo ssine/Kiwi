@@ -15,6 +15,7 @@ type URIItemMap = Record<string, ClientItem>
  */
 class ItemManager {
   map: URIItemMap = {}
+  sysMap: URIItemMap = {}
   itemFlow: ClientItem[] = []
   itemFlowDiv!: Element
   renderer: Renderer
@@ -27,7 +28,7 @@ class ItemManager {
     // get system items
     let systemItems = await postJSON('/get-system-items', {})
     for (let k in systemItems) {
-      this.map[systemItems[k].uri] = (new ClientItem()).assign(systemItems[k])
+      this.sysMap[systemItems[k].uri] = (new ClientItem()).assign(systemItems[k])
     }
 
     // get skinny items
@@ -39,7 +40,7 @@ class ItemManager {
       this.map[it.uri] = it
     }
 
-    document.title = this.map[pageConfigs.title].content.trim()
+    document.title = (await this.getItemFromURI(pageConfigs.title)).content.trim()
 
     const link = document.createElement('link');
     link.type = 'image/x-icon';
@@ -50,16 +51,16 @@ class ItemManager {
     this.generateTagMap()
     this.generateItemTypes()
 
-    this.URIParser.parseItemTree(this.map)
-    
+    this.updateURI()
+
     this.renderer = new Renderer()
     const rootDiv = document.createElement('div')
 
     // render sidebar
     let sidebarElement = document.createElement('div')
     this.renderer.renderSidebar({
-      title: this.map[pageConfigs.title].content.trim(),
-      subTitle: this.map[pageConfigs.subTitle].content.trim(),
+      title: (await this.getItemFromURI(pageConfigs.title)).content.trim(),
+      subTitle: (await this.getItemFromURI(pageConfigs.subTitle)).content.trim(),
       itemFlow: this.itemFlow,
       rootNode: this.URIParser.rootNode
     }, sidebarElement)
@@ -91,43 +92,46 @@ class ItemManager {
       }
     })
     this.io.on('item-create', (data) => {
-      let item: ClientItem = data.item
+      const item = new ClientItem()
+      item.assign(data.item)
       this.map[item.uri] = item
       this.updateURI()
       bus.emit('item-saved')
     })
-    this.io.on('item-delete', (data) => {
+    this.io.on('item-delete', async (data) => {
       const uri: string = data.uri
-      this.closeItem(uri)
+      await this.closeItem(uri)
       delete this.map[uri]
-      console.log(uri, 'deleted from map')
       this.updateURI()
       bus.emit('item-deleted')
-    })
+    });
 
     // render default items
-    this.map[defaultItemsURI].content.split('\n').forEach(l => {
+    (await this.getItemFromURI(defaultItemsURI)).content.split('\n').forEach(l => {
       if (l) {
-        console.log('opening default item ', l)
         this.displayItem(l)
       }
     })
   }
   
   async getItemFromURI(uri: string): Promise<ClientItem|null> {
-    const possibleIndex = this.concatURI(uri, 'index')
-    if (this.map[possibleIndex])
-      return this.getItemFromURI(possibleIndex)
-    if (this.map[uri] && this.map[uri].contentLoaded) {
-      return this.map[uri]
+    const getFromMap = async (uri: string, map: URIItemMap) => {
+      const possibleIndex = this.concatURI(uri, 'index')
+      if (map[possibleIndex])
+      return map[possibleIndex]
+      if (map[uri]) {
+        if (!map[uri].contentLoaded) {
+          await map[uri].load()
+        }
+        return map[uri]
+      }
+      return null
     }
-    // fetch from server
-    let currentItem = new ClientItem()
-    currentItem.uri = uri
-    await currentItem.load()
-    if(currentItem.title === '') return null
-    this.map[uri] = currentItem
-    return currentItem
+    const res = await getFromMap(uri, this.map)
+    if (res) {
+      return res
+    }
+    return await getFromMap(uri, this.sysMap)
   }
 
   generateTagMap() {
@@ -187,7 +191,6 @@ class ItemManager {
       await this.createItem({ uri: uri })
       return
     }
-    console.log('displaing ', item)
 
     if (item.displaied) {
       this.scrollToItem(item)
@@ -228,6 +231,10 @@ class ItemManager {
     let item = await this.getItemFromURI(data.uri)
     if (item === null) return
 
+    if (item.isSystem) {
+      item = new ClientItem()
+    }
+
     const changedKeys = {}
     for (let k in data.editedItem) {
       if (item[k] !== data.editedItem[k]) {
@@ -239,9 +246,8 @@ class ItemManager {
     if (changedKeys['uri']) {
       this.map[data.editedItem.uri] = item
       delete this.map[data.uri]
-      this.updateURI()
     }
-    if (changedKeys['title'] && !changedKeys['uri']) {
+    if (changedKeys['title'] || changedKeys['uri']) {
       this.updateURI()
     }
     // TODO: performance issue?
@@ -280,9 +286,8 @@ class ItemManager {
   }
 
   async deleteItem(uri: string) {
-    this.closeItem(uri)
+    await this.closeItem(uri)
     delete this.map[uri]
-    console.log(uri, 'deleted from map')
     this.updateURI()
     postJSON('/delete-item', {uri: uri})
     bus.emit('item-deleted')
@@ -303,8 +308,7 @@ class ItemManager {
   }
 
   updateURI() {
-    this.URIParser.parseItemTree(this.map)
-    console.log('parsed tree: ', this.URIParser.rootNode)
+    this.URIParser.parseItemTree(Object.assign({}, this.sysMap, this.map))
   }
 
 }
