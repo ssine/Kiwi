@@ -61,7 +61,6 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
   }
 
   onTreeUpdate() {
-    console.log('updating with item tree: ', this.props.itemTree)
     const [newIt, newGp] = this.convertURIToGroupedList(this.props.itemTree)
     let oldGp = this.state.group
     this.collapseStateAssign(oldGp, newGp)
@@ -73,7 +72,6 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
 
   collapseStateAssign(from: GroupWithURI, to: GroupWithURI) {
     to.isCollapsed = from.isCollapsed
-    console.log(`collapse state ${from.isCollapsed} passed from ${from.absoluteURI} to ${to.absoluteURI}`)
     for (const fc of from.children as GroupWithURI[]) {
       for (const tc of to.children as GroupWithURI[]) {
         if (fc.absoluteURI === tc.absoluteURI) {
@@ -116,7 +114,7 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
     )
   }
 
-  private _onRenderCell = (nestingDepth: number, item: { uri: string, title: string }, itemIndex: number): JSX.Element => {
+  private _onRenderCell = (nestingDepth: number, item: URINode, itemIndex: number): JSX.Element => {
     return (
       <div onClick={() => {
         bus.emit('item-link-clicked', {
@@ -127,7 +125,7 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
         
       <DetailsRow
         columns={this.columns}
-        groupNestingDepth={nestingDepth}
+        groupNestingDepth={item.level}
         item={item}
         itemIndex={itemIndex}
         selection={this.selection}
@@ -153,6 +151,7 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
 
     const dfs = (node: URINode, level: number): (GroupWithURI | null) => {
       if (node.childs.length === 0) {
+        node.level = level
         items.push(node)
         return null
       }
@@ -170,11 +169,11 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
 
       let hasItem = false
       let hasGroup = false
-      let childItems = []
+      let childItems: URINode[] = []
 
       for (const nd of node.childs) {
         const cgp = dfs(nd, level + 1)
-        if (cgp !== null ) {
+        if (cgp !== null) {
           hasGroup = true
           gp.children.push(cgp)
           gp.count += cgp.count
@@ -201,6 +200,7 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
             isCollapsed: false,
           }
           gp.children.push(idxGroup)
+          childItems.forEach(nd => nd.level += 1)
         }
         items.push(...childItems)
       }

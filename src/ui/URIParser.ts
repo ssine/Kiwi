@@ -5,12 +5,14 @@ class URINode {
   title: string
   absoluteURI: string
   childs: URINode[]
+  level: number
 
   constructor(URI: string, title: string) {
     this.URI = URI
     this.title = title
     this.absoluteURI = ''
     this.childs = []
+    this.level = 0
   }
 }
 
@@ -51,7 +53,7 @@ class URIParser {
     for (let key in items) {
       const it = items[key]
       const nd = traverse(it.uri.split('/'))
-      nd.title = it.title
+      nd.title = it.title || it.uri
       nd.absoluteURI = it.uri
     }
   }
