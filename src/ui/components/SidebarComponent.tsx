@@ -1,6 +1,6 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
-import * as React from 'react'
+import React from 'react'
 import { IconButton, Callout } from 'office-ui-fabric-react'
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox'
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label'

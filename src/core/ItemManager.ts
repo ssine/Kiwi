@@ -6,7 +6,7 @@
 import { ServerItem } from './ServerItem'
 import { FileSynchronizer, URIItemMap } from './FileSynchronizer'
 import { assignCommonProperties } from './Common'
-import { getLogger } from './log'
+import { getLogger } from './Log'
 import * as socketIO from 'socket.io'
 
 const logger = getLogger('itemm')

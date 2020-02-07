@@ -2,6 +2,7 @@ const path = require("path");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   devtool: "source-map",
@@ -16,6 +17,13 @@ module.exports = {
     filename: "[name].bundle.js",
     chunkFilename: '[name].bundle.js',
     path: path.resolve(__dirname, "build/browser")
+  },
+  optimization: {
+    usedExports: true,
+    minimize: true,
+    minimizer: [
+      new TerserPlugin()
+    ]
   },
   module: {
     rules: [

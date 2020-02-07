@@ -30,7 +30,7 @@ import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml'
 import { ItemHeader } from './BaseItem'
 import { ServerItem } from './ServerItem'
 import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME } from './Common'
-import { getLogger } from './log'
+import { getLogger } from './Log'
 import * as chokidar from 'chokidar'
 
 const logger = getLogger('fs')
@@ -159,7 +159,7 @@ class FileSynchronizer {
   async onNodeCreated(nodePath: string, isDir: boolean) {
     if (this.pathItemMap.get(nodePath)) return
     logger.debug(`created path [${nodePath}]`)
-    const item = await this.getItemFromNode(await getFSNode(nodePath), this.rootPath)
+    const item = await this.getItemFromNode(await getFSNode(nodePath), this.rootPath, '')
     this.link(nodePath, item)
     if (this.callbacks?.onItemCreate) {
       this.callbacks.onItemCreate(item)
@@ -172,7 +172,7 @@ class FileSynchronizer {
       logger.warn(`changed path ${path} don't have an item!`)
       return
     }
-    const newItem = await this.getItemFromNode(await getFSNode(path), this.rootPath)
+    const newItem = await this.getItemFromNode(await getFSNode(path), this.rootPath, '')
     for (let k in newItem) {
       if (k !== 'uri')
         // @ts-ignore
@@ -258,9 +258,8 @@ class FileSynchronizer {
     let pathMap: URIItemMap = {}
 
     await Promise.all(nodes.map(async node => {
-      const item = await this.getItemFromNode(node, rootPath)
+      const item = await this.getItemFromNode(node, rootPath, URIPrefix)
       if (!item) return
-      item.uri = `${URIPrefix}${item.uri}`
       URIMap[item.uri] = item
       pathMap[node.absolutePath] = item  
     }))
@@ -291,7 +290,7 @@ class FileSynchronizer {
   /**
    * Pure function
    */
-  private async getItemFromNode(node: FSNode, rootPath: string): Promise<ServerItem> {
+  private async getItemFromNode(node: FSNode, rootPath: string, URIPrefix: string): Promise<ServerItem> {
     let currentItem = new ServerItem()
     let rawContent: string
     if (node.type === 'file') {
@@ -314,7 +313,7 @@ class FileSynchronizer {
     } else {
       const absURI = path.resolve(node.path.dir,
         (currentItem.type && renderableMIME.has(currentItem.type)) ? node.path.name : node.path.base)
-      currentItem.uri = path.relative(rootPath, absURI).replace(/\\+/g, '/')
+      currentItem.uri = `${URIPrefix}${path.relative(rootPath, absURI).replace(/\\+/g, '/')}`
       logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
     }
     currentItem.missing = false

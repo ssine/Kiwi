@@ -1,6 +1,6 @@
 import ClientItem from './ClientItem'
-import * as React from "react"
-import * as ReactDOM from "react-dom"
+import React from "react"
+import ReactDOM from "react-dom"
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons'
 import { ItemComponent } from './components/ItemComponent'
 import { SidebarComponentProperty, SidebarComponent } from './components/SidebarComponent'

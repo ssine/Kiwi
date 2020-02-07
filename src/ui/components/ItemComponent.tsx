@@ -1,13 +1,14 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
-import * as React from 'react'
+import React from 'react'
 import {
-  IconButton, ComboBox, DefaultButton, CommandBarButton, TextField, ITextField,
+  ComboBox, DefaultButton, CommandBarButton, TextField, ITextField,
   SelectableOptionMenuItemType, Callout, PrimaryButton
 } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
 import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
+import { IconButton } from 'office-ui-fabric-react/lib/Button'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument } from '../Common'
