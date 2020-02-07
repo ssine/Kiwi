@@ -67,24 +67,24 @@ body {
 
 @font-face {
   font-family: Constantia;
-  src: url('/$kiwi/ui/font/constan.ttf');
+  src: url('/kiwi/ui/font/constan.ttf');
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/$kiwi/ui/font/constanb.ttf');
+  src: url('/kiwi/ui/font/constanb.ttf');
   font-weight: bold;
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/$kiwi/ui/font/constani.ttf');
+  src: url('/kiwi/ui/font/constani.ttf');
   font-style: italic;
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/$kiwi/ui/font/constanz.ttf');
+  src: url('/kiwi/ui/font/constanz.ttf');
   font-weight: bold;
   font-style: italic;
 }

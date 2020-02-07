@@ -20,7 +20,7 @@ app.use(bodyParser.json())
 const serve = function serve(port: number) {
   manager.setUINotifier(io)
 
-  app.use('/\\$kiwi/', express.static(resolve(__dirname, '../kiwi')))
+  app.use('/kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
 

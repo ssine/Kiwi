@@ -1,1 +1,1 @@
-$kiwi/doc/hello-there
+kiwi/doc/hello-there
