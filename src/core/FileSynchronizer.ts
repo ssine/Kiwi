@@ -102,6 +102,7 @@ class FileSynchronizer {
     const nodes = await this.getAllNodes(systemPath)
     const [URIMap, pathMap] = await this.parseNodesToItems(nodes, systemPath, '$kiwi/')
     Object.keys(pathMap).forEach(uri => {
+      pathMap[uri].isSystem = true
       this.link(uri, pathMap[uri])
     })
     return URIMap

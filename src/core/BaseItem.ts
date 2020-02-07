@@ -41,6 +41,11 @@ abstract class BaseItem {
   missing: boolean = true
 
   /**
+   * Is this a system item
+   */
+  isSystem: boolean = false
+
+  /**
    * The raw content of this item
    */
   content: string = ''

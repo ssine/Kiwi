@@ -169,6 +169,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
         {!this.item.editing ? (
           <div>
             <div className="item-controls" style={{display: 'flex'}}>
+            { !this.item.isSystem ? (
+              <div style={{display: 'flex'}}>
               <ItemButton
                 divRef={el => this.deleteButtonElement = el}
                 iconName='Delete'
@@ -191,7 +193,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 iconName='Edit'
                 label='Edit'
                 onClick={this.onBeginEdit.bind(this)}
-              />
+              /></div>)
+            : null }
               <ItemButton
                 iconName='Cancel'
                 label='Close'
