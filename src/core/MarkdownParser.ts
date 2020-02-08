@@ -27,8 +27,8 @@ class MarkdownParser extends Parser {
     });
   }
 
-  parse(input: string): string {
-    return `<div>${marked(input)}</div>`
+  parse(kwargs: {input: string}): string {
+    return `<div>${marked(kwargs.input)}</div>`
     // const $ = cheerio.load(marked(input))
     // $('a').addClass('item-link')
     // return $.html($('body'))  

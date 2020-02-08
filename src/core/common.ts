@@ -15,7 +15,12 @@ type MIME =
   'image/x-icon' |
   'image/jpeg' |
   'image/png' |
-  'image/svg+xml'
+  'image/svg+xml' |
+  'audio/mpeg' |
+  'audio/vnd.wav' |
+  'video/mp4' |
+  'video/ogg' |
+  'video/webm'
 
 const renderableMIME = new Set<MIME>([
   'text/plain',
@@ -30,7 +35,17 @@ const extMIMEDict: { [name: string]: MIME } = {
   'adoc': 'text/asciidoc',
   'wiki': 'text/wikitext',
   'sqrl': 'text/x-sqrl',
+  'gif': 'image/gif',
+  'ico': 'image/x-icon',
+  'jpg': 'image/jpeg',
+  'jpeg': 'image/jpeg',
+  'png': 'image/png',
   'svg': 'image/svg+xml',
+  'mp3': 'audio/mpeg',
+  'wav': 'audio/vnd.wav',
+  'mp4': 'video/mp4',
+  'ogv': 'video/ogg',
+  'webm': 'video/webm',
 }
 
 const MIMEextDict: { [mime: string]: string } = {
@@ -46,6 +61,11 @@ const MIMEextDict: { [mime: string]: string } = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/svg+xml': 'svg',
+  'audio/mpeg': 'mp3',
+  'audio/vnd.wav': 'wav',
+  'video/mp4': 'mp4',
+  'video/ogg': 'ogv',
+  'video/webm': 'webm',
 }
 
 /**

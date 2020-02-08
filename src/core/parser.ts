@@ -25,7 +25,7 @@ abstract class Parser {
   /**
    * Parse input into HTML `<div>` block.
    */
-  abstract parse(input: string): string
+  abstract parse(kwargs: { input: string, uri: string }): string
   /**
    * A list of supported content type in MIME format
    */
@@ -45,13 +45,13 @@ abstract class Parser {
 /**
  * Parse a content and return html <div>
  */
-const parse = function parse(input: string, type: MIME): string {
-  const parser = parserMap.get(type)
+const parse = function parse(kwargs: {input: string, uri: string, type: MIME}): string {
+  const parser = parserMap.get(kwargs.type)
   if (!parser) {
-    logger.info(`Parser for type ${type} not found, empty string returned.`)
+    logger.info(`Parser for type ${kwargs.type} not found, empty string returned.`)
     return ''
   }
-  return parser.parse(input)
+  return parser.parse(kwargs)
 }
 
 export {
