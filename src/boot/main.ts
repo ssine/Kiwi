@@ -5,9 +5,8 @@ import { serve } from '../core/server'
 import { initLogger } from '../core/Log'
 import MarkdownParser from '../core/MarkdownParser'
 import WikitextParser from '../core/WikitextParser'
-import ImageParser from '../core/ImageParser'
-import VideoParser from '../core/VideoParser'
 import AsciidocParser from '../core/AsciidocParser'
+import MediaParser from '../core/MediaParser'
 
 import GraphvizPlugin from '../core/GraphvizPlugin'
 
@@ -40,12 +39,9 @@ wt.register()
 const adoc = new AsciidocParser()
 adoc.init()
 adoc.register()
-const img = new ImageParser()
-img.init()
-img.register()
-const vid = new VideoParser()
-vid.init()
-vid.register()
+const mid = new MediaParser()
+mid.init()
+mid.register()
 
 const hwp = new GraphvizPlugin()
 hwp.init()

@@ -153,6 +153,7 @@ class FileSynchronizer {
       logger.warn(`deleted path ${path} don't have an item!`)
       return
     }
+    logger.info(`[${path} deleted, remove item [${item.uri}]]`)
     if (this.callbacks?.onItemDelete) {
       this.callbacks.onItemDelete(item)
     }
@@ -345,10 +346,10 @@ class FileSynchronizer {
       logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
     }
     if (!(currentItem.type && renderableMIME.has(currentItem.type))) {
-      app.get('/' + encodeURI(currentItem.uri), (req, res) => {
+      app.get('/' + encodeURIComponent(currentItem.uri), (req, res) => {
         res.sendFile(node.absolutePath)
       })
-      logger.info(`serve ${node.absolutePath} on uri [${encodeURI(currentItem.uri)}]`)
+      logger.info(`serve ${node.absolutePath} on uri [${encodeURIComponent(currentItem.uri)}]`)
     }
     currentItem.missing = false
     return currentItem

@@ -46,10 +46,10 @@ const extMIMEDict: { [name: string]: MIME } = {
   'mp4': 'video/mp4',
   'ogv': 'video/ogg',
   'webm': 'video/webm',
+  'pdf': 'application/pdf',
 }
 
 const MIMEextDict: { [mime: string]: string } = {
-  'application/pdf': 'pdf',
   'text/plain': 'txt',
   'text/markdown': 'md',
   'text/asciidoc': 'adoc',
@@ -66,6 +66,7 @@ const MIMEextDict: { [mime: string]: string } = {
   'video/mp4': 'mp4',
   'video/ogg': 'ogv',
   'video/webm': 'webm',
+  'application/pdf': 'pdf',
 }
 
 /**
