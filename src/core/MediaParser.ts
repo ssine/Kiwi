@@ -21,7 +21,7 @@ class MediaParser extends Parser {
       return `<video src="${encodeURIComponent(kwargs.uri)}" controls="controls" type="${kwargs.type}" style="max-width: 100%;">video tag not supported by your browser.</video>`
 
     } else if (this.audioTypes.indexOf(kwargs.type) !== -1) {
-      return `<audio src="${encodeURIComponent(kwargs.uri)}" type="${kwargs.type}">audio tag not supported by your browser.</audio>`
+      return `<audio controls style="width: 100%;"><source src="${encodeURIComponent(kwargs.uri)}" type="${kwargs.type}"></source>audio tag not supported by your browser.</audio>`
 
     } else if (kwargs.type === 'application/pdf') {
       return `<embed src="${encodeURIComponent(kwargs.uri)}" type="application/pdf" style="width: 100%; height: 700px" />`
