@@ -32,6 +32,8 @@ import { ServerItem } from './ServerItem'
 import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME } from './Common'
 import { getLogger } from './Log'
 import * as chokidar from 'chokidar'
+import { isBinaryFile } from 'isbinaryfile'
+import { app } from './server'
 
 const logger = getLogger('fs')
 
@@ -295,7 +297,15 @@ class FileSynchronizer {
     let currentItem = new ServerItem()
     let rawContent: string
     if (node.type === 'file') {
-      rawContent = (await fs.promises.readFile(node.absolutePath)).toString()
+      const buffer = await fs.promises.readFile(node.absolutePath)
+      const isBinary = await isBinaryFile(buffer)
+      if (isBinary) {
+        currentItem.isContentEditable = false
+        rawContent = ''
+      } else {
+        currentItem.isContentEditable = true
+        rawContent = buffer.toString()
+      }
     } else {
       rawContent = ''
     }
@@ -316,6 +326,12 @@ class FileSynchronizer {
         (currentItem.type && renderableMIME.has(currentItem.type)) ? node.path.name : node.path.base)
       currentItem.uri = `${URIPrefix}${path.relative(rootPath, absURI).replace(/\\+/g, '/')}`
       logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
+    }
+    if (!(currentItem.type && renderableMIME.has(currentItem.type))) {
+      app.get('/' + currentItem.uri, (req, res) => {
+        res.sendFile(node.absolutePath)
+      })
+      logger.info(`serve ${node.absolutePath} on uri [${currentItem.uri}]`)
     }
     currentItem.missing = false
     return currentItem

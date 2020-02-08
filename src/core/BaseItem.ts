@@ -57,6 +57,10 @@ abstract class BaseItem {
    * Weather the newest content has been parsed, used to avoid repeated parsing
    */
   isContentParsed: boolean = false
+  /**
+   * If the content is editable
+   */
+  isContentEditable: boolean = true
 
   /**
    * Return the HTML content generated, parse content if not

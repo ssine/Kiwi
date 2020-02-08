@@ -73,6 +73,7 @@
     "express": "^4.17.1",
     "he": "^1.2.0",
     "highlight.js": "^9.18.0",
+    "isbinaryfile": "^4.0.4",
     "js-yaml": "^3.13.1",
     "marked": "^0.8.0",
     "mathjax-full": "^3.0.0",

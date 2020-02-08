@@ -188,11 +188,13 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   <PrimaryButton text="Confirm Delete" onClick={this.onDelete.bind(this)} />
                 </Callout>
               ): null}
-              <ItemButton
-                iconName='Edit'
-                label='Edit'
-                onClick={this.onBeginEdit.bind(this)}
-              />
+              {this.item.isContentEditable ? (
+                <ItemButton
+                  iconName='Edit'
+                  label='Edit'
+                  onClick={this.onBeginEdit.bind(this)}
+                />
+              ): null}
               <ItemButton
                 iconName='Cancel'
                 label='Close'
