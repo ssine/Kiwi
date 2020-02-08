@@ -6,6 +6,7 @@ import { initLogger } from '../core/Log'
 import MarkdownParser from '../core/MarkdownParser'
 import WikitextParser from '../core/WikitextParser'
 import ImageParser from '../core/ImageParser'
+import VideoParser from '../core/VideoParser'
 import AsciidocParser from '../core/AsciidocParser'
 
 import GraphvizPlugin from '../core/GraphvizPlugin'
@@ -42,6 +43,9 @@ adoc.register()
 const img = new ImageParser()
 img.init()
 img.register()
+const vid = new VideoParser()
+vid.init()
+vid.register()
 
 const hwp = new GraphvizPlugin()
 hwp.init()
