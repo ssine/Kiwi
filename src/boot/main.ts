@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs'
 import manager from '../core/ItemManager'
-import serve from '../core/server'
+import { serve } from '../core/server'
 import { initLogger } from '../core/Log'
 import MarkdownParser from '../core/MarkdownParser'
 import WikitextParser from '../core/WikitextParser'
+import ImageParser from '../core/ImageParser'
 import AsciidocParser from '../core/AsciidocParser'
 
 import GraphvizPlugin from '../core/GraphvizPlugin'
@@ -38,6 +39,9 @@ wt.register()
 const adoc = new AsciidocParser()
 adoc.init()
 adoc.register()
+const img = new ImageParser()
+img.init()
+img.register()
 
 const hwp = new GraphvizPlugin()
 hwp.init()
