@@ -29,7 +29,7 @@ import * as moment from 'moment'
 import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml' 
 import { ItemHeader } from './BaseItem'
 import { ServerItem } from './ServerItem'
-import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME } from './Common'
+import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME, sleep } from './Common'
 import { getLogger } from './Log'
 import * as chokidar from 'chokidar'
 import { isBinaryFile } from 'isbinaryfile'
@@ -297,7 +297,24 @@ class FileSynchronizer {
     let currentItem = new ServerItem()
     let rawContent: string
     if (node.type === 'file') {
-      const buffer = await fs.promises.readFile(node.absolutePath)
+      // wait until the coping is done?
+      let buffer: Buffer = new Buffer('')
+      try {
+        buffer = await fs.promises.readFile(node.absolutePath)
+      } catch (err) {
+        if (err.code === 'EBUSY') {
+          while (true) {
+            await sleep(2000)
+            let haveException = false
+            try {
+              buffer = await fs.promises.readFile(node.absolutePath)
+            } catch (err) {
+              haveException = true
+            }
+            if (!haveException) break
+          }
+        }
+      }
       const isBinary = await isBinaryFile(buffer)
       if (isBinary) {
         currentItem.isContentEditable = false
@@ -328,10 +345,10 @@ class FileSynchronizer {
       logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
     }
     if (!(currentItem.type && renderableMIME.has(currentItem.type))) {
-      app.get('/' + currentItem.uri, (req, res) => {
+      app.get('/' + encodeURI(currentItem.uri), (req, res) => {
         res.sendFile(node.absolutePath)
       })
-      logger.info(`serve ${node.absolutePath} on uri [${currentItem.uri}]`)
+      logger.info(`serve ${node.absolutePath} on uri [${encodeURI(currentItem.uri)}]`)
     }
     currentItem.missing = false
     return currentItem

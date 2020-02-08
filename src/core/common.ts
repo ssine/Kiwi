@@ -97,10 +97,19 @@ function assignCommonProperties(target: Object, obj: Object) {
   }
 }
 
+function sleep(timeoutMs: number): Promise<void> {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      res()
+    }, timeoutMs);
+  })
+}
+
 export {
   MIME,
   renderableMIME,
   getMIMEFromExtension,
   getExtensionFromMIME,
-  assignCommonProperties
+  assignCommonProperties,
+  sleep
 }
