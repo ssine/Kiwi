@@ -7,6 +7,7 @@ import MarkdownParser from '../lib/parser/MarkdownParser'
 import WikitextParser from '../lib/parser/WikitextParser'
 import AsciidocParser from '../lib/parser/AsciidocParser'
 import MediaParser from '../lib/parser/MediaParser'
+import HighlightParser from '../lib/parser/HighlightParser'
 
 import GraphvizPlugin from '../lib/plugin/GraphvizPlugin'
 import TranscludePlugin from '../lib/plugin/TranscludePlugin'
@@ -43,6 +44,9 @@ adoc.register()
 const mid = new MediaParser()
 mid.init()
 mid.register()
+const hl = new HighlightParser()
+hl.init()
+hl.register()
 
 const gviz = new GraphvizPlugin()
 gviz.init()

@@ -4,13 +4,22 @@
  */
 type MIME = 
   'application/pdf' |
+  'application/json' |
   'text/plain' |
   'text/markdown' |
   'text/javascript' |
   'text/html' |
+  'text/css' |
   'text/asciidoc' |
   'text/wikitext' |
-  'text/x-sqrl' |
+  'text/yaml' |
+  'text/x-c' |
+  'text/x-cpp' |
+  'text/x-python' |
+  'text/x-java' |
+  'text/x-go' |
+  'text/x-javascript' |
+  'text/x-typescript' |
   'image/gif' |
   'image/x-icon' |
   'image/jpeg' |
@@ -34,7 +43,6 @@ const extMIMEDict: { [name: string]: MIME } = {
   'md': 'text/markdown',
   'adoc': 'text/asciidoc',
   'wiki': 'text/wikitext',
-  'sqrl': 'text/x-sqrl',
   'gif': 'image/gif',
   'ico': 'image/x-icon',
   'jpg': 'image/jpeg',
@@ -47,6 +55,19 @@ const extMIMEDict: { [name: string]: MIME } = {
   'ogv': 'video/ogg',
   'webm': 'video/webm',
   'pdf': 'application/pdf',
+  'json': 'application/json',
+  'yml': 'text/yaml',
+  'yaml': 'text/yaml',
+  'css': 'text/css',
+  'c': 'text/x-c',
+  'cpp': 'text/x-cpp',
+  'cc': 'text/x-cpp',
+  'py': 'text/x-python',
+  'java': 'text/x-java',
+  'js': 'text/x-javascript',
+  'ts': 'text/x-typescript',
+  'tsx': 'text/x-typescript',
+  'jsx': 'text/x-typescript',
 }
 
 const MIMEextDict: { [mime: string]: string } = {
@@ -55,7 +76,6 @@ const MIMEextDict: { [mime: string]: string } = {
   'text/asciidoc': 'adoc',
   'text/wikitext': 'wiki',
   'text/html': 'html',
-  'text/x-sqrl': 'sqrl',
   'image/gif': 'gif',
   'image/x-icon': 'ico',
   'image/jpeg': 'jpg',
@@ -67,6 +87,27 @@ const MIMEextDict: { [mime: string]: string } = {
   'video/ogg': 'ogv',
   'video/webm': 'webm',
   'application/pdf': 'pdf',
+  'application/json': 'json',
+  'text/yaml': 'yml',
+  'text/css': 'css',
+  'text/x-c': 'c',
+  'text/x-cpp': 'cpp',
+  'text/x-python': 'py',
+  'text/x-java': 'java',
+  'text/x-javascript': 'js',
+  'text/x-typescript': 'ts',
+}
+
+const MIMELangDict: { [mime: string]: string } = {
+  'application/json': 'json',
+  'text/yaml': 'yaml',
+  'text/x-c': 'cpp',
+  'text/x-cpp': 'cpp',
+  'text/x-css': 'cpp',
+  'text/x-python': 'python',
+  'text/x-java': 'java',
+  'text/x-javascript': 'javascript',
+  'text/x-typescript': 'typescript',
 }
 
 /**
@@ -76,6 +117,16 @@ function getExtensionFromMIME(ct: MIME | null): string {
   if (ct === null) return ''
   return MIMEextDict[ct] || 'txt' 
 }
+
+/**
+ * Get the programming language from mime
+ */
+function getLanguageFromMIME(ct: MIME | null): string {
+  if (ct === null) return ''
+  return MIMELangDict[ct] || 'txt' 
+}
+
+
 
 /**
  * Infer the MIME content type from file extension
@@ -111,6 +162,8 @@ export {
   renderableMIME,
   getMIMEFromExtension,
   getExtensionFromMIME,
+  getLanguageFromMIME,
+  MIMELangDict,
   assignCommonProperties,
   sleep
 }
