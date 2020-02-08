@@ -1,7 +1,6 @@
 import { getLogger } from './Log'
 import * as he from 'he'
 import * as vm from 'vm'
-import { inspect } from 'util'
 
 const logger = getLogger('plugin')
 
@@ -11,13 +10,16 @@ let pluginMap: {[name: string]: renderFunction} = {}
 
 abstract class RenderPlugin {
   abstract init(): void
-  abstract getName(): string
+  abstract getNames(): string[]
   abstract getFunction(): renderFunction
   startItem(uri: string): void { }
   endItem(uri: string): void { }
   register() {
-    pluginMap[this.getName()] = this.getFunction().bind(this)
-    logger.info(`plugin ${this.getName()} registered.`)
+    const f = this.getFunction().bind(this)
+    for (const name of this.getNames()) {
+      pluginMap[name] = f
+    }
+    logger.info(`plugin ${this.getNames()[0]} registered.`)
   }
 }
 

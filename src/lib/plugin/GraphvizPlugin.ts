@@ -7,8 +7,8 @@ export default class GraphvizPlugin extends RenderPlugin {
   init() {
     this.viz = new Viz({ Module, render });
   }
-  getName() {
-    return 'graphviz'
+  getNames() {
+    return ['graphviz']
   }
   getFunction() {
     return async (input: string): Promise<string> => {

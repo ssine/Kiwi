@@ -9,6 +9,7 @@ import AsciidocParser from '../lib/parser/AsciidocParser'
 import MediaParser from '../lib/parser/MediaParser'
 
 import GraphvizPlugin from '../lib/plugin/GraphvizPlugin'
+import TranscludePlugin from '../lib/plugin/TranscludePlugin'
 
 const args = yargs
   .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {
@@ -43,9 +44,12 @@ const mid = new MediaParser()
 mid.init()
 mid.register()
 
-const hwp = new GraphvizPlugin()
-hwp.init()
-hwp.register()
+const gviz = new GraphvizPlugin()
+gviz.init()
+gviz.register()
+const trans = new TranscludePlugin()
+trans.init()
+trans.register()
 
 async function run () {
   await manager.loadItems(args.folder)
