@@ -1,5 +1,5 @@
-import { Parser } from './Parser'
-import { MIME } from './Common'
+import { Parser } from '../../core/Parser'
+import { MIME } from '../../core/Common'
 
 class MediaParser extends Parser {
   imageTypes: MIME[] = ['image/gif', 'image/x-icon', 'image/jpeg', 'image/png', 'image/svg+xml']
@@ -11,7 +11,6 @@ class MediaParser extends Parser {
   }
 
   parse(kwargs: { input: string, uri: string, type: MIME }): string {
-    console.log('parsing ', kwargs.uri)
     if (this.imageTypes.indexOf(kwargs.type) !== -1) {
       if (kwargs.type === 'image/svg+xml')
         return `<embed src="${encodeURIComponent(kwargs.uri)}" type="image/svg+xml" style="max-width: 100%;" pluginspage="http://www.adobe.com/svg/viewer/install/" />`

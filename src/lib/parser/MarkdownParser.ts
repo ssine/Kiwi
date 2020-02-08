@@ -1,5 +1,5 @@
-import { Parser } from './Parser'
-import { MIME } from './Common'
+import { Parser } from '../../core/Parser'
+import { MIME } from '../../core/Common'
 // import * as cheerio from 'cheerio'
 import * as marked from 'marked'
 import * as hljs from 'highlight.js'

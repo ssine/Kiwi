@@ -3,12 +3,12 @@ import * as yargs from 'yargs'
 import manager from '../core/ItemManager'
 import { serve } from '../core/server'
 import { initLogger } from '../core/Log'
-import MarkdownParser from '../core/MarkdownParser'
-import WikitextParser from '../core/WikitextParser'
-import AsciidocParser from '../core/AsciidocParser'
-import MediaParser from '../core/MediaParser'
+import MarkdownParser from '../lib/parser/MarkdownParser'
+import WikitextParser from '../lib/parser/WikitextParser'
+import AsciidocParser from '../lib/parser/AsciidocParser'
+import MediaParser from '../lib/parser/MediaParser'
 
-import GraphvizPlugin from '../core/GraphvizPlugin'
+import GraphvizPlugin from '../lib/plugin/GraphvizPlugin'
 
 const args = yargs
   .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {

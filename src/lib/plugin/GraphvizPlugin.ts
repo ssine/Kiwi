@@ -1,4 +1,4 @@
-import { RenderPlugin } from './Plugin'
+import { RenderPlugin } from '../../core/Plugin'
 const Viz = require('viz.js');
 const { Module, render } = require('viz.js/full.render.js');
 

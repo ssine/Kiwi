@@ -5,8 +5,8 @@
  * @packageDocumentation
  */
 
-import { Parser } from './Parser'
-import { MIME } from './Common'
+import { Parser } from '../../core/Parser'
+import { MIME } from '../../core/Common'
 // @ts-ignore (es6 import gets the namespace, sign)
 const wtf = require('wtf_wikipedia')
 import * as cheerio from 'cheerio'

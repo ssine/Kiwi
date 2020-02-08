@@ -1,5 +1,5 @@
-import { Parser } from './Parser'
-import { MIME } from './Common'
+import { Parser } from '../../core/Parser'
+import { MIME } from '../../core/Common'
 // @ts-ignore (sign)
 import * as Processor from 'asciidoctor'
 import * as cheerio from 'cheerio'
