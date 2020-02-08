@@ -7,7 +7,7 @@ import { ServerItem } from './ServerItem'
 import { FileSynchronizer, URIItemMap } from './FileSynchronizer'
 import { assignCommonProperties } from './Common'
 import { getLogger } from './Log'
-import * as socketIO from 'socket.io'
+import { io as uiNotifier } from './server'
 
 const logger = getLogger('itemm')
 
@@ -20,7 +20,6 @@ class ItemManager {
   itemLoaded: boolean = false
   systemItemLoaded: boolean = false
   synchronizer: FileSynchronizer = new FileSynchronizer()
-  uiNotifier: socketIO.Server | null = null
 
   /**
    * Load system and user items with user root path specified.
@@ -35,10 +34,6 @@ class ItemManager {
     this.systemItemMap = await this.synchronizer.getSystemItemMap()
     await Promise.all(Object.keys(this.systemItemMap).map(k => this.systemItemMap[k].html()))
     this.itemLoaded = this.systemItemLoaded = false
-  }
-
-  setUINotifier(io: socketIO.Server) {
-    this.uiNotifier = io
   }
 
   getItem(uri: string): ServerItem {
@@ -133,7 +128,7 @@ class ItemManager {
   async onStorageChange(item: ServerItem) {
     await item.html()
     // notify ui
-    this.uiNotifier?.emit('item-change', {
+    uiNotifier.emit('item-change', {
       item: item
     })
   }
@@ -141,7 +136,7 @@ class ItemManager {
   onStorageDelete(item: ServerItem) {
     delete this.itemMap[item.uri]
     // notify 
-    this.uiNotifier?.emit('item-delete', {
+    uiNotifier.emit('item-delete', {
       uri: item.uri
     })
   }
@@ -150,7 +145,7 @@ class ItemManager {
     await item.html()
     this.itemMap[item.uri] = item
     // notify ui
-    this.uiNotifier?.emit('item-create', {
+    uiNotifier.emit('item-create', {
       item: item
     })
   }

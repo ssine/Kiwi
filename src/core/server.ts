@@ -12,14 +12,12 @@ import { resolve } from 'path'
 
 const logger = getLogger('server')
 
-const app = express()
+export const app = express()
 const server = http.createServer(app)
-const io = socketIO(server)
+export const io = socketIO(server)
 app.use(bodyParser.json())
 
-const serve = function serve(port: number) {
-  manager.setUINotifier(io)
-
+export const serve = function serve(port: number) {
   app.use('/kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
@@ -66,5 +64,3 @@ const serve = function serve(port: number) {
 
   server.listen(port, () => logger.info(`Server set up on port ${port}`))
 }
-
-export default serve
