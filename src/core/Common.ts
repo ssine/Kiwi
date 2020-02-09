@@ -110,6 +110,27 @@ const MIMELangDict: { [mime: string]: string } = {
   'text/x-typescript': 'typescript',
 }
 
+const editorMIMETypes = {
+  content: [
+    'text/markdown',
+    'text/asciidoc',
+    'text/plain',
+    'text/html',
+    'text/wikitext',
+  ],
+  code: [
+    'text/x-c',
+    'text/x-cpp',
+    'text/x-python',
+    'text/x-typescript',
+    'text/x-javascript',
+    'application/json',
+    'text/yaml',
+    'text/x-css',
+    'text/x-java',
+  ]
+}
+
 /**
  * Provide a file extension for content types
  */
@@ -184,5 +205,6 @@ export {
   MIMELangDict,
   assignCommonProperties,
   sleep,
-  cloneRegex
+  cloneRegex,
+  editorMIMETypes
 }

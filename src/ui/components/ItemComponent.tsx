@@ -12,7 +12,7 @@ import { IconButton } from 'office-ui-fabric-react/lib/Button'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument } from '../Common'
-import { MIME } from '../../core/Common'
+import { MIME, getLanguageFromMIME, editorMIMETypes } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
 
@@ -268,7 +268,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
               </div>
               <div className="edit-item-content" ref={this.contentRef} >
                 <MonacoEditor
-                  language="markdown"
+                  language={getLanguageFromMIME(this.item.type)}
                   value={this.item.content}
                   options={{ lineDecorationsWidth: 0, wordWrap: 'on', wrappingIndent: 'same', tabSize: 2 }}
                   editorDidMount={this.onEditorDidMount.bind(this)}
@@ -284,16 +284,10 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   }}
                   options={[
                     { key: 'Content Header', text: 'Content', itemType: SelectableOptionMenuItemType.Header },
-                    { key: 'text/markdown', text: 'text/markdown' },
-                    { key: 'text/asciidoc', text: 'text/asciidoc' },
-                    { key: 'text/wikitext', text: 'text/wikitext' },
-                    { key: 'text/plain', text: 'text/plain' },
-                    { key: 'text/html', text: 'text/html' },
+                    ...editorMIMETypes.content.map(t => ({ key: t, text: t })),
                     { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
                     { key: 'Code Header', text: 'Code', itemType: SelectableOptionMenuItemType.Header },
-                    { key: 'application/javascript', text: 'application/javascript' },
-                    { key: 'text/x-python', text: 'text/x-python' },
-                    { key: 'text/x-c', text: 'text/x-c' },
+                    ...editorMIMETypes.code.map(t => ({ key: t, text: t })),
                   ]}
                   onChange={(event, options, index, value: MIME) => {
                     if (options)
