@@ -79,9 +79,13 @@ class ItemManager {
 
   async deleteItem(uri: string) {
     let _it = this.getItem(uri)
-    if (!_it) return
+    if (!_it) {
+      logger.warn(`item to delete [${uri}] does not exist!`)
+      return
+    }
     await this.synchronizer.deleteItem(_it)
     delete this.itemMap[uri]
+    logger.info(`item [${uri}] deleted`)
     return true
   }
 
@@ -135,7 +139,7 @@ class ItemManager {
   onStorageDelete(item: ServerItem) {
     if (! this.itemMap[item.uri]) return
     delete this.itemMap[item.uri]
-    console.log(`${item.uri} deleted from item map`)
+    logger.info(`item [${item.uri}] deleted because storage deletion`)
     // notify 
     uiNotifier.emit('item-delete', {
       uri: item.uri
@@ -145,7 +149,7 @@ class ItemManager {
   async onStorageCreate(item: ServerItem) {
     await item.html()
     this.itemMap[item.uri] = item
-    console.log(`${item.uri} added to item map`)
+    logger.info(`item [${item.uri}] created because storage creation`)
     // notify ui
     uiNotifier.emit('item-create', {
       item: item

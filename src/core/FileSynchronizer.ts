@@ -153,6 +153,7 @@ class FileSynchronizer {
       logger.warn(`deleted path ${path} don't have an item!`)
       return
     }
+    logger.info(`path [${path}] deleted, syncing to item [${item.uri}]`)
     if (this.callbacks?.onItemDelete) {
       this.callbacks.onItemDelete(item)
     }
@@ -161,8 +162,8 @@ class FileSynchronizer {
 
   async onNodeCreated(nodePath: string, isDir: boolean) {
     if (this.pathItemMap.get(nodePath)) return
-    logger.debug(`created path [${nodePath}]`)
     const item = await this.getItemFromNode(await getFSNode(nodePath), this.rootPath, '')
+    logger.debug(`created path [${nodePath}], new item [${item.uri}] generated`)
     this.link(nodePath, item)
     if (this.callbacks?.onItemCreate) {
       this.callbacks.onItemCreate(item)
@@ -181,6 +182,7 @@ class FileSynchronizer {
         // @ts-ignore
         item[k] = newItem[k]
     }
+    logger.info(`path [${path}] changed, syncing to item [${item.uri}]`)
     if (this.callbacks?.onItemChange)
       this.callbacks.onItemChange(item)
   }
@@ -206,6 +208,7 @@ class FileSynchronizer {
     }
     await fs.promises.writeFile(filePath, content)
     this.watcher?.add(tryPath)
+    logger.info(`content written to [${filePath}]`)
     pathsToAdd.forEach(p => this.onNodeCreated(p, true))
   }
 
@@ -239,8 +242,10 @@ class FileSynchronizer {
       this.watcher?.unwatch(targetPath)
       await fs.promises.unlink(targetPath)
       setTimeout(() => { this.watcher?.add(targetPath) }, 1000)
+      logger.info(`file [${targetPath}] removed`)
     } else {
       await rmdir(targetPath)
+      logger.info(`folder [${targetPath}] removed with childs`)
 
       this.pathItemMap.forEach((v, p) => {
         if (p.startsWith(targetPath) && p !== targetPath) {
@@ -262,7 +267,7 @@ class FileSynchronizer {
           this.callbacks?.onItemDelete ? this.callbacks?.onItemDelete(parentItem) : null
           this.unlink(parent)
         }
-        logger.debug(`folder ${parent} deleted because of empty`)
+        logger.info(`folder ${parent} deleted because of empty`)
         targetPath = parent
       } else {
         break
