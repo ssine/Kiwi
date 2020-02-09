@@ -157,6 +157,24 @@ function sleep(timeoutMs: number): Promise<void> {
   })
 }
 
+function cloneRegex(re: RegExp): RegExp {
+  const flagMap: {[k: string]: string} = {
+    global: 'g',
+    ignoreCase: 'i',
+    multiline: 'm',
+    dotAll: 's',
+    sticky: 'y',
+    unicode: 'u'
+  };
+  
+  // @ts-ignore
+  const flags = Object.keys(flagMap).map(flag => re[flag] ? flagMap[flag] : '').join('');
+
+	const clonedRegexp = new RegExp(re.source, flags);
+
+	return clonedRegexp;
+}
+
 export {
   MIME,
   renderableMIME,
@@ -165,5 +183,6 @@ export {
   getLanguageFromMIME,
   MIMELangDict,
   assignCommonProperties,
-  sleep
+  sleep,
+  cloneRegex
 }

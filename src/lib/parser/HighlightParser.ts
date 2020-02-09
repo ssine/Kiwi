@@ -15,7 +15,6 @@ export default class HighlightParser extends Parser {
     let res: string = ''
     try {
       res = hljs.highlight(lang, kwargs.input).value
-      console.log(lang, res)
     } catch {}
     return `<pre><code>${res}</pre></code>`
   }

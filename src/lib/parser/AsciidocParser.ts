@@ -15,7 +15,6 @@ class AsciidocParser extends Parser {
   parse(kwargs: { input: string }): string {
     const $ = cheerio.load(this.processor.convert(kwargs.input))
     $('pre code').toArray().forEach((el) => {
-      // console.log('asciidoc code: ', el)
       const lang = el.attribs['data-lang']
       let code = el.children[0].data
       if (!code) return

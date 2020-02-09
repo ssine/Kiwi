@@ -1,6 +1,7 @@
 import { getLogger } from './Log'
 import * as he from 'he'
 import * as vm from 'vm'
+import { cloneRegex } from './Common'
 
 const logger = getLogger('plugin')
 
@@ -67,7 +68,7 @@ class ItemContext {
 const processRenderPlugin = async function processRenderPlugin(uri: string, html: string): Promise<string> {
   let processed = ''
   const ctx = new ItemContext()
-  await forEachPiece(html, macroReg,
+  await forEachPiece(html, cloneRegex(macroReg),
     async (s) => {
       logger.debug(`eval macro call ${he.decode(s).slice(2, -2)}`)
       try {
