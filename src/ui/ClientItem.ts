@@ -26,7 +26,7 @@ class ClientItem extends BaseItem {
     let obj = await postJSON('/get-item', {uri: this.uri})
     assignCommonProperties(this, obj)
   }
-  
+
   /**
    * Save this item back to server
    */

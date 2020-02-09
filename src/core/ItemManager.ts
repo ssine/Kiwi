@@ -133,6 +133,7 @@ class ItemManager {
   }
   
   onStorageDelete(item: ServerItem) {
+    if (! this.itemMap[item.uri]) return
     delete this.itemMap[item.uri]
     console.log(`${item.uri} deleted from item map`)
     // notify 

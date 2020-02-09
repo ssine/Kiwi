@@ -83,11 +83,11 @@ class FileSynchronizer {
     this.rootPath = path.resolve(rootPath)
     this.callbacks = callbacks
     this.watcher = chokidar.watch(this.rootPath, {ignoreInitial: true})
-    this.watcher.on('add', (path) => this.onNodeCreated(path, false))
-    this.watcher.on('addDir', (path) => this.onNodeCreated(path, true))
-    this.watcher.on('unlink', (path) => this.onNodeDeleted(path, false))
-    this.watcher.on('unlinkDir', (path) => this.onNodeDeleted(path, true))
-    this.watcher.on('change', this.onNodeChanged.bind(this))
+    this.watcher.on('add', (path) => { this.onNodeCreated(path, false) })
+    this.watcher.on('addDir', (path) => { this.onNodeCreated(path, true) })
+    this.watcher.on('unlink', (path) => { this.onNodeDeleted(path, false) })
+    this.watcher.on('unlinkDir', (path) => { this.onNodeDeleted(path, true) })
+    this.watcher.on('change', (path) => { this.onNodeChanged(path) })
   }
 
   async getItemMap(): Promise<Record<string, ServerItem>> {
@@ -222,23 +222,25 @@ class FileSynchronizer {
         if ((await fs.promises.stat(child)).isDirectory()) {
           await rmdir(child)
         } else {
+          this.watcher?.unwatch(child)
           await fs.promises.unlink(child)
-          // console.log(`child ${child} removed`)
+          // don't know why the fuck I have to delay this
+          // maybe fs emits multiple delete events?
+          setTimeout(() => { this.watcher?.add(child) }, 1000)
         }
       }
-      // console.log(`folder ${p} removing`)
+      this.watcher?.unwatch(p)
       await fs.promises.rmdir(p)
-      // console.log(`folder ${p} removed`)
+      setTimeout(() => { this.watcher?.add(p) }, 1000)
     }
 
     const node = await getFSNode(targetPath)
-    this.watcher?.unwatch(targetPath)
     if (node.type === 'file') {
       await fs.promises.unlink(targetPath)
     } else {
       await rmdir(targetPath)
 
-      Object.keys(this.pathItemMap).forEach(p => {
+      this.pathItemMap.forEach((v, p) => {
         if (p.startsWith(targetPath) && p !== targetPath) {
           this.onNodeDeleted(p, false)
         }
@@ -252,6 +254,7 @@ class FileSynchronizer {
       if (files.length === 0) {
         this.watcher?.unwatch(parent)
         await fs.promises.rmdir(parent)
+        this.watcher?.add(parent)
         const parentItem = this.pathItemMap.get(parent)
         if (parentItem) {
           this.callbacks?.onItemDelete ? this.callbacks?.onItemDelete(parentItem) : null
