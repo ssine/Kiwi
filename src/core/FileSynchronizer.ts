@@ -29,7 +29,7 @@ import * as moment from 'moment'
 import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml' 
 import { ItemHeader } from './BaseItem'
 import { ServerItem } from './ServerItem'
-import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME, sleep } from './Common'
+import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME, sleep, fixedEncodeURIComponent } from './Common'
 import { getLogger } from './Log'
 import * as chokidar from 'chokidar'
 import { isBinaryFile } from 'isbinaryfile'
@@ -153,7 +153,6 @@ class FileSynchronizer {
       logger.warn(`deleted path ${path} don't have an item!`)
       return
     }
-    logger.info(`[${path}] deleted, remove item [${item.uri}]`)
     if (this.callbacks?.onItemDelete) {
       this.callbacks.onItemDelete(item)
     }
@@ -224,9 +223,12 @@ class FileSynchronizer {
           await rmdir(child)
         } else {
           await fs.promises.unlink(child)
+          // console.log(`child ${child} removed`)
         }
       }
+      // console.log(`folder ${p} removing`)
       await fs.promises.rmdir(p)
+      // console.log(`folder ${p} removed`)
     }
 
     const node = await getFSNode(targetPath)
@@ -238,11 +240,7 @@ class FileSynchronizer {
 
       Object.keys(this.pathItemMap).forEach(p => {
         if (p.startsWith(targetPath) && p !== targetPath) {
-          const childItem = this.pathItemMap.get(p)
-          if (childItem) {
-            this.callbacks?.onItemDelete ? this.callbacks?.onItemDelete(childItem) : null
-            this.unlink(p)
-          }
+          this.onNodeDeleted(p, false)
         }
       })
     }
@@ -378,10 +376,10 @@ class FileSynchronizer {
       logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
     }
     if (!(currentItem.type && renderableMIME.has(currentItem.type))) {
-      app.get('/' + encodeURIComponent(currentItem.uri), (req, res) => {
+      app.get('/' + fixedEncodeURIComponent(currentItem.uri), (req, res) => {
         res.sendFile(node.absolutePath)
       })
-      logger.info(`serve ${node.absolutePath} on uri [${encodeURIComponent(currentItem.uri)}]`)
+      logger.info(`serve ${node.absolutePath} on uri [${fixedEncodeURIComponent(currentItem.uri)}]`)
     }
     currentItem.missing = false
     return currentItem

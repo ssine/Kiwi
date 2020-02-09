@@ -1,5 +1,5 @@
 import { Parser } from '../../core/Parser'
-import { MIME } from '../../core/Common'
+import { MIME, fixedEncodeURIComponent } from '../../core/Common'
 
 class MediaParser extends Parser {
   imageTypes: MIME[] = ['image/gif', 'image/x-icon', 'image/jpeg', 'image/png', 'image/svg+xml']
@@ -13,17 +13,17 @@ class MediaParser extends Parser {
   parse(kwargs: { input: string, uri: string, type: MIME }): string {
     if (this.imageTypes.indexOf(kwargs.type) !== -1) {
       if (kwargs.type === 'image/svg+xml')
-        return `<embed src="${encodeURIComponent(kwargs.uri)}" type="image/svg+xml" style="max-width: 100%;" pluginspage="http://www.adobe.com/svg/viewer/install/" />`
-      return `<img src="${encodeURIComponent(kwargs.uri)}" type="${kwargs.type}" style="max-width: 100%;" />`
+        return `<embed src="${fixedEncodeURIComponent(kwargs.uri)}" type="image/svg+xml" style="max-width: 100%;" pluginspage="http://www.adobe.com/svg/viewer/install/" />`
+      return `<img src="${fixedEncodeURIComponent(kwargs.uri)}" type="${kwargs.type}" style="max-width: 100%;" />`
 
     } else if (this.videoTypes.indexOf(kwargs.type) !== -1) {
-      return `<video src="${encodeURIComponent(kwargs.uri)}" controls="controls" type="${kwargs.type}" style="max-width: 100%;">video tag not supported by your browser.</video>`
+      return `<video src="${fixedEncodeURIComponent(kwargs.uri)}" controls="controls" type="${kwargs.type}" style="max-width: 100%;">video tag not supported by your browser.</video>`
 
     } else if (this.audioTypes.indexOf(kwargs.type) !== -1) {
-      return `<audio controls style="width: 100%;"><source src="${encodeURIComponent(kwargs.uri)}" type="${kwargs.type}"></source>audio tag not supported by your browser.</audio>`
+      return `<audio controls style="width: 100%;"><source src="${fixedEncodeURIComponent(kwargs.uri)}" type="${kwargs.type}"></source>audio tag not supported by your browser.</audio>`
 
     } else if (kwargs.type === 'application/pdf') {
-      return `<embed src="${encodeURIComponent(kwargs.uri)}" type="application/pdf" style="width: 100%; height: 700px" />`
+      return `<embed src="${fixedEncodeURIComponent(kwargs.uri)}" type="application/pdf" style="width: 100%; height: 700px" />`
     }
     return `type ${kwargs.type} not supported!`
   }
