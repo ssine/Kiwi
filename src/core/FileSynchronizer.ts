@@ -236,7 +236,9 @@ class FileSynchronizer {
 
     const node = await getFSNode(targetPath)
     if (node.type === 'file') {
+      this.watcher?.unwatch(targetPath)
       await fs.promises.unlink(targetPath)
+      setTimeout(() => { this.watcher?.add(targetPath) }, 1000)
     } else {
       await rmdir(targetPath)
 

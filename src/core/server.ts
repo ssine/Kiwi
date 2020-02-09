@@ -24,8 +24,8 @@ export const serve = function serve(port: number) {
 
   app.post('/get-item', async (req, res) => {
     let uri: string = req.body.uri
-    const it = await manager.getItem(uri)
-    if (it) res.send(it.json())
+    const it = manager.getItem(uri)
+    if (it) res.send(await it.json())
     else res.status(404).send('Item not found!')
   })
 
