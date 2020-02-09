@@ -9,6 +9,7 @@ async function postJSON(url: string, data: Object): Promise<any> {
     },
     body: JSON.stringify(data)
   });
+  if (response.status === 404) throw 'POST got 404 error'
   return await response.json();
 }
 

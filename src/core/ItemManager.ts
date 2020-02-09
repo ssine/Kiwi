@@ -36,16 +36,12 @@ class ItemManager {
     this.itemLoaded = this.systemItemLoaded = false
   }
 
-  getItem(uri: string): ServerItem {
+  getItem(uri: string): ServerItem | null {
     if (!! this.itemMap[uri]) return this.itemMap[uri]
     if (!! this.systemItemMap[uri]) {
-      // TODO: create an identical normal item and return it
       return this.systemItemMap[uri]
     }
-    const missing = new ServerItem()
-    missing.uri = uri
-    this.itemMap[uri] = missing
-    return this.itemMap[uri]
+    return null
   }
 
   /**
@@ -53,6 +49,7 @@ class ItemManager {
    */
   async putItem(it: ServerItem): Promise<ServerItem> {
     let _it = this.getItem(it.uri)
+    if (!_it) _it = new ServerItem()
     assignCommonProperties(_it, it)
     _it.missing = false
     // should we await this, i.e., response after item is written to disk?
@@ -67,6 +64,7 @@ class ItemManager {
       await this.deleteItem(uri)
     }
     let _it = this.getItem(it.uri)
+    if (!_it) _it = new ServerItem()
     if (_it.isSystem) {
       _it = new ServerItem()
       this.itemMap[it.uri] = _it
@@ -81,13 +79,14 @@ class ItemManager {
 
   async deleteItem(uri: string) {
     let _it = this.getItem(uri)
+    if (!_it) return
     await this.synchronizer.deleteItem(_it)
     delete this.itemMap[uri]
     return true
   }
 
   getItems(uris: string[]): ServerItem[] {
-    return uris.map(u => this.getItem(u))
+    return uris.map(u => this.getItem(u)).filter(v => v !== null) as ServerItem[]
   }
 
   getSystemItems(): ServerItem[] {
@@ -135,6 +134,7 @@ class ItemManager {
   
   onStorageDelete(item: ServerItem) {
     delete this.itemMap[item.uri]
+    console.log(`${item.uri} deleted from item map`)
     // notify 
     uiNotifier.emit('item-delete', {
       uri: item.uri
@@ -144,6 +144,7 @@ class ItemManager {
   async onStorageCreate(item: ServerItem) {
     await item.html()
     this.itemMap[item.uri] = item
+    console.log(`${item.uri} added to item map`)
     // notify ui
     uiNotifier.emit('item-create', {
       item: item

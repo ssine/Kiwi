@@ -40,7 +40,7 @@ class ItemManager {
       this.map[it.uri] = it
     }
 
-    document.title = (await this.getItemFromURI(pageConfigs.title)).content.trim()
+    document.title = (await this.getLoadedItemFromURI(pageConfigs.title)).content.trim()
 
     const link = document.createElement('link');
     link.type = 'image/x-icon';
@@ -59,8 +59,8 @@ class ItemManager {
     // render sidebar
     let sidebarElement = document.createElement('div')
     this.renderer.renderSidebar({
-      title: (await this.getItemFromURI(pageConfigs.title)).content.trim(),
-      subTitle: (await this.getItemFromURI(pageConfigs.subTitle)).content.trim(),
+      title: (await this.getLoadedItemFromURI(pageConfigs.title)).content.trim(),
+      subTitle: (await this.getLoadedItemFromURI(pageConfigs.subTitle)).content.trim(),
       itemFlow: this.itemFlow,
       rootNode: this.URIParser.rootNode
     }, sidebarElement)
@@ -83,12 +83,12 @@ class ItemManager {
     bus.on('search-triggered', (data) => this.processSearch(data))
     bus.on('item-saved', async (data) => {
       if (data.uri === pageConfigs.title) {
-        document.title = (await this.getItemFromURI(pageConfigs.title)).content.trim()
+        document.title = (await this.getLoadedItemFromURI(pageConfigs.title)).content.trim()
         // ugly hack, but who cares? going through react is troublesome
         document.getElementById('site-title').innerHTML = document.title
       } else if (data.uri === pageConfigs.subTitle) {
         document.getElementById('site-subtitle').innerHTML = 
-          (await this.getItemFromURI(pageConfigs.subTitle)).content.trim()
+          (await this.getLoadedItemFromURI(pageConfigs.subTitle)).content.trim()
       }
     })
 
@@ -117,22 +117,22 @@ class ItemManager {
     });
 
     // render default items
-    (await this.getItemFromURI(defaultItemsURI)).content.split('\n').forEach(l => {
+    (await this.getLoadedItemFromURI(defaultItemsURI)).content.split('\n').forEach(l => {
       if (l) {
         this.displayItem(l)
       }
     })
   }
   
+  /**
+   * Get an item fron given uri, will not load it if not exist.
+   */
   async getItemFromURI(uri: string): Promise<ClientItem|null> {
     const getFromMap = async (uri: string, map: URIItemMap) => {
       const possibleIndex = this.concatURI(uri, 'index')
       if (map[possibleIndex])
       return map[possibleIndex]
       if (map[uri]) {
-        if (!map[uri].contentLoaded) {
-          await map[uri].load()
-        }
         return map[uri]
       }
       return null
@@ -142,6 +142,13 @@ class ItemManager {
       return res
     }
     return await getFromMap(uri, this.sysMap)
+  }
+
+  async getLoadedItemFromURI(uri: string): Promise<ClientItem|null> {
+    const res = await this.getItemFromURI(uri)
+    if (! res) return res
+    if (! res.contentLoaded) await res.load()
+    return res
   }
 
   generateTagMap() {
@@ -195,7 +202,7 @@ class ItemManager {
   }
 
   async displayItem(uri: string) {
-    let item = await this.getItemFromURI(uri)
+    let item = await this.getLoadedItemFromURI(uri)
     if (! item) {
       console.log(`item to display [${uri}] dose not exist, creating a missing one`)
       await this.createItem({ uri: uri })
@@ -238,7 +245,7 @@ class ItemManager {
   }
 
   async saveItem(data: {uri: string, editedItem: Partial<ClientItem>, token: string}) {
-    let item = await this.getItemFromURI(data.uri)
+    let item = await this.getLoadedItemFromURI(data.uri)
     if (item === null) return
 
     if (item.isSystem) {
