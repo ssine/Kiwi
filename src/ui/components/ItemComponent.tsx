@@ -115,6 +115,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   item: ClientItem
   editingItem: Partial<ClientItem>
   lastPosition: { left: number, top: number }
+  itemFlowLayoutCallback: () => void
 
   constructor(props: { item: ClientItem }) {
     super(props);
@@ -126,6 +127,9 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
       deleteCalloutVisible: false
     }
     this.generateEditingItem(this.item)
+    this.itemFlowLayoutCallback = () => {
+      this.smoothLayoutChange()
+    }
   }
 
   componentDidMount() {
@@ -133,11 +137,11 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
       this.parseItemLinks()
     }
     this.lastPosition = getPositionToDocument(this.rootRef.current)
-    bus.on('item-flow-layout', this.smoothLayoutChange.bind(this))
+    bus.on('item-flow-layout', this.itemFlowLayoutCallback)
   }
 
   componentWillUnmount() {
-    bus.off('item-flow-layout', this.smoothLayoutChange.bind(this))
+    bus.off('item-flow-layout', this.itemFlowLayoutCallback)
   }
 
   componentDidUpdate() {
