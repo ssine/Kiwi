@@ -153,7 +153,7 @@ class FileSynchronizer {
       logger.warn(`deleted path ${path} don't have an item!`)
       return
     }
-    logger.info(`[${path} deleted, remove item [${item.uri}]]`)
+    logger.info(`[${path}] deleted, remove item [${item.uri}]`)
     if (this.callbacks?.onItemDelete) {
       this.callbacks.onItemDelete(item)
     }
@@ -211,13 +211,45 @@ class FileSynchronizer {
   }
 
   /**
-   * Remove a file together with its empty parents after removing
+   * Remove a path together with its empty parents after removing
+   * If path is a dirsctory, remove all childs recursively.
    */
-  private async removeWithEmptyParents(filePath: string) {
-    this.watcher?.unwatch(filePath)
-    await fs.promises.unlink(filePath)
+  private async removeWithEmptyParents(targetPath: string) {
+
+    const rmdir = async (p: string) => {
+      const childs = await fs.promises.readdir(p)
+      for (const c of childs) {
+        const child = path.resolve(p, c)
+        if ((await fs.promises.stat(child)).isDirectory()) {
+          await rmdir(child)
+        } else {
+          await fs.promises.unlink(child)
+        }
+      }
+      await fs.promises.rmdir(p)
+    }
+
+    const node = await getFSNode(targetPath)
+    this.watcher?.unwatch(targetPath)
+    if (node.type === 'file') {
+      await fs.promises.unlink(targetPath)
+    } else {
+      await rmdir(targetPath)
+
+      Object.keys(this.pathItemMap).forEach(p => {
+        if (p.startsWith(targetPath) && p !== targetPath) {
+          const childItem = this.pathItemMap.get(p)
+          if (childItem) {
+            this.callbacks?.onItemDelete ? this.callbacks?.onItemDelete(childItem) : null
+            this.unlink(p)
+          }
+        }
+      })
+    }
+
+    // remove parents
     while (true) {
-      const parent = path.resolve(filePath, '../')
+      const parent = path.resolve(targetPath, '../')
       const files = await fs.promises.readdir(parent)
       if (files.length === 0) {
         this.watcher?.unwatch(parent)
@@ -228,7 +260,7 @@ class FileSynchronizer {
           this.unlink(parent)
         }
         logger.debug(`folder ${parent} deleted because of empty`)
-        filePath = parent
+        targetPath = parent
       } else {
         break
       }
