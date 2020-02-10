@@ -103,7 +103,7 @@ const MIMELangDict: { [mime: string]: string } = {
   'text/yaml': 'yaml',
   'text/x-c': 'cpp',
   'text/x-cpp': 'cpp',
-  'text/x-css': 'cpp',
+  'text/css': 'css',
   'text/x-python': 'python',
   'text/x-java': 'java',
   'text/x-javascript': 'javascript',
@@ -126,7 +126,7 @@ const editorMIMETypes = {
     'text/x-javascript',
     'application/json',
     'text/yaml',
-    'text/x-css',
+    'text/css',
     'text/x-java',
   ]
 }
@@ -144,7 +144,14 @@ function getExtensionFromMIME(ct: MIME | null): string {
  */
 function getLanguageFromMIME(ct: MIME | null): string {
   if (ct === null) return ''
-  return MIMELangDict[ct] || 'txt' 
+  const extra: { [mime: string]: string } = {
+    'text/markdown': 'markdown',
+    'text/asciidoc': 'asciidoc',
+    'text/plain': 'plain',
+    'text/html': 'html',
+    'text/wikitext': 'wikitext',
+  }
+  return MIMELangDict[ct] || extra[ct] || 'txt' 
 }
 
 
