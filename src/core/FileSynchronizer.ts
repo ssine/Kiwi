@@ -82,7 +82,7 @@ class FileSynchronizer {
   init(rootPath: string, callbacks: SynchronizerCallbacks) {
     this.rootPath = path.resolve(rootPath)
     this.callbacks = callbacks
-    this.watcher = chokidar.watch(this.rootPath, {ignoreInitial: true})
+    this.watcher = chokidar.watch(this.rootPath, {ignoreInitial: true, awaitWriteFinish: { stabilityThreshold: 1100 }})
     this.watcher.on('add', (path) => { this.onNodeCreated(path, false) })
     this.watcher.on('addDir', (path) => { this.onNodeCreated(path, true) })
     this.watcher.on('unlink', (path) => { this.onNodeDeleted(path, false) })
@@ -208,7 +208,6 @@ class FileSynchronizer {
     }
     await fs.promises.writeFile(filePath, content)
     this.watcher?.add(tryPath)
-    logger.info(`content written to [${filePath}]`)
     pathsToAdd.forEach(p => this.onNodeCreated(p, true))
   }
 
@@ -354,6 +353,9 @@ class FileSynchronizer {
             }
             if (!haveException) break
           }
+        } else {
+          logger.warn(`file reading error: ${err}`)
+          console.log(err)
         }
       }
       const isBinary = await isBinaryFile(buffer)
@@ -372,6 +374,7 @@ class FileSynchronizer {
     currentItem.content = content
     currentItem.type = getMIMEFromExtension(node.path.ext)
     currentItem.title = headers["title"] || node.path.name
+    delete headers["title"]
     currentItem.headers.tags = []
     currentItem.parsedContent = '<p>Content not parsed</p>'
     currentItem.isContentParsed = false
