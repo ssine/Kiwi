@@ -209,6 +209,15 @@ function fixedEncodeURIComponent(str: string) {
   });
 }
 
+function trimString(s: string, c: string) {
+  if (c.length !== 1) throw 'only one char trim supported!'
+  if (c === "]") c = "\\]";
+  if (c === "\\") c = "\\\\";
+  return s.replace(new RegExp(
+    "^[" + c + "]+|[" + c + "]+$", "g"
+  ), "");
+}
+
 export {
   MIME,
   renderableMIME,
@@ -220,5 +229,6 @@ export {
   sleep,
   cloneRegex,
   editorMIMETypes,
-  fixedEncodeURIComponent
+  fixedEncodeURIComponent,
+  trimString,
 }

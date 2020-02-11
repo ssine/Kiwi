@@ -9,15 +9,18 @@ import * as bodyParser from 'body-parser'
 import { getLogger } from './Log'
 import manager from './ItemManager'
 import { resolve } from 'path'
+import { trimString } from './Common'
 
 const logger = getLogger('server')
 
-export const app = express()
+const app = express()
 const server = http.createServer(app)
-export const io = socketIO(server)
+const io = socketIO(server)
 app.use(bodyParser.json())
 
-export const serve = function serve(port: number) {
+const itemRouteTable: Record<string, express.Handler> = {}
+
+const serve = function serve(port: number) {
   app.use('/kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
@@ -64,5 +67,21 @@ export const serve = function serve(port: number) {
     res.send(JSON.stringify(manager.getSearchResult(req.body.input)))
   })
 
+  app.use((req, res, next) => {
+    const uri = trimString(req.originalUrl.trim(), '/')
+    if (uri in itemRouteTable) {
+      itemRouteTable[uri](req, res, next)
+    } else {
+      res.status(404).send(`not found uri ${uri}`)
+    }
+  })
+
   server.listen(port, () => logger.info(`Server set up on port ${port}`))
+}
+
+export {
+  app,
+  io,
+  serve,
+  itemRouteTable,
 }

@@ -33,7 +33,7 @@ import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME, sleep, fixe
 import { getLogger } from './Log'
 import * as chokidar from 'chokidar'
 import { isBinaryFile } from 'isbinaryfile'
-import { app } from './server'
+import { itemRouteTable } from './server'
 
 const logger = getLogger('fs')
 
@@ -145,6 +145,11 @@ class FileSynchronizer {
     await this.removeWithEmptyParents(path)
     this.unlink(path)
     logger.debug(`file [${path}] deleted`)
+    const serveURI = fixedEncodeURIComponent(item.uri)
+    if (serveURI in itemRouteTable) {
+      delete itemRouteTable[serveURI]
+      logger.debug(`stop serving ${serveURI}`)
+    }
   }
 
   onNodeDeleted(path: string, isDir: boolean) {
@@ -158,6 +163,11 @@ class FileSynchronizer {
       this.callbacks.onItemDelete(item)
     }
     this.unlink(path)
+    const serveURI = fixedEncodeURIComponent(item.uri)
+    if (serveURI in itemRouteTable) {
+      delete itemRouteTable[serveURI]
+      logger.debug(`stop serving ${serveURI}`)
+    }
   }
 
   async onNodeCreated(nodePath: string, isDir: boolean) {
@@ -389,9 +399,9 @@ class FileSynchronizer {
       logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
     }
     if (!(currentItem.type && renderableMIME.has(currentItem.type))) {
-      app.get('/' + fixedEncodeURIComponent(currentItem.uri), (req, res) => {
+      itemRouteTable[fixedEncodeURIComponent(currentItem.uri)] = (req, res) => {
         res.sendFile(node.absolutePath)
-      })
+      }
       logger.info(`serve ${node.absolutePath} on uri [${fixedEncodeURIComponent(currentItem.uri)}]`)
     }
     currentItem.missing = false
