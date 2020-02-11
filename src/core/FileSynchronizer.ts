@@ -72,6 +72,10 @@ type SynchronizerCallbacks = {
   onItemChange?: SynchronizerCallback
 }
 
+let options: {usePolling: boolean} = {
+  usePolling: false
+}
+
 class FileSynchronizer {
   rootPath: string = ''
   watcher: chokidar.FSWatcher | null = null
@@ -82,7 +86,7 @@ class FileSynchronizer {
   init(rootPath: string, callbacks: SynchronizerCallbacks) {
     this.rootPath = path.resolve(rootPath)
     this.callbacks = callbacks
-    this.watcher = chokidar.watch(this.rootPath, {ignoreInitial: true, awaitWriteFinish: { stabilityThreshold: 1100 }})
+    this.watcher = chokidar.watch(this.rootPath, {ignoreInitial: true, awaitWriteFinish: { stabilityThreshold: 1100 }, usePolling: options.usePolling})
     this.watcher.on('add', (path) => { this.onNodeCreated(path, false) })
     this.watcher.on('addDir', (path) => { this.onNodeCreated(path, true) })
     this.watcher.on('unlink', (path) => { this.onNodeDeleted(path, false) })
@@ -429,5 +433,6 @@ class FileSynchronizer {
 
 export {
   FSNode,
-  FileSynchronizer
+  FileSynchronizer,
+  options,
 }

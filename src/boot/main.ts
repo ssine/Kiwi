@@ -19,6 +19,10 @@ const args = yargs
       describe: 'local port to listen on',
       default: 3000
     })
+    .option('use-poll', {
+      describe: 'use polling on listening for fs events, more robust but inefficient',
+      default: false
+    })
   })
   .option('log', {
     alias: 'l',
@@ -56,8 +60,9 @@ trans.init()
 trans.register()
 
 async function run () {
-  await manager.loadItems(args.folder)
   if (args._[0] === 'serve') {
+    require('../core/FileSynchronizer').options.usePolling = args.usePoll
+    await manager.loadItems(args.folder)
     serve(args.port)
   }
 }
