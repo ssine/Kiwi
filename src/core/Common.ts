@@ -218,7 +218,7 @@ function trimString(s: string, c: string) {
   ), "");
 }
 
-function resolveURI(from: string, to: string): string {
+function resolveURI(from: string | null, to: string): string {
   let stack: string[] = []
 
   const parseToStack = function (input: string) {
@@ -230,7 +230,7 @@ function resolveURI(from: string, to: string): string {
     }
   }
 
-  if (to.trim()[0] !== '/')
+  if (typeof from === 'string' && to.trim()[0] !== '/')
     parseToStack(from)
   stack.pop()
   parseToStack(to)
