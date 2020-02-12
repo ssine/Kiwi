@@ -9,7 +9,7 @@ export default class ImportPlugin extends RenderPlugin {
     return ['import']
   }
 
-  getFunction() {
+  getFunctionForItem() {
     return async (input: string): Promise<string> => {
       return 'import plugin not yet implemented.'
     }

@@ -6,7 +6,7 @@ import { postJSON, getPositionToDocument } from './Common'
 import Renderer from './Renderer'
 import { URIParser } from './URIParser'
 import { typesetMath } from './mathjax'
-import { assignCommonProperties } from '../core/Common'
+import { assignCommonProperties, resolveURI } from '../core/Common'
 
 type URIItemMap = Record<string, ClientItem>
 
@@ -75,7 +75,7 @@ class ItemManager {
     document.body.append(rootDiv)
 
     // register event listeners
-    bus.on('item-link-clicked', (data) => this.displayItem(this.resolveURI(data.targetURI, data.emitterURI)))
+    bus.on('item-link-clicked', (data) => this.displayItem(resolveURI(data.emitterURI, data.targetURI)))
     bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
     bus.on('item-save-clicked', (data) => this.saveItem(data))
     bus.on('item-delete-clicked', (data) => this.deleteItem(data.uri))
@@ -177,28 +177,6 @@ class ItemManager {
     while (a.endsWith('/')) a = a.slice(0, a.length-1)
     while (b.startsWith('/')) b = b.slice(1)
     return `${a}/${b}`
-  }
-
-  resolveURI(uri: string, from: string | null): string {
-    let stack = []
-
-    const parseToStack = function (input: string) {
-      let arr = input.split(/[\\\/]+/g)
-      for (let unit of arr) {
-        if (unit === '.') continue
-        if (unit === '..') stack.pop()
-        else stack.push(unit)
-      }
-    }
-
-    if (typeof from === 'string' && uri.trim()[0] !== '/')
-      parseToStack(from)
-    stack.pop()
-    parseToStack(uri)
-
-    while (stack[0] === '') stack.shift()
-
-    return stack.join('/')
   }
 
   async displayItem(uri: string) {

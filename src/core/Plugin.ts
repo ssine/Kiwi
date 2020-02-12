@@ -7,18 +7,15 @@ const logger = getLogger('plugin')
 
 type renderFunction = (...args: any[]) => Promise<string>
 
-let pluginMap: {[name: string]: renderFunction} = {}
+let pluginMap: {[name: string]: RenderPlugin} = {}
 
 abstract class RenderPlugin {
   abstract init(): void
   abstract getNames(): string[]
-  abstract getFunction(): renderFunction
-  startItem(uri: string): void { }
-  endItem(uri: string): void { }
+  abstract getFunctionForItem(uri: string): renderFunction
   register() {
-    const f = this.getFunction().bind(this)
     for (const name of this.getNames()) {
-      pluginMap[name] = f
+      pluginMap[name] = this
     }
     logger.info(`plugin ${this.getNames()[0]} registered.`)
   }
@@ -49,25 +46,28 @@ const macroReg = /(?<!\\)\{\{[\s\S]*?\}\}/gm
 
 class ItemContext {
   ctx: vm.Context
-  constructor() {
+
+  constructor(uri: string) {
     this.ctx = {}
     for (const name in pluginMap) {
-      this.ctx[name] = pluginMap[name]
+      this.ctx[name] = pluginMap[name].getFunctionForItem(uri)
       logger.debug(`${name} added to item context`)
     }
     this.ctx.setTimeout = setTimeout
     this.ctx = vm.createContext(this.ctx)
   }
+
   async eval(x: string): Promise<any> {
     const res = vm.runInContext(x, this.ctx)
     if (res instanceof Promise) return await res
     else return res
   }
+
 }
 
 const processRenderPlugin = async function processRenderPlugin(uri: string, html: string): Promise<string> {
   let processed = ''
-  const ctx = new ItemContext()
+  const ctx = new ItemContext(uri)
   await forEachPiece(html, cloneRegex(macroReg),
     async (s) => {
       logger.debug(`eval macro call ${he.decode(s).slice(2, -2)}`)

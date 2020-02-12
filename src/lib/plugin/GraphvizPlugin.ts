@@ -10,7 +10,7 @@ export default class GraphvizPlugin extends RenderPlugin {
   getNames() {
     return ['graphviz']
   }
-  getFunction() {
+  getFunctionForItem() {
     return async (input: string): Promise<string> => {
       return new Promise((res, rej) => {
         this.viz.renderString(input)

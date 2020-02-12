@@ -218,6 +218,28 @@ function trimString(s: string, c: string) {
   ), "");
 }
 
+function resolveURI(from: string, to: string): string {
+  let stack: string[] = []
+
+  const parseToStack = function (input: string) {
+    let arr = input.split(/[\\\/]+/g)
+    for (let unit of arr) {
+      if (unit === '.') continue
+      if (unit === '..') stack.pop()
+      else stack.push(unit)
+    }
+  }
+
+  if (to.trim()[0] !== '/')
+    parseToStack(from)
+  stack.pop()
+  parseToStack(to)
+
+  while (stack[0] === '') stack.shift()
+
+  return stack.join('/')
+}
+
 export {
   MIME,
   renderableMIME,
@@ -231,4 +253,5 @@ export {
   editorMIMETypes,
   fixedEncodeURIComponent,
   trimString,
+  resolveURI,
 }
