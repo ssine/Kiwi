@@ -402,7 +402,8 @@ class FileSynchronizer {
       currentItem.uri = `${URIPrefix}${path.relative(rootPath, absURI).replace(/\\+/g, '/')}`
       logger.debug(`Assign URI [${currentItem.uri}] to item [${currentItem.title}].`)
     }
-    if (!(currentItem.type && renderableMIME.has(currentItem.type))) {
+    // file with unrenderable type gets served
+    if (node.type !== 'directory' && !(currentItem.type && renderableMIME.has(currentItem.type))) {
       itemRouteTable[fixedEncodeURIComponent(currentItem.uri)] = (req, res) => {
         res.sendFile(node.absolutePath)
       }
