@@ -13,6 +13,8 @@ abstract class RenderPlugin {
   abstract init(): void
   abstract getNames(): string[]
   abstract getFunctionForItem(uri: string): renderFunction
+  // use structural data for editor intellisense later
+  getDescription(): string { return '' }
   register() {
     for (const name of this.getNames()) {
       pluginMap[name] = this
