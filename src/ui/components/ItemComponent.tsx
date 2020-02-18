@@ -12,7 +12,7 @@ import { IconButton } from 'office-ui-fabric-react/lib/Button'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument } from '../Common'
-import { MIME, getLanguageFromMIME, editorMIMETypes, resolveURI } from '../../core/Common'
+import { MIME, getLanguageFromMIME, editorMIMETypes, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
 
@@ -107,13 +107,51 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   }
 }
 
+class TitleEditorComponent extends React.Component<{editingItem: {uri: string, title: string}}, {}> {
+  editTitleChanged: boolean
+  editURIChanged: boolean
+  constructor(props: any) {
+    super(props)
+    this.editTitleChanged = false
+    this.editURIChanged = false
+  }
+
+  render() {
+    return <div>
+      <div className="item-uri-edit" style={{ display: 'flow-root', height: 40 }}>
+        <TextField value={this.props.editingItem.uri} onChange={(evt, value) => {
+          this.editURIChanged = true
+          this.props.editingItem.uri = value
+          if (!this.editTitleChanged) {
+            this.props.editingItem.title = suggestedURIToTitle(this.props.editingItem.uri)
+          }
+          this.forceUpdate()
+        }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 27 } }} />
+      </div>
+      <div className="item-title-edit" style={{ display: 'flow-root', height: 40, fontSize: 35 }}>
+        <TextField value={this.props.editingItem.title} onChange={(evt, value) => {
+          this.editTitleChanged = true
+          this.props.editingItem.title = value
+          if (!this.editURIChanged) {
+            const uri = this.props.editingItem.uri
+            const slashIdx = uri.lastIndexOf('/')
+            const folder = slashIdx === -1 ? '' : uri.substring(0, slashIdx)
+            this.props.editingItem.uri = `${folder}/${suggestedTitleToURI(value)}`
+          }
+          this.forceUpdate()
+        }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30, fontFamily: 'Constantia' } }} />
+      </div>
+    </div>
+  }
+}
+
 export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any }, { deleteCalloutVisible: boolean }> {
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
   deleteButtonElement: HTMLElement | null
   editor: monaco.editor.IStandaloneCodeEditor | null
   item: ClientItem
-  editingItem: Partial<ClientItem>
+  editingItem: Partial<ClientItem> & {title: string, uri: string}
   lastPosition: { left: number, top: number }
   itemFlowLayoutCallback: () => void
 
@@ -267,16 +305,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   onClick={this.onCancelEdit.bind(this)}
                 />
               </span>
-              <div className="item-uri-edit" style={{ display: 'flow-root', height: 40 }}>
-                <TextField defaultValue={this.editingItem.uri} onChange={(evt, value) => {
-                  this.editingItem.uri = value
-                }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 27 } }} />
-              </div>
-              <div className="item-title-edit" style={{ display: 'flow-root', height: 40, fontSize: 35 }}>
-                <TextField defaultValue={this.editingItem.title} onChange={(evt, value) => {
-                  this.editingItem.title = value
-                }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30, fontFamily: 'Constantia' } }} />
-              </div>
+              <TitleEditorComponent editingItem={this.editingItem} />
               <div className="edit-item-content" ref={this.contentRef} >
                 <MonacoEditor
                   language={getLanguageFromMIME(this.item.type)}

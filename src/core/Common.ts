@@ -240,6 +240,19 @@ function resolveURI(from: string | null, to: string): string {
   return stack.join('/')
 }
 
+function suggestedURIToTitle(uri: string): string {
+  let title = uri.split('/').pop()
+  if (! title) return 'No Title Suggestion'
+  title = title.replace('-', ' ')
+  title = title.split(' ').map(word => word === '' ? '' : word[0].toUpperCase() + word.substr(1).toLowerCase()).join(' ')
+  return title
+}
+
+function suggestedTitleToURI(title: string): string {
+  let uri = title.replace(/\s+/g, '-')
+  return uri.toLowerCase()
+}
+
 export {
   MIME,
   renderableMIME,
@@ -254,4 +267,6 @@ export {
   fixedEncodeURIComponent,
   trimString,
   resolveURI,
+  suggestedURIToTitle,
+  suggestedTitleToURI,
 }
