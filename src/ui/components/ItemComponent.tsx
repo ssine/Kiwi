@@ -12,7 +12,7 @@ import { IconButton } from 'office-ui-fabric-react/lib/Button'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument } from '../Common'
-import { MIME, getLanguageFromMIME, editorMIMETypes } from '../../core/Common'
+import { MIME, getLanguageFromMIME, editorMIMETypes, resolveURI } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
 
@@ -174,6 +174,13 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
           <div>
             <div className="item-controls" style={{display: 'flex'}}>
 
+              <IconButton
+                iconProps={{iconName: 'ChevronDown'}}
+                label='More'
+                menuProps={{items: [{key: 'Create Sibling', text: 'Create Sibling', iconProps: { iconName: 'Add' }, onClick: ()=>{bus.emit('create-item-clicked', {uri: resolveURI(this.props.item.uri, 'new-item')})}}]}}
+                onRenderMenuIcon={() => <></>}
+                style={{ color: 'purple', width: 40, height: 40 }}
+              />
               <ItemButton
                 divRef={el => this.deleteButtonElement = el}
                 iconName='Delete'
