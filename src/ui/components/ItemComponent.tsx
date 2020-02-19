@@ -172,7 +172,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
 
   componentDidMount() {
     if (!this.item.editing) {
-      this.parseItemLinks()
+      this.contentPostProcess()
     }
     this.lastPosition = getPositionToDocument(this.rootRef.current)
     bus.on('item-flow-layout', this.itemFlowLayoutCallback)
@@ -184,7 +184,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
 
   componentDidUpdate() {
     if (!this.item.editing) {
-      this.parseItemLinks()
+      this.contentPostProcess()
     }
   }
 
@@ -415,7 +415,13 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   /**
    * Helper functions
    */
-  parseItemLinks() {
+  promisifyScriptLoad(sc: HTMLScriptElement): Promise<void> {
+    return new Promise((res, rej) => {
+      sc.addEventListener('load', () => { res() })
+    })
+  }
+
+  async contentPostProcess() {
     let links = this.contentRef.current.querySelectorAll('a')
     links.forEach((el: HTMLAnchorElement | SVGAElement) => {
       if (el instanceof SVGAElement) {
@@ -453,6 +459,23 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
         el.target = '_blank'
       }
     })
+
+    const scripts = this.contentRef.current.getElementsByTagName('script')
+    for (let idx = 0; idx < scripts.length; idx ++) {
+      const script = scripts.item(idx)
+      const newScript = document.createElement('script')
+      const scriptContent = document.createTextNode(script.text)
+      newScript.appendChild(scriptContent)
+      let onLoad = null
+      script.insertAdjacentElement('afterend', newScript)
+      if (script.src !== '') {
+        newScript.src = script.src
+        newScript.async = true
+        onLoad = this.promisifyScriptLoad(newScript)
+      }
+      script.remove()
+      if (onLoad) await onLoad
+    }
   }
 
   generateEditingItem(item: ClientItem) {
