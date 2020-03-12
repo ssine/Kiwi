@@ -33,8 +33,25 @@ function getPositionToDocument(el: Element): {top: number, left: number} {
   }
 }
 
+function setCookie(key: string, value: string){
+  document.cookie = `${key}=${value};`
+}
+
+function getCookie(key: string){
+  var name = key + '='
+  for (let item of document.cookie.split(';')) {
+    item = item.trim()
+    if (item.indexOf(name) === 0) {
+      return item.substring(name.length)
+    }
+  }
+  return ''
+}
+
 export {
   postJSON,
   isLinkInternal,
-  getPositionToDocument
+  getPositionToDocument,
+  setCookie,
+  getCookie
 }
