@@ -53,7 +53,6 @@ class ItemContext {
     this.ctx = {}
     for (const name in pluginMap) {
       this.ctx[name] = pluginMap[name].getFunctionForItem(uri)
-      logger.debug(`${name} added to item context`)
     }
     this.ctx.setTimeout = setTimeout
     this.ctx = vm.createContext(this.ctx)
