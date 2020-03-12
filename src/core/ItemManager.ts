@@ -5,9 +5,11 @@
 
 import { ServerItem } from './ServerItem'
 import { FileSynchronizer, URIItemMap } from './FileSynchronizer'
+import { UserManager } from './UserManager' 
 import { assignCommonProperties } from './Common'
 import { getLogger } from './Log'
 import { io as uiNotifier } from './server'
+import { usersURI } from '../boot/config'
 
 const logger = getLogger('itemm')
 
@@ -17,9 +19,8 @@ const logger = getLogger('itemm')
 class ItemManager {
   itemMap: URIItemMap = {}
   systemItemMap: URIItemMap = {}
-  itemLoaded: boolean = false
-  systemItemLoaded: boolean = false
   synchronizer: FileSynchronizer = new FileSynchronizer()
+  userManager: UserManager = new UserManager()
 
   /**
    * Load system and user items with user root path specified.
@@ -33,29 +34,18 @@ class ItemManager {
     this.itemMap = await this.synchronizer.getItemMap()
     this.systemItemMap = await this.synchronizer.getSystemItemMap()
     await Promise.all(Object.keys(this.systemItemMap).map(k => this.systemItemMap[k].html()))
-    this.itemLoaded = this.systemItemLoaded = false
+    const usersItem = this.getItem(usersURI)
+    if (usersItem) { 
+      this.userManager.init(usersItem.content)
+      delete this.systemItemMap[usersURI]
+      delete this.itemMap[usersURI]
+    }
   }
 
   getItem(uri: string): ServerItem | null {
     if (!! this.itemMap[uri]) return this.itemMap[uri]
-    if (!! this.systemItemMap[uri]) {
-      return this.systemItemMap[uri]
-    }
+    if (!! this.systemItemMap[uri]) return this.systemItemMap[uri]
     return null
-  }
-
-  /**
-   * sync an item back to filesystem, create one if not exist
-   */
-  async putItem(it: ServerItem): Promise<ServerItem> {
-    let _it = this.getItem(it.uri)
-    if (!_it) _it = new ServerItem()
-    assignCommonProperties(_it, it)
-    _it.missing = false
-    // should we await this, i.e., response after item is written to disk?
-    await this.synchronizer.saveItem(_it)
-    await _it.html()
-    return _it
   }
 
   async saveItem(uri: string, it: ServerItem): Promise<ServerItem> {
@@ -159,6 +149,10 @@ class ItemManager {
     uiNotifier.emit('item-create', {
       item: item
     })
+  }
+
+  getUserManager(): UserManager {
+    return this.userManager
   }
 
 }
