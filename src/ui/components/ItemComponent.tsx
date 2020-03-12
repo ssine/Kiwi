@@ -11,7 +11,7 @@ import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 import { IconButton } from 'office-ui-fabric-react/lib/Button'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
-import { isLinkInternal, getPositionToDocument } from '../Common'
+import { isLinkInternal, getPositionToDocument, getCookie } from '../Common'
 import { MIME, getLanguageFromMIME, editorMIMETypes, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
@@ -29,7 +29,7 @@ type ItemButtonProperty = {
 
 const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButtonProperty) => {
   return (
-    <div ref={props.divRef ? props.divRef : () => {}}>
+    <div ref={props.divRef ? props.divRef : () => { }}>
       <IconButton
         iconProps={{ iconName: props.iconName, style: { fontSize: 25 } }}
         title={props.label} ariaLabel={props.label}
@@ -99,7 +99,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
     }
 
     )
-    } <IconButton iconProps={{ iconName: 'Add' }} disabled={this.stagedValues[this.stagedValues.length-1] === ''} onClick={_ => {
+    } <IconButton iconProps={{ iconName: 'Add' }} disabled={this.stagedValues[this.stagedValues.length - 1] === ''} onClick={_ => {
       this.state.isEditing.push(true)
       this.stagedValues.push('')
       this.setState(this.state)
@@ -107,7 +107,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   }
 }
 
-class TitleEditorComponent extends React.Component<{editingItem: {uri: string, title: string}}, {}> {
+class TitleEditorComponent extends React.Component<{ editingItem: { uri: string, title: string } }, {}> {
   editTitleChanged: boolean
   editURIChanged: boolean
   constructor(props: any) {
@@ -151,7 +151,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   deleteButtonElement: HTMLElement | null
   editor: monaco.editor.IStandaloneCodeEditor | null
   item: ClientItem
-  editingItem: Partial<ClientItem> & {title: string, uri: string}
+  editingItem: Partial<ClientItem> & { title: string, uri: string }
   lastPosition: { left: number, top: number }
   itemFlowLayoutCallback: () => void
 
@@ -206,44 +206,56 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   }
 
   render() {
+    let dropdownItems = []
+    if (getCookie('token') !== '') {
+      dropdownItems.push({
+        key: 'Create Sibling',
+        text: 'Create Sibling',
+        iconProps: { iconName: 'Add' },
+        onClick: () => {
+          bus.emit('create-item-clicked', { uri: resolveURI(this.props.item.uri, 'new-item') })
+        }
+      })
+    }
     return (
       <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
         {!this.item.editing ? (
           <div>
-            <div className="item-controls" style={{display: 'flex'}}>
-
+            <div className="item-controls" style={{ display: 'flex' }}>
               <IconButton
-                iconProps={{iconName: 'ChevronDown'}}
+                iconProps={{ iconName: 'ChevronDown' }}
                 label='More'
-                menuProps={{items: [{key: 'Create Sibling', text: 'Create Sibling', iconProps: { iconName: 'Add' }, onClick: ()=>{bus.emit('create-item-clicked', {uri: resolveURI(this.props.item.uri, 'new-item')})}}]}}
+                menuProps={{ items: dropdownItems }}
                 onRenderMenuIcon={() => <></>}
                 style={{ color: 'purple', width: 40, height: 40 }}
               />
-              <ItemButton
-                divRef={el => this.deleteButtonElement = el}
-                iconName='Delete'
-                label='Delete'
-                onClick={_ => this.setState({deleteCalloutVisible: true})}
-              />
-              {this.state.deleteCalloutVisible ? (
-                <Callout
-                  onDismiss={_ => this.setState({deleteCalloutVisible: false})}
-                  target={this.deleteButtonElement}
-                  coverTarget={true}
-                  isBeakVisible={false}
-                  gapSpace={0}
-                  setInitialFocus={true}
-                >
-                  <PrimaryButton text="Confirm Delete" onClick={this.onDelete.bind(this)} />
-                </Callout>
-              ): null}
-              {this.item.isContentEditable ? (
+              {getCookie('token') !== '' ? <>
                 <ItemButton
-                  iconName='Edit'
-                  label='Edit'
-                  onClick={this.onBeginEdit.bind(this)}
+                  divRef={el => this.deleteButtonElement = el}
+                  iconName='Delete'
+                  label='Delete'
+                  onClick={_ => this.setState({ deleteCalloutVisible: true })}
                 />
-              ): null}
+                {this.state.deleteCalloutVisible ? (
+                  <Callout
+                    onDismiss={_ => this.setState({ deleteCalloutVisible: false })}
+                    target={this.deleteButtonElement}
+                    coverTarget={true}
+                    isBeakVisible={false}
+                    gapSpace={0}
+                    setInitialFocus={true}
+                  >
+                    <PrimaryButton text="Confirm Delete" onClick={this.onDelete.bind(this)} />
+                  </Callout>
+                ) : null}
+                {this.item.isContentEditable ? (
+                  <ItemButton
+                    iconName='Edit'
+                    label='Edit'
+                    onClick={this.onBeginEdit.bind(this)}
+                  />
+                ) : null}
+              </> : <></>}
               <ItemButton
                 iconName='Cancel'
                 label='Close'
@@ -285,7 +297,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
             })}</div>
           </div>
         ) : (
-            <div 
+            <div
               onKeyDown={(evt) => {
                 if (evt.ctrlKey && evt.keyCode === 83) {
                   this.onSave()
@@ -293,7 +305,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                 }
               }}
             >
-              <span className="item-controls" style={{display: 'flex'}}>
+              <span className="item-controls" style={{ display: 'flex' }}>
                 <ItemButton
                   iconName='Accept'
                   label='Save'
@@ -461,7 +473,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     })
 
     const scripts = this.contentRef.current.getElementsByTagName('script')
-    for (let idx = 0; idx < scripts.length; idx ++) {
+    for (let idx = 0; idx < scripts.length; idx++) {
       const script = scripts.item(idx)
       const newScript = document.createElement('script')
       const scriptContent = document.createTextNode(script.text)

@@ -7,10 +7,12 @@ import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot'
 import { IStyleSet } from 'office-ui-fabric-react/lib/Styling'
 
 import { URINode } from '../URIParser'
+import { getCookie } from '../common'
 
 import IndexTree from './IndexTree'
 import SearchBar from './SearchBar'
 import ItemFlowVis from './ItemFlowVis'
+import LoginDialogButton from './LoginDialogButton'
 
 export type SidebarComponentProperty = {
   title: string
@@ -39,9 +41,11 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
         <h1 className="site-title" id="site-title">{this.props.title}</h1>
         <div className="site-subtitle" id="site-subtitle">{this.props.subTitle}</div>
         <div className="page-controls">
+          {getCookie('token') !== '' ? <>
           <IconButton iconProps={{ iconName: 'Add' }} title="New Item" ariaLabel="New Item" onClick={evt => {
             bus.emit('create-item-clicked', {})
           }} style={{ color: 'purple' }} className="item-close" />
+          </> : <></>}
         </div>
         <SearchBar />
         <Pivot aria-label="Status" style={{ marginTop: 10 }}>
@@ -62,7 +66,9 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
             </Label>
           </PivotItem>
           <PivotItem headerText="More">
-            <Label styles={labelStyles}>Pivot #3</Label>
+            <Label styles={labelStyles}>
+              <LoginDialogButton />
+            </Label>
           </PivotItem>
         </Pivot>
       </div>

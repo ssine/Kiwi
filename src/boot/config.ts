@@ -6,6 +6,7 @@ export const template = {
 }
 
 export const defaultItemsURI = 'kiwi/config/default-items'
+export const usersURI = 'kiwi/config/users.json'
 
 export const pageConfigs = {
   title: 'kiwi/config/site-title',

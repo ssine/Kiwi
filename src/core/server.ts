@@ -32,9 +32,10 @@ const serve = function serve(port: number) {
     else res.status(404).send('Item not found!')
   })
 
-  app.post('/put-item', async (req, res) => {
-    let it = req.body.item
-    res.send(await (await manager.putItem(it)).json())
+  app.post('/login', async (req, res) => {
+    req.body.name
+    const result = manager.getUserManager().login(req.body.name, req.body.password)
+    res.send(result)
   })
 
   /**
@@ -43,12 +44,16 @@ const serve = function serve(port: number) {
    * item: the item to save
    */
   app.post('/save-item', async (req, res) => {
+    if (! manager.getUserManager().isTokenValid(req.cookies.token)) {
+      res.send(await manager.getItem(req.body.uri)?.json())
+    }
     let uri = req.body.uri
     let it = req.body.item
     res.send(await (await manager.saveItem(uri, it)).json())
   })
 
   app.post('/delete-item', async (req, res) => {
+    if (! manager.getUserManager().isTokenValid(req.cookies.token)) return
     let uri = req.body.uri
     manager.deleteItem(uri)
     res.send({status: true})
