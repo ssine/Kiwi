@@ -36,7 +36,12 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
   render() {
     return (
       <div className="sidebar" style={{
-        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         <h1 className="site-title" id="site-title">{this.props.title}</h1>
         <div className="site-subtitle" id="site-subtitle">{this.props.subTitle}</div>
@@ -48,14 +53,16 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
           </> : <></>}
         </div>
         <SearchBar />
-        <Pivot aria-label="Status" style={{ marginTop: 10 }}>
-          <PivotItem
-            headerText="Opened"
-            headerButtonProps={{
-              'data-order': 1,
-              'data-title': 'My Files Title'
-            }}
-          >
+        <Pivot
+          styles={{ itemContainer: { flexGrow: 1, overflow: 'auto' } }}
+          style={{
+            marginTop: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'auto',
+            flexGrow: 1 
+        }}>
+          <PivotItem headerText="Open">
             <ItemFlowVis itemFlow={this.props.itemFlow} />
           </PivotItem>
           <PivotItem headerText="Index">
@@ -65,7 +72,7 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
               />
             </Label>
           </PivotItem>
-          <PivotItem headerText="More">
+          <PivotItem headerText="Action">
             <Label styles={labelStyles}>
               <LoginDialogButton />
             </Label>
