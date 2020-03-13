@@ -222,13 +222,15 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
         {!this.item.editing ? (
           <div>
             <div className="item-controls" style={{ display: 'flex' }}>
-              <IconButton
-                iconProps={{ iconName: 'ChevronDown' }}
-                label='More'
-                menuProps={{ items: dropdownItems }}
-                onRenderMenuIcon={() => <></>}
-                style={{ color: 'purple', width: 40, height: 40 }}
-              />
+              {dropdownItems.length > 0 ? <>
+                <IconButton
+                  iconProps={{ iconName: 'ChevronDown' }}
+                  label='More'
+                  menuProps={{ items: dropdownItems }}
+                  onRenderMenuIcon={() => <></>}
+                  style={{ color: 'purple', width: 40, height: 40 }}
+                />
+              </> : <></>}
               {getCookie('token') !== '' ? <>
                 <ItemButton
                   divRef={el => this.deleteButtonElement = el}
