@@ -84,6 +84,7 @@ export default class IndexTree extends React.Component<IndexTreeProperty, IndexT
           selectionMode={SelectionMode.none}
           groups={this.state.group.children}
           compact={true}
+          onShouldVirtualize={_ => false}
           groupProps={{
             headerProps: {
               indentWidth: ROW_HEIGHT / 2,
