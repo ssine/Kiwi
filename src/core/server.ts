@@ -6,6 +6,7 @@ import * as http from 'http'
 import * as express from 'express'
 import * as socketIO from 'socket.io'
 import * as bodyParser from 'body-parser'
+import * as cookieParser from 'cookie-parser'
 import { getLogger } from './Log'
 import manager from './ItemManager'
 import { resolve } from 'path'
@@ -17,6 +18,7 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 app.use(bodyParser.json())
+app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
 
