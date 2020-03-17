@@ -115,3 +115,8 @@ table, th, td {
   border-collapse: collapse;
   margin: auto;
 }
+
+mjx-container[display="true"] {
+  display: block;
+  text-align: center;
+}
