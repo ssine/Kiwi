@@ -71,7 +71,7 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, html
   const ctx = new ItemContext(uri)
   await forEachPiece(html, cloneRegex(macroReg),
     async (s) => {
-      logger.debug(`eval macro call ${he.decode(s).slice(2, -2)}`)
+      logger.silly(`eval macro call ${he.decode(s).slice(2, -2)}`)
       try {
         if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
         else processed += await ctx.eval(he.decode(s).slice(2, -2))
