@@ -13,7 +13,7 @@ import { IconButton } from 'office-ui-fabric-react/lib/Button'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument, getCookie } from '../Common'
 import { MIME, getLanguageFromMIME, editorMIMETypes, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
-import { typesetMath } from '../mathjax'
+// import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
 
 const MonacoEditor = loadable(() => import("react-monaco-editor"), {
@@ -380,7 +380,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
       this.generateEditingItem(this.item)
       await rotateOutFinished
       this.forceUpdate()
-      typesetMath()
+      // typesetMath()
       bus.emit('item-flow-layout')
       this.rotateIn()
     })
@@ -420,7 +420,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     }
     await this.rotateOut()
     this.forceUpdate()
-    typesetMath()
+    // typesetMath()
     bus.emit('item-flow-layout')
     this.rotateIn()
     this.generateEditingItem(this.item)

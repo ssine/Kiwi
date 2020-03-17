@@ -5,7 +5,7 @@ import ClientItem from './ClientItem'
 import { postJSON, getPositionToDocument } from './Common'
 import Renderer from './Renderer'
 import { URIParser } from './URIParser'
-import { typesetMath } from './mathjax'
+// import { typesetMath } from './mathjax'
 import { assignCommonProperties, resolveURI } from '../core/Common'
 
 type URIItemMap = Record<string, ClientItem>
@@ -199,7 +199,7 @@ class ItemManager {
     item.containerDiv = el
     this.itemFlow.push(item)
     
-    typesetMath()
+    // typesetMath()
 
     item.displaied = true
     bus.emit('item-displaied')
@@ -249,7 +249,7 @@ class ItemManager {
     this.generateTagMap()
     item.editing = false
     item.missing = false
-    const { containerDiv, ...itemToSave } = item
+    const { containerDiv, parsedContent, ...itemToSave } = item
     const savedItem = await postJSON('/save-item', {
       uri: data.uri,
       item: itemToSave

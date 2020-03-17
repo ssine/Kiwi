@@ -31,7 +31,7 @@ class ClientItem extends BaseItem {
    * Save this item back to server
    */
   async save() {
-    const { containerDiv, ...itemToSave } = this
+    const { containerDiv, parsedContent, ...itemToSave } = this
     let obj = await postJSON('/save-item', {uri: this.uri, item: itemToSave})
     assignCommonProperties(this, obj)
   }

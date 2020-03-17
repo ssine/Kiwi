@@ -1,6 +1,6 @@
 {
   "name": "kiwi-wiki",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "a flat file personal wiki.",
   "main": "build/boot/main.js",
   "files": [
@@ -34,6 +34,7 @@
     "@types/he": "^1.1.0",
     "@types/highlight.js": "^9.12.3",
     "@types/js-yaml": "^3.12.1",
+    "@types/jsdom": "^16.1.0",
     "@types/marked": "^0.7.2",
     "@types/moment": "^2.13.0",
     "@types/node": "^13.1.4",
@@ -78,6 +79,7 @@
     "highlight.js": "^9.18.0",
     "isbinaryfile": "^4.0.4",
     "js-yaml": "^3.13.1",
+    "jsdom": "^16.2.1",
     "marked": "^0.8.0",
     "mathjax-full": "^3.0.0",
     "moment": "^2.24.0",

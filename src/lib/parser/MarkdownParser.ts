@@ -3,6 +3,7 @@ import { MIME } from '../../core/Common'
 // import * as cheerio from 'cheerio'
 import * as marked from 'marked'
 import * as hljs from 'highlight.js'
+import { typesetDocumentMath } from './MathJaxParser'
 
 class MarkdownParser extends Parser {
 
@@ -28,7 +29,8 @@ class MarkdownParser extends Parser {
   }
 
   parse(kwargs: {input: string}): string {
-    return `<div>${marked(kwargs.input)}</div>`
+
+    return `<div>${marked(typesetDocumentMath(kwargs.input))}</div>`
     // const $ = cheerio.load(marked(input))
     // $('a').addClass('item-link')
     // return $.html($('body'))  

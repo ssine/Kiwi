@@ -5,7 +5,8 @@
     "declaration": true,
     "outDir": "build",
     "strict": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*", "src/ui"]

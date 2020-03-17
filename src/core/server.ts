@@ -17,7 +17,7 @@ const logger = getLogger('server')
 const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: '1mb'}))
 app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
