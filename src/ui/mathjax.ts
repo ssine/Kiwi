@@ -10,8 +10,11 @@ async function init() {
   const { browserAdaptor } = await import(/* webpackChunkName: "mjx.browserAdaptor" */ 'mathjax-full/js/adaptors/browserAdaptor')
   const { RegisterHTMLHandler } = await import(/* webpackChunkName: "mjx.html" */ 'mathjax-full/js/handlers/html')
   const { AllPackages } = await import(/* webpackChunkName: "mjx.AllPackages" */ 'mathjax-full/js/input/tex/AllPackages')
+  // const { MenuHandler } = await import(/* webpackChunkName: "mjx.menu" */ 'mathjax-full/js/ui/menu/MenuHandler')
   const adapter = browserAdaptor()
 
+  // Causes error currently, let's wait until the document of Mathjax3 covers this.
+  // MenuHandler(RegisterHTMLHandler(adapter))
   RegisterHTMLHandler(adapter)
 
   html = mathjax.document(document, {
@@ -35,20 +38,9 @@ async function init() {
 
 async function typesetMath() {
   await init()
-  html.processed.clear('findMath')
-  html.processed.clear('compile')
-  html.processed.clear('getMetrics')
-  html.processed.clear('typeset')
-  html.processed.clear('updateDocument')
-  html.findMath()
-  .compile()
-  .getMetrics()
-  .typeset()
-  .updateDocument()
-  console.log('typesetted!')
+  html.render()
 }
 
 export {
-  // MathJax
   typesetMath
 }
