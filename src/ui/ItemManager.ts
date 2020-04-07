@@ -116,12 +116,16 @@ class ItemManager {
       bus.emit('item-deleted')
     });
 
-    // render default items
-    (await this.getLoadedItemFromURI(defaultItemsURI)).content.split('\n').forEach(l => {
-      if (l) {
-        this.displayItem(l)
-      }
-    })
+    if (window.location.hash != '') {
+      this.displayItem(window.location.hash.substr(1))
+    } else {
+      // render default items
+      (await this.getLoadedItemFromURI(defaultItemsURI)).content.split('\n').forEach(l => {
+        if (l) {
+          this.displayItem(l)
+        }
+      })
+    }
   }
   
   /**

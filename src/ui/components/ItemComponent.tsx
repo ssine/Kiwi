@@ -206,7 +206,14 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   }
 
   render() {
-    let dropdownItems = []
+    let dropdownItems = [{
+      key: 'Copy PermaLink',
+      text: 'Copy PermaLink',
+      iconProps: { iconName: 'Link' },
+      onClick: () => {
+        navigator.clipboard.writeText(`${window.location.origin}/#${this.item.uri}`)
+      }
+    }]
     if (getCookie('token') !== '') {
       dropdownItems.push({
         key: 'Create Sibling',
@@ -217,6 +224,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
         }
       })
     }
+
     return (
       <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
         {!this.item.editing ? (
