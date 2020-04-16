@@ -237,6 +237,7 @@ async function saveData() {
   background-color: #b6acd0;
 }
 #{{currentURI}} .list li > i {
+  padding-left: 5px;
   padding-right: 10px;
 }
 #{{currentURI}} .list button {
