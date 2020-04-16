@@ -14,6 +14,8 @@ async function run() {
     [/[\s\S]*?/, 'variable.source'],
   ]
   await manager.init()
+  // @ts-ignore
+  window.itemManager = manager
 }
 
 window.onload = run

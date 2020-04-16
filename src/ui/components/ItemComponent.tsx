@@ -154,6 +154,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   editingItem: Partial<ClientItem> & { title: string, uri: string }
   lastPosition: { left: number, top: number }
   itemFlowLayoutCallback: () => void
+  externalEditCallback: () => void
 
   constructor(props: { item: ClientItem }) {
     super(props);
@@ -168,6 +169,9 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     this.itemFlowLayoutCallback = () => {
       this.smoothLayoutChange()
     }
+    this.externalEditCallback = async () => {
+      await this.onRerender()
+    }
   }
 
   componentDidMount() {
@@ -176,10 +180,12 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     }
     this.lastPosition = getPositionToDocument(this.rootRef.current)
     bus.on('item-flow-layout', this.itemFlowLayoutCallback)
+    bus.on(`external-edit-${this.item.uri}`, this.externalEditCallback)
   }
-
+  
   componentWillUnmount() {
     bus.off('item-flow-layout', this.itemFlowLayoutCallback)
+    bus.off(`external-edit-${this.item.uri}`, this.externalEditCallback)
   }
 
   componentDidUpdate() {
@@ -394,6 +400,22 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     })
   }
 
+  async onRerender() {
+    const saveToken = Math.random().toString().slice(2)
+    bus.emit('item-save-clicked', {
+      uri: this.item.uri,
+      editedItem: this.getNewEditingItem(this.item),
+      token: saveToken
+    })
+    bus.once(`item-saved-${saveToken}`, async (data) => {
+      this.item = data.item
+      this.generateEditingItem(this.item)
+      this.forceUpdate()
+      typesetMath()
+      bus.emit('item-flow-layout')
+    })
+  }
+
   async onDelete() {
     this.setState({
       deleteCalloutVisible: false
@@ -501,7 +523,11 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   }
 
   generateEditingItem(item: ClientItem) {
-    this.editingItem = {
+    this.editingItem = this.getNewEditingItem(item)
+  }
+
+  getNewEditingItem(item: ClientItem): Partial<ClientItem> & { title: string, uri: string } {
+    return {
       title: item.title,
       type: item.type,
       uri: item.uri,

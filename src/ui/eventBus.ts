@@ -51,6 +51,9 @@ import { EventEmitter } from 'events'
  * item-deleted:
  *   triggered when an item is deleted.
  * 
+ * external-edit-{uri}:
+ *   triggered when modification to item {uri} is done outside.
+ * 
  * ---   Data Transfer Category   ---
  * 
  * search-triggered:

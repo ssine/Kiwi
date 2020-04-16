@@ -263,6 +263,10 @@ class ItemManager {
     bus.emit('item-saved', { uri: item.uri })
   }
 
+  finalizeItemEdit(itemURI: string) {
+    bus.emit(`external-edit-${itemURI}`)
+  }
+
   async createItem(data: {uri: string}) {
     const item = new ClientItem()
     item.title = 'New Item'
