@@ -18,7 +18,7 @@ export default class TranscludePlugin extends RenderPlugin {
       }
       const it = manager.getItem(targetURI)
       if (!it) return `Item to transclude doesn't exist!`
-      return await it.html()
+      return it.content
     }
   }
 }
