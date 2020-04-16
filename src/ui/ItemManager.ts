@@ -263,8 +263,8 @@ class ItemManager {
     bus.emit('item-saved', { uri: item.uri })
   }
 
-  finalizeItemEdit(itemURI: string) {
-    bus.emit(`external-edit-${itemURI}`)
+  finalizeItemEdit(itemURI: string, rerender: boolean = true) {
+    bus.emit(`external-edit-${itemURI}`, {rerender: rerender})
   }
 
   async createItem(data: {uri: string}) {

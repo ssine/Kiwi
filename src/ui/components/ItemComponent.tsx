@@ -154,7 +154,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   editingItem: Partial<ClientItem> & { title: string, uri: string }
   lastPosition: { left: number, top: number }
   itemFlowLayoutCallback: () => void
-  externalEditCallback: () => void
+  externalEditCallback: (data: {rerender: string}) => void
 
   constructor(props: { item: ClientItem }) {
     super(props);
@@ -169,8 +169,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     this.itemFlowLayoutCallback = () => {
       this.smoothLayoutChange()
     }
-    this.externalEditCallback = async () => {
-      await this.onRerender()
+    this.externalEditCallback = async (data) => {
+      await this.onRerender(data)
     }
   }
 
@@ -400,7 +400,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     })
   }
 
-  async onRerender() {
+  async onRerender(args: {rerender: string}) {
     const saveToken = Math.random().toString().slice(2)
     bus.emit('item-save-clicked', {
       uri: this.item.uri,
@@ -410,8 +410,10 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     bus.once(`item-saved-${saveToken}`, async (data) => {
       this.item = data.item
       this.generateEditingItem(this.item)
-      this.forceUpdate()
-      typesetMath()
+      if (args.rerender) {
+        this.forceUpdate()
+        typesetMath()
+      }
       bus.emit('item-flow-layout')
     })
   }
