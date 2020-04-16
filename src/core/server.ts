@@ -48,6 +48,7 @@ const serve = function serve(port: number) {
   app.post('/save-item', async (req, res) => {
     if (! manager.getUserManager().isTokenValid(req.cookies.token)) {
       res.send(await manager.getItem(req.body.uri)?.json())
+      return
     }
     let uri = req.body.uri
     let it = req.body.item
@@ -55,7 +56,10 @@ const serve = function serve(port: number) {
   })
 
   app.post('/delete-item', async (req, res) => {
-    if (! manager.getUserManager().isTokenValid(req.cookies.token)) return
+    if (! manager.getUserManager().isTokenValid(req.cookies.token)) {
+      res.send({status: false})
+      return
+    }
     let uri = req.body.uri
     manager.deleteItem(uri)
     res.send({status: true})
