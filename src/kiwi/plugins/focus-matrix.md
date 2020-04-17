@@ -240,14 +240,15 @@ async function saveData() {
   padding-left: 5px;
   padding-right: 10px;
 }
+#{{currentURI}} .list .finished label {
+  text-decoration: line-through;
+  color: gray;
+}
 #{{currentURI}} .list button {
   float: right;
   height: 25px;
 }
 #{{currentURI}} .list li:hover {
   background-color: #c8bfe7;
-}
-#{{currentURI}} .list .finished li {
-  text-decoration: line-through;
 }
 </style>
