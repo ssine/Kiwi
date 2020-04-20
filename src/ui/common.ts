@@ -33,11 +33,15 @@ function getPositionToDocument(el: Element): {top: number, left: number} {
   }
 }
 
-function setCookie(key: string, value: string){
-  document.cookie = `${key}=${value};`
+function setCookie(key: string, value: string, secondsToLive?: number) {
+  let cookieStr = `${key}=${value};`
+  if (secondsToLive) {
+    cookieStr += `max-age=${secondsToLive};`
+  }
+  document.cookie = cookieStr
 }
 
-function getCookie(key: string){
+function getCookie(key: string) {
   var name = key + '='
   for (let item of document.cookie.split(';')) {
     item = item.trim()
