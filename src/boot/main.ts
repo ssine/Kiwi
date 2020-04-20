@@ -13,6 +13,7 @@ import GraphvizPlugin from '../lib/plugin/GraphvizPlugin'
 import TranscludePlugin from '../lib/plugin/TranscludePlugin'
 import ListPlugin from '../lib/plugin/ListPlugin'
 import SVGPlugin from '../lib/plugin/SVGPlugin'
+import CSSEscapePlugin from '../lib/plugin/CSSEscapePlugin'
 
 const args = yargs
   .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {
@@ -67,6 +68,9 @@ function registLib() {
   const svg = new SVGPlugin()
   svg.init()
   svg.register()
+  const cssesc = new CSSEscapePlugin()
+  cssesc.init()
+  cssesc.register()
 }
 
 async function run () {
