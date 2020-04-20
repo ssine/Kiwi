@@ -14,7 +14,7 @@ export default class TranscludePlugin extends RenderPlugin {
     return async (input: string): Promise<string> => {
       const targetURI = resolveURI(uri, input.trim())
       if (targetURI === uri) {
-        return 'direct circle transclude detected!'
+        return 'direct cyclic transclude detected!'
       }
       const it = manager.getItem(targetURI)
       if (!it) return `Item to transclude doesn't exist!`
