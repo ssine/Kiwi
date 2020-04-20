@@ -93,7 +93,7 @@ function render() {
       render()
       saveData()
     }
-    const selectorPrefix = `#{{currentURI}} > .${className}`
+    const selectorPrefix = String.raw`#{{cssesc(currentURI)}} > .${className}`
     document.querySelector(`${selectorPrefix} .finished`).innerHTML =
       data[className]['finished'].map((v, idx) => getListItemHTML(v, idx, 'finished')).join('\n')
     document.querySelector(`${selectorPrefix} .unfinished`).innerHTML =
@@ -136,7 +136,7 @@ async function saveData() {
   let item = await itemManager.getItemFromURI('{{currentURI}}')
   console.log(item)
   let reg = /<div id="\{\{currentURI\}\}-data" hidden>[\s\S]*?<\/div>/gm
-  let strToSave = `<div id="\\{{currentURI}}-data" hidden>${JSON.stringify(data)}</div>`
+  let strToSave = `<div id="\{\{currentURI\}\}-data" hidden>${JSON.stringify(data)}</div>`
   let res = reg.exec(item.content)
   if (res === null) {
     item.content += `\n${strToSave}`
@@ -148,9 +148,9 @@ async function saveData() {
 }
 
 ['ie', 'uie', 'iue', 'uiue'].forEach((className) => {
-  const selectorPrefix = `#{{currentURI}} > .${className}`
+  const selectorPrefix = String.raw`#{{cssesc(currentURI)}} > .${className}`
 
-  let inputEl = document.querySelector(`#{{currentURI}} > .${className} .input-frame`)
+  let inputEl = document.querySelector(`${selectorPrefix} .input-frame`)
   function addListItem() {
     if (inputEl.value === '') return
     data[className]['unfinished'].push(inputEl.value)
@@ -159,7 +159,7 @@ async function saveData() {
     saveData()
   }
 
-  document.querySelector(`#{{currentURI}} > .${className} .input-btn`).addEventListener('click', addListItem)
+  document.querySelector(`${selectorPrefix} .input-btn`).addEventListener('click', addListItem)
   inputEl.addEventListener('keypress', (evt) => {
     if (evt.key === 'Enter') addListItem()
   })
@@ -169,86 +169,95 @@ async function saveData() {
 </script>
 
 <style>
-#{{currentURI}} {
+#{{cssesc(currentURI)}} {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  height: 500px;
+  height: {{typeof height === 'undefined' ? '500px' : height}};
 }
-#{{currentURI}} > div {
+#{{cssesc(currentURI)}} ::-webkit-scrollbar {
+  width: 5px;
+}
+#{{cssesc(currentURI)}} ::-webkit-scrollbar-track {
+  background-color: #dad7e7;
+}
+#{{cssesc(currentURI)}} ::-webkit-scrollbar-thumb {
+  background-color: #7e48b5;
+}
+#{{cssesc(currentURI)}} > div {
   width: calc(50% - 10px);
   height: calc(50% - 10px);
   margin: 5px;
   display: flex;
   flex-direction: column;
 }
-#{{currentURI}} .control {
+#{{cssesc(currentURI)}} .control {
   display: flex;
   margin-bottom: 10px;
   height: 25px;
 }
-#{{currentURI}} .input-frame {
+#{{cssesc(currentURI)}} .input-frame {
   flex-grow: 1;
   margin-left: 10px;
   margin-right: 10px;
   border: none;
   border-bottom: solid 2px #7e48b5;
 }
-#{{currentURI}} .icon::before {
+#{{cssesc(currentURI)}} .icon::before {
   content: "✎";
 }
-#{{currentURI}} .input-btn {
+#{{cssesc(currentURI)}} .input-btn {
   width: 30px;
   height: 25px;
 }
-#{{currentURI}} button {
+#{{cssesc(currentURI)}} button {
   background-color: white;
   border: none;
   text-align: center;
   vertical-align: middle;
 }
-#{{currentURI}} .input-btn:hover {
+#{{cssesc(currentURI)}} .input-btn:hover {
   background-color: #c8bfe7;
 }
-#{{currentURI}} .input-btn:active {
+#{{cssesc(currentURI)}} .input-btn:active {
   background-color: #b6acd0;
 }
-#{{currentURI}} .input-btn:focus {
+#{{cssesc(currentURI)}} .input-btn:focus {
   outline: none;
 }
-#{{currentURI}} .delete:hover {
+#{{cssesc(currentURI)}} .delete:hover {
   background-color: palevioletred;
 }
-#{{currentURI}} .delete:active {
+#{{cssesc(currentURI)}} .delete:active {
   background-color: rgb(235, 47, 172);
 }
-#{{currentURI}} .delete:focus {
+#{{cssesc(currentURI)}} .delete:focus {
   outline: none;
 }
-#{{currentURI}} .list {
+#{{cssesc(currentURI)}} .list {
   overflow: auto;
 }
-#{{currentURI}} .list li {
+#{{cssesc(currentURI)}} .list li {
   list-style-type: none;
   height: 25px;
   line-height: 25px;
 }
-#{{currentURI}} .list li:active {
+#{{cssesc(currentURI)}} .list li:active {
   background-color: #b6acd0;
 }
-#{{currentURI}} .list li > i {
+#{{cssesc(currentURI)}} .list li > i {
   padding-left: 5px;
   padding-right: 10px;
 }
-#{{currentURI}} .list .finished label {
+#{{cssesc(currentURI)}} .list .finished label {
   text-decoration: line-through;
   color: gray;
 }
-#{{currentURI}} .list button {
+#{{cssesc(currentURI)}} .list button {
   float: right;
   height: 25px;
 }
-#{{currentURI}} .list li:hover {
+#{{cssesc(currentURI)}} .list li:hover {
   background-color: #c8bfe7;
 }
 </style>
