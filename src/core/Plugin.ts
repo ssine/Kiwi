@@ -64,14 +64,12 @@ class ItemContext {
     if (res instanceof Promise) return await res
     else return res
   }
-
 }
 
-const processRenderPlugin = async function processRenderPlugin(uri: string, html: string): Promise<string> {
+const processRenderPlugin = async function processRenderPlugin(uri: string, raw: string, ctx: ItemContext): Promise<string> {
   let processed = ''
-  const ctx = new ItemContext(uri)
   let macroCalled = false
-  await forEachPiece(html, cloneRegex(macroReg),
+  await forEachPiece(raw, cloneRegex(macroReg),
     async (s) => {
       logger.silly(`eval macro call ${he.decode(s).slice(2, -2)}`)
       try {
@@ -86,7 +84,7 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, html
       processed += s.replace(/\\{{/g, '{{')
     }
   )
-  if (macroCalled) return processRenderPlugin(uri, processed)
+  if (macroCalled) return processRenderPlugin(uri, processed, ctx)
   else return processed
 }
 
@@ -113,5 +111,6 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, html
 
 export {
   RenderPlugin,
-  processRenderPlugin
+  processRenderPlugin,
+  ItemContext
 }
