@@ -20,6 +20,10 @@ body {
   /* padding: 10px; */
 }
 
+.item-content img {
+  max-width: 100%;
+}
+
 .item-link {
   color: #7e489d;
   text-decoration: none;
