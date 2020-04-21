@@ -5,6 +5,24 @@ import * as marked from 'marked'
 import * as hljs from 'highlight.js'
 // import { typesetDocumentMath } from './MathJaxParser'
 
+// @ts-ignore
+marked.Lexer.rules.inline.gfm.text = /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\$\[`*~]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?= {2,}\n|[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/
+const tokenizer = {
+  codespan(src: string) {
+    const match = src.match(/^((\s*\$[\s\S]+(?<!\\)\$)|(\s*\$\$[\s\S]+(?<!\\)\$\$))/g);
+    if (match) {
+      return {
+        type: 'text',
+        raw: match[0],
+        text: match[0]
+      };
+    }
+    return false;
+  }
+};
+// @ts-ignore
+marked.use({ tokenizer });
+
 class MarkdownParser extends Parser {
 
   init() {
