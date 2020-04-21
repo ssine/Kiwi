@@ -176,7 +176,7 @@ async function saveData() {
   height: {{typeof height === 'undefined' ? '500px' : height}};
 }
 #{{cssesc(currentURI)}} ::-webkit-scrollbar {
-  width: 5px;
+  width: 3px;
 }
 #{{cssesc(currentURI)}} ::-webkit-scrollbar-track {
   background-color: #dad7e7;
