@@ -1,6 +1,6 @@
 {
   "name": "kiwi-wiki",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "description": "a flat file personal wiki.",
   "main": "build/boot/main.js",
   "files": [
@@ -19,7 +19,7 @@
     "build:ui_prod": "webpack --mode=production && shx cp -r node_modules/@uifabric/icons/fonts build/browser/uifabric-icons",
     "build:doc": "typedoc src --out build/doc --exclude src/ui/**/*",
     "analyze": "webpack-bundle-analyzer --port 8080 build/browser/stats.json",
-    "publish": "npm --registry https://registry.npmjs.org/ publish"
+    "publish_": "npm --registry https://registry.npmjs.org/ publish"
   },
   "author": "Sine Liu",
   "license": "ISC",
