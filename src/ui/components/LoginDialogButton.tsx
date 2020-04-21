@@ -50,7 +50,7 @@ export default class LoginDialogButton extends React.Component<{}, LoginDialogBu
       password: (document.getElementById('kiwi-login-password') as HTMLInputElement).value
     })
     if (res.success) {
-      setCookie('token', res.token, 365*24*60)
+      setCookie('token', res.token, 365*24*3600)
       window.location.reload()
     } else {
       document.getElementById('kiwi-login-error-msg').innerText = res.reason
