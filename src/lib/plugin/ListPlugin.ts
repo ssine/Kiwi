@@ -15,10 +15,14 @@ export default class ListPlugin extends RenderPlugin {
   }
 
   getFunctionForItem() {
-    return async (filter: (all: Partial<ServerItem>[]) => Partial<ServerItem>[], ordered: boolean = false): Promise<string> => {
+    return async (filter: (all: Partial<ServerItem>[]) => Partial<ServerItem>[], kw: { ordered?: boolean, href?: any, name?: any } = {}): Promise<string> => {
       const filtered = filter(manager.getSkinnyItems())
-      let result = filtered.map(it => `<li><a href="${it.uri}">${it.title}</a></li>`).join('\n')
-      if (ordered) return `<ol>${result}</ol>`
+      let result = filtered.map(it => {
+        let href = kw.href ? kw.href(it) : `/${it.uri}`
+        let name = kw.name ? kw.name(it) : `${it.title}`
+        return `<li><a href="${href}">${name}</a></li>`}
+      ).join('\n')
+      if (kw.ordered) return `<ol>${result}</ol>`
       return `<ul>${result}</ul>`
     }
   }

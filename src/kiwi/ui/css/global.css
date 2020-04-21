@@ -20,7 +20,7 @@ body {
   /* padding: 10px; */
 }
 
-.item-content img {
+.item-content img, frame {
   max-width: 100%;
 }
 
