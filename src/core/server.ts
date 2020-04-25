@@ -10,7 +10,7 @@ import * as cookieParser from 'cookie-parser'
 import { getLogger } from './Log'
 import manager from './ItemManager'
 import { resolve } from 'path'
-import { trimString } from './Common'
+import { trimString, fixedEncodeURIComponent } from './Common'
 
 const logger = getLogger('server')
 
@@ -83,7 +83,12 @@ const serve = function serve(port: number) {
     if (uri in itemRouteTable) {
       itemRouteTable[uri](req, res, next)
     } else {
-      res.status(404).send(`not found uri ${uri}`)
+      const encoded = fixedEncodeURIComponent(uri)
+      if (encoded in itemRouteTable) {
+        itemRouteTable[encoded](req, res, next)
+      } else {
+        res.status(404).send(`not found uri ${uri}`)
+      }
     }
   })
 
