@@ -187,7 +187,7 @@ class ItemManager {
     let item = await this.getLoadedItemFromURI(uri)
     if (! item) {
       console.log(`item to display [${uri}] dose not exist, creating a missing one`)
-      await this.createItem({ uri: uri })
+      await this.createItem({ uri: uri }, false)
       return
     }
 
@@ -267,12 +267,12 @@ class ItemManager {
     bus.emit(`external-edit-${itemURI}`, {rerender: rerender})
   }
 
-  async createItem(data: {uri: string}) {
+  async createItem(data: {uri: string}, editing: boolean = true) {
     const item = new ClientItem()
     item.content = ''
     if (data.uri) item.uri = data.uri
     else item.uri = 'new-item'
-    item.editing = false
+    item.editing = editing
     item.missing = true
     item.headers.tags = []
     if (this.map[item.uri]) {
