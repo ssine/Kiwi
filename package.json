@@ -1,6 +1,6 @@
 {
   "name": "kiwi-wiki",
-  "version": "0.0.30",
+  "version": "0.0.32",
   "description": "a flat file personal wiki.",
   "main": "build/boot/main.js",
   "files": [
@@ -32,6 +32,7 @@
     "@types/cookie-parser": "^1.4.2",
     "@types/cssesc": "^3.0.0",
     "@types/express": "^4.17.2",
+    "@types/express-fileupload": "^1.1.3",
     "@types/he": "^1.1.0",
     "@types/highlight.js": "^9.12.3",
     "@types/js-yaml": "^3.12.1",
@@ -78,6 +79,7 @@
     "cookie-parser": "^1.4.4",
     "cssesc": "^3.0.0",
     "express": "^4.17.1",
+    "express-fileupload": "^1.1.7-alpha.3",
     "he": "^1.2.0",
     "highlight.js": "^9.18.0",
     "isbinaryfile": "^4.0.4",

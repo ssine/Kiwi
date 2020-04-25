@@ -11,10 +11,11 @@ import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 import { IconButton } from 'office-ui-fabric-react/lib/Button'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
-import { isLinkInternal, getPositionToDocument, getCookie } from '../Common'
+import { isLinkInternal, getPositionToDocument, getCookie, postFile } from '../Common'
 import { MIME, getLanguageFromMIME, editorMIMETypes, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
+import * as moment from 'moment'
 
 const MonacoEditor = loadable(() => import("react-monaco-editor"), {
   fallback: <div>loading editor...</div>
@@ -154,7 +155,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
   editingItem: Partial<ClientItem> & { title: string, uri: string }
   lastPosition: { left: number, top: number }
   itemFlowLayoutCallback: () => void
-  externalEditCallback: (data: {rerender: string}) => void
+  externalEditCallback: (data: { rerender: string }) => void
 
   constructor(props: { item: ClientItem }) {
     super(props);
@@ -179,10 +180,24 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
       this.contentPostProcess()
     }
     this.lastPosition = getPositionToDocument(this.rootRef.current)
+    this.rootRef.current.addEventListener('paste', (ev) => {
+      if (!this.item.editing) return;
+      let files = ev.clipboardData.files
+      if (files && files.length > 0) {
+        let file = files[0]
+        if (file.type.indexOf("image") !== -1) {
+          let ext = file.name.match(/\.\S+?$/)[0].substr(1)
+          let fn = `assets/${moment().format('YYYY-MM-DD-HH-mm-ss-SSS')}.${ext}`
+          postFile(resolveURI(this.editingItem.uri, fn), file)
+          this.editor.trigger('keyboard', 'type', { text: `![img](${fn})` });
+          ev.preventDefault()
+        }
+      }
+    })
     bus.on('item-flow-layout', this.itemFlowLayoutCallback)
     bus.on(`external-edit-${this.item.uri}`, this.externalEditCallback)
   }
-  
+
   componentWillUnmount() {
     bus.off('item-flow-layout', this.itemFlowLayoutCallback)
     bus.off(`external-edit-${this.item.uri}`, this.externalEditCallback)
@@ -400,7 +415,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
     })
   }
 
-  async onRerender(args: {rerender: string}) {
+  async onRerender(args: { rerender: string }) {
     const saveToken = Math.random().toString().slice(2)
     bus.emit('item-save-clicked', {
       uri: this.item.uri,
