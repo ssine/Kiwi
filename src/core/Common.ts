@@ -240,6 +240,10 @@ function resolveURI(from: string | null, to: string): string {
   return stack.join('/')
 }
 
+function isURL(url: string): boolean {
+  return /^(https?|ftp|file|mailto|tel|sms):\/\//.test(url)
+}
+
 function suggestedURIToTitle(uri: string): string {
   let title = uri.split('/').pop()
   if (! title) return 'No Title Suggestion'
@@ -267,6 +271,7 @@ export {
   fixedEncodeURIComponent,
   trimString,
   resolveURI,
+  isURL,
   suggestedURIToTitle,
   suggestedTitleToURI,
 }

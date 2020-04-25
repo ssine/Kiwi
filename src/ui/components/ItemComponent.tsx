@@ -479,7 +479,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
             evt.stopPropagation();
             evt.preventDefault();
             bus.emit('item-link-clicked', {
-              emitterURI: this.item.uri,
+              // emitterURI: this.item.uri,
               targetURI: el.href.baseVal,
             })
             return false;
@@ -495,7 +495,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
           evt.stopPropagation();
           evt.preventDefault();
           bus.emit('item-link-clicked', {
-            emitterURI: this.item.uri,
+            // we have resolved all links on server side
+            // emitterURI: this.item.uri,
             targetURI: el.getAttribute('href'),
           })
           return false;

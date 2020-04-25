@@ -1,5 +1,5 @@
 import { Parser } from '../../core/Parser'
-import { MIME } from '../../core/Common'
+import { MIME, resolveURI, isURL } from '../../core/Common'
 // import * as cheerio from 'cheerio'
 import * as marked from 'marked'
 import * as hljs from 'highlight.js'
@@ -46,9 +46,13 @@ class MarkdownParser extends Parser {
     });
   }
 
-  parse(kwargs: {input: string}): string {
-
-    return `<div>${marked(kwargs.input)}</div>`
+  parse(kwargs: {uri: string, input: string}): string {
+    let html = marked(kwargs.input)
+    html = html.replace(/(src|href)="(.+?)"/g, (match, $1, $2) => {
+      if (isURL($2)) return match
+      return `${$1}="${resolveURI(kwargs.uri, $2)}"`
+    })
+    return `<div>${html}</div>`
     // return `<div>${marked(typesetDocumentMath(kwargs.input))}</div>`
     // const $ = cheerio.load(marked(input))
     // $('a').addClass('item-link')
