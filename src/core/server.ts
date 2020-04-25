@@ -83,11 +83,11 @@ const serve = function serve(port: number) {
     if (uri in itemRouteTable) {
       itemRouteTable[uri](req, res, next)
     } else {
-      const encoded = fixedEncodeURIComponent(uri)
+      const encoded = fixedEncodeURIComponent(decodeURIComponent(uri))
       if (encoded in itemRouteTable) {
         itemRouteTable[encoded](req, res, next)
       } else {
-        res.status(404).send(`not found uri ${uri}`)
+        res.status(404).send(`not found uri ${uri} or the encoded ${encoded}`)
       }
     }
   })
