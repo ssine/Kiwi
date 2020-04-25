@@ -13,6 +13,16 @@ async function postJSON(url: string, data: Object): Promise<any> {
   return await response.json();
 }
 
+async function postFile(path: string, file: File): Promise<any> {
+  let fm = new FormData()
+  fm.append('path', path)
+  fm.append('fn', file)
+  await fetch('/fileupload', {
+    method: 'POST',
+    body: fm
+  })
+}
+
 /**
  * Check if a link is external of internal
  */
@@ -54,6 +64,7 @@ function getCookie(key: string) {
 
 export {
   postJSON,
+  postFile,
   isLinkInternal,
   getPositionToDocument,
   setCookie,

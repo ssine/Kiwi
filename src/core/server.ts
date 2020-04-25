@@ -7,10 +7,14 @@ import * as express from 'express'
 import * as socketIO from 'socket.io'
 import * as bodyParser from 'body-parser'
 import * as cookieParser from 'cookie-parser'
+import * as fileUpload from 'express-fileupload'
 import { getLogger } from './Log'
 import manager from './ItemManager'
 import { resolve } from 'path'
 import { trimString, fixedEncodeURIComponent } from './Common'
+import * as fs from 'fs'
+import { promisify } from 'util'
+const exists = promisify(fs.exists)
 
 const logger = getLogger('server')
 
@@ -22,10 +26,15 @@ app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
 
-const serve = function serve(port: number) {
+const serve = function serve(port: number, rootFolder: string) {
   app.use('/kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
+
+  app.use(fileUpload({
+    useTempFiles : true,
+    tempFileDir : resolve(__dirname, '../kiwi/tmp/')
+  }))
 
   app.post('/get-item', async (req, res) => {
     let uri: string = req.body.uri
@@ -53,6 +62,17 @@ const serve = function serve(port: number) {
     let uri = req.body.uri
     let it = req.body.item
     res.send(await (await manager.saveItem(uri, it)).json())
+  })
+
+  app.post('/fileupload', async (req, res) => {
+    let filePath = resolve(rootFolder, trimString(req.body.path, '/'))
+    const folder = resolve(filePath, '..')
+    if (! await exists(folder)) {
+      await fs.promises.mkdir(folder, { recursive: true })
+    }
+    // @ts-ignore
+    req.files.fn.mv(filePath)
+    res.send({})
   })
 
   app.post('/delete-item', async (req, res) => {

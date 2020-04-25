@@ -78,7 +78,7 @@ async function run () {
   if (args._[0] === 'serve') {
     require('../core/FileSynchronizer').options.usePolling = args.usePoll
     await manager.loadItems(args.folder)
-    serve(args.port)
+    serve(args.port, args.folder)
   }
 }
 
