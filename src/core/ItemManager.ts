@@ -67,7 +67,8 @@ class ItemManager {
     assignCommonProperties(_it, it)
     _it.missing = false
     // should we await this, i.e., response after item is written to disk?
-    await this.synchronizer.saveItem(_it)
+    this.synchronizer.saveItem(_it)
+    // await this.synchronizer.saveItem(_it)
     await _it.html()
     return _it
   }
