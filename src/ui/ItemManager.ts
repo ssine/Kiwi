@@ -6,7 +6,7 @@ import { postJSON, getPositionToDocument } from './Common'
 import Renderer from './Renderer'
 import { URIParser } from './URIParser'
 import { typesetMath } from './mathjax'
-import { assignCommonProperties, resolveURI } from '../core/Common'
+import { assignCommonProperties, resolveURI, suggestedURIToTitle } from '../core/Common'
 
 type URIItemMap = Record<string, ClientItem>
 
@@ -269,11 +269,10 @@ class ItemManager {
 
   async createItem(data: {uri: string}) {
     const item = new ClientItem()
-    item.title = 'New Item'
     item.content = ''
     if (data.uri) item.uri = data.uri
     else item.uri = 'new-item'
-    item.editing = true
+    item.editing = false
     item.missing = true
     item.headers.tags = []
     if (this.map[item.uri]) {
@@ -283,6 +282,8 @@ class ItemManager {
       }
       item.uri = `${item.uri}${cnt}`
     }
+    item.title = suggestedURIToTitle(item.uri)
+    item.parsedContent = '<i>This item does not exist.</i>'
     this.map[item.uri] = item
     this.updateURI()
     this.displayItem(item.uri)
