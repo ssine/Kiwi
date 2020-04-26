@@ -247,7 +247,7 @@ function isURL(url: string): boolean {
 function suggestedURIToTitle(uri: string): string {
   let title = uri.split('/').pop()
   if (! title) return 'No Title Suggestion'
-  title = title.replace('-', ' ')
+  title = title.replace(/-/g, ' ')
   title = title.split(' ').map(word => word === '' ? '' : word[0].toUpperCase() + word.substr(1).toLowerCase()).join(' ')
   return title
 }
