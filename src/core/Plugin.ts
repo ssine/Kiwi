@@ -7,7 +7,7 @@ const logger = getLogger('plugin')
 
 type renderFunction = (...args: any[]) => Promise<string>
 
-let pluginMap: {[name: string]: RenderPlugin} = {}
+let pluginMap: { [name: string]: RenderPlugin } = {}
 
 abstract class RenderPlugin {
   abstract init(): void
@@ -42,8 +42,6 @@ const forEachPiece = async function forEachPieceOfString(
   }
 }
 
-const excludeReg = /<pre>[\s\S]*?<\/pre>/igm
-// const macroReg = /\{\{[\s\S]*?\}\}/gm
 const macroReg = /(?<!\\)\{\{[\s\S]*?\}\}/gm
 
 class ItemContext {
@@ -67,47 +65,32 @@ class ItemContext {
 }
 
 const processRenderPlugin = async function processRenderPlugin(uri: string, raw: string, ctx: ItemContext): Promise<string> {
-  let processed = ''
-  let macroCalled = false
-  await forEachPiece(raw, cloneRegex(macroReg),
-    async (s) => {
-      logger.silly(`eval macro call ${he.decode(s).slice(2, -2)}`)
-      try {
-        if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
-        else processed += await ctx.eval(he.decode(s).slice(2, -2))
-      } catch (err) {
-        processed += err
-      }
-      macroCalled = true
-    },
-    async (s) => {
-      processed += s.replace(/\\{{/g, '{{')
+  const matched = async (s: string): Promise<string> => {
+    logger.silly(`eval macro call ${he.decode(s).slice(2, -2)}`)
+    let res = ''
+    try {
+      if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
+      else res = await ctx.eval(he.decode(s).slice(2, -2))
+    } catch (err) {
+      res = err
     }
-  )
-  if (macroCalled) return processRenderPlugin(uri, processed, ctx)
-  else return processed
-}
+    return res
+  }
+  const unmatched = async (s: string): Promise<string> => {
+    return s
+  }
 
-// const processRenderPlugin = async function processRenderPlugin(uri: string, html: string): Promise<string> {
-//   let processed = ''
-//   const ctx = new ItemContext()
-//   await forEachPiece(html, excludeReg,
-//     async (s) => { processed += s },
-//     async (s) => { await forEachPiece(s, macroReg,
-//       async (s) => {
-//         logger.debug(`eval macro call ${he.decode(s).slice(2, -2)}`)
-//         try {
-//           if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
-//           else processed += await ctx.eval(he.decode(s).slice(2, -2))
-//         } catch (err) {
-//           processed += err
-//         }
-//       },
-//       async (s) => { processed += s }
-//     )}
-//   )
-//   return processed
-// }
+  let target = raw
+  let patt = cloneRegex(macroReg)
+  let match: RegExpExecArray | null = null
+  while (match = patt.exec(target)) {
+    let processed = await unmatched(target.slice(0, match.index)) + await matched(match[0])
+    target = processed + target.slice(match.index + match[0].length)
+    patt.lastIndex = 0
+  }
+
+  return target.replace(/\\{{/g, '{{')
+}
 
 export {
   RenderPlugin,
