@@ -65,7 +65,7 @@ class ItemContext {
 }
 
 const processRenderPlugin = async function processRenderPlugin(uri: string, raw: string, ctx: ItemContext): Promise<string> {
-  const matched = async (s: string): Promise<string> => {
+  const macroCall = async (s: string): Promise<string> => {
     logger.silly(`eval macro call ${he.decode(s).slice(2, -2)}`)
     let res = ''
     try {
@@ -76,16 +76,15 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, raw:
     }
     return res
   }
-  const unmatched = async (s: string): Promise<string> => {
-    return s
-  }
 
   let target = raw
   let patt = cloneRegex(macroReg)
   let match: RegExpExecArray | null = null
   while (match = patt.exec(target)) {
-    let processed = await unmatched(target.slice(0, match.index)) + await matched(match[0])
-    target = processed + target.slice(match.index + match[0].length)
+    target =
+      target.slice(0, match.index) +
+      await macroCall(match[0]) +
+      target.slice(match.index + match[0].length)
     patt.lastIndex = 0
   }
 
