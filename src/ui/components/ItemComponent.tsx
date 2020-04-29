@@ -187,7 +187,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
         let file = files[0]
         if (file.type.indexOf("image") !== -1) {
           let ext = file.name.match(/\.\S+?$/)[0].substr(1)
-          let fn = `assets/${moment().format('YYYY-MM-DD-HH-mm-ss-SSS')}.${ext}`
+          let fn = `asset/${moment().format('YYYY-MM-DD-HH-mm-ss-SSS')}.${ext}`
           postFile(resolveURI(this.editingItem.uri, fn), file)
           this.editor.trigger('keyboard', 'type', { text: `![img](${fn})` });
           ev.preventDefault()

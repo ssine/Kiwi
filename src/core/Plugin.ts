@@ -80,12 +80,20 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, raw:
   let target = raw
   let patt = cloneRegex(macroReg)
   let match: RegExpExecArray | null = null
+  let executionCount = 0;
+
   while (match = patt.exec(target)) {
     target =
       target.slice(0, match.index) +
       await macroCall(match[0]) +
       target.slice(match.index + match[0].length)
     patt.lastIndex = 0
+
+    executionCount++
+    if (executionCount > 10000) {
+      target = 'Number of macro calls exceeds limit(10000).'
+      break
+    }
   }
 
   return target.replace(/\\{{/g, '{{')

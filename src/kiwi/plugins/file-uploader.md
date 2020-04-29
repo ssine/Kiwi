@@ -1,4 +1,4 @@
-<input id="{{currentURI}}-filename" type="text" placeholder="assets/new-file.pdf" />
+<input id="{{currentURI}}-filename" type="text" placeholder="asset/new-file.pdf" />
 <br/>
 <input id="{{currentURI}}-input" type="file" />
 <br/>
