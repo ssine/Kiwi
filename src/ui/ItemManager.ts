@@ -2,7 +2,7 @@ import socketIO from 'socket.io-client'
 import bus from './eventBus'
 import { defaultItemsURI, pageConfigs } from '../boot/config'
 import ClientItem from './ClientItem'
-import { postJSON, getPositionToDocument } from './Common'
+import { postJSON, getPositionToDocument, setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
 import Renderer from './Renderer'
 import { URIParser } from './URIParser'
 import { typesetMath } from './mathjax'
@@ -39,6 +39,8 @@ class ItemManager {
       it.contentLoaded = false
       this.map[it.uri] = it
     }
+
+    this.setThemeHue(await this.getThemeHue())
 
     document.title = (await this.getLoadedItemFromURI(pageConfigs.title)).content.trim()
 
@@ -226,13 +228,13 @@ class ItemManager {
     bus.emit('item-flow-layout')
   }
 
-  async saveItem(data: {uri: string, editedItem: Partial<ClientItem>, token: string}) {
+  async saveItem(data: {uri: string, editedItem: Partial<ClientItem>, token?: string}) {
     let item = await this.getLoadedItemFromURI(data.uri)
     if (item === null) return
 
-    if (item.isSystem) {
-      item = new ClientItem()
-    }
+    // if (item.isSystem) {
+      // item = new ClientItem()
+    // }
 
     const changedKeys = {}
     for (let k in data.editedItem) {
@@ -259,7 +261,7 @@ class ItemManager {
       item: itemToSave
     })
     assignCommonProperties(item, savedItem)
-    bus.emit(`item-saved-${data.token}`, {item: item})
+    if (data.token) bus.emit(`item-saved-${data.token}`, {item: item})
     bus.emit('item-saved', { uri: item.uri })
   }
 
@@ -313,6 +315,14 @@ class ItemManager {
 
   updateURI() {
     this.URIParser.parseItemTree(Object.assign({}, this.sysMap, this.map))
+  }
+
+  setThemeHue(hue: number) {
+    setPageColors(hue)
+  }
+
+  async getThemeHue(): Promise<number> {
+    return RGBtoHSV(CSSColorToRGBA((await this.getLoadedItemFromURI(pageConfigs.primaryColor)).content)).h
   }
 
 }

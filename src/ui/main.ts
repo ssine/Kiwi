@@ -6,7 +6,7 @@ import '../kiwi/ui/css/global.css'
 import 'highlight.js/styles/solarized-light.css'
 import { language as mdLang } from 'monaco-editor/esm/vs/basic-languages/markdown/markdown'
 import manager from './ItemManager'
-import { postFile } from './common'
+import { postFile, CSSColorToRGBA, RGBtoHSV, HSVtoRGB, RGBtoCSSColor } from './common'
 
 async function run() {
   mdLang.tokenizer.root.unshift([/\{\{/, { token: 'keyword', bracket: '@open', next: '@macroblock', nextEmbedded: 'javascript' }])
@@ -20,6 +20,12 @@ async function run() {
   // @ts-ignore
   window.postFile = postFile
   // @ts-ignore
+  window.kiwiTools = {
+    CSSColorToRGBA,
+    RGBtoHSV,
+    HSVtoRGB,
+    RGBtoCSSColor
+  }
 }
 
 window.onload = run
