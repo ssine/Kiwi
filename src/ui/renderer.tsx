@@ -11,26 +11,26 @@ export default class Renderer {
     initializeIcons('/uifabric-icons/')
     loadTheme({
       palette: {
-        neutralPrimary: '#7e489d', // texts
-        neutralLighter: '#c8bfe7', // button hover background
-        neutralLight: '#b6acd0', // button press background
-        themePrimary: '#7e489d',
+        neutralPrimary: 'var(--lineColor)', // texts
+        neutralLighter: 'var(--blockColorLighter)', // button hover background
+        neutralLight: 'var(--blockColor)', // button press background
+        themePrimary: 'var(--lineColor)',
         themeLighterAlt: '#f9f6fb',
         themeLighter: '#e8dbef',
         themeLight: '#d5bde2',
         themeTertiary: '#ad85c5',
         themeSecondary: '#8c59aa',
-        themeDarkAlt: '#72418e',
-        themeDark: '#603778',
+        themeDarkAlt: 'var(--lineColor)',
+        themeDark: 'var(--lineColor)',
         themeDarker: '#472959',
-        neutralLighterAlt: '#7e489d',
-        neutralQuaternaryAlt: '#e1dfdd',
+        neutralLighterAlt: 'var(--lineColor)',
+        neutralQuaternaryAlt: 'var(--blockColor)', // tree button pressed color
         neutralQuaternary: '#d0d0d0',
         neutralTertiaryAlt: '#c8c6c4',
         neutralTertiary: '#a19f9d',
         neutralSecondary: '#605e5c',
         neutralPrimaryAlt: '#3b3a39',
-        neutralDark: '#201f1e',
+        neutralDark: 'var(--lineColor)',
         black: '#000000',
         white: '#ffffff',
       }

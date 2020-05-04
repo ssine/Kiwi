@@ -131,7 +131,7 @@ export default class IndexTree extends React.Component<IndexTreeProperty, IndexT
           }
         }]}
         styles={{
-          root: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, width: '100%', background: '#f5f3fc' },
+          root: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, width: '100%', background: 'transparent' },
         }}
         compact={true}
         />

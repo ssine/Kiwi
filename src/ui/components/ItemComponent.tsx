@@ -35,7 +35,7 @@ const ItemButton: React.FunctionComponent<ItemButtonProperty> = (props: ItemButt
         iconProps={{ iconName: props.iconName, style: { fontSize: 25 } }}
         title={props.label} ariaLabel={props.label}
         onClick={props.onClick}
-        style={{ color: 'purple', width: 40, height: 40 }}
+        style={{ width: 40, height: 40 }}
       />
     </div>
   )
@@ -257,7 +257,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   label='More'
                   menuProps={{ items: dropdownItems }}
                   onRenderMenuIcon={() => <></>}
-                  style={{ color: 'purple', width: 40, height: 40 }}
+                  style={{ width: 40, height: 40 }}
                 />
               </> : <></>}
               {getCookie('token') !== '' ? <>
@@ -500,7 +500,6 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
             return false;
           }
           el.classList.add('item-link')
-          el.querySelector('text').setAttribute('style', 'fill: #7e489d;')
         }
         return
       }

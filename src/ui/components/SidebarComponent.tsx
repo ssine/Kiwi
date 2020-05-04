@@ -49,7 +49,7 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
           {getCookie('token') !== '' ? <>
           <IconButton iconProps={{ iconName: 'Add' }} title="New Item" ariaLabel="New Item" onClick={evt => {
             bus.emit('create-item-clicked', {})
-          }} style={{ color: 'purple' }} className="item-close" />
+          }} className="item-close" />
           </> : <></>}
         </div>
         <SearchBar />

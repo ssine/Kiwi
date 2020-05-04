@@ -99,7 +99,7 @@ function render() {
     document.querySelector(`${selectorPrefix} .unfinished`).innerHTML =
       data[className]['unfinished'].map((v, idx) => getListItemHTML(v, idx, 'uninished')).join('\n')
     document.querySelectorAll(`${selectorPrefix} .finished li`).forEach(el => {
-      el.addEventListener('mousedown', () => {el.setAttribute('style', 'background-color:#b6acd0;')})
+      el.addEventListener('mousedown', () => {el.setAttribute('style', 'background-color:var(--blockColorLight);')})
       el.addEventListener('mouseup', () => {el.setAttribute('style', '')})
       el.addEventListener('mouseout', () => {el.setAttribute('style', '')})
       el.addEventListener('click', () => {
@@ -107,7 +107,7 @@ function render() {
       })
     })
     document.querySelectorAll(`${selectorPrefix} .unfinished li`).forEach(el => {
-      el.addEventListener('mousedown', () => {el.setAttribute('style', 'background-color:#b6acd0;')})
+      el.addEventListener('mousedown', () => {el.setAttribute('style', 'background-color:var(--blockColorLight);')})
       el.addEventListener('mouseup', () => {el.setAttribute('style', '')})
       el.addEventListener('mouseout', () => {el.setAttribute('style', '')})
       el.addEventListener('click', () => {
@@ -134,7 +134,6 @@ render()
 
 async function saveData() {
   let item = await itemManager.getItemFromURI('{{currentURI}}')
-  console.log(item)
   let reg = /<div id="\{\{currentURI\}\}-data" hidden>[\s\S]*?<\/div>/gm
   let strToSave = `<div id="\{\{currentURI\}\}-data" hidden>${JSON.stringify(data)}</div>`
   let res = reg.exec(item.content)
@@ -143,7 +142,6 @@ async function saveData() {
   } else {
     item.content = item.content.substring(0, res.index) + strToSave + item.content.substr(res.index+res[0].length)
   }
-  console.log(item.content)
   itemManager.finalizeItemEdit('{{currentURI}}', false)
 }
 
@@ -179,10 +177,10 @@ async function saveData() {
   width: 3px;
 }
 #{{cssesc(currentURI)}} ::-webkit-scrollbar-track {
-  background-color: #dad7e7;
+  background-color: var(--blockColorLighter);
 }
 #{{cssesc(currentURI)}} ::-webkit-scrollbar-thumb {
-  background-color: #7e48b5;
+  background-color: var(--lineColor);
 }
 #{{cssesc(currentURI)}} > div {
   width: calc(50% - 10px);
@@ -201,7 +199,7 @@ async function saveData() {
   margin-left: 10px;
   margin-right: 10px;
   border: none;
-  border-bottom: solid 2px #7e48b5;
+  border-bottom: solid 2px var(--lineColor);
 }
 #{{cssesc(currentURI)}} .icon::before {
   content: "✎";
@@ -217,10 +215,10 @@ async function saveData() {
   vertical-align: middle;
 }
 #{{cssesc(currentURI)}} .input-btn:hover {
-  background-color: #c8bfe7;
+  background-color: var(--blockColorLight);
 }
 #{{cssesc(currentURI)}} .input-btn:active {
-  background-color: #b6acd0;
+  background-color: var(--blockColor);
 }
 #{{cssesc(currentURI)}} .input-btn:focus {
   outline: none;
@@ -242,8 +240,8 @@ async function saveData() {
   height: 25px;
   line-height: 25px;
 }
-#{{cssesc(currentURI)}} .list li:active {
-  background-color: #b6acd0;
+#{{cssesc(currentURI)}} .list li:hover {
+  background-color: var(--blockColorLighter);
 }
 #{{cssesc(currentURI)}} .list li > i {
   padding-left: 5px;
@@ -256,8 +254,5 @@ async function saveData() {
 #{{cssesc(currentURI)}} .list button {
   float: right;
   height: 25px;
-}
-#{{cssesc(currentURI)}} .list li:hover {
-  background-color: #c8bfe7;
 }
 </style>
