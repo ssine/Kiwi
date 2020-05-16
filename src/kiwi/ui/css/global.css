@@ -1,10 +1,10 @@
 :root {
   --primaryColor: #7e489d; /* primary color is used to record hue info to generate other colors */
-  --lineColor: #7e489d; /* darkest color for line-constructed shapes */
-  --blockColor: #7e489d; /* a series lighter than line color for buttons */
-  --blockColorLight: #7e489d;
-  --blockColorLighter: #7e489d;
-  --areaColor: #7e489d; /* the lightest color for backgrounds */
+  --lineColor: white; /* darkest color for line-constructed shapes */
+  --blockColor: white; /* a series lighter than line color for buttons */
+  --blockColorLight: white;
+  --blockColorLighter: white;
+  --areaColor: white; /* the lightest color for backgrounds */
 }
 
 html {
@@ -15,6 +15,11 @@ body {
   background-color: var(--areaColor);
   font-family: Constantia, Arial, Helvetica, sans-serif;
   margin: 0;
+}
+
+::selection {
+  background-color: var(--lineColor);
+  color: white;
 }
 
 .item-flow {
