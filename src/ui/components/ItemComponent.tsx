@@ -108,7 +108,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   }
 }
 
-class TitleEditorComponent extends React.Component<{ editingItem: { uri: string, title: string } }, {}> {
+class TitleEditorComponent extends React.Component<{ editingItem: { uri: string, title: string }, originalURI: string }, {}> {
   editTitleChanged: boolean
   editURIChanged: boolean
   constructor(props: any) {
@@ -134,10 +134,7 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
           this.editTitleChanged = true
           this.props.editingItem.title = value
           if (!this.editURIChanged) {
-            const uri = this.props.editingItem.uri
-            const slashIdx = uri.lastIndexOf('/')
-            const folder = slashIdx === -1 ? '' : uri.substring(0, slashIdx)
-            this.props.editingItem.uri = `${folder}/${suggestedTitleToURI(value)}`
+            this.props.editingItem.uri = resolveURI(this.props.originalURI, suggestedTitleToURI(value))
           }
           this.forceUpdate()
         }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30, fontFamily: 'Constantia' } }} />
@@ -348,7 +345,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   onClick={this.onCancelEdit.bind(this)}
                 />
               </span>
-              <TitleEditorComponent editingItem={this.editingItem} />
+              <TitleEditorComponent editingItem={this.editingItem} originalURI={this.editingItem.uri} />
               <div className="edit-item-content" ref={this.contentRef} >
                 <MonacoEditor
                   language={getLanguageFromMIME(this.item.type)}
