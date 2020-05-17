@@ -129,12 +129,15 @@ class FileSynchronizer {
       }
       logger.debug(`file not exist, creating new file [${filePath}]`)
     }
-    let fileString = `---\n${
-      dumpYaml({
-        title: item.title,
-        ...item.headers
-      }).trim()
-    }\n---\n\n` + item.content.trim() + '\n'
+    let fileString = item.content.trim() + '\n';
+    if (!!item.type && renderableMIME.has(item.type)) {
+      fileString = `---\n${
+        dumpYaml({
+          title: item.title,
+          ...item.headers
+        }).trim()
+      }\n---\n\n` + fileString
+    }
     await this.writeFile(filePath, fileString)
     logger.info(`item content written to [${filePath}]`)
     this.link(filePath, item)
