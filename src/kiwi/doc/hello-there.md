@@ -5,6 +5,8 @@ tags: []
 
 Welcome! Kiwi is a personal content management system built to organize, typeset and share your knowledge, idea and thoughts.
 
+[Chinese Version](zh/hello-there)
+
 **Item** is the unit of information in Kiwi.
 
 Every item has an unique **uri** and a title. The uri is used for sharing the link and naming the files, and is recommended to be a ascii version of title (in order to be a file name and avoid ugly uri encoding when sharing the link).
