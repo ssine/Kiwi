@@ -34,7 +34,13 @@ body {
   /* padding: 10px; */
 }
 
+.graphviz-diagram {
+  text-align: center;
+}
+
 .item-content img, frame {
+  display: block;
+  margin: auto;
   max-width: 100%;
 }
 
