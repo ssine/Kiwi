@@ -42,7 +42,7 @@ const forEachPiece = async function forEachPieceOfString(
   }
 }
 
-const macroReg = /(?<!\\)\{\{[\s\S]*?\}\}/gm
+const macroReg = /(?<!\\)\{\{(?![\s\S]*?(?<!\\)\{\{)[\s\S]*?\}\}/gm
 
 class ItemContext {
   ctx: vm.Context
