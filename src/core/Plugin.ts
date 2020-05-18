@@ -23,26 +23,25 @@ abstract class RenderPlugin {
   }
 }
 
-const forEachPiece = async function forEachPieceOfString(
-  input: string,
-  patt: RegExp,
-  matched: (s: string) => Promise<void>,
-  unmatched: (s: string) => Promise<void>) {
-  let match: RegExpExecArray | null = null
-  let lastIndex = 0
-  while (true) {
-    match = patt.exec(input)
-    if (!match) {
-      await unmatched(input.slice(lastIndex))
-      break
-    }
-    await unmatched(input.slice(lastIndex, match.index))
-    await matched(match[0])
-    lastIndex = match.index + match[0].length
-  }
-}
+type fieldCodeMatchResult = { start: number, end: number } | null
 
-const macroReg = /(?<!\\)\{\{(?![\s\S]*?(?<!\\)\{\{)[\s\S]*?\}\}/gm
+function fieldCodeMatch(s: string): fieldCodeMatchResult {
+  let lastLeftIndex = -1;
+  for (let i = 0; i < s.length - 1; i++) {
+    if (i != 0 && s[i - 1] == '\\') continue
+    if (s[i] == '{' && s[i + 1] == '{') {
+      lastLeftIndex = i;
+    } else if (s[i] == '}' && s[i + 1] == '}') {
+      if (lastLeftIndex != -1) {
+        return {
+          start: lastLeftIndex,
+          end: i + 2
+        }
+      }
+    }
+  }
+  return null;
+}
 
 class ItemContext {
   ctx: vm.Context
@@ -65,8 +64,8 @@ class ItemContext {
 }
 
 const processRenderPlugin = async function processRenderPlugin(uri: string, raw: string, ctx: ItemContext): Promise<string> {
-  const macroCall = async (s: string): Promise<string> => {
-    logger.silly(`eval macro call ${he.decode(s).slice(2, -2)}`)
+  const fieldCall = async (s: string): Promise<string> => {
+    logger.silly(`eval field code call ${he.decode(s).slice(2, -2)}`)
     let res = ''
     try {
       if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
@@ -78,20 +77,18 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, raw:
   }
 
   let target = raw
-  let patt = cloneRegex(macroReg)
-  let match: RegExpExecArray | null = null
+  let match: fieldCodeMatchResult = null
   let executionCount = 0;
 
-  while (match = patt.exec(target)) {
+  while (match = fieldCodeMatch(target)) {
     target =
-      target.slice(0, match.index) +
-      await macroCall(match[0]) +
-      target.slice(match.index + match[0].length)
-    patt.lastIndex = 0
+      target.slice(0, match.start) +
+      await fieldCall(target.slice(match.start, match.end)) +
+      target.slice(match.end)
 
     executionCount++
     if (executionCount > 10000) {
-      target = 'Number of macro calls exceeds limit(10000).'
+      target = 'Number of field code calls exceeds limit(10000).'
       break
     }
   }
