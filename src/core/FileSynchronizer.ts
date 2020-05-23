@@ -392,7 +392,7 @@ class FileSynchronizer {
     currentItem.type = getMIMEFromExtension(node.path.ext)
     currentItem.title = headers["title"] || node.path.name
     delete headers["title"]
-    currentItem.headers.tags = []
+    if (!currentItem.headers.tags) currentItem.headers.tags = []
     currentItem.parsedContent = '<p>Content not parsed</p>'
     currentItem.isContentParsed = false
     currentItem.childs = []

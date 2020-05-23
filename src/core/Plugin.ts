@@ -93,7 +93,7 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, raw:
     }
   }
 
-  return target.replace(/\\{{/g, '{{')
+  return target.replace(/\\{{/g, '{{').replace(/\\}}/g, '}}')
 }
 
 export {

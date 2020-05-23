@@ -37,9 +37,9 @@ export default class Renderer {
     });
   }
 
-  renderItem(it: ClientItem, el: Element, sys?: any) {
+  renderItem(it: ClientItem, el: Element ) {
     ReactDOM.render(
-      <ItemComponent item={it} sys={sys} />,
+      <ItemComponent item={it} />,
       el
     )
   }

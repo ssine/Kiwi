@@ -158,6 +158,7 @@ class ItemManager {
   }
 
   generateTagMap() {
+    this.tagMap = {}
     for (const k in this.map) {
       if (! this.map[k].headers.tags) continue
       for (const tag of this.map[k].headers.tags) {
@@ -200,7 +201,7 @@ class ItemManager {
 
     let el = document.createElement('div')
     el.className = 'item-container'
-    this.renderer.renderItem(item, el, { tagMap: this.tagMap, itemTypes: this.itemTypes })
+    this.renderer.renderItem(item, el)
     this.itemFlowDiv.append(el)
     item.containerDiv = el
     this.itemFlow.push(item)

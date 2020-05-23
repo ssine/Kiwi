@@ -16,6 +16,7 @@ import { MIME, getLanguageFromMIME, editorMIMETypes, resolveURI, suggestedTitleT
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
 import * as moment from 'moment'
+import manager from '../ItemManager'
 
 const MonacoEditor = loadable(() => import("react-monaco-editor"), {
   fallback: <div>loading editor...</div>
@@ -143,7 +144,7 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
   }
 }
 
-export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any }, { deleteCalloutVisible: boolean }> {
+export class ItemComponent extends React.Component<{ item: ClientItem }, { deleteCalloutVisible: boolean }> {
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
   deleteButtonElement: HTMLElement | null
@@ -308,9 +309,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
               dangerouslySetInnerHTML={{ __html: this.item.parsedContent }}
             />
             <div className="item-tags">{this.item.headers.tags?.map(tag => {
-              const menuProps = this.props.sys?.tagMap[tag]
-                ?.filter((it: ClientItem) => it.uri !== this.item.uri)
-                .map((it: ClientItem) => {
+              const menuProps = manager.tagMap[tag]
+                ?.map((it: ClientItem) => {
                   return {
                     key: it.uri,
                     text: it.title,
@@ -318,7 +318,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem, sys?: any
                   }
                 })
               if (menuProps && menuProps.length !== 0) {
-                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 40 } }} menuProps={{ items: menuProps }} />
+                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 40 } }} menuProps={{ items: menuProps }} onRenderMenuIcon={()=><></>}/>
               } else {
                 return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 40 } }} />
               }
