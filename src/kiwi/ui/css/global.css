@@ -44,6 +44,15 @@ body {
   max-width: 100%;
 }
 
+.item-content {
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+.item-tags {
+  min-height: 28px;
+}
+
 .item-link {
   color: var(--lineColor);
   text-decoration: none;

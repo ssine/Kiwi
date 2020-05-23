@@ -305,7 +305,6 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
             </div>
             <div className="item-info"></div>
             <div className="item-content" ref={this.contentRef}
-              style={{ paddingLeft: 28, paddingRight: 28, paddingBottom: 28 }}
               dangerouslySetInnerHTML={{ __html: this.item.parsedContent }}
             />
             <div className="item-tags">{this.item.headers.tags?.map(tag => {
@@ -318,9 +317,9 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                   }
                 })
               if (menuProps && menuProps.length !== 0) {
-                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 40 } }} menuProps={{ items: menuProps }} onRenderMenuIcon={()=><></>}/>
+                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 35 } }} menuProps={{ items: menuProps }} onRenderMenuIcon={()=><></>}/>
               } else {
-                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 40 } }} />
+                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 35 } }} />
               }
             })}</div>
           </div>
