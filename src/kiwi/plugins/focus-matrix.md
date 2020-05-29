@@ -4,7 +4,7 @@
     <div class="control">
       <span class="icon"></span>
       <input type="text" class="input-frame" placeholder="New important but not urgent item">
-      <button class="input-btn"><i class="fa fa-plus"></i></button>
+      <button class="input-btn"><i class="fas fa-plus"></i></button>
     </div>
     <div class="list">
       <div class="unfinished"></div>
@@ -15,7 +15,7 @@
     <div class="control">
       <span class="icon"></span>
       <input type="text" class="input-frame" placeholder="New important and urgent item">
-      <button class="input-btn"><i class="fa fa-plus"></i></button>
+      <button class="input-btn"><i class="fas fa-plus"></i></button>
     </div>
     <div class="list">
       <div class="unfinished"></div>
@@ -26,7 +26,7 @@
     <div class="control">
       <span class="icon"></span>
       <input type="text" class="input-frame" placeholder="New not important and not urgent item">
-      <button class="input-btn"><i class="fa fa-plus"></i></button>
+      <button class="input-btn"><i class="fas fa-plus"></i></button>
     </div>
     <div class="list">
       <div class="unfinished"></div>
@@ -37,7 +37,7 @@
     <div class="control">
       <span class="icon"></span>
       <input type="text" class="input-frame" placeholder="New not important but urgent item">
-      <button class="input-btn"><i class="fa fa-plus"></i></button>
+      <button class="input-btn"><i class="fas fa-plus"></i></button>
     </div>
     <div class="list">
       <div class="unfinished"></div>

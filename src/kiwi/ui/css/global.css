@@ -5,6 +5,7 @@
   --blockColorLight: white;
   --blockColorLighter: white;
   --areaColor: white; /* the lightest color for backgrounds */
+  -webkit-text-size-adjust: none;
 }
 
 html {
@@ -13,7 +14,7 @@ html {
 
 body {
   background-color: var(--areaColor);
-  font-family: Constantia, Arial, Helvetica, sans-serif;
+  font-family: Constantia, Arial, Helvetica, serif;
   margin: 0;
 }
 
@@ -22,7 +23,7 @@ body {
   color: white;
 }
 
-@media (max-width: 1250px) {
+@media (max-width: 1024px) {
   .sidebar {
     margin-left: 20px;
     margin-right: 20px;
@@ -30,12 +31,21 @@ body {
 
   .item-flow {
     margin-top: 40px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
+  :root {
+    font-size: 4vw;
+  }
+
+  .item-content {
+    padding-left: 5vw;
+    padding-right: 5vw;
   }
 }
 
-@media (min-width: 1250px) {
+@media (min-width: 1024px) {
   .sidebar {
     position: fixed;
     top: 0;
@@ -53,6 +63,11 @@ body {
     margin: 0 auto;
     padding-top: 40px;
     width: 750px;
+  }
+
+  .item-content {
+    padding-left: 28px;
+    padding-right: 28px;
   }
 }
 
@@ -93,11 +108,6 @@ body {
   display: block;
   margin: auto;
   max-width: 100%;
-}
-
-.item-content {
-  padding-left: 28px;
-  padding-right: 28px;
 }
 
 .item-tags {
@@ -142,24 +152,24 @@ body {
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/font/constan.ttf');
+  src: url('/kiwi/ui/webfonts/constan.ttf');
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/font/constanb.ttf');
+  src: url('/kiwi/ui/webfonts/constanb.ttf');
   font-weight: bold;
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/font/constani.ttf');
+  src: url('/kiwi/ui/webfonts/constani.ttf');
   font-style: italic;
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/font/constanz.ttf');
+  src: url('/kiwi/ui/webfonts/constanz.ttf');
   font-weight: bold;
   font-style: italic;
 }

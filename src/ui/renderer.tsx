@@ -1,3 +1,9 @@
+/**
+ * Some notes about responsive layout:
+ *   On mobile platform, the screen is divided into 8 columns
+ *   and so 12.5vw is the unit of item display.
+ *   On desktop, the layout is done by px.
+ */
 import ClientItem from './ClientItem'
 import React from "react"
 import ReactDOM from "react-dom"

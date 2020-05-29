@@ -156,6 +156,8 @@ function setPageColors(hue: number) {
   rootStyle.setProperty('--areaColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.04, v: 0.98})))
 }
 
+const isMobile = window.screen.width >= 1024 ? false : true
+
 export {
   postJSON,
   postFile,
@@ -168,4 +170,5 @@ export {
   HSVtoRGB,
   RGBtoCSSColor,
   setPageColors,
+  isMobile,
 }
