@@ -58,6 +58,12 @@ class ItemManager {
     this.renderer = new Renderer()
     const rootDiv = document.createElement('div')
 
+    // render sidebar switch
+    let sidebarSwitchElement = document.createElement('div')
+    sidebarSwitchElement.className = 'sidebar-switch'
+    this.renderer.renderSidebarSwitch(sidebarSwitchElement)
+    rootDiv.append(sidebarSwitchElement)
+
     // render sidebar
     let sidebarElement = document.createElement('div')
     this.renderer.renderSidebar({

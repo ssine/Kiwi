@@ -5,6 +5,7 @@ import { initializeIcons } from 'office-ui-fabric-react/lib/Icons'
 import { ItemComponent } from './components/ItemComponent'
 import { SidebarComponentProperty, SidebarComponent } from './components/SidebarComponent'
 import { loadTheme } from 'office-ui-fabric-react/lib/Styling'
+import SidebarSwitch from './components/SidebarSwitch'
 
 export default class Renderer {
   constructor() {
@@ -47,6 +48,13 @@ export default class Renderer {
   renderSidebar(config: SidebarComponentProperty, el: Element) {    
     ReactDOM.render(
       React.createElement(SidebarComponent, config),
+      el
+    )
+  }
+
+  renderSidebarSwitch(el: HTMLElement) {    
+    return ReactDOM.render(
+      React.createElement(SidebarSwitch, { container: el }),
       el
     )
   }
