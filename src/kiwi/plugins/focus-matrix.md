@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/kiwi/ui/css/font-awesome.min.css">
+<link rel="stylesheet" href="/kiwi/ui/css/font-awesome-all.min.css">
 <div id="{{currentURI}}">
   <div class="iue">
     <div class="control">
@@ -76,8 +76,8 @@ async function getData() {
 
 function render() {
   function getListItemHTML(v, idx, type) {
-    let icon = `<i class="fa fa-${type === 'finished' ? 'check-square-o' : 'square-o'}"></i>`
-    return `<li pos="${idx}">${icon}<label>${v}</label><button class="delete"><i class="fa fa-close"></i></button></li>`
+    let icon = `<i class="${type === 'finished' ? 'far fa-check-square' : 'far fa-square'}"></i>`
+    return `<li pos="${idx}">${icon}<label>${v}</label><button class="delete"><i class="fas fa-times"></i></button></li>`
   }
   ['ie', 'uie', 'iue', 'uiue'].forEach((className) => {
     function switchItem(type, idx) {
@@ -245,7 +245,7 @@ async function saveData() {
 }
 #{{cssesc(currentURI)}} .list li > i {
   padding-left: 5px;
-  padding-right: 10px;
+  padding-right: 8px;
 }
 #{{cssesc(currentURI)}} .list .finished label {
   text-decoration: line-through;
