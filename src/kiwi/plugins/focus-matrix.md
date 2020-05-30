@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="/kiwi/ui/css/font-awesome-all.min.css">
 <div id="{{currentURI}}">
   <div class="iue">
     <div class="control">
