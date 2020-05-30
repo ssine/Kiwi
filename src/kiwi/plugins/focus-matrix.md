@@ -2,9 +2,9 @@
 <div id="{{currentURI}}">
   <div class="iue">
     <div class="control">
-      <span class="icon"></span>
-      <input type="text" class="input-frame" placeholder="New important but not urgent item">
-      <button class="input-btn"><i class="fas fa-plus"></i></button>
+      <div class="ms-Icon ms-Icon--Edit pen"></div>
+      <input type="text" class="input-frame" placeholder="New important but not urgent item" />
+      <button class="input-btn ms-Icon ms-Icon--Add"></button>
     </div>
     <div class="list">
       <div class="unfinished"></div>
@@ -13,9 +13,9 @@
   </div>
   <div class="ie">
     <div class="control">
-      <span class="icon"></span>
-      <input type="text" class="input-frame" placeholder="New important and urgent item">
-      <button class="input-btn"><i class="fas fa-plus"></i></button>
+      <div class="ms-Icon ms-Icon--Edit pen"></div>
+      <input type="text" class="input-frame" placeholder="New important and urgent item" />
+      <button class="input-btn ms-Icon ms-Icon--Add"></button>
     </div>
     <div class="list">
       <div class="unfinished"></div>
@@ -24,9 +24,9 @@
   </div>
   <div class="uiue">
     <div class="control">
-      <span class="icon"></span>
-      <input type="text" class="input-frame" placeholder="New not important and not urgent item">
-      <button class="input-btn"><i class="fas fa-plus"></i></button>
+      <div class="ms-Icon ms-Icon--Edit pen"></div>
+      <input type="text" class="input-frame" placeholder="New not important and not urgent item" />
+      <button class="input-btn ms-Icon ms-Icon--Add"></button>
     </div>
     <div class="list">
       <div class="unfinished"></div>
@@ -35,9 +35,9 @@
   </div>
   <div class="uie">
     <div class="control">
-      <span class="icon"></span>
-      <input type="text" class="input-frame" placeholder="New not important but urgent item">
-      <button class="input-btn"><i class="fas fa-plus"></i></button>
+      <div class="ms-Icon ms-Icon--Edit pen"></div>
+      <input type="text" class="input-frame" placeholder="New not important but urgent item" />
+      <button class="input-btn ms-Icon ms-Icon--Add"></button>
     </div>
     <div class="list">
       <div class="unfinished"></div>
@@ -58,7 +58,7 @@ async function getData() {
   if (res !== null) {
     try {
       data = JSON.parse(res[1])
-    } catch {}
+    } catch (err) {}
   }
   if (data === null) data = {};
   ['ie', 'uie', 'iue', 'uiue'].forEach((className) => {
@@ -76,8 +76,8 @@ async function getData() {
 
 function render() {
   function getListItemHTML(v, idx, type) {
-    let icon = `<i class="${type === 'finished' ? 'far fa-check-square' : 'far fa-square'}"></i>`
-    return `<li pos="${idx}">${icon}<label>${v}</label><button class="delete"><i class="fas fa-times"></i></button></li>`
+    let icon = `<i class="${type === 'finished' ? 'ms-Icon ms-Icon--CheckboxComposite' : 'ms-Icon ms-Icon--Checkbox'}"></i>`
+    return `<li pos="${idx}">${icon}<label>${v}</label><button class="delete"><i class="ms-Icon ms-Icon--Cancel"></i></button></li>`
   }
   ['ie', 'uie', 'iue', 'uiue'].forEach((className) => {
     function switchItem(type, idx) {
@@ -172,6 +172,8 @@ async function saveData() {
   flex-wrap: wrap;
   width: 100%;
   height: {{typeof height === 'undefined' ? '500px' : height}};
+  scrollbar-width: thin;
+  scrollbar-color: var(--lineColor) var(--blockColorLighter);
 }
 #{{cssesc(currentURI)}} ::-webkit-scrollbar {
   width: 3px;
@@ -195,24 +197,30 @@ async function saveData() {
   height: 25px;
 }
 #{{cssesc(currentURI)}} .input-frame {
+  font-family: Constantia;
   flex-grow: 1;
   margin-left: 10px;
   margin-right: 10px;
   border: none;
+  outline: none;
   border-bottom: solid 2px var(--lineColor);
 }
-#{{cssesc(currentURI)}} .icon::before {
-  content: "✎";
+#{{cssesc(currentURI)}} .pen {
+  display: flex;
+  align-items: center;
+  transform: rotateY(180deg);
 }
 #{{cssesc(currentURI)}} .input-btn {
   width: 30px;
   height: 25px;
+  display: flex;
+  justify-content: center;
 }
 #{{cssesc(currentURI)}} button {
   background-color: white;
   border: none;
-  text-align: center;
-  vertical-align: middle;
+  display: flex;
+  align-items: center;
 }
 #{{cssesc(currentURI)}} .input-btn:hover {
   background-color: var(--blockColorLight);

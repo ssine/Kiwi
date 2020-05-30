@@ -14,6 +14,12 @@ async function run() {
     [/\}\}/, { token: 'keyword', bracket: '@close', next: '@pop', nextEmbedded: '@pop' }],
     [/[\s\S]*?/, 'variable.source'],
   ]
+
+  let fabricFontStyle = document.createElement('link')
+  fabricFontStyle.rel = 'stylesheet'
+  fabricFontStyle.href = '/kiwi/ui/css/fabric-icons.css'
+  document.head.append(fabricFontStyle)
+
   await manager.init()
   // @ts-ignore
   window.itemManager = manager
