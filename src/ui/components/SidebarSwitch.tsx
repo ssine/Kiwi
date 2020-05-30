@@ -22,12 +22,24 @@ export default class SidebarSwitch extends React.Component<{ container: HTMLElem
           duration: 200,
           easing: 'linear'
         })
+        anime({
+          targets: el,
+          translateX: 0,
+          duration: 200,
+          easing: 'easeOutQuart'
+        })
       } else {
         anime({
           targets: selfEl,
           rotateY: 180,
           duration: 200,
           easing: 'linear'
+        })
+        anime({
+          targets: el,
+          translateX: - el.clientWidth,
+          duration: 200,
+          easing: 'easeInQuart'
         })
         anime({
           targets: el,
