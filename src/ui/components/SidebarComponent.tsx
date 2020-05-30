@@ -1,7 +1,7 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
-import { IconButton } from 'office-ui-fabric-react'
+import { IconButton } from './basic/Button/IconButton'
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label'
 import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot'
 import { IStyleSet } from 'office-ui-fabric-react/lib/Styling'
@@ -43,9 +43,12 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
         <div className="site-subtitle" id="site-subtitle">{this.props.subTitle}</div>
         <div className="page-controls">
           {getCookie('token') !== '' ? <>
-          <IconButton iconProps={{ iconName: 'Add' }} title="New Item" ariaLabel="New Item" onClick={evt => {
-            bus.emit('create-item-clicked', {})
-          }} className="item-close" />
+            <IconButton
+              iconName="Add"
+              title="New Item"
+              onClick={_ => { bus.emit('create-item-clicked', {}) }}
+              style={{width: 30, height: 30, fontSize: 20}}
+            />
           </> : <></>}
         </div>
         <SearchBar />
@@ -56,8 +59,8 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
             display: 'flex',
             flexDirection: 'column',
             overflow: 'auto',
-            flexGrow: 1 
-        }}>
+            flexGrow: 1
+          }}>
           <PivotItem headerText="Open">
             <ItemFlowVis itemFlow={this.props.itemFlow} />
           </PivotItem>

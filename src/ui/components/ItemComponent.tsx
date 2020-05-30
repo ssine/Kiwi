@@ -18,6 +18,8 @@ import loadable from "@loadable/component"
 import * as moment from 'moment'
 import manager from '../ItemManager'
 
+import { IconButton as NewIconButton } from './basic/Button/IconButton'
+
 const MonacoEditor = loadable(() => import("react-monaco-editor"), {
   fallback: <div>loading editor...</div>
 });
@@ -248,55 +250,55 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
       <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
         {!this.item.editing ? (
           <div>
-            <div className="item-controls" style={{ display: 'flex' }}>
-              {dropdownItems.length > 0 ? <>
-                <IconButton
-                  iconProps={{ iconName: 'ChevronDown' }}
-                  label='More'
-                  menuProps={{ items: dropdownItems }}
-                  onRenderMenuIcon={() => <></>}
-                  style={{ width: 40, height: 40 }}
-                />
-              </> : <></>}
-              {getCookie('token') !== '' ? <>
-                <ItemButton
-                  divRef={el => this.deleteButtonElement = el}
-                  iconName='Delete'
-                  label='Delete'
-                  onClick={_ => this.setState({ deleteCalloutVisible: true })}
-                />
-                {this.state.deleteCalloutVisible ? (
-                  <Callout
-                    onDismiss={_ => this.setState({ deleteCalloutVisible: false })}
-                    target={this.deleteButtonElement}
-                    coverTarget={true}
-                    isBeakVisible={false}
-                    gapSpace={0}
-                    setInitialFocus={true}
-                  >
-                    <PrimaryButton text="Confirm Delete" onClick={this.onDelete.bind(this)} />
-                  </Callout>
-                ) : null}
-                {this.item.isContentEditable ? (
-                  <ItemButton
-                    iconName='Edit'
-                    label='Edit'
-                    onClick={this.onBeginEdit.bind(this)}
-                  />
-                ) : null}
-              </> : <></>}
-              <ItemButton
-                iconName='Cancel'
-                label='Close'
-                onClick={this.onClose.bind(this)}
-              />
-            </div>
-            <div style={{ display: 'flow-root', height: 40 }}>
+            <div style={{ display: 'flex', flexDirection: 'row', height: 40 }}>
+              <div style={{flexGrow: 1}}>
+
               <Breadcrumb
                 items={this.item.uri.split('/').map((p) => { return { text: p, key: p } })}
                 overflowAriaLabel="More links"
                 styles={{ root: { margin: 0 }, list: { height: 40 } }}
-              />
+                />
+                </div>
+              <div className="item-controls" style={{ display: 'flex' }}>
+                {dropdownItems.length > 0 ? <>
+                  <IconButton
+                    iconProps={{ iconName: 'ChevronDown' }}
+                    label='More'
+                    menuProps={{ items: dropdownItems }}
+                    onRenderMenuIcon={() => <></>}
+                    style={{ width: 40, height: 40 }}
+                  />
+                </> : <></>}
+                {getCookie('token') !== '' ? <>
+                  <NewIconButton
+                    iconName='Delete'
+                    divRef={el => this.deleteButtonElement = el}
+                    onClick={_ => this.setState({ deleteCalloutVisible: true })}
+                  />
+                  {this.state.deleteCalloutVisible ? (
+                    <Callout
+                      onDismiss={_ => this.setState({ deleteCalloutVisible: false })}
+                      target={this.deleteButtonElement}
+                      coverTarget={true}
+                      isBeakVisible={false}
+                      gapSpace={0}
+                      setInitialFocus={true}
+                    >
+                      <PrimaryButton text="Confirm Delete" onClick={this.onDelete.bind(this)} />
+                    </Callout>
+                  ) : null}
+                  {this.item.isContentEditable ? (
+                    <NewIconButton
+                      iconName='Edit'
+                      onClick={this.onBeginEdit.bind(this)}
+                    />
+                  ) : null}
+                </> : <></>}
+                <NewIconButton
+                  iconName='Cancel'
+                  onClick={this.onClose.bind(this)}
+                />
+              </div>
             </div>
             <div className="item-titlebar">
               <h2 className="item-title" style={{ margin: 7 }}>
@@ -317,7 +319,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                   }
                 })
               if (menuProps && menuProps.length !== 0) {
-                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 35 } }} menuProps={{ items: menuProps }} onRenderMenuIcon={()=><></>}/>
+                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 35 } }} menuProps={{ items: menuProps }} onRenderMenuIcon={() => <></>} />
               } else {
                 return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 35 } }} />
               }
@@ -333,14 +335,12 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
               }}
             >
               <span className="item-controls" style={{ display: 'flex' }}>
-                <ItemButton
+                <NewIconButton
                   iconName='Accept'
-                  label='Save'
                   onClick={this.onSave.bind(this)}
                 />
-                <ItemButton
-                  iconName='RevToggleKey'
-                  label='Cancel'
+                <NewIconButton
+                  iconName='Cancel'
                   onClick={this.onCancelEdit.bind(this)}
                 />
               </span>

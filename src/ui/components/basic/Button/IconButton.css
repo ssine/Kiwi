@@ -1,0 +1,31 @@
+@media (max-width: 1024px) {
+  .kiwi-icon-button {
+    height: 12vw;
+    width: 12vw;
+    font-size: 7.5vw;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kiwi-icon-button {
+    height: 40px;
+    width: 40px;
+    font-size: 25px;
+  }
+}
+
+.kiwi-icon-button {
+  color: var(--lineColor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.kiwi-icon-button:hover {
+  background-color: var(--blockColorLighter);
+}
+
+.kiwi-icon-button:active {
+  background-color: var(--blockColor);
+}
