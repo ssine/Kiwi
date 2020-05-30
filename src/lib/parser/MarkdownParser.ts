@@ -39,7 +39,7 @@ class MarkdownParser extends Parser {
         if (!lang) return code
         try {
           return hljs.highlight(lang, code).value
-        } catch {
+        } catch (err) {
           return code
         }
       }
