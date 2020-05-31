@@ -1,0 +1,28 @@
+.kiwi-contextual-menu-item {
+  display: flex;
+  padding-right: 10px;
+  cursor: pointer;
+}
+
+.kiwi-contextual-menu-item:hover {
+  background-color: var(--blockColorLighter);
+}
+
+.kiwi-contextual-menu-item:active {
+  background-color: var(--blockColor);
+}
+
+.kiwi-contextual-menu-item-icon {
+  width: 40px;
+  height: 40px;
+  font-size: large;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.kiwi-contextual-menu-item-text {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}

@@ -8,7 +8,6 @@ import {
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
 import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
-import { IconButton } from 'office-ui-fabric-react/lib/Button'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument, getCookie, postFile } from '../Common'
@@ -20,17 +19,11 @@ import manager from '../ItemManager'
 
 import { IconButton as NewIconButton } from './basic/Button/IconButton'
 import { Callout, AttachDirection } from './basic/Callout/Callout'
+import { ContextualMenu } from './basic/Menu/ContextualMenu'
 
 const MonacoEditor = loadable(() => import("react-monaco-editor"), {
   fallback: <div>loading editor...</div>
 });
-
-type ItemButtonProperty = {
-  divRef?: any
-  iconName: string
-  label: string
-  onClick: (evt: any) => void
-}
 
 class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boolean[] }> {
   stagedValues: string[]
@@ -45,7 +38,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   }
 
   render() {
-    return <div>{this.stagedValues.map((tag, idx) => {
+    return <div style={{display: 'flex'}}>{this.stagedValues.map((tag, idx) => {
       if (this.state.isEditing[idx]) {
         return <div key={idx} style={{ display: 'inline-flex', paddingLeft: 8 }}>
           <TextField
@@ -56,8 +49,9 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
               this.stagedValues[idx] = newValue
             }}
           />
-          <IconButton
-            iconProps={{ iconName: 'Accept' }}
+          <NewIconButton
+            iconName='Accept'
+            style={{ width: 32, height: 32 }}
             onClick={_ => {
               if (this.stagedValues[idx] !== '') {
                 this.props.tags[idx] = this.stagedValues[idx]
@@ -91,7 +85,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
     }
 
     )
-    } <IconButton iconProps={{ iconName: 'Add' }} disabled={this.stagedValues[this.stagedValues.length - 1] === ''} onClick={_ => {
+    } <NewIconButton iconName='Add' style={{ height: 32, width: 32 }} disabled={this.stagedValues[this.stagedValues.length - 1] === ''} onClick={_ => {
       this.state.isEditing.push(true)
       this.stagedValues.push('')
       this.setState(this.state)
@@ -134,10 +128,11 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
   }
 }
 
-export class ItemComponent extends React.Component<{ item: ClientItem }, { deleteCalloutVisible: boolean }> {
+export class ItemComponent extends React.Component<{ item: ClientItem }, { deleteCalloutVisible: boolean, moreCalloutVisible: boolean }> {
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
   deleteButtonRef: React.RefObject<HTMLDivElement>
+  moreButtonRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
   item: ClientItem
   editingItem: Partial<ClientItem> & { title: string, uri: string }
@@ -150,10 +145,12 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
     this.contentRef = React.createRef()
     this.rootRef = React.createRef()
     this.deleteButtonRef = React.createRef()
+    this.moreButtonRef = React.createRef()
     this.editor = null
     this.item = this.props.item
     this.state = {
-      deleteCalloutVisible: false
+      deleteCalloutVisible: false,
+      moreCalloutVisible: false
     }
     this.generateEditingItem(this.item)
     this.itemFlowLayoutCallback = () => {
@@ -219,7 +216,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
     let dropdownItems = [{
       key: 'Copy PermaLink',
       text: 'Copy PermaLink',
-      iconProps: { iconName: 'Link' },
+      iconName: 'Link',
       onClick: () => {
         navigator.clipboard.writeText(`${window.location.origin}/#${this.item.uri}`)
       }
@@ -228,7 +225,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
       dropdownItems.push({
         key: 'Create Sibling',
         text: 'Create Sibling',
-        iconProps: { iconName: 'Add' },
+        iconName: 'Add',
         onClick: () => {
           bus.emit('create-item-clicked', { uri: resolveURI(this.props.item.uri, 'new-item') })
         }
@@ -249,13 +246,22 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
               </div>
               <div className="item-controls" style={{ display: 'flex' }}>
                 {dropdownItems.length > 0 && <>
-                  <IconButton
-                    iconProps={{ iconName: 'ChevronDown' }}
-                    label='More'
-                    menuProps={{ items: dropdownItems }}
-                    onRenderMenuIcon={() => <></>}
-                    style={{ width: 40, height: 40 }}
+                  <NewIconButton
+                    iconName='ChevronDown'
+                    divRef={this.moreButtonRef}
+                    onClick={_ => this.setState({ moreCalloutVisible: true })}
                   />
+                  {this.state.moreCalloutVisible &&
+                    <Callout
+                      target={this.moreButtonRef}
+                      direction={AttachDirection.bottomLeftEdge}
+                      width={80}
+                      onDismiss={_ => this.setState({ moreCalloutVisible: false })}
+                      style={{ width: 'auto' }}
+                    >
+                      <ContextualMenu items={dropdownItems} />
+                    </Callout>
+                  }
                 </>}
                 {getCookie('token') !== '' && <>
                   <NewIconButton

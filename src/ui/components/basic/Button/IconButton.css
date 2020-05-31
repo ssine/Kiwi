@@ -22,6 +22,15 @@
   cursor: pointer;
 }
 
+.kiwi-icon-button.disabled {
+  color: grey;
+  background-color: var(--blockColorLighter);
+}
+
+.kiwi-icon-button.disabled:active {
+  background-color: var(--blockColorLighter);
+}
+
 .kiwi-icon-button:hover {
   background-color: var(--blockColorLighter);
 }
