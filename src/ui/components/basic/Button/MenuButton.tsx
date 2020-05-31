@@ -8,7 +8,6 @@ import { Callout, AttachDirection } from '../Callout/Callout'
 
 type MenuButtonProperty = {
   name: string
-  key: string
   menuProps: ContextualMenuProperty
   style?: React.CSSProperties
 }
@@ -31,7 +30,6 @@ class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: bo
         className="kiwi-menu-button"
         ref={this.buttonRef}
         style={style}
-        key={this.props.key}
         onClick={_ => this.setState({ isMenuVisible: true })} >
         {this.props.name}
       </div>

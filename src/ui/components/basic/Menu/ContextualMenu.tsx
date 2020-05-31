@@ -2,7 +2,7 @@ import React from 'react'
 import './ContextualMenu.css'
 
 type ContextualMenuItem = {
-  key: string;
+  id: string;
   text: string;
   iconName?: string;
   onClick: (ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>) => void;
@@ -20,7 +20,6 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
   render() {
     if (!this.props.items) return <></>
     let style = Object.assign({}, this.props.styles?.root)
-    console.log(this.props.items)
     return (
       <div
         className="kiwi-contextual-menu"
@@ -31,8 +30,8 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
               item.onClick(ev)
               ev.preventDefault()
             }}
-            id={item.key}
-            key={item.key}>
+            id={item.id}
+            key={item.id}>
             {item.iconName && <div className="kiwi-contextual-menu-item-icon"><i className={`ms-Icon ms-Icon--${item.iconName}`} /></div>}
             <div style={this.props.styles?.text} className='kiwi-contextual-menu-item-text'>{item.text}</div>
           </div>
