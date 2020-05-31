@@ -1,7 +1,7 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
-import { Callout } from 'office-ui-fabric-react'
+import { Callout, AttachDirection } from './basic/Callout/Callout'
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox'
 import { List } from 'office-ui-fabric-react/lib/List'
 import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling'
@@ -58,7 +58,7 @@ export default class SearchBar extends React.Component<SearchBarProperty, Search
       />
       </div>
       {this.state.isSearching && (
-        <Callout isBeakVisible={false} target={this.searchBoxRef} calloutWidth={this.searchBoxRef.current.clientWidth}>
+        <Callout target={this.searchBoxRef} width={this.searchBoxRef.current.clientWidth} direction={AttachDirection.bottomLeftEdge}>
           <List items={this.state.searchResults} onRenderCell={this._onRenderCell} />
           {this.state.searchResults.length} results found ...
         </Callout>
