@@ -128,9 +128,59 @@ body {
   float: right;
 }
 
-.edit-item-title {
-  padding: 20px;
-  font-size: large;
+.item-uri-edit, .item-title-edit {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-uri-edit input, .item-title-edit input {
+  height: calc(100% - 2px);
+  font-size: 30px;
+  padding-left: 10px;
+  outline: none;
+  border: none;
+}
+
+.item-uri-edit input:hover, .item-title-edit input:hover {
+  outline: none;
+}
+
+.item-uri-edit input:focus, .item-title-edit input:focus {
+  outline: none;
+}
+
+.item-uri-edit::after, .item-title-edit::after {
+  content: "";
+  width: 75%;
+  height: 2px;
+  background-color: var(--blockColorLight);
+  animation: line-back 0.5s;
+}
+
+.item-uri-edit:hover::after, .item-title-edit:hover::after {
+  width: 100%;
+  animation: line-grow 0.5s;
+}
+
+@keyframes line-grow {
+  from {width: 75%;}
+  to {width: 100%;}
+}
+
+@keyframes line-color {
+  from {background-color: var(--blockColorLight);}
+  to {background-color: var(--lineColor);}
+}
+
+@keyframes line-back {
+  from {width: 100%;}
+  to {width: 75%; background-color: var(--blockColorLight);}
+}
+
+.item-uri-edit:focus-within::after, .item-title-edit:focus-within::after {
+  background-color: var(--lineColor);
+  width: 100%;
+  animation: line-color 0.5s;
 }
 
 .edit-item-content {

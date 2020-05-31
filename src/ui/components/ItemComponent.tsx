@@ -2,7 +2,7 @@ import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
 import {
-  ComboBox, DefaultButton, CommandBarButton, TextField, ITextField,
+  ComboBox, DefaultButton, TextField, ITextField,
   SelectableOptionMenuItemType, PrimaryButton
 } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
@@ -105,25 +105,30 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
 
   render() {
     return <div>
-      <div className="item-uri-edit" style={{ display: 'flow-root', height: 40 }}>
-        <TextField value={this.props.editingItem.uri} onChange={(evt, value) => {
-          this.editURIChanged = true
-          this.props.editingItem.uri = value
-          if (!this.editTitleChanged) {
-            this.props.editingItem.title = suggestedURIToTitle(this.props.editingItem.uri)
-          }
-          this.forceUpdate()
-        }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 27 } }} />
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div className="item-uri-edit" style={{ flexGrow: 1, height: 40 }}>
+          <input type="text" value={this.props.editingItem.uri} onChange={(evt) => {
+            this.editURIChanged = true
+            this.props.editingItem.uri = evt.target.value
+            if (!this.editTitleChanged) {
+              this.props.editingItem.title = suggestedURIToTitle(this.props.editingItem.uri)
+            }
+            this.forceUpdate()
+          }} style={{ fontSize: 27 }} />
+        </div>
+        <div className="item-controls" style={{ flexGrow: 0, display: 'flex' }}>
+          {this.props.children}
+        </div>
       </div>
-      <div className="item-title-edit" style={{ display: 'flow-root', height: 40, fontSize: 35 }}>
-        <TextField value={this.props.editingItem.title} onChange={(evt, value) => {
+      <div className="item-title-edit" style={{ height: 40 }}>
+        <input type="text" value={this.props.editingItem.title} onChange={(evt) => {
           this.editTitleChanged = true
-          this.props.editingItem.title = value
+          this.props.editingItem.title = evt.target.value
           if (!this.editURIChanged) {
-            this.props.editingItem.uri = resolveURI(this.props.originalURI, suggestedTitleToURI(value))
+            this.props.editingItem.uri = resolveURI(this.props.originalURI, suggestedTitleToURI(evt.target.value))
           }
           this.forceUpdate()
-        }} styles={{ fieldGroup: { height: 40 }, field: { fontSize: 30, fontFamily: 'Constantia' } }} />
+        }} style={{ fontFamily: 'Constantia' }} />
       </div>
     </div>
   }
@@ -215,7 +220,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
 
   render() {
     let dropdownItems = [{
-      key: 'Copy PermaLink',
+      id: 'Copy PermaLink',
       text: 'Copy PermaLink',
       iconName: 'Link',
       onClick: () => {
@@ -224,7 +229,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
     }]
     if (getCookie('token') !== '') {
       dropdownItems.push({
-        key: 'Create Sibling',
+        id: 'Create Sibling',
         text: 'Create Sibling',
         iconName: 'Add',
         onClick: () => {
@@ -307,6 +312,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
               const menuProps = manager.tagMap[tag]
                 ?.map((it: ClientItem) => {
                   return {
+                    id: it.uri,
                     key: it.uri,
                     text: it.title,
                     onClick: () => bus.emit('item-link-clicked', { targetURI: it.uri })
@@ -324,7 +330,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                 }
               }}
             >
-              <span className="item-controls" style={{ display: 'flex' }}>
+              <TitleEditorComponent editingItem={this.editingItem} originalURI={this.editingItem.uri}>
                 <IconButton
                   iconName='Accept'
                   onClick={this.onSave.bind(this)}
@@ -333,8 +339,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                   iconName='Cancel'
                   onClick={this.onCancelEdit.bind(this)}
                 />
-              </span>
-              <TitleEditorComponent editingItem={this.editingItem} originalURI={this.editingItem.uri} />
+              </TitleEditorComponent>
               <div className="edit-item-content" ref={this.contentRef} >
                 <MonacoEditor
                   language={getLanguageFromMIME(this.item.type)}
