@@ -17,9 +17,10 @@ import loadable from "@loadable/component"
 import * as moment from 'moment'
 import manager from '../ItemManager'
 
-import { IconButton as NewIconButton } from './basic/Button/IconButton'
+import { IconButton } from './basic/Button/IconButton'
 import { Callout, AttachDirection } from './basic/Callout/Callout'
 import { ContextualMenu } from './basic/Menu/ContextualMenu'
+import { MenuButton } from './basic/Button/MenuButton'
 
 const MonacoEditor = loadable(() => import("react-monaco-editor"), {
   fallback: <div>loading editor...</div>
@@ -38,7 +39,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   }
 
   render() {
-    return <div style={{display: 'flex'}}>{this.stagedValues.map((tag, idx) => {
+    return <div style={{ display: 'flex' }}>{this.stagedValues.map((tag, idx) => {
       if (this.state.isEditing[idx]) {
         return <div key={idx} style={{ display: 'inline-flex', paddingLeft: 8 }}>
           <TextField
@@ -49,7 +50,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
               this.stagedValues[idx] = newValue
             }}
           />
-          <NewIconButton
+          <IconButton
             iconName='Accept'
             style={{ width: 32, height: 32 }}
             onClick={_ => {
@@ -85,7 +86,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
     }
 
     )
-    } <NewIconButton iconName='Add' style={{ height: 32, width: 32 }} disabled={this.stagedValues[this.stagedValues.length - 1] === ''} onClick={_ => {
+    } <IconButton iconName='Add' style={{ height: 32, width: 32 }} disabled={this.stagedValues[this.stagedValues.length - 1] === ''} onClick={_ => {
       this.state.isEditing.push(true)
       this.stagedValues.push('')
       this.setState(this.state)
@@ -246,7 +247,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
               </div>
               <div className="item-controls" style={{ display: 'flex' }}>
                 {dropdownItems.length > 0 && <>
-                  <NewIconButton
+                  <IconButton
                     iconName='ChevronDown'
                     divRef={this.moreButtonRef}
                     onClick={_ => this.setState({ moreCalloutVisible: true })}
@@ -264,7 +265,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                   }
                 </>}
                 {getCookie('token') !== '' && <>
-                  <NewIconButton
+                  <IconButton
                     iconName='Delete'
                     divRef={this.deleteButtonRef}
                     onClick={_ => this.setState({ deleteCalloutVisible: true })}
@@ -281,13 +282,13 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                     </Callout>
                   }
                   {this.item.isContentEditable &&
-                    <NewIconButton
+                    <IconButton
                       iconName='Edit'
                       onClick={this.onBeginEdit.bind(this)}
                     />
                   }
                 </>}
-                <NewIconButton
+                <IconButton
                   iconName='Cancel'
                   onClick={this.onClose.bind(this)}
                 />
@@ -311,11 +312,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                     onClick: () => bus.emit('item-link-clicked', { targetURI: it.uri })
                   }
                 })
-              if (menuProps && menuProps.length !== 0) {
-                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 35 } }} menuProps={{ items: menuProps }} onRenderMenuIcon={() => <></>} />
-              } else {
-                return <CommandBarButton text={tag} key={tag} styles={{ root: { height: 35 } }} />
-              }
+              return <MenuButton name={tag} key={tag} style={{ height: 35, paddingLeft: 10, paddingRight: 10 }} menuProps={{ items: menuProps, styles: { text: { height: 35, paddingRight: 10, paddingLeft: 10 } } }} />
             })}</div>
           </div>
         ) : (
@@ -328,11 +325,11 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
               }}
             >
               <span className="item-controls" style={{ display: 'flex' }}>
-                <NewIconButton
+                <IconButton
                   iconName='Accept'
                   onClick={this.onSave.bind(this)}
                 />
-                <NewIconButton
+                <IconButton
                   iconName='Cancel'
                   onClick={this.onCancelEdit.bind(this)}
                 />

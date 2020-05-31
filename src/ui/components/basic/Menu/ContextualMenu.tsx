@@ -4,18 +4,22 @@ import './ContextualMenu.css'
 type ContextualMenuItem = {
   key: string;
   text: string;
-  iconName: string;
+  iconName?: string;
   onClick: (ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>) => void;
 }
 
 type ContextualMenuProperty = {
-  items: ContextualMenuItem[]
-  style?: React.CSSProperties
+  items?: ContextualMenuItem[]
+  styles?: {
+    root?: React.CSSProperties
+    text?: React.CSSProperties
+  }
 }
 
 class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
   render() {
-    let style = Object.assign({}, this.props.style)
+    if (!this.props.items) return <></>
+    let style = Object.assign({}, this.props.styles?.root)
     console.log(this.props.items)
     return (
       <div
@@ -27,13 +31,14 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
               item.onClick(ev)
               ev.preventDefault()
             }}
-            id={item.key}>
-            <div className="kiwi-contextual-menu-item-icon"><i className={`ms-Icon ms-Icon--${item.iconName}`} /></div>
-            <div className='kiwi-contextual-menu-item-text'>{item.text}</div>
+            id={item.key}
+            key={item.key}>
+            {item.iconName && <div className="kiwi-contextual-menu-item-icon"><i className={`ms-Icon ms-Icon--${item.iconName}`} /></div>}
+            <div style={this.props.styles?.text} className='kiwi-contextual-menu-item-text'>{item.text}</div>
           </div>
         })}</div>
     )
   }
 }
 
-export { ContextualMenu }
+export { ContextualMenu, ContextualMenuItem, ContextualMenuProperty }

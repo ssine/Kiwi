@@ -1,0 +1,27 @@
+@media (max-width: 1024px) {
+  .kiwi-menu-button {
+    height: 10.5vw;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kiwi-menu-button {
+    height: 35px;
+  }
+}
+
+.kiwi-menu-button {
+  color: var(--lineColor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.kiwi-menu-button:hover {
+  background-color: var(--blockColorLighter);
+}
+
+.kiwi-menu-button:active {
+  background-color: var(--blockColor);
+}

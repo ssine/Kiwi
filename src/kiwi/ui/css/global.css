@@ -111,6 +111,7 @@ body {
 }
 
 .item-tags {
+  display: flex;
   min-height: 28px;
 }
 
