@@ -193,6 +193,7 @@ class ItemManager {
   }
 
   async displayItem(uri: string) {
+    uri = resolveURI(null, uri)
     let item = await this.getLoadedItemFromURI(uri)
     if (! item) {
       console.log(`item to display [${uri}] dose not exist, creating a missing one`)

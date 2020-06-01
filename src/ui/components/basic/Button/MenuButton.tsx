@@ -8,6 +8,8 @@ import { Callout, AttachDirection } from '../Callout/Callout'
 
 type MenuButtonProperty = {
   name: string
+  iconName?: string
+  iconOnly?: boolean
   menuProps: ContextualMenuProperty
   style?: React.CSSProperties
 }
@@ -26,13 +28,20 @@ class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: bo
   render() {
     let style = Object.assign({}, this.props.style)
     return <>
-      <div
+      {this.props.iconOnly ? <div
         className="kiwi-menu-button"
         ref={this.buttonRef}
         style={style}
         onClick={_ => this.setState({ isMenuVisible: true })} >
-        {this.props.name}
-      </div>
+        {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
+      </div> : <div
+        className="kiwi-menu-button"
+        ref={this.buttonRef}
+        style={style}
+        onClick={_ => this.setState({ isMenuVisible: true })} >
+          {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
+          {this.props.name}
+      </div>}
       {this.state.isMenuVisible &&
         <Callout
           target={this.buttonRef}

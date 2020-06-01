@@ -74,6 +74,7 @@ import { EventEmitter } from 'events'
  * 
  */
 const eventBus = new EventEmitter()
+eventBus.setMaxListeners(100)
 
 eventBus.on('item-delete-clicked', () => eventBus.emit('item-tree-changed'))
 eventBus.on('create-item-clicked', () => eventBus.emit('item-tree-changed'))

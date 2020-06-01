@@ -207,10 +207,11 @@ body {
   padding-left: 10px;
   padding-bottom: 5px;
   cursor: default;
+  color: var(--lineColor);
 }
 
 .kiwi-active-list-item:hover {
-  background: #d5cfe7;
+  background: var(--blockColorLighter);
 }
 
 @font-face {

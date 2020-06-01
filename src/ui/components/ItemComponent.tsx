@@ -7,7 +7,6 @@ import {
 } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
-import { Breadcrumb } from 'office-ui-fabric-react/lib/Breadcrumb'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument, getCookie, postFile } from '../Common'
@@ -21,6 +20,7 @@ import { IconButton } from './basic/Button/IconButton'
 import { Callout, AttachDirection } from './basic/Callout/Callout'
 import { ContextualMenu } from './basic/Menu/ContextualMenu'
 import { MenuButton } from './basic/Button/MenuButton'
+import { Breadcrumb } from './basic/Breadcrumb/Breadcrumb'
 
 const MonacoEditor = loadable(() => import("react-monaco-editor"), {
   fallback: <div>loading editor...</div>
@@ -139,6 +139,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
   rootRef: React.RefObject<HTMLDivElement>
   deleteButtonRef: React.RefObject<HTMLDivElement>
   moreButtonRef: React.RefObject<HTMLDivElement>
+  breadcrumbFoldRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
   item: ClientItem
   editingItem: Partial<ClientItem> & { title: string, uri: string }
@@ -152,6 +153,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
     this.rootRef = React.createRef()
     this.deleteButtonRef = React.createRef()
     this.moreButtonRef = React.createRef()
+    this.breadcrumbFoldRef = React.createRef()
     this.editor = null
     this.item = this.props.item
     this.state = {
@@ -242,12 +244,12 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
       <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
         {!this.item.editing ? (
           <div>
-            <div style={{ display: 'flex', flexDirection: 'row', height: 40 }}>
+            <div style={{ display: 'flex', flexDirection: 'row', height: 40 }} ref={this.breadcrumbFoldRef}>
               <div style={{ flexGrow: 1 }}>
                 <Breadcrumb
-                  items={this.item.uri.split('/').map((p) => { return { text: p, key: p } })}
-                  overflowAriaLabel="More links"
-                  styles={{ root: { margin: 0 }, list: { height: 40 } }}
+                  box={this.breadcrumbFoldRef}
+                  items={this.item.uri.split('/')}
+                  onItemClick={(it) => { bus.emit('item-link-clicked', { targetURI: it.uri }) }}
                 />
               </div>
               <div className="item-controls" style={{ display: 'flex' }}>
@@ -387,6 +389,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
   async onSave() {
     const saveToken = Math.random().toString().slice(2)
     this.editingItem.content = this.editor.getValue()
+    while (this.editingItem.uri[0] === '/')
+      this.editingItem.uri = this.editingItem.uri.slice(1)
     bus.emit('item-save-clicked', {
       uri: this.item.uri,
       editedItem: this.editingItem,

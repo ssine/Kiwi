@@ -13,6 +13,7 @@ export default class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}
     super(props)
     this.update = () => { this.forceUpdate() }
   }
+
   componentDidMount() {
     bus.on('item-saved', this.update)
     bus.on('item-displaied', this.update)
@@ -26,12 +27,12 @@ export default class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}
   }
 
   render() {
-    return <div style={{ marginTop: 10 }}>{this.props.itemFlow.map(it => {
-      return <div className="kiwi-active-list-item"
-        onClick={_ => bus.emit('item-link-clicked', { targetURI: it.uri })}
-      >
+    return <div style={{ marginTop: 10 }}>{this.props.itemFlow.map(it => 
+      <div className="kiwi-active-list-item"
+        key={it.uri}
+        onClick={_ => bus.emit('item-link-clicked', { targetURI: it.uri })}>
         {it.uri}
       </div>
-    })}</div>
+    )}</div>
   }
 }
