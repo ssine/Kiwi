@@ -201,6 +201,18 @@ body {
   width: 40px;
 }
 
+.kiwi-active-list-item {
+  margin: 0;
+  padding-top: 3px;
+  padding-left: 10px;
+  padding-bottom: 5px;
+  cursor: default;
+}
+
+.kiwi-active-list-item:hover {
+  background: #d5cfe7;
+}
+
 @font-face {
   font-family: Constantia;
   src: url('/kiwi/ui/webfonts/constan.ttf');

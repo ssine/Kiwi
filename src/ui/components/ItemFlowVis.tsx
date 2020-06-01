@@ -1,14 +1,6 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
-import { List } from 'office-ui-fabric-react/lib/List'
-import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling'
-import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label'
-import { IStyleSet } from 'office-ui-fabric-react/lib/Styling'
-
-const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
-  root: { marginTop: 10 }
-}
 
 type ItemFlowVisProperty = {
   itemFlow: ClientItem[]
@@ -26,7 +18,7 @@ export default class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}
     bus.on('item-displaied', this.update)
     bus.on('item-closed', this.update)
   }
-  
+
   componentWillUnmount() {
     bus.off('item-saved', this.update)
     bus.off('item-displaied', this.update)
@@ -34,31 +26,12 @@ export default class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}
   }
 
   render() {
-    return <>
-      <Label styles={labelStyles}>
-        <List items={this.props.itemFlow.map(it => it.uri)} onRenderCell={this._onRenderCell} />
-      </Label>
-    </>
-  }
-
-  private _onRenderCell(item: string, index: number, isScrolling: boolean): JSX.Element {
-    return (
-      <div data-is-focusable={true} 
-      className={mergeStyleSets({
-        listItem: [{
-          margin: 0,
-          paddingTop: 3,
-          paddingLeft: 10,
-          paddingBottom: 5,
-          selectors: {
-            '&:hover': { background: '#d5cfe7' }
-          }
-        }]
-      }).listItem}
-      onClick={_ => bus.emit('item-link-clicked', {targetURI: item})}
+    return <div style={{ marginTop: 10 }}>{this.props.itemFlow.map(it => {
+      return <div className="kiwi-active-list-item"
+        onClick={_ => bus.emit('item-link-clicked', { targetURI: it.uri })}
       >
-      {item}
-    </div>
-    )
+        {it.uri}
+      </div>
+    })}</div>
   }
 }
