@@ -5,7 +5,7 @@ type ContextualMenuItem = {
   id: string;
   text: string;
   iconName?: string;
-  onClick: (ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>) => void;
+  onClick: (it: ContextualMenuItem) => void;
 }
 
 type ContextualMenuProperty = {
@@ -27,7 +27,7 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
           return <div
             className="kiwi-contextual-menu-item"
             onClick={(ev) => {
-              item.onClick(ev)
+              item.onClick(item)
               ev.preventDefault()
             }}
             id={item.id}

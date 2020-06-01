@@ -2,8 +2,7 @@ import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
 import {
-  ComboBox, DefaultButton, TextField, ITextField,
-  SelectableOptionMenuItemType, PrimaryButton
+  DefaultButton, PrimaryButton
 } from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
 import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
@@ -28,13 +27,11 @@ const MonacoEditor = loadable(() => import("react-monaco-editor"), {
 
 class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boolean[] }> {
   stagedValues: string[]
-  textRefs: (ITextField | null)[]
   constructor(props: { tags: string[] }) {
     super(props)
     this.state = {
       isEditing: Array(props.tags.length).fill(false)
     }
-    this.textRefs = Array(props.tags.length).fill(null)
     this.stagedValues = JSON.parse(JSON.stringify(props.tags))
   }
 
@@ -42,12 +39,11 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
     return <div style={{ display: 'flex' }}>{this.stagedValues.map((tag, idx) => {
       if (this.state.isEditing[idx]) {
         return <div key={idx} style={{ display: 'inline-flex', paddingLeft: 8 }}>
-          <TextField
+          <input
             defaultValue={tag}
-            componentRef={ref => this.textRefs[idx] = ref}
-            styles={{ root: { width: 80, userSelect: 'text' } }}
-            onChange={(_, newValue) => {
-              this.stagedValues[idx] = newValue
+            style={{ width: 80 }}
+            onChange={(evt) => {
+              this.stagedValues[idx] = evt.target.value
             }}
           />
           <IconButton
@@ -351,27 +347,28 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                 />
               </div>
               <div className="item-type" style={{ width: 170, height: 32, float: 'left' }}>
-                <ComboBox
-                  allowFreeform
-                  autoComplete="on"
-                  defaultSelectedKey={this.editingItem.type ? this.editingItem.type : (this.editingItem.type = 'text/markdown')}
-                  styles={{
-                    callout: { width: 170 }
-                  }}
-                  options={[
-                    { key: 'Content Header', text: 'Content', itemType: SelectableOptionMenuItemType.Header },
-                    ...editorMIMETypes.content.map(t => ({ key: t, text: t })),
-                    { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-                    { key: 'Code Header', text: 'Code', itemType: SelectableOptionMenuItemType.Header },
-                    ...editorMIMETypes.code.map(t => ({ key: t, text: t })),
-                  ]}
-                  onChange={(event, options, index, value: MIME) => {
-                    if (options)
-                      this.editingItem.type = options.text as MIME
-                    else
-                      this.editingItem.type = value
-                  }}
-                />
+                <MenuButton
+                  name={this.editingItem.type ? this.editingItem.type : (this.editingItem.type = 'text/markdown')}
+                  iconName="ChevronDown"
+                  menuProps={{
+                    items: ['text/markdown', 'text/asciidoc', 'text/plain', 'text/wikitext'].map(tp => {
+                      return {
+                        id: tp,
+                        text: tp,
+                        onClick: it => {
+                          this.editingItem.type = it.id as MIME
+                          this.forceUpdate()
+                        }
+                      }
+                    }),
+                    styles: {
+                      text: {
+                        height: 35,
+                        paddingLeft: 5,
+                        paddingRight: 5
+                      }
+                    }
+                  }} />
               </div>
               <div className="item-tags">
                 <TagsComponent tags={this.editingItem.headers.tags} />

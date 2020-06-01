@@ -32,16 +32,12 @@ class Callout extends React.Component<CalloutProperty, {}> {
       this.props.onDismiss(ev)
     }
     this.clickCallback = (ev: MouseEvent) => {
-      let calloutRect = this.el.current.getBoundingClientRect()
       let targetRect = this.props.target.current.getBoundingClientRect()
-      if (!(calloutRect.left < ev.clientX && ev.clientX < calloutRect.left + calloutRect.width &&
-        calloutRect.top < ev.clientY && ev.clientY < calloutRect.top + calloutRect.height) &&
-        !(targetRect.left < ev.clientX && ev.clientX < targetRect.left + targetRect.width &&
-          targetRect.top < ev.clientY && ev.clientY < targetRect.top + targetRect.height)) {
+      if (!(targetRect.left < ev.clientX && ev.clientX < targetRect.left + targetRect.width &&
+        targetRect.top < ev.clientY && ev.clientY < targetRect.top + targetRect.height)) {
         this.props.onDismiss(ev)
       }
     }
-
   }
 
   componentDidMount() {
