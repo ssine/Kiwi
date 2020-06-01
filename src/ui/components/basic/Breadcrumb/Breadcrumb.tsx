@@ -88,12 +88,12 @@ class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
     let elements = []
     items.forEach(item => {
       elements.push(<div key={`${item.uri}-chevron`} className="ms-Icon ms-Icon--ChevronRight"></div>)
-      elements.push(<div
+      elements.push(<button
         className="kiwi-breadcrumb-item"
         key={item.uri}
         onClick={this.props.onItemClick ? _ => { console.log('click triggered!'); this.props.onItemClick(item) } : null}>
         {item.name}
-      </div>)
+      </button>)
     })
     return elements.slice(1)
   }

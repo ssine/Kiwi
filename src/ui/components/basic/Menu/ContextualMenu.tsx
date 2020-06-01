@@ -13,6 +13,7 @@ type ContextualMenuProperty = {
   styles?: {
     root?: React.CSSProperties
     text?: React.CSSProperties
+    button?: React.CSSProperties
   }
 }
 
@@ -24,8 +25,9 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
       <div
         className="kiwi-contextual-menu"
         style={style}>{this.props.items.map(item => {
-          return <div
+          return <button
             className="kiwi-contextual-menu-item"
+            style={this.props.styles?.button}
             onClick={(ev) => {
               item.onClick(item)
               ev.preventDefault()
@@ -34,7 +36,7 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
             key={item.id}>
             {item.iconName && <div className="kiwi-contextual-menu-item-icon"><i className={`ms-Icon ms-Icon--${item.iconName}`} /></div>}
             <div style={this.props.styles?.text} className='kiwi-contextual-menu-item-text'>{item.text}</div>
-          </div>
+          </button>
         })}</div>
     )
   }

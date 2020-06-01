@@ -15,7 +15,7 @@ type MenuButtonProperty = {
 }
 
 class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: boolean }> {
-  buttonRef: React.RefObject<HTMLDivElement>
+  buttonRef: React.RefObject<HTMLButtonElement>
 
   constructor(props) {
     super(props)
@@ -28,20 +28,20 @@ class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: bo
   render() {
     let style = Object.assign({}, this.props.style)
     return <>
-      {this.props.iconOnly ? <div
+      {this.props.iconOnly ? <button
         className="kiwi-menu-button"
         ref={this.buttonRef}
         style={style}
         onClick={_ => this.setState({ isMenuVisible: true })} >
         {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
-      </div> : <div
+      </button> : <button
         className="kiwi-menu-button"
         ref={this.buttonRef}
         style={style}
         onClick={_ => this.setState({ isMenuVisible: true })} >
           {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
           {this.props.name}
-      </div>}
+      </button>}
       {this.state.isMenuVisible &&
         <Callout
           target={this.buttonRef}

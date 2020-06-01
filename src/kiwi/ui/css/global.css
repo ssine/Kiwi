@@ -18,6 +18,31 @@ body {
   margin: 0;
 }
 
+button {
+  display: block;
+  border: none;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  background: none;
+  color: none;
+  font-family: sans-serif;
+  font-size: 1em;
+  cursor: pointer;
+  box-sizing: unset;
+  font: unset;
+  text-align: center;
+  transition: background 100ms ease-in-out, 
+              transform 100ms ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+
 ::selection {
   background-color: var(--lineColor);
   color: white;
@@ -154,33 +179,17 @@ body {
   width: 75%;
   height: 2px;
   background-color: var(--blockColorLight);
-  animation: line-back 0.5s;
+  transition: width 400ms ease-in-out,
+  background-color 400ms ease-in-out;
 }
 
 .item-uri-edit:hover::after, .item-title-edit:hover::after {
   width: 100%;
-  animation: line-grow 0.5s;
-}
-
-@keyframes line-grow {
-  from {width: 75%;}
-  to {width: 100%;}
-}
-
-@keyframes line-color {
-  from {background-color: var(--blockColorLight);}
-  to {background-color: var(--lineColor);}
-}
-
-@keyframes line-back {
-  from {width: 100%;}
-  to {width: 75%; background-color: var(--blockColorLight);}
 }
 
 .item-uri-edit:focus-within::after, .item-title-edit:focus-within::after {
   background-color: var(--lineColor);
   width: 100%;
-  animation: line-color 0.5s;
 }
 
 .edit-item-content {

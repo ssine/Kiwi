@@ -6,30 +6,30 @@ type IconButtonProperty = {
   title?: string
   disabled?: boolean
   style?: React.CSSProperties
-  onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
-  divRef?: React.Ref<HTMLDivElement>
+  onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
+  divRef?: React.Ref<HTMLButtonElement>
 }
 
 class IconButton extends React.Component<IconButtonProperty, {}> {
   render() {
     let style = Object.assign({}, this.props.style)
     return (this.props.disabled ?
-      <div
+      <button
         className="kiwi-icon-button disabled"
         title={this.props.title}
         ref={this.props.divRef}
         style={style} >
         <i className={`ms-Icon ms-Icon--${this.props.iconName}`} />
-      </div>
+      </button>
       :
-      <div
+      <button
         className="kiwi-icon-button"
         title={this.props.title}
         ref={this.props.divRef}
         style={style}
         onClick={this.props.onClick} >
         <i className={`ms-Icon ms-Icon--${this.props.iconName}`} />
-      </div>
+      </button>
     )
   }
 }

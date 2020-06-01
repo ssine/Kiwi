@@ -133,8 +133,8 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
 export class ItemComponent extends React.Component<{ item: ClientItem }, { deleteCalloutVisible: boolean, moreCalloutVisible: boolean }> {
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
-  deleteButtonRef: React.RefObject<HTMLDivElement>
-  moreButtonRef: React.RefObject<HTMLDivElement>
+  deleteButtonRef: React.RefObject<HTMLButtonElement>
+  moreButtonRef: React.RefObject<HTMLButtonElement>
   breadcrumbFoldRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
   item: ClientItem
@@ -350,6 +350,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                 <MenuButton
                   name={this.editingItem.type ? this.editingItem.type : (this.editingItem.type = 'text/markdown')}
                   iconName="ChevronDown"
+                  style={{width: '100%'}}
                   menuProps={{
                     items: ['text/markdown', 'text/asciidoc', 'text/plain', 'text/wikitext'].map(tp => {
                       return {

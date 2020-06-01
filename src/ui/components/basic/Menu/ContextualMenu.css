@@ -2,6 +2,9 @@
   display: flex;
   padding-right: 10px;
   cursor: pointer;
+  width: calc(100% - 10px);
+  align-items: center;
+  color: var(--lineColor);
 }
 
 .kiwi-contextual-menu-item:hover {
