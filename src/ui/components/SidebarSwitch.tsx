@@ -1,5 +1,4 @@
 import React from 'react'
-import { FontIcon } from 'office-ui-fabric-react/lib/Icon'
 import anime from 'animejs/lib/anime.es'
 
 export default class SidebarSwitch extends React.Component<{ container: HTMLElement }, {}> {
@@ -54,7 +53,7 @@ export default class SidebarSwitch extends React.Component<{ container: HTMLElem
 
   render() {
     return <div>
-      <FontIcon iconName="DoubleChevronLeft" />
+      <i className='ms-Icon ms-Icon--DoubleChevronLeft' />
     </div>
   }
 }
