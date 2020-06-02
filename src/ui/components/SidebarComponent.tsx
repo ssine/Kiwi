@@ -47,7 +47,7 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
               iconName="Add"
               title="New Item"
               onClick={_ => { bus.emit('create-item-clicked', {}) }}
-              style={{width: 30, height: 30, fontSize: 20}}
+              styles={{root: {width: 30, height: 30, fontSize: 20}}}
             />
           </> : <></>}
         </div>

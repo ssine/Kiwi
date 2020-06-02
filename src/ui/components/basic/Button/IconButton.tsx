@@ -4,31 +4,35 @@ import './IconButton.css'
 type IconButtonProperty = {
   iconName: string
   title?: string
+  text?: string
   disabled?: boolean
-  style?: React.CSSProperties
+  styles?: {
+    root?: React.CSSProperties
+    icon?: React.CSSProperties
+  }
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   divRef?: React.Ref<HTMLButtonElement>
 }
 
 class IconButton extends React.Component<IconButtonProperty, {}> {
   render() {
-    let style = Object.assign({}, this.props.style)
     return (this.props.disabled ?
       <button
         className="kiwi-icon-button disabled"
         title={this.props.title}
         ref={this.props.divRef}
-        style={style} >
-        <i className={`ms-Icon ms-Icon--${this.props.iconName}`} />
+        style={this.props.styles?.root} >
+        <i style={this.props.styles?.icon} className={`ms-Icon ms-Icon--${this.props.iconName}`} />
       </button>
       :
       <button
         className="kiwi-icon-button"
         title={this.props.title}
         ref={this.props.divRef}
-        style={style}
+        style={this.props.styles?.root}
         onClick={this.props.onClick} >
-        <i className={`ms-Icon ms-Icon--${this.props.iconName}`} />
+        {this.props.text}
+        <i style={this.props.styles?.icon} className={`ms-Icon ms-Icon--${this.props.iconName}`} />
       </button>
     )
   }

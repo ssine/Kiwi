@@ -1,21 +1,18 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
-import {
-  DefaultButton, PrimaryButton
-} from 'office-ui-fabric-react'
 import * as monaco from 'monaco-editor'
-import { Depths } from '@uifabric/fluent-theme/lib/fluent/FluentDepths'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
 import { isLinkInternal, getPositionToDocument, getCookie, postFile } from '../Common'
-import { MIME, getLanguageFromMIME, editorMIMETypes, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
+import { MIME, getLanguageFromMIME, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
 import * as moment from 'moment'
 import manager from '../ItemManager'
 
 import { IconButton } from './basic/Button/IconButton'
+import { PrimaryButton } from './basic/Button/PrimaryButton'
 import { Callout, AttachDirection } from './basic/Callout/Callout'
 import { ContextualMenu } from './basic/Menu/ContextualMenu'
 import { MenuButton } from './basic/Button/MenuButton'
@@ -36,7 +33,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   }
 
   render() {
-    return <div style={{ display: 'flex' }}>{this.stagedValues.map((tag, idx) => {
+    return <div style={{ display: 'flex', height: 35 }}>{this.stagedValues.map((tag, idx) => {
       if (this.state.isEditing[idx]) {
         return <div key={idx} style={{ display: 'inline-flex', paddingLeft: 8 }}>
           <input
@@ -48,7 +45,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
           />
           <IconButton
             iconName='Accept'
-            style={{ width: 32, height: 32 }}
+            styles={{root: { width: 32, height: '100%' }}}
             onClick={_ => {
               if (this.stagedValues[idx] !== '') {
                 this.props.tags[idx] = this.stagedValues[idx]
@@ -59,30 +56,26 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
           />
         </div>
       } else {
-        return <div key={idx} style={{ paddingLeft: 8, display: 'inline-flex' }}><DefaultButton
-          split
-          key={idx}
-          text={tag}
+        return <div key={idx} style={{ display: 'inline-flex', border: '1px solid var(--lineColor)', marginLeft: 5 }}>
+          <IconButton iconName="Edit" text={tag} 
+          styles={{root: { paddingLeft: 8, width: 'unset', height: '100%', fontSize: '1em' }, icon: {paddingLeft: 2, paddingRight: 2}}}
           onClick={_ => {
             this.state.isEditing[idx] = true
             this.setState(this.state)
-          }}
-          menuProps={{ items: [], hidden: true }}
-          menuIconProps={{
-            iconName: 'Delete',
-          }}
-          onMenuClick={_ => {
+          }} />
+          <IconButton iconName="Delete" 
+          styles={{root: {paddingLeft: 2, paddingRight: 2, width: 'unset', height: '100%', fontSize: '1em'}}}
+          onClick={_ => {
             this.props.tags.splice(idx, 1)
             this.state.isEditing.splice(idx, 1)
             this.stagedValues.splice(idx, 1)
             this.setState(this.state)
-          }}
-        /></div>
+          }} /></div>
       }
     }
 
     )
-    } <IconButton iconName='Add' style={{ height: 32, width: 32 }} disabled={this.stagedValues[this.stagedValues.length - 1] === ''} onClick={_ => {
+    } <IconButton iconName='Add' styles={{root: { height: 35, width: 35 }}} disabled={this.stagedValues[this.stagedValues.length - 1] === ''} onClick={_ => {
       this.state.isEditing.push(true)
       this.stagedValues.push('')
       this.setState(this.state)
@@ -237,7 +230,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
     }
 
     return (
-      <div className="item" style={{ boxShadow: Depths.depth8 }} ref={this.rootRef}>
+      <div className="item" ref={this.rootRef}>
         {!this.item.editing ? (
           <div>
             <div style={{ display: 'flex', flexDirection: 'row', height: 40 }} ref={this.breadcrumbFoldRef}>
@@ -281,7 +274,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                       onDismiss={_ => this.setState({ deleteCalloutVisible: false })}
                       style={{ width: 'auto', transform: 'translateX(-35%)' }}
                     >
-                      <PrimaryButton text="Confirm Delete" onClick={this.onDelete.bind(this)} />
+                      <PrimaryButton title="Confirm Delete" onClick={this.onDelete.bind(this)} />
                     </Callout>
                   }
                   {this.item.isContentEditable &&
@@ -346,11 +339,12 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                   editorDidMount={this.onEditorDidMount.bind(this)}
                 />
               </div>
-              <div className="item-type" style={{ width: 170, height: 32, float: 'left' }}>
+              <div className="item-bottom-bar" style={{minHeight: 35}}>
+              <div className="item-type" style={{ width: 150, height: 33, float: 'left' }}>
                 <MenuButton
                   name={this.editingItem.type ? this.editingItem.type : (this.editingItem.type = 'text/markdown')}
                   iconName="ChevronDown"
-                  style={{width: '100%'}}
+                  style={{ width: '100%', height: '100%', border: '1px solid var(--lineColor)' }}
                   menuProps={{
                     items: ['text/markdown', 'text/asciidoc', 'text/plain', 'text/wikitext'].map(tp => {
                       return {
@@ -374,7 +368,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
               <div className="item-tags">
                 <TagsComponent tags={this.editingItem.headers.tags} />
               </div>
-              <div className="item-info"></div>
+            </div>
             </div>
           )}
       </div>
