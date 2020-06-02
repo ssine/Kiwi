@@ -27,7 +27,7 @@ export default class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}
   }
 
   render() {
-    return <div style={{ marginTop: 10 }}>{this.props.itemFlow.map(it => 
+    return <div>{this.props.itemFlow.map(it =>
       <div className="kiwi-active-list-item"
         key={it.uri}
         onClick={_ => bus.emit('item-link-clicked', { targetURI: it.uri })}>

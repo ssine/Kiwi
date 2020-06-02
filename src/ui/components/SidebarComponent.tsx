@@ -2,9 +2,7 @@ import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
 import { IconButton } from './basic/Button/IconButton'
-import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label'
-import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/Pivot'
-import { IStyleSet } from 'office-ui-fabric-react/lib/Styling'
+import { Pivot, PivotItem } from './basic/Pivot/Pivot'
 
 import { URINode } from '../URIParser'
 import { getCookie } from '../common'
@@ -22,10 +20,6 @@ export type SidebarComponentProperty = {
 }
 
 type SidebarComponentState = {
-}
-
-const labelStyles: Partial<IStyleSet<ILabelStyles>> = {
-  root: { marginTop: 10 }
 }
 
 export class SidebarComponent extends React.Component<SidebarComponentProperty, SidebarComponentState> {
@@ -47,34 +41,32 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
               iconName="Add"
               title="New Item"
               onClick={_ => { bus.emit('create-item-clicked', {}) }}
-              styles={{root: {width: 30, height: 30, fontSize: 20}}}
+              styles={{ root: { width: 30, height: 30, fontSize: 20 } }}
             />
           </> : <></>}
         </div>
         <SearchBar />
         <Pivot
-          styles={{ itemContainer: { flexGrow: 1, overflow: 'auto' } }}
-          style={{
-            marginTop: 10,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'auto',
-            flexGrow: 1
+          styles={{
+            panel: { flexGrow: 1, overflow: 'auto', marginTop: 5 },
+            root: {
+              marginTop: 10,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'auto',
+              flexGrow: 1
+            }
           }}>
-          <PivotItem headerText="Open">
+          <PivotItem name="Open">
             <ItemFlowVis itemFlow={this.props.itemFlow} />
           </PivotItem>
-          <PivotItem headerText="Index">
-            <Label styles={labelStyles}>
-              <IndexTree
-                itemTree={this.props.rootNode}
-              />
-            </Label>
+          <PivotItem name="Index">
+            <IndexTree
+              itemTree={this.props.rootNode}
+            />
           </PivotItem>
-          <PivotItem headerText="Action">
-            <Label styles={labelStyles}>
-              <LoginDialogButton />
-            </Label>
+          <PivotItem name="Action">
+            <LoginDialogButton />
           </PivotItem>
         </Pivot>
       </div>

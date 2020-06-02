@@ -1,0 +1,37 @@
+.kiwi-pivot-tabname {
+  display: flex;
+  box-sizing: border-box;
+}
+
+.kiwi-pivot-button {
+  height: 40px;
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-right: 8px;
+  color: var(--lineColor);
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.kiwi-pivot-button::after {
+  content: "";
+  width: 0;
+  height: 2px;
+  transition: width 250ms ease-in-out;
+}
+
+.kiwi-pivot-button:hover {
+  background-color: var(--blockColor);
+}
+
+.kiwi-pivot-button.active::after {
+  content: "";
+  background-color: var(--lineColor);
+  width: 100%;
+  height: 2px;
+  transition: width 250ms ease-in-out;
+}
+
+.kiwi-pivot-button.active:hover::after {
+  width: calc(100% + 16px);
+}
