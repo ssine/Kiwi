@@ -62,6 +62,10 @@ function getCookie(key: string) {
   return ''
 }
 
+function removeCookie(key: string) {
+  setCookie(key, '', -1)
+}
+
 const CSSColorToRGBA = (function () {
   var canvas = document.createElement('canvas')
   canvas.width = canvas.height = 1
@@ -165,6 +169,7 @@ export {
   getPositionToDocument,
   setCookie,
   getCookie,
+  removeCookie,
   CSSColorToRGBA,
   RGBtoHSV,
   HSVtoRGB,

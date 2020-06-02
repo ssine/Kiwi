@@ -21,7 +21,7 @@
 }
 
 .kiwi-pivot-button:hover {
-  background-color: var(--blockColor);
+  background-color: var(--blockColorLighter);
 }
 
 .kiwi-pivot-button.active::after {

@@ -1,0 +1,42 @@
+.kiwi-login-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.kiwi-login-input input {
+  height: 25px;
+  width: 250px;
+  text-align: center;
+  font-size: 16px;
+  font-family: Constantia, Arial, Helvetica, serif;
+  background-color: transparent;
+  outline: none;
+  border: none;
+}
+
+.kiwi-login-input input:hover {
+  outline: none;
+}
+
+.kiwi-login-input input:focus {
+  outline: none;
+}
+
+.kiwi-login-input::after {
+  content: "";
+  width: 75%;
+  height: 2px;
+  background-color: var(--blockColorLight);
+  transition: width 200ms ease-in-out,
+  background-color 200ms ease-in-out;
+}
+
+.kiwi-login-input:hover::after {
+  width: 100%;
+}
+
+.kiwi-login-input:focus-within::after {
+  background-color: var(--lineColor);
+  width: 100%;
+}

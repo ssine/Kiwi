@@ -3,14 +3,14 @@ import ClientItem from '../ClientItem'
 import React from 'react'
 import { IconButton } from './basic/Button/IconButton'
 import { Pivot, PivotItem } from './basic/Pivot/Pivot'
-
+import { Banner } from './basic/Banner/Banner'
 import { URINode } from '../URIParser'
 import { getCookie } from '../common'
 
 import IndexTree from './IndexTree'
 import SearchBar from './SearchBar'
 import ItemFlowVis from './ItemFlowVis'
-import LoginDialogButton from './LoginDialogButton'
+import LoginForm from './LoginForm'
 
 export type SidebarComponentProperty = {
   title: string
@@ -66,7 +66,8 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
             />
           </PivotItem>
           <PivotItem name="Action">
-            <LoginDialogButton />
+            <Banner text="Account" />
+            <LoginForm />
           </PivotItem>
         </Pivot>
       </div>
