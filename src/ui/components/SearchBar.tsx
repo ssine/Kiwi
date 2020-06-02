@@ -2,9 +2,7 @@ import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
 import { Callout, AttachDirection } from './basic/Callout/Callout'
-import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox'
-import { List } from 'office-ui-fabric-react/lib/List'
-import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling'
+import { SearchBox } from './basic/SearchBox/SearchBox'
 
 type SearchBarProperty = {
 }
@@ -18,7 +16,7 @@ const getSearchResult = async function getSearchResult(input: string): Promise<C
   const token = Math.random().toString().slice(2)
   bus.emit('search-triggered', { input: input, token: token })
   return new Promise<ClientItem[]>((res, rej) => {
-    bus.once(`search-result-${token}`, (data: {items: ClientItem[]}) => {
+    bus.once(`search-result-${token}`, (data: { items: ClientItem[] }) => {
       res(data.items)
     })
   })
@@ -42,49 +40,31 @@ export default class SearchBar extends React.Component<SearchBarProperty, Search
   render() {
     return <>
       <div ref={this.searchBoxRef}>
-      <SearchBox
-        placeholder="search..."
-        onChange={async (_, newValue) => {
-          if (newValue === '') this.setState({isSearching: false})
-          else this.setState({isSearching: true})
-          this.searchCount += 1
-          const stamp = this.searchCount
-          const results = await getSearchResult(newValue)
-          if (stamp > this.searchResultStamp) {
-            this.setState({searchResults: results})
-            this.searchResultStamp = stamp
-          }
-        }}
-      />
+        <SearchBox
+          placeholder="search..."
+          onChange={async (newValue) => {
+            if (newValue === '') this.setState({ isSearching: false })
+            else this.setState({ isSearching: true })
+            this.searchCount += 1
+            const stamp = this.searchCount
+            const results = await getSearchResult(newValue)
+            if (stamp > this.searchResultStamp) {
+              this.setState({ searchResults: results })
+              this.searchResultStamp = stamp
+            }
+          }}
+        />
       </div>
       {this.state.isSearching && (
         <Callout target={this.searchBoxRef} width={this.searchBoxRef.current.clientWidth} direction={AttachDirection.bottomLeftEdge}>
-          <List items={this.state.searchResults} onRenderCell={this._onRenderCell} />
+          {this.state.searchResults.map(res => <div
+            className='kiwi-search-item'
+            onClick={_ => bus.emit('item-link-clicked', { targetURI: res.uri })} >
+            {res.uri}
+          </div>)}
           {this.state.searchResults.length} results found ...
         </Callout>
       )}
-  </> 
-  }
-
-  private _onRenderCell(item: ClientItem, index: number, isScrolling: boolean): JSX.Element {
-    return (
-      <div data-is-focusable={true} 
-      className={mergeStyleSets({
-        listItem: [{
-          margin: 0,
-          paddingTop: 3,
-          paddingLeft: 10,
-          paddingBottom: 5,
-          cursor: 'pointer',
-          selectors: {
-            '&:hover': { background: '#d5cfe7' }
-          }
-        }]
-      }).listItem}
-      onClick={_ => bus.emit('item-link-clicked', {targetURI: item.uri})}
-      >
-      {item.uri}
-    </div>
-    )
+    </>
   }
 }

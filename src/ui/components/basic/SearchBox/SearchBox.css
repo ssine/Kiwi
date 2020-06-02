@@ -1,0 +1,64 @@
+.kiwi-searchbox-wrapper {
+  border-style: solid;
+  height: 32px;
+  width: 100%;
+  border-color: var(--blockColorLighter);
+  box-sizing: border-box;
+  transition: border-color 0.167s ease 0s;
+}
+
+.kiwi-searchbox-wrapper:hover {
+  border-color: var(--blockColor);
+}
+
+.kiwi-searchbox-wrapper:focus-within {
+  border-color: var(--lineColor);
+}
+
+.kiwi-searchbox-wrapper input {
+  outline: none;
+  height: 100%;
+  float: right;
+  border: none;
+  font-size: 1.1em;
+  font-family: Constantia, Arial, Helvetica, serif;;
+  width: calc(100% - 32px);
+  box-sizing: border-box;
+  transition: width 0.167s ease 0s;
+}
+
+.kiwi-searchbox-wrapper input:focus {
+  width: 100%;
+}
+
+.kiwi-searchbox-wrapper .kiwi-searchbox-icon-wrapper {
+  height: 100%;
+  width: 32px;
+  float: left;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lineColor);
+  background-color: white;
+  opacity: 1.0;
+  transition: opacity 0.167s ease 0s,
+    width 0.167s ease 0s;
+}
+
+.kiwi-searchbox-wrapper:focus-within .kiwi-searchbox-icon-wrapper {
+  opacity: 0;
+  width: 0px;
+}
+
+.kiwi-search-item {
+  margin: 0;
+  padding-top: 3;
+  padding-left: 10;
+  padding-bottom: 5;
+  cursor: 'pointer';
+}
+
+.kiwi-search-item:hover {
+  background-color: var(--blockColorLighter);
+}

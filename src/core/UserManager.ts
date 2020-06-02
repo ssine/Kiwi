@@ -31,7 +31,6 @@ class UserManager {
     const data: UserAccount[] = JSON.parse(dataContent)
     this.accounts = data.filter(act => act.name && act.password).map(act => {
       act.token = createHash('sha256').update(act.name + act.password).digest('hex')
-      console.log('done')
       return act
     })
   }
