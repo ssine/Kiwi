@@ -7,7 +7,7 @@ import { Banner } from './basic/Banner/Banner'
 import { URINode } from '../URIParser'
 import { getCookie } from '../common'
 
-import IndexTree from './IndexTree'
+import { IndexTree } from './IndexTree'
 import SearchBar from './SearchBar'
 import ItemFlowVis from './ItemFlowVis'
 import LoginForm from './LoginForm'
@@ -61,9 +61,7 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
             <ItemFlowVis itemFlow={this.props.itemFlow} />
           </PivotItem>
           <PivotItem name="Index">
-            <IndexTree
-              itemTree={this.props.rootNode}
-            />
+            <IndexTree rootNode={this.props.rootNode} />
           </PivotItem>
           <PivotItem name="Action">
             <Banner text="Account" />

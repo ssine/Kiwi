@@ -2,7 +2,7 @@ import React from 'react'
 import './Pivot.css'
 
 const PivotItem: React.FC<{name: string}> = (props) => {
-return <div>{props.children}</div>
+  return <div>{props.children}</div>
 }
 
 type PivotProperty = {

@@ -1,0 +1,30 @@
+.kiwi-indextree-item {
+  height: 25px;
+  cursor: default;
+  color: var(--lineColor);
+  display: flex;
+  align-items: center;
+  animation: fade-in 0.25s;
+}
+
+@keyframes fade-in {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+.kiwi-indextree-item:hover {
+  background-color: var(--blockColorLighter);
+}
+
+.kiwi-indextree-foldicon {
+  height: 25px;
+  width: 25px;
+  line-height: 25px;
+  font-size: 0.7em;
+  text-align: center;
+  color: rgb(96, 94, 92);
+}
+
+.kiwi-indextree-foldicon:hover {
+  background-color: var(--blockColor);
+}

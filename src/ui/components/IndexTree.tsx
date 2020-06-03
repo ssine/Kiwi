@@ -1,210 +1,131 @@
 import React from 'react'
 import bus from '../eventBus'
-import { GroupedList, IGroup } from 'office-ui-fabric-react/lib/GroupedList'
-import { IColumn, DetailsRow } from 'office-ui-fabric-react/lib/DetailsList'
-import { Selection, SelectionMode } from 'office-ui-fabric-react/lib/Selection'
-import { URINode } from '../URIParser'
+import './IndexTree.css'
 
-const ROW_HEIGHT = 26
-const FONT_SIZE = 13
+const INDENT_WIDTH = 15
+
+type TreeNode = {
+  URI: string
+  title: string
+  absoluteURI: string
+  childs: TreeNode[]
+}
+
+type TreeNodeState = {
+  expanded: boolean
+  childs: {
+    [key: string]: TreeNodeState
+  }
+}
 
 type IndexTreeProperty = {
-  itemTree: URINode
+  rootNode: TreeNode
 }
 
 type IndexTreeState = {
-  items: URINode[]
-  group: GroupWithURI
+  rootNodeState: TreeNodeState
 }
 
-type GroupWithURI = IGroup & { absoluteURI: string }
-
-export default class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
-  private columns: IColumn[]
-  private selection: Selection
-  update: any
+class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
+  update: () => void
 
   constructor(props: IndexTreeProperty) {
     super(props)
-
-    const [it, gp] = this.convertURIToGroupedList(this.props.itemTree)
-
     this.state = {
-      items: it,
-      group: gp
+      rootNodeState: this._generateInitialState(props.rootNode)
     }
-
-    this.columns = [{
-      key: 'title',
-      name: 'title',
-      fieldName: 'title',
-      minWidth: 200
-    }]
-
-    this.selection = new Selection()
+    this.state.rootNodeState.expanded = true
     this.update = () => { this.onTreeUpdate() }
   }
-  
+
   componentDidMount() {
     bus.on('item-tree-changed', this.update)
   }
+
   componentWillUnmount() {
     bus.off('item-tree-changed', this.update)
   }
 
+  _generateInitialState(root: TreeNode): TreeNodeState {
+    let childs = {}
+    root.childs.forEach(c => {
+      childs[c.URI] = this._generateInitialState(c)
+      if (c.URI === 'index') {
+        root.title = c.title
+      }
+    })
+    return {
+      expanded: false,
+      childs: childs
+    }
+  }
+
+  _assignExpandState(to: TreeNodeState, from: TreeNodeState) {
+    to.expanded = from.expanded
+    for (let key in from) {
+      if (key in to) {
+        this._assignExpandState(to[key], from[key])
+      }
+    }
+  }
+
   onTreeUpdate() {
-    const [newIt, newGp] = this.convertURIToGroupedList(this.props.itemTree)
-    let oldGp = this.state.group
-    this.collapseStateAssign(oldGp, newGp)
+    let newState = this._generateInitialState(this.props.rootNode)
+    this._assignExpandState(newState, this.state.rootNodeState)
+    newState.expanded = true
     this.setState({
-      items: newIt,
-      group: newGp
+      rootNodeState: newState
     })
   }
 
-  collapseStateAssign(from: GroupWithURI, to: GroupWithURI) {
-    to.isCollapsed = from.isCollapsed
-    for (const fc of from.children as GroupWithURI[]) {
-      for (const tc of to.children as GroupWithURI[]) {
-        if (fc.absoluteURI === tc.absoluteURI) {
-          this.collapseStateAssign(fc, tc)
-          break
-        }
-      }
-    }
-  }
-
-  public render(): JSX.Element {
-    return (
-      <div>
-        <input type="checkbox" hidden></input>
-        <GroupedList
-          items={this.state.items}
-          onRenderCell={this._onRenderCell}
-          selectionMode={SelectionMode.none}
-          groups={this.state.group.children}
-          compact={true}
-          onShouldVirtualize={_ => false}
-          groupProps={{
-            headerProps: {
-              indentWidth: ROW_HEIGHT / 2,
-              styles: { 
-                root: { border: 0 },
-                groupHeaderContainer: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, fontSize: FONT_SIZE },
-                expand: {height: ROW_HEIGHT, width: ROW_HEIGHT, fontSize: FONT_SIZE }, // the arrow icon button
-                title: {paddingLeft: 3, fontSize: FONT_SIZE },
-              },
-              onGroupHeaderClick: (group) => {
-                bus.emit('item-link-clicked', {
-                  // @ts-ignore
-                  targetURI: group.absoluteURI
-                })
-              }
-            }
-          }}
-        />
-      </div>
-    )
-  }
-
-  private _onRenderCell = (nestingDepth: number, item: URINode, itemIndex: number): JSX.Element => {
-    return (
-      <div onClick={() => {
+  _renderTree(node: TreeNode, state: TreeNodeState, level: number): JSX.Element[] {
+    let nodeList = []
+    let curNode = Object.keys(state.childs).length > 0 ? <div
+      key={node.absoluteURI}
+      className='kiwi-indextree-item'
+      style={{ paddingLeft: INDENT_WIDTH * level }}
+      onClick={_ => {
         bus.emit('item-link-clicked', {
-          // @ts-ignore
-          targetURI: item.absoluteURI
+          targetURI: node.absoluteURI
         })
-      }}>
-        
-      <DetailsRow
-        columns={this.columns}
-        groupNestingDepth={item.level}
-        item={item}
-        itemIndex={itemIndex}
-        selection={this.selection}
-        selectionMode={SelectionMode.none}
-        indentWidth={ROW_HEIGHT / 2}
-        eventsToRegister={[{
-          eventName: 'click',
-          callback: (item, index, event) => {
-            console.log('! click event triggered on ', item, index, event)
-          }
-        }]}
-        styles={{
-          root: {height: ROW_HEIGHT, minHeight: ROW_HEIGHT, width: '100%', background: 'transparent' },
-        }}
-        compact={true}
-        />
-        </div>
-    )
-  }
+      }} >
+      <div
+        className={`kiwi-indextree-foldicon ms-Icon ms-Icon--${state.expanded ? 'ChevronDown' : 'ChevronRight'}`}
+        onClick={ev => {
+          state.expanded = !state.expanded
+          this.forceUpdate()
+          ev.stopPropagation()
+        }} ></div>
+      {node.title}
+    </div> : <div
+    key={node.absoluteURI}
+    className='kiwi-indextree-item'
+      style={{ paddingLeft: INDENT_WIDTH * level + 25 }}
+      onClick={_ => {
+        bus.emit('item-link-clicked', {
+          targetURI: node.absoluteURI
+        })
+      }}
+    >
+      {node.title}
+    </div>
 
-  private convertURIToGroupedList(root: URINode): [URINode[], GroupWithURI] {
-    const items: URINode[] = []
-
-    const dfs = (node: URINode, level: number): (GroupWithURI | null) => {
-      if (node.childs.length === 0) {
-        node.level = level
-        items.push(node)
-        return null
-      }
-      
-      const gp: GroupWithURI = {
-        count: 0,
-        key: node.URI,
-        name: node.title,
-        absoluteURI: node.absoluteURI,
-        startIndex: items.length,
-        level: level,
-        children: [],
-        isCollapsed: true
-      }
-
-      let hasItem = false
-      let hasGroup = false
-      let childItems: URINode[] = []
-
-      for (const nd of node.childs) {
-        const cgp = dfs(nd, level + 1)
-        if (cgp !== null) {
-          hasGroup = true
-          gp.children.push(cgp)
-          gp.count += cgp.count
-        } else {
-          hasItem = true
-          const cit = items.pop()
-          childItems.push(cit)
-          if (cit.URI === 'index')
-            gp.name = cit.title
-          gp.count += 1
-        }
-      }
-
-      if (hasItem) {
-        if (hasGroup) {
-          const idxGroup: GroupWithURI = {
-            count: childItems.length,
-            key: 'index',
-            name: 'Index',
-            absoluteURI: node.absoluteURI,
-            startIndex: items.length,
-            level: level + 1,
-            children: [],
-            isCollapsed: false,
-          }
-          gp.children.push(idxGroup)
-          childItems.forEach(nd => nd.level += 1)
-        }
-        items.push(...childItems)
-      }
-
-      return gp
+    nodeList.push(curNode)
+    if (Object.keys(state.childs).length > 0 && state.expanded) {
+      nodeList = nodeList.concat(Object.keys(state.childs).map((uri, idx) => {
+        return this._renderTree(node.childs[idx], state.childs[uri], level + 1)
+      }))
     }
 
-    const gp = dfs(root, -1)
-    gp.isCollapsed = false
-
-    return [items, gp]
+    return nodeList
   }
 
+  render() {
+    console.log(this.props.rootNode, this.state.rootNodeState)
+    return <div className="kiwi-tree-list">
+      {this._renderTree(this.props.rootNode, this.state.rootNodeState, -1).slice(1)}
+    </div>
+  }
 }
+
+export { IndexTree }

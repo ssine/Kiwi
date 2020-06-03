@@ -2,13 +2,13 @@
   border-style: solid;
   height: 32px;
   width: 100%;
-  border-color: var(--blockColorLighter);
+  border-color: var(--blockColor);
   box-sizing: border-box;
   transition: border-color 0.167s ease 0s;
 }
 
 .kiwi-searchbox-wrapper:hover {
-  border-color: var(--blockColor);
+  border-color: var(--blockColorLighter);
 }
 
 .kiwi-searchbox-wrapper:focus-within {

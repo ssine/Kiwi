@@ -41,7 +41,7 @@ export default class SearchBar extends React.Component<SearchBarProperty, Search
     return <>
       <div ref={this.searchBoxRef}>
         <SearchBox
-          placeholder="search..."
+          placeholder="Search..."
           onChange={async (newValue) => {
             if (newValue === '') this.setState({ isSearching: false })
             else this.setState({ isSearching: true })
