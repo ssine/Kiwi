@@ -5,7 +5,7 @@ import { IconButton } from './basic/Button/IconButton'
 import { Pivot, PivotItem } from './basic/Pivot/Pivot'
 import { Banner } from './basic/Banner/Banner'
 import { URINode } from '../URIParser'
-import { getCookie } from '../common'
+import { getCookie } from '../Common'
 
 import { IndexTree } from './IndexTree'
 import SearchBar from './SearchBar'

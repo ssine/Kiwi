@@ -1,5 +1,5 @@
 import React from 'react'
-import { postJSON, setCookie, getCookie, removeCookie } from '../common'
+import { postJSON, setCookie, getCookie, removeCookie } from '../Common'
 import './LoginForm.css'
 
 let buttonStyle: React.CSSProperties = {
