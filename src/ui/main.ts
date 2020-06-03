@@ -6,9 +6,10 @@ import '../kiwi/ui/css/global.css'
 import 'highlight.js/styles/solarized-light.css'
 import { language as mdLang } from 'monaco-editor/esm/vs/basic-languages/markdown/markdown'
 import manager from './ItemManager'
-import { postFile, CSSColorToRGBA, RGBtoHSV, HSVtoRGB, RGBtoCSSColor } from './common'
+import { postFile, CSSColorToRGBA, RGBtoHSV, HSVtoRGB, RGBtoCSSColor } from './Common'
 
 async function run() {
+  //@ts-ignore
   mdLang.tokenizer.root.unshift([/\{\{/, { token: 'keyword', bracket: '@open', next: '@macroblock', nextEmbedded: 'javascript' }])
   mdLang.tokenizer.macroblock = [
     [/\}\}/, { token: 'keyword', bracket: '@close', next: '@pop', nextEmbedded: '@pop' }],

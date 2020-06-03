@@ -15,8 +15,8 @@
     "prepare": "shx rm -rf build && npm run build:core && npm run build:ui_prod",
     "build": "shx rm -rf build && npm run build:core && npm run build:ui",
     "build:core": "tsc && shx cp -r src/kiwi build/",
-    "build:ui": "webpack --mode=development && shx cp -r node_modules/@uifabric/icons/fonts build/browser/uifabric-icons",
-    "build:ui_prod": "webpack --mode=production && shx cp -r node_modules/@uifabric/icons/fonts build/browser/uifabric-icons",
+    "build:ui": "webpack --mode=development",
+    "build:ui_prod": "webpack --mode=production",
     "build:doc": "typedoc src --out build/doc --exclude src/ui/**/*",
     "analyze": "webpack-bundle-analyzer --port 8080 build/browser/stats.json",
     "publish_": "npm --registry https://registry.npmjs.org/ publish"

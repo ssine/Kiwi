@@ -4,11 +4,10 @@ import React from 'react'
 import * as monaco from 'monaco-editor'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
-import { isLinkInternal, getPositionToDocument, getCookie, postFile } from '../Common'
+import { isLinkInternal, getPositionToDocument, getCookie, postFile, timeFormat } from '../Common'
 import { MIME, getLanguageFromMIME, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
-import * as moment from 'moment'
 import manager from '../ItemManager'
 
 import { IconButton } from './basic/Button/IconButton'
@@ -170,7 +169,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
         let file = files[0]
         if (file.type.indexOf("image") !== -1) {
           let ext = file.name.match(/\.\S+?$/)[0].substr(1)
-          let fn = `asset/${moment().format('YYYY-MM-DD-HH-mm-ss-SSS')}.${ext}`
+          let fn = `asset/${timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())}.${ext}`
           postFile(resolveURI(this.editingItem.uri, fn), file)
           this.editor.trigger('keyboard', 'type', { text: `![img](${fn})` });
           ev.preventDefault()

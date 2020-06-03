@@ -66,6 +66,25 @@ function removeCookie(key: string) {
   setCookie(key, '', -1)
 }
 
+function timeFormat(fmt: string, date: Date): string {
+  const opt = {
+      "Y+": date.getFullYear().toString(),        
+      "M+": (date.getMonth() + 1).toString(),     
+      "D+": date.getDate().toString(),            
+      "H+": date.getHours().toString(),           
+      "m+": date.getMinutes().toString(),         
+      "s+": date.getSeconds().toString(),    
+      "S+": date.getMilliseconds().toString()          
+  };
+  for (let k in opt) {
+      let ret = new RegExp("(" + k + ")").exec(fmt);
+      if (ret) {
+          fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+      };
+  };
+  return fmt;
+}
+
 const CSSColorToRGBA = (function () {
   var canvas = document.createElement('canvas')
   canvas.width = canvas.height = 1
@@ -170,6 +189,7 @@ export {
   setCookie,
   getCookie,
   removeCookie,
+  timeFormat,
   CSSColorToRGBA,
   RGBtoHSV,
   HSVtoRGB,
