@@ -121,7 +121,6 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
   }
 
   render() {
-    console.log(this.props.rootNode, this.state.rootNodeState)
     return <div className="kiwi-tree-list">
       {this._renderTree(this.props.rootNode, this.state.rootNodeState, -1).slice(1)}
     </div>

@@ -27,11 +27,9 @@
     slider.oninput = (value) => {
       if (saved) {
         saved = false;
-        console.log('delaied saving triggered')
         setTimeout(async () => {
           itemManager.saveItem({uri: 'kiwi/config/primary-color', editedItem: {content: kiwiTools.RGBtoCSSColor(kiwiTools.HSVtoRGB({h: slider.value / 360, s: 1, v: 1}))}})
           saved = true
-          console.log('saved')
         }, 2000);
       }
       itemManager.setThemeHue(slider.value / 360)

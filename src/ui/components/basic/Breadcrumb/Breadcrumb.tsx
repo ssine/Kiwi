@@ -91,7 +91,7 @@ class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
       elements.push(<button
         className="kiwi-breadcrumb-item"
         key={item.uri}
-        onClick={this.props.onItemClick ? _ => { console.log('click triggered!'); this.props.onItemClick(item) } : null}>
+        onClick={this.props.onItemClick ? _ => { this.props.onItemClick(item) } : null}>
         {item.name}
       </button>)
     })

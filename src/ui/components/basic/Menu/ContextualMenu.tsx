@@ -30,7 +30,6 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
             style={this.props.styles?.button}
             onClick={(ev) => {
               item.onClick(item)
-              ev.preventDefault()
             }}
             id={item.id}
             key={item.id}>
