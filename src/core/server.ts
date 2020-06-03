@@ -8,6 +8,7 @@ import * as socketIO from 'socket.io'
 import * as bodyParser from 'body-parser'
 import * as cookieParser from 'cookie-parser'
 import * as fileUpload from 'express-fileupload'
+import * as compression from 'compression'
 import { getLogger } from './Log'
 import manager from './ItemManager'
 import { resolve } from 'path'
@@ -21,7 +22,14 @@ const logger = getLogger('server')
 const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
-app.use(bodyParser.json({limit: '1mb'}))
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression'])
+      return false
+    return compression.filter(req, res)
+  }
+}))
+app.use(bodyParser.json({ limit: '1mb' }))
 app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
@@ -32,8 +40,8 @@ const serve = function serve(port: number, rootFolder: string) {
   app.use('/', express.static(resolve(__dirname, '../browser')))
 
   app.use(fileUpload({
-    useTempFiles : true,
-    tempFileDir : resolve(__dirname, '../kiwi/tmp/')
+    useTempFiles: true,
+    tempFileDir: resolve(__dirname, '../kiwi/tmp/')
   }))
 
   app.post('/get-item', async (req, res) => {
@@ -55,7 +63,7 @@ const serve = function serve(port: number, rootFolder: string) {
    * item: the item to save
    */
   app.post('/save-item', async (req, res) => {
-    if (! manager.getUserManager().isTokenValid(req.cookies.token)) {
+    if (!manager.getUserManager().isTokenValid(req.cookies.token)) {
       res.send(await manager.getItem(req.body.uri)?.json())
       return
     }
@@ -76,13 +84,13 @@ const serve = function serve(port: number, rootFolder: string) {
   })
 
   app.post('/delete-item', async (req, res) => {
-    if (! manager.getUserManager().isTokenValid(req.cookies.token)) {
-      res.send({status: false})
+    if (!manager.getUserManager().isTokenValid(req.cookies.token)) {
+      res.send({ status: false })
       return
     }
     let uri = req.body.uri
     manager.deleteItem(uri)
-    res.send({status: true})
+    res.send({ status: true })
   })
 
   app.post('/get-system-items', (req, res) => {

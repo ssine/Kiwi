@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+let CompressionPlugin = require("compression-webpack-plugin");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
@@ -49,6 +50,10 @@ module.exports = {
       title: "Kiwi"
     }),
     new MonacoWebpackPlugin(),
+    new CompressionPlugin({
+      test: /\.js$|\.css$|\.html$/,
+      minRatio: 0.8
+    }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'disabled',
       generateStatsFile: true,
