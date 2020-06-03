@@ -261,5 +261,7 @@ async function saveData() {
 #{{cssesc(currentURI)}} .list button {
   float: right;
   height: 25px;
+  padding-left: 3px;
+  padding-right: 3px;
 }
 </style>
