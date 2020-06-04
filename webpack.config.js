@@ -5,7 +5,7 @@ let CompressionPlugin = require("compression-webpack-plugin");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
-  devtool: "source-map",
+  devtool: process.env.WEBPACK_MODE === 'production' ? 'cheap-module-source-map' : undefined,
   entry: {
     app: "./src/ui/main.ts"
   },
@@ -22,11 +22,10 @@ module.exports = {
     usedExports: true,
   },
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.tsx?$/,
         loader: 'ts-loader',
-        options: { 
+        options: {
           configFile: 'tsconfig.ui.json'
         }
       },
@@ -57,7 +56,9 @@ module.exports = {
     new BundleAnalyzerPlugin({
       analyzerMode: 'disabled',
       generateStatsFile: true,
-      statsOptions: { source: false }
+      statsOptions: {
+        source: false
+      }
     })
   ]
 };
