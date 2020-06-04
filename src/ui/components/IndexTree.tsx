@@ -62,9 +62,9 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
 
   _assignExpandState(to: TreeNodeState, from: TreeNodeState) {
     to.expanded = from.expanded
-    for (let key in from) {
-      if (key in to) {
-        this._assignExpandState(to[key], from[key])
+    for (let key in from.childs) {
+      if (key in to.childs) {
+        this._assignExpandState(to.childs[key], from.childs[key])
       }
     }
   }
