@@ -68,19 +68,19 @@ function removeCookie(key: string) {
 
 function timeFormat(fmt: string, date: Date): string {
   const opt = {
-      "Y+": date.getFullYear().toString(),        
-      "M+": (date.getMonth() + 1).toString(),     
-      "D+": date.getDate().toString(),            
-      "H+": date.getHours().toString(),           
-      "m+": date.getMinutes().toString(),         
-      "s+": date.getSeconds().toString(),    
-      "S+": date.getMilliseconds().toString()          
+    "Y+": date.getFullYear().toString(),
+    "M+": (date.getMonth() + 1).toString(),
+    "D+": date.getDate().toString(),
+    "H+": date.getHours().toString(),
+    "m+": date.getMinutes().toString(),
+    "s+": date.getSeconds().toString(),
+    "S+": date.getMilliseconds().toString()
   };
   for (let k in opt) {
-      let ret = new RegExp("(" + k + ")").exec(fmt);
-      if (ret) {
-          fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
-      };
+    let ret = new RegExp("(" + k + ")").exec(fmt);
+    if (ret) {
+      fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+    };
   };
   return fmt;
 }
@@ -101,7 +101,7 @@ const CSSColorToRGBA = (function () {
     ctx.fillStyle = '#fff'
     ctx.fillStyle = col
     if (computed !== ctx.fillStyle) {
-      return {r: 0, g: 0, b: 0, a: 0}// invalid color
+      return { r: 0, g: 0, b: 0, a: 0 }// invalid color
     }
     ctx.fillRect(0, 0, 1, 1)
     let data = ctx.getImageData(0, 0, 1, 1).data
@@ -114,7 +114,7 @@ const CSSColorToRGBA = (function () {
   }
 })()
 
-function RGBtoHSV(color: {r: number, g: number, b: number}) {
+function RGBtoHSV(color: { r: number, g: number, b: number }) {
   let r = color.r
   let g = color.g
   let b = color.b
@@ -138,7 +138,7 @@ function RGBtoHSV(color: {r: number, g: number, b: number}) {
   };
 }
 
-function HSVtoRGB(color: {h: number, s: number, v: number}) {
+function HSVtoRGB(color: { h: number, s: number, v: number }) {
   let h = color.h
   let s = color.s
   let v = color.v
@@ -165,21 +165,60 @@ function HSVtoRGB(color: {h: number, s: number, v: number}) {
   };
 }
 
-function RGBtoCSSColor(rgb: {r: number, g: number, b: number}): string {
+function RGBtoCSSColor(rgb: { r: number, g: number, b: number }): string {
   return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
 }
 
 function setPageColors(hue: number) {
   let rootStyle = (document.querySelector(':root') as HTMLElement).style
-  rootStyle.setProperty('--primaryColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 1, v: 1})))
-  rootStyle.setProperty('--lineColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.54, v: 0.62})))
-  rootStyle.setProperty('--blockColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.26, v: 0.84})))
-  rootStyle.setProperty('--blockColorLight', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.24, v: 0.90})))
-  rootStyle.setProperty('--blockColorLighter', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.17, v: 0.93})))
-  rootStyle.setProperty('--areaColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.04, v: 0.98})))
+  rootStyle.setProperty('--primaryColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 1, v: 1 })))
+  rootStyle.setProperty('--lineColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.54, v: 0.62 })))
+  rootStyle.setProperty('--blockColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.26, v: 0.84 })))
+  rootStyle.setProperty('--blockColorLight', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.24, v: 0.90 })))
+  rootStyle.setProperty('--blockColorLighter', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.17, v: 0.93 })))
+  rootStyle.setProperty('--areaColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.04, v: 0.98 })))
 }
 
 const isMobile = window.screen.width >= 1024 ? false : true
+
+// adapted from:
+/*! getEmPixels  | Author: Tyson Matanich (http://matanich.com), 2013 | License: MIT */
+const getEmPixels = (() => {
+  let documentElement = document.documentElement
+  let important = "!important;";
+  let style = ['position:absolute', 'visibility:hidden', 'width:1em', 'font-size:1em', 'padding:0'].join(important) + important
+
+  return (element?: HTMLElement): number => {
+    let extraBody: HTMLBodyElement;
+
+    if (!element) {
+      // Emulate the documentElement to get rem value (documentElement does not work in IE6-7)
+      element = extraBody = document.createElement("body");
+      extraBody.style.cssText = "font-size:1em" + important;
+      documentElement.insertBefore(extraBody, document.body);
+    }
+
+    // Create and style a test element
+    var testElement = document.createElement("i");
+    testElement.style.cssText = style;
+    element.appendChild(testElement);
+
+    // Get the client width of the test element
+    var value = testElement.clientWidth;
+
+    if (extraBody) {
+      // Remove the extra body element
+      documentElement.removeChild(extraBody);
+    }
+    else {
+      // Remove the test element
+      element.removeChild(testElement);
+    }
+
+    // Return the em value in pixels
+    return value;
+  };
+})()
 
 export {
   postJSON,
@@ -196,4 +235,5 @@ export {
   RGBtoCSSColor,
   setPageColors,
   isMobile,
+  getEmPixels,
 }

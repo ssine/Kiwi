@@ -7,7 +7,7 @@
 }
 
 .kiwi-breadcrumb-item {
-  font-size: large;
+  font-size: 1.3rem;
   font-family: var(--sansSerifFont);
   cursor: default;
   white-space: nowrap;

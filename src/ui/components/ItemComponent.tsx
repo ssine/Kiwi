@@ -4,7 +4,7 @@ import React from 'react'
 import * as monaco from 'monaco-editor'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
-import { isLinkInternal, getPositionToDocument, getCookie, postFile, timeFormat } from '../Common'
+import { isLinkInternal, getPositionToDocument, getCookie, postFile, timeFormat, getEmPixels } from '../Common'
 import { MIME, getLanguageFromMIME, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
@@ -102,7 +102,7 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
               this.props.editingItem.title = suggestedURIToTitle(this.props.editingItem.uri)
             }
             this.forceUpdate()
-          }} style={{ fontSize: 27, fontFamily: 'var(--sansSerifFont)' }} />
+          }} />
         </div>
         <div className="item-controls" style={{ flexGrow: 0, display: 'flex' }}>
           {this.props.children}
@@ -331,20 +331,20 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                 <MonacoEditor
                   language={getLanguageFromMIME(this.item.type)}
                   value={this.item.content}
-                  options={{ lineDecorationsWidth: 0, wordWrap: 'on', wrappingIndent: 'same', tabSize: 2 }}
+                  options={{ lineDecorationsWidth: 0, wordWrap: 'on', wrappingIndent: 'same', tabSize: 2, fontSize: getEmPixels() }}
                   editorDidMount={this.onEditorDidMount.bind(this)}
                 />
               </div>
               <div className="item-bottom-bar" style={{minHeight: 35}}>
-              <div className="item-type" style={{ width: 130, height: 33, float: 'left' }}>
+              <div className="item-type" style={{ width: 110, height: 33, float: 'left' }}>
                 <MenuButton
-                  name={this.editingItem.type ? this.editingItem.type : (this.editingItem.type = 'text/markdown')}
+                  name={this.editingItem.type ? this.editingItem.type.slice(5) : (this.editingItem.type = 'text/markdown').slice(5)}
                   style={{ width: '100%', height: '100%', border: '1px solid var(--lineColor)' }}
                   menuProps={{
                     items: ['text/markdown', 'text/asciidoc', 'text/plain', 'text/wikitext'].map(tp => {
                       return {
                         id: tp,
-                        text: tp,
+                        text: tp.slice(5),
                         onClick: it => {
                           this.editingItem.type = it.id as MIME
                           this.forceUpdate()

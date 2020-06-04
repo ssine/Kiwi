@@ -18,6 +18,7 @@
 .kiwi-searchbox-wrapper input {
   outline: none;
   height: 100%;
+  font-size: 1rem;
   font-family: var(--sansSerifFont);
   float: right;
   border: none;

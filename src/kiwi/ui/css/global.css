@@ -11,13 +11,9 @@
   -webkit-text-size-adjust: none;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
   background-color: var(--areaColor);
-  font-family: Constantia, Arial, Helvetica, serif;
+  font-family: var(--serifFont);
   margin: 0;
 }
 
@@ -30,7 +26,7 @@ button {
   background: none;
   color: none;
   font-family: sans-serif;
-  font-size: 1em;
+  font-size: 1rem;
   cursor: pointer;
   box-sizing: unset;
   font: unset;
@@ -45,13 +41,16 @@ button:focus {
   outline: none;
 }
 
-
 ::selection {
   background-color: var(--lineColor);
   color: white;
 }
 
 @media (max-width: 1024px) {
+  :root {
+    font-size: 4vw;
+  }
+
   .sidebar {
     margin-left: 20px;
     margin-right: 20px;
@@ -63,17 +62,22 @@ button:focus {
     margin-right: 0px;
   }
 
-  :root {
-    font-size: 4vw;
-  }
-
   .item-content {
+    font-size: 1rem;
     padding-left: 5vw;
     padding-right: 5vw;
   }
 }
 
 @media (min-width: 1024px) {
+  :root {
+    font-size: 16px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+  
   .sidebar {
     position: fixed;
     top: 0;
@@ -162,9 +166,13 @@ button:focus {
   flex-direction: column;
 }
 
+.item-uri-edit input {
+  font-family: var(--sansSerifFont);
+}
+
 .item-uri-edit input, .item-title-edit input {
   height: calc(100% - 2px);
-  font-size: 30px;
+  font-size: 1.6rem;
   padding-left: 10px;
   outline: none;
   border: none;
