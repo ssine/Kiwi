@@ -5,6 +5,9 @@
   --blockColorLight: white;
   --blockColorLighter: white;
   --areaColor: white; /* the lightest color for backgrounds */
+  --serifFont: Constantia, "Times New Roman", Times, serif;
+  --sansSerifFont: OpenSans, Arial, Helvetica, sans-serif;
+  --monospaceFont: consolas, "Lucida Console", Monaco, monospace;
   -webkit-text-size-adjust: none;
 }
 
@@ -212,12 +215,14 @@ button:focus {
 }
 
 .kiwi-active-list-item {
+  display: flex;
+  align-items: center;
+  min-height: 25px;
   margin: 0;
-  padding-top: 3px;
   padding-left: 10px;
-  padding-bottom: 5px;
   cursor: default;
   color: var(--lineColor);
+  font-family: var(--serifFont);
 }
 
 .kiwi-active-list-item:hover {
@@ -225,25 +230,30 @@ button:focus {
 }
 
 @font-face {
-  font-family: Constantia;
-  src: url('/kiwi/ui/webfonts/constan.ttf');
+  font-family: OpenSans;
+  src: url('/kiwi/ui/webfont/OpenSans-Regular.ttf');
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/webfonts/constanb.ttf');
+  src: url('/kiwi/ui/webfont/constan.ttf');
+}
+
+@font-face {
+  font-family: Constantia;
+  src: url('/kiwi/ui/webfont/constanb.ttf');
   font-weight: bold;
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/webfonts/constani.ttf');
+  src: url('/kiwi/ui/webfont/constani.ttf');
   font-style: italic;
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/webfonts/constanz.ttf');
+  src: url('/kiwi/ui/webfont/constanz.ttf');
   font-weight: bold;
   font-style: italic;
 }
@@ -265,7 +275,7 @@ pre {
 
 code {
   font-size: 16px;
-  font-family: consolas;
+  font-family: var(--monospaceFont);
   line-height: 22px;
 }
 

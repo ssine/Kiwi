@@ -3,7 +3,7 @@
 */
 @font-face {
   font-family: 'FabricMDL2Icons';
-  src: url('../webfonts/fabric-icons.woff') format('woff');
+  src: url('../webfont/fabric-icons.woff') format('woff');
 }
 
 .ms-Icon {
@@ -47,6 +47,7 @@
 .ms-Icon--CheckboxComposite:before { content: "\E73A"; }
 .ms-Icon--Cancel:before { content: "\E711"; }
 .ms-Icon--Link:before { content: "\E71B"; }
+.ms-Icon--Search:before { content: "\E721"; }
 .ms-Icon--Add:before { content: "\E710"; }
 .ms-Icon--ChevronLeft:before { content: "\E76B"; }
 .ms-Icon--ChevronRight:before { content: "\E76C"; }

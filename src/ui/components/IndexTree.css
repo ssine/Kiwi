@@ -1,5 +1,7 @@
 .kiwi-indextree-item {
-  height: 25px;
+  min-height: 25px;
+  font-size: 13px;
+  font-family: var(--sansSerifFont);
   cursor: default;
   color: var(--lineColor);
   display: flex;

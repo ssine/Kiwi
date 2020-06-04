@@ -18,10 +18,9 @@
 .kiwi-searchbox-wrapper input {
   outline: none;
   height: 100%;
+  font-family: var(--sansSerifFont);
   float: right;
   border: none;
-  font-size: 1.1em;
-  font-family: Constantia, Arial, Helvetica, serif;;
   width: calc(100% - 32px);
   box-sizing: border-box;
   transition: width 0.167s ease 0s;
@@ -52,11 +51,11 @@
 }
 
 .kiwi-search-item {
+  font-size: 15px;
+  font-family: var(--sansSerifFont);
   margin: 0;
-  padding-top: 3;
-  padding-left: 10;
-  padding-bottom: 5;
-  cursor: 'pointer';
+  padding: 3px 0px 3px 10px;
+  cursor: pointer;
 }
 
 .kiwi-search-item:hover {

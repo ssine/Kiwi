@@ -10,7 +10,7 @@ type SearchBoxProperty = {
 const SearchBox: React.FC<SearchBoxProperty> = (props) => {
   return <div className="kiwi-searchbox-wrapper">
     <div className="kiwi-searchbox-icon-wrapper">
-      <div className="ms-Icon ms-Icon--Edit"></div>
+      <div className="ms-Icon ms-Icon--Search"></div>
     </div>
     <input type="text" placeholder={props.placeholder} onChange={(evt) => {props.onChange(evt.target.value)}} />
   </div>

@@ -102,7 +102,7 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
               this.props.editingItem.title = suggestedURIToTitle(this.props.editingItem.uri)
             }
             this.forceUpdate()
-          }} style={{ fontSize: 27 }} />
+          }} style={{ fontSize: 27, fontFamily: 'var(--sansSerifFont)' }} />
         </div>
         <div className="item-controls" style={{ flexGrow: 0, display: 'flex' }}>
           {this.props.children}
@@ -116,7 +116,7 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
             this.props.editingItem.uri = resolveURI(this.props.originalURI, suggestedTitleToURI(evt.target.value))
           }
           this.forceUpdate()
-        }} style={{ fontFamily: 'Constantia' }} />
+        }} style={{ fontFamily: 'var(--serifFont)' }} />
       </div>
     </div>
   }
@@ -326,7 +326,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                   onClick={this.onSave.bind(this)}
                 />
                 <IconButton
-                  iconName='Cancel'
+                  iconName='RevToggleKey'
                   onClick={this.onCancelEdit.bind(this)}
                 />
               </TitleEditorComponent>

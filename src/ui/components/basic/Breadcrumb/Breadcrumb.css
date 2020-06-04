@@ -8,6 +8,7 @@
 
 .kiwi-breadcrumb-item {
   font-size: large;
+  font-family: var(--sansSerifFont);
   cursor: default;
   white-space: nowrap;
   line-height: 40px;

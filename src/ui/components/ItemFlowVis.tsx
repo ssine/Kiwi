@@ -31,7 +31,7 @@ export default class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}
       <div className="kiwi-active-list-item"
         key={it.uri}
         onClick={_ => bus.emit('item-link-clicked', { targetURI: it.uri })}>
-        {it.uri}
+        {it.title}
       </div>
     )}</div>
   }
