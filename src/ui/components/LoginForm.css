@@ -4,11 +4,24 @@
   align-items: center;
 }
 
+@media (max-width: 1024px) {
+  .kiwi-login-input input {
+    height: 1.5rem;
+    width: 80vw;
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kiwi-login-input input {
+    height: 25px;
+    width: 250px;
+    font-size: 16px;
+  }
+}
+
 .kiwi-login-input input {
-  height: 25px;
-  width: 250px;
   text-align: center;
-  font-size: 16px;
   font-family: Constantia, Arial, Helvetica, serif;
   background-color: transparent;
   outline: none;
@@ -29,7 +42,7 @@
   height: 2px;
   background-color: var(--blockColorLight);
   transition: width 200ms ease-in-out,
-  background-color 200ms ease-in-out;
+    background-color 200ms ease-in-out;
 }
 
 .kiwi-login-input:hover::after {

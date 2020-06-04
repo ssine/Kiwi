@@ -3,7 +3,6 @@ import { postJSON, setCookie, getCookie, removeCookie } from '../Common'
 import './LoginForm.css'
 
 let buttonStyle: React.CSSProperties = {
-  height: 35,
   margin: '10px auto 0px auto',
   paddingLeft: 10,
   paddingRight: 10

@@ -15,10 +15,26 @@
   background-color: var(--blockColor);
 }
 
+@media (max-width: 1024px) {
+  .kiwi-contextual-menu-item-icon {
+    height: 12vw;
+    width: 12vw;
+    font-size: 1.2rem;
+  }
+
+  .kiwi-contextual-menu-item-text {
+    font-size: 1.2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kiwi-contextual-menu-item-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
 .kiwi-contextual-menu-item-icon {
-  width: 40px;
-  height: 40px;
-  font-size: large;
   display: flex;
   justify-content: center;
   align-items: center;

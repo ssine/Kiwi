@@ -116,7 +116,9 @@ class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
         }),
         styles: {
           text: {
-            height: 35,
+            fontSize: '1.3rem',
+            fontFamily: 'var(--sansSerifFont)',
+            height: '2rem',
             paddingLeft: 5,
             paddingRight: 5
           }

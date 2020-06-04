@@ -3,12 +3,20 @@
     height: 2rem;
   }
 
+  .kiwi-searchbox-wrapper input {
+    width: calc(100% - 8vw);
+  }
+
   .kiwi-searchbox-wrapper .kiwi-searchbox-icon-wrapper {
     width: 8vw;
   }
 
   .kiwi-searchbox-clear-wrapper {
     width: 8vw;
+  }
+
+  .kiwi-searchbox-wrapper input:focus {
+    width: calc(100% - 8vw);
   }
 }
 
@@ -17,6 +25,10 @@
     height: 32px;
   }
 
+  .kiwi-searchbox-wrapper input {
+    width: calc(100% - 32px);
+  }
+
   .kiwi-searchbox-wrapper .kiwi-searchbox-icon-wrapper {
     width: 32px;
   }
@@ -24,11 +36,13 @@
   .kiwi-searchbox-clear-wrapper {
     width: 32px;
   }
+
+  .kiwi-searchbox-wrapper input:focus {
+    width: calc(100% - 32px);
+  }
 }
 
 .kiwi-searchbox-wrapper {
-  display: flex;
-  flex-direction: row;
   border-style: solid;
   width: 100%;
   border-color: var(--blockColor);
@@ -50,7 +64,6 @@
   font-size: 1rem;
   font-family: var(--sansSerifFont);
   float: right;
-  flex-grow: 1;
   border: none;
   box-sizing: border-box;
   transition: width 0.167s ease 0s;
@@ -79,14 +92,6 @@
   justify-content: center;
   color: var(--lineColor);
   background-color: white;
-}
-
-.kiwi-searchbox-clear-wrapper:hover {
-  background-color: var(--blockColorLighter);
-}
-
-.kiwi-searchbox-clear-wrapper:active {
-  background-color: var(--blockColor);
 }
 
 .kiwi-searchbox-wrapper:focus-within .kiwi-searchbox-icon-wrapper {

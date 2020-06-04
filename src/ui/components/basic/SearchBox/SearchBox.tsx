@@ -6,14 +6,34 @@ type SearchBoxProperty = {
   onChange: (newValue: string) => void
 }
 
-// TODO: Add clear button on text exists
-const SearchBox: React.FC<SearchBoxProperty> = (props) => {
-  return <div className="kiwi-searchbox-wrapper">
-    <div className="kiwi-searchbox-icon-wrapper">
-      <div className="ms-Icon ms-Icon--Search"></div>
+class SearchBox extends React.Component<SearchBoxProperty, {}> {
+  inputEl: React.RefObject<HTMLInputElement>
+
+  constructor(props: SearchBoxProperty) {
+    super(props)
+    this.inputEl = React.createRef()
+  }
+
+  render() {
+    return <div className="kiwi-searchbox-wrapper">
+      <div className="kiwi-searchbox-icon-wrapper">
+        <div className="ms-Icon ms-Icon--Search"></div>
+      </div>
+      <input
+        type="text"
+        placeholder={this.props.placeholder}
+        ref={this.inputEl}
+        onChange={(evt) => {
+          this.props.onChange(this.inputEl.current.value)
+        }} />
+      {this.inputEl.current && this.inputEl.current.value !== '' && <div className="kiwi-searchbox-clear-wrapper" onClick={() => {
+        this.inputEl.current.value = ''
+        this.props.onChange('')
+      }}>
+        <div className="ms-Icon ms-Icon--Cancel"></div>
+      </div>}
     </div>
-    <input type="text" placeholder={props.placeholder} onChange={(evt) => {props.onChange(evt.target.value)}} />
-  </div>
+  }
 }
 
 export { SearchBox }

@@ -3,8 +3,19 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 1024px) {
+  .kiwi-pivot-button {
+    height: 12vw;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kiwi-pivot-button {
+    height: 40px;
+  }
+}
+
 .kiwi-pivot-button {
-  height: 40px;
   padding-left: 8px;
   padding-right: 8px;
   margin-right: 8px;

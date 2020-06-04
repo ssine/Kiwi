@@ -5,7 +5,7 @@ import { IconButton } from './basic/Button/IconButton'
 import { Pivot, PivotItem } from './basic/Pivot/Pivot'
 import { Banner } from './basic/Banner/Banner'
 import { URINode } from '../URIParser'
-import { getCookie } from '../Common'
+import { getCookie, isMobile } from '../Common'
 
 import { IndexTree } from './IndexTree'
 import SearchBar from './SearchBar'
@@ -41,7 +41,13 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
               iconName="Add"
               title="New Item"
               onClick={_ => { bus.emit('create-item-clicked', {}) }}
-              styles={{ root: { width: 30, height: 30, fontSize: 20 } }}
+              styles={{
+                root: {
+                  width: isMobile ? '10vw' : 30,
+                  height: isMobile ? '10vw' : 30,
+                  fontSize: isMobile ? '5vw' : 20
+                }
+              }}
             />
           </> : <></>}
         </div>

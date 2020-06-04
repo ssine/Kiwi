@@ -4,7 +4,7 @@ import React from 'react'
 import * as monaco from 'monaco-editor'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
-import { isLinkInternal, getPositionToDocument, getCookie, postFile, timeFormat, getEmPixels } from '../Common'
+import { isLinkInternal, getPositionToDocument, getCookie, postFile, timeFormat, getEmPixels, isMobile } from '../Common'
 import { MIME, getLanguageFromMIME, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
 import { typesetMath } from '../mathjax'
 import loadable from "@loadable/component"
@@ -32,7 +32,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
   }
 
   render() {
-    return <div style={{ display: 'flex', height: 35 }}>{this.stagedValues.map((tag, idx) => {
+    return <div style={{ display: 'flex', height: isMobile ? '10vw' : 35 }}>{this.stagedValues.map((tag, idx) => {
       if (this.state.isEditing[idx]) {
         return <div key={idx} style={{ display: 'inline-flex', paddingLeft: 8 }}>
           <input
@@ -44,7 +44,7 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
           />
           <IconButton
             iconName='Accept'
-            styles={{root: { width: 32, height: '100%' }}}
+            styles={{ root: { width: isMobile ? '10vw' : 32, height: '100%' } }}
             onClick={_ => {
               if (this.stagedValues[idx] !== '') {
                 this.props.tags[idx] = this.stagedValues[idx]
@@ -56,29 +56,39 @@ class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boo
         </div>
       } else {
         return <div key={idx} style={{ display: 'inline-flex', border: '1px solid var(--lineColor)', marginLeft: 5 }}>
-          <IconButton iconName="Edit" text={tag} 
-          styles={{root: { paddingLeft: 8, width: 'unset', height: '100%', fontSize: '1em' }, icon: {paddingLeft: 2, paddingRight: 2}}}
-          onClick={_ => {
-            this.state.isEditing[idx] = true
-            this.setState(this.state)
-          }} />
-          <IconButton iconName="Delete" 
-          styles={{root: {paddingLeft: 2, paddingRight: 2, width: 'unset', height: '100%', fontSize: '1em'}}}
-          onClick={_ => {
-            this.props.tags.splice(idx, 1)
-            this.state.isEditing.splice(idx, 1)
-            this.stagedValues.splice(idx, 1)
-            this.setState(this.state)
-          }} /></div>
+          <IconButton iconName="Edit" text={tag}
+            styles={{ root: { paddingLeft: 8, width: 'unset', height: '100%', fontSize: '1em' }, icon: { paddingLeft: 2, paddingRight: 2 } }}
+            onClick={_ => {
+              this.state.isEditing[idx] = true
+              this.setState(this.state)
+            }} />
+          <IconButton iconName="Delete"
+            styles={{ root: { paddingLeft: 2, paddingRight: 2, width: 'unset', height: '100%', fontSize: '1em' } }}
+            onClick={_ => {
+              this.props.tags.splice(idx, 1)
+              this.state.isEditing.splice(idx, 1)
+              this.stagedValues.splice(idx, 1)
+              this.setState(this.state)
+            }} /></div>
       }
     }
 
     )
-    } <IconButton iconName='Add' styles={{root: { height: 35, width: 35 }}} disabled={this.stagedValues[this.stagedValues.length - 1] === ''} onClick={_ => {
-      this.state.isEditing.push(true)
-      this.stagedValues.push('')
-      this.setState(this.state)
-    }} /> </div>
+    } <IconButton
+        iconName='Add'
+        styles={{
+          root: {
+            height: isMobile ? '10vw' : 35,
+            width: isMobile ? '10vw' : 35,
+            fontSize: isMobile ? '1.5rem' : 'inherit',
+          }
+        }}
+        disabled={this.stagedValues[this.stagedValues.length - 1] === ''}
+        onClick={_ => {
+          this.state.isEditing.push(true)
+          this.stagedValues.push('')
+          this.setState(this.state)
+        }} /> </div>
   }
 }
 
@@ -92,9 +102,10 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
   }
 
   render() {
+    let height = isMobile ? '12vw' : 40
     return <div>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <div className="item-uri-edit" style={{ flexGrow: 1, height: 40 }}>
+        <div className="item-uri-edit" style={{ flexGrow: 1, height: height }}>
           <input type="text" value={this.props.editingItem.uri} onChange={(evt) => {
             this.editURIChanged = true
             this.props.editingItem.uri = evt.target.value
@@ -108,7 +119,7 @@ class TitleEditorComponent extends React.Component<{ editingItem: { uri: string,
           {this.props.children}
         </div>
       </div>
-      <div className="item-title-edit" style={{ height: 40 }}>
+      <div className="item-title-edit" style={{ height: height }}>
         <input type="text" value={this.props.editingItem.title} onChange={(evt) => {
           this.editTitleChanged = true
           this.props.editingItem.title = evt.target.value
@@ -232,7 +243,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
       <div className="item" ref={this.rootRef}>
         {!this.item.editing ? (
           <div>
-            <div style={{ display: 'flex', flexDirection: 'row', height: 40 }} ref={this.breadcrumbFoldRef}>
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }} ref={this.breadcrumbFoldRef}>
               <div style={{ flexGrow: 1 }}>
                 <Breadcrumb
                   box={this.breadcrumbFoldRef}
@@ -250,7 +261,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                   {this.state.moreCalloutVisible &&
                     <Callout
                       target={this.moreButtonRef}
-                      direction={AttachDirection.bottomLeftEdge}
+                      direction={isMobile ? AttachDirection.bottomRightEdge : AttachDirection.bottomLeftEdge}
                       onDismiss={_ => this.setState({ moreCalloutVisible: false })}
                     >
                       <ContextualMenu items={dropdownItems} />
@@ -305,7 +316,20 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                     onClick: () => bus.emit('item-link-clicked', { targetURI: it.uri })
                   }
                 })
-              return <MenuButton name={tag} key={tag} style={{ height: 35, paddingLeft: 10, paddingRight: 10 }} menuProps={{ items: menuProps, styles: { text: { height: 35, paddingRight: 10, paddingLeft: 10 } } }} />
+              return <MenuButton
+                name={tag}
+                key={tag}
+                style={{ paddingLeft: 10, paddingRight: 10 }}
+                menuProps={{
+                  items: menuProps,
+                  styles: {
+                    text: {
+                      height: isMobile ? '10vw' : 35,
+                      paddingRight: isMobile ? '5vw' : 10,
+                      paddingLeft: isMobile ? '5vw' : 10
+                    }
+                  }
+                }} />
             })}</div>
           </div>
         ) : (
@@ -335,35 +359,41 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                   editorDidMount={this.onEditorDidMount.bind(this)}
                 />
               </div>
-              <div className="item-bottom-bar" style={{minHeight: 35}}>
-              <div className="item-type" style={{ width: 110, height: 33, float: 'left' }}>
-                <MenuButton
-                  name={this.editingItem.type ? this.editingItem.type.slice(5) : (this.editingItem.type = 'text/markdown').slice(5)}
-                  style={{ width: '100%', height: '100%', border: '1px solid var(--lineColor)' }}
-                  menuProps={{
-                    items: ['text/markdown', 'text/asciidoc', 'text/plain', 'text/wikitext'].map(tp => {
-                      return {
-                        id: tp,
-                        text: tp.slice(5),
-                        onClick: it => {
-                          this.editingItem.type = it.id as MIME
-                          this.forceUpdate()
+              <div className="item-bottom-bar" style={{ minHeight: 35 }}>
+                <div
+                  className="item-type"
+                  style={{
+                    width: isMobile ? '24vw' : 110,
+                    height: isMobile ? '10vw' : 33,
+                    float: 'left'
+                  }}>
+                  <MenuButton
+                    name={this.editingItem.type ? this.editingItem.type.slice(5) : (this.editingItem.type = 'text/markdown').slice(5)}
+                    style={{ width: '100%', height: '100%', border: '1px solid var(--lineColor)' }}
+                    menuProps={{
+                      items: ['text/markdown', 'text/asciidoc', 'text/plain', 'text/wikitext'].map(tp => {
+                        return {
+                          id: tp,
+                          text: tp.slice(5),
+                          onClick: it => {
+                            this.editingItem.type = it.id as MIME
+                            this.forceUpdate()
+                          }
+                        }
+                      }),
+                      styles: {
+                        text: {
+                          // height: 35,
+                          paddingLeft: 5,
+                          paddingRight: 5
                         }
                       }
-                    }),
-                    styles: {
-                      text: {
-                        height: 35,
-                        paddingLeft: 5,
-                        paddingRight: 5
-                      }
-                    }
-                  }} />
+                    }} />
+                </div>
+                <div className="item-tags">
+                  <TagsComponent tags={this.editingItem.headers.tags} />
+                </div>
               </div>
-              <div className="item-tags">
-                <TagsComponent tags={this.editingItem.headers.tags} />
-              </div>
-            </div>
             </div>
           )}
       </div>

@@ -1,6 +1,6 @@
 .kiwi-indextree-item {
-  min-height: 25px;
-  font-size: 1rem;
+  min-height: 1.4rem;
+  font-size: 0.8rem;
   font-family: var(--sansSerifFont);
   cursor: default;
   color: var(--lineColor);
@@ -19,9 +19,9 @@
 }
 
 .kiwi-indextree-foldicon {
-  height: 25px;
-  width: 25px;
-  line-height: 25px;
+  height: 1.4rem;
+  width: 1.4rem;
+  line-height: 1.4rem;
   font-size: 0.7em;
   text-align: center;
   color: rgb(96, 94, 92);

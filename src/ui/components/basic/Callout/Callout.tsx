@@ -73,7 +73,6 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
       window.addEventListener('click', this.clickCallback)
     }
     if (animationDirection === 'bottom') {
-      console.log('apply bottom animation')
       anime({
         targets: this.el.current,
         translateY: -10,
@@ -83,15 +82,14 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
         easing: 'easeInCubic'
       })
     } else {
-      console.log('apply up animation')
-        anime({
-          targets: this.el.current,
-          translateY: 10,
-          opacity: 0,
-          duration: 150,
-          direction: 'reverse',
-          easing: 'easeInCubic'
-        })
+      anime({
+        targets: this.el.current,
+        translateY: 10,
+        opacity: 0,
+        duration: 150,
+        direction: 'reverse',
+        easing: 'easeInCubic'
+      })
     }
   }
 
@@ -127,7 +125,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
       case AttachDirection.bottomRightEdge:
         res = {
           top: boundingRect.bottom,
-          right: boundingRect.right,
+          right: window.innerWidth - boundingRect.right,
           maxHeight: window.innerHeight - boundingRect.bottom
         }
         break
@@ -141,7 +139,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
       case AttachDirection.topRightEdge:
         res = {
           bottom: window.innerHeight - boundingRect.top,
-          right: boundingRect.right,
+          right: window.innerWidth - boundingRect.right,
           maxHeight: window.innerHeight - (window.innerHeight - boundingRect.top)
         }
         break
