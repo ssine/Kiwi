@@ -46,9 +46,7 @@ class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: bo
         <Callout
           target={this.buttonRef}
           direction={AttachDirection.bottomLeftEdge}
-          width={80}
           onDismiss={_ => this.setState({ isMenuVisible: false })}
-          style={{ width: 'auto' }}
         >
           <ContextualMenu {...this.props.menuProps} />
         </Callout>

@@ -251,9 +251,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                     <Callout
                       target={this.moreButtonRef}
                       direction={AttachDirection.bottomLeftEdge}
-                      width={80}
                       onDismiss={_ => this.setState({ moreCalloutVisible: false })}
-                      style={{ width: 'auto' }}
                     >
                       <ContextualMenu items={dropdownItems} />
                     </Callout>
@@ -269,9 +267,8 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                     <Callout
                       target={this.deleteButtonRef}
                       direction={AttachDirection.bottomLeftEdge}
-                      width={80}
                       onDismiss={_ => this.setState({ deleteCalloutVisible: false })}
-                      style={{ width: 'auto', transform: 'translateX(-35%)' }}
+                      style={{ transform: 'translateX(-35%)' }}
                     >
                       <PrimaryButton title="Confirm Delete" onClick={this.onDelete.bind(this)} />
                     </Callout>
@@ -339,10 +336,9 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
                 />
               </div>
               <div className="item-bottom-bar" style={{minHeight: 35}}>
-              <div className="item-type" style={{ width: 150, height: 33, float: 'left' }}>
+              <div className="item-type" style={{ width: 130, height: 33, float: 'left' }}>
                 <MenuButton
                   name={this.editingItem.type ? this.editingItem.type : (this.editingItem.type = 'text/markdown')}
-                  iconName="ChevronDown"
                   style={{ width: '100%', height: '100%', border: '1px solid var(--lineColor)' }}
                   menuProps={{
                     items: ['text/markdown', 'text/asciidoc', 'text/plain', 'text/wikitext'].map(tp => {

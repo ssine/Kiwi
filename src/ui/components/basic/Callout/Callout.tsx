@@ -5,7 +5,6 @@ import './Callout.css'
 
 type CalloutProperty = {
   target: React.RefObject<HTMLElement>
-  width: number
   direction: AttachDirection
   onDismiss?: (ev?: any) => void
   style?: React.CSSProperties
@@ -13,10 +12,12 @@ type CalloutProperty = {
 
 enum AttachDirection {
   bottomLeftEdge,
-  bottomMiddleEdge
+  bottomRightEdge,
+  topLeftEdge,
+  topRightEdge,
 }
 
-class Callout extends React.Component<CalloutProperty, {}> {
+class Callout extends React.Component<CalloutProperty, { direction: AttachDirection }> {
   layer: HTMLDivElement
   el: React.RefObject<HTMLDivElement>
   scrollCallback: (ev: Event) => void
@@ -28,6 +29,9 @@ class Callout extends React.Component<CalloutProperty, {}> {
     this.layer = document.createElement('div')
     this.layer.className = 'kiwi-callout-layer'
 
+    this.state = {
+      direction: this.props.direction
+    }
     this.scrollCallback = (ev: Event) => {
       this.props.onDismiss(ev)
     }
@@ -42,18 +46,53 @@ class Callout extends React.Component<CalloutProperty, {}> {
 
   componentDidMount() {
     document.body.appendChild(this.layer)
+    let animationDirection = this.state.direction === AttachDirection.bottomLeftEdge || this.state.direction === AttachDirection.bottomRightEdge ? 'bottom' : 'top'
+    if (this.el.current.offsetHeight < this.el.current.scrollHeight) {
+      let boundingRect = this.props.target.current.getBoundingClientRect()
+      let upperHeight = boundingRect.top
+      let lowerHeight = window.innerHeight - boundingRect.bottom
+      if (this.state.direction === AttachDirection.topLeftEdge && upperHeight < lowerHeight) {
+        this.setState({ direction: AttachDirection.bottomLeftEdge })
+        animationDirection = 'bottom'
+      }
+      if (this.state.direction === AttachDirection.topRightEdge && upperHeight < lowerHeight) {
+        this.setState({ direction: AttachDirection.bottomRightEdge })
+        animationDirection = 'bottom'
+      }
+      if (this.state.direction === AttachDirection.bottomLeftEdge && upperHeight > lowerHeight) {
+        this.setState({ direction: AttachDirection.topLeftEdge })
+        animationDirection = 'top'
+      }
+      if (this.state.direction === AttachDirection.bottomRightEdge && upperHeight > lowerHeight) {
+        this.setState({ direction: AttachDirection.topRightEdge })
+        animationDirection = 'top'
+      }
+    }
     if (this.props.onDismiss) {
       window.addEventListener('scroll', this.scrollCallback)
       window.addEventListener('click', this.clickCallback)
     }
-    anime({
-      targets: this.el.current,
-      translateY: -10,
-      opacity: 0,
-      duration: 150,
-      direction: 'reverse',
-      easing: 'easeInCubic'
-    })
+    if (animationDirection === 'bottom') {
+      console.log('apply bottom animation')
+      anime({
+        targets: this.el.current,
+        translateY: -10,
+        opacity: 0,
+        duration: 150,
+        direction: 'reverse',
+        easing: 'easeInCubic'
+      })
+    } else {
+      console.log('apply up animation')
+        anime({
+          targets: this.el.current,
+          translateY: 10,
+          opacity: 0,
+          duration: 150,
+          direction: 'reverse',
+          easing: 'easeInCubic'
+        })
+    }
   }
 
   componentWillUnmount() {
@@ -63,25 +102,7 @@ class Callout extends React.Component<CalloutProperty, {}> {
   }
 
   render() {
-    let boundingRect = this.props.target.current.getBoundingClientRect()
-    let top = 0
-    let left = 0
-    switch (this.props.direction) {
-      case AttachDirection.bottomLeftEdge:
-        top = boundingRect.top + boundingRect.height
-        left = boundingRect.left
-        break
-      case AttachDirection.bottomMiddleEdge:
-        top = boundingRect.top + boundingRect.height
-        left = boundingRect.left - (this.props.width - boundingRect.width) / 2
-        break
-    }
-    let style = Object.assign({}, {
-      width: this.props.width,
-      top: top,
-      left: left,
-      maxHeight: window.innerHeight - top
-    }, this.props.style)
+    let style = Object.assign({}, this._calculatePosition(), this.props.style)
     return ReactDOM.createPortal((
       <div
         className="kiwi-callout"
@@ -90,6 +111,42 @@ class Callout extends React.Component<CalloutProperty, {}> {
         {this.props.children}
       </div>
     ), this.layer)
+  }
+
+  _calculatePosition(): Partial<React.CSSProperties> {
+    let res: React.CSSProperties = {}
+    let boundingRect = this.props.target.current.getBoundingClientRect()
+    switch (this.state.direction) {
+      case AttachDirection.bottomLeftEdge:
+        res = {
+          top: boundingRect.bottom,
+          left: boundingRect.left,
+          maxHeight: window.innerHeight - boundingRect.bottom
+        }
+        break
+      case AttachDirection.bottomRightEdge:
+        res = {
+          top: boundingRect.bottom,
+          right: boundingRect.right,
+          maxHeight: window.innerHeight - boundingRect.bottom
+        }
+        break
+      case AttachDirection.topLeftEdge:
+        res = {
+          bottom: window.innerHeight - boundingRect.top,
+          left: boundingRect.left,
+          maxHeight: window.innerHeight - (window.innerHeight - boundingRect.top)
+        }
+        break
+      case AttachDirection.topRightEdge:
+        res = {
+          bottom: window.innerHeight - boundingRect.top,
+          right: boundingRect.right,
+          maxHeight: window.innerHeight - (window.innerHeight - boundingRect.top)
+        }
+        break
+    }
+    return res
   }
 }
 

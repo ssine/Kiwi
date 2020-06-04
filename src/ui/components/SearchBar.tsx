@@ -56,7 +56,7 @@ export default class SearchBar extends React.Component<SearchBarProperty, Search
         />
       </div>
       {this.state.isSearching && (
-        <Callout target={this.searchBoxRef} width={this.searchBoxRef.current.clientWidth} direction={AttachDirection.bottomLeftEdge}>
+        <Callout target={this.searchBoxRef} direction={AttachDirection.bottomLeftEdge} style={{width: this.searchBoxRef.current.clientWidth}}>
           {this.state.searchResults.map(res => <div
             className='kiwi-search-item'
             onClick={_ => bus.emit('item-link-clicked', { targetURI: res.uri })} >

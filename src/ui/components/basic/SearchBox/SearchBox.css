@@ -55,7 +55,7 @@
   font-family: var(--sansSerifFont);
   margin: 0;
   padding: 3px 0px 3px 10px;
-  cursor: pointer;
+  cursor: default;
 }
 
 .kiwi-search-item:hover {
