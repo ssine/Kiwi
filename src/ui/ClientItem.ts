@@ -14,7 +14,7 @@ import { postJSON } from './Common'
  * A client side item can have everything empty except its uri
  */
 class ClientItem extends BaseItem {
-  contentLoaded: boolean = true
+  contentLoaded: boolean = false
   displaied: boolean = false
   editing: boolean = false
   containerDiv: Element | null = null
@@ -25,6 +25,7 @@ class ClientItem extends BaseItem {
   async load() {
     let obj = await postJSON('/get-item', {uri: this.uri})
     assignCommonProperties(this, obj)
+    this.contentLoaded = true
   }
 
   /**

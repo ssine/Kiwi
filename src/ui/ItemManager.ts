@@ -28,6 +28,7 @@ class ItemManager {
     // get system items
     let systemItems = await postJSON('/get-system-items', {})
     for (let k in systemItems) {
+      systemItems[k].contentLoaded = true
       this.sysMap[systemItems[k].uri] = (new ClientItem()).assign(systemItems[k])
     }
 

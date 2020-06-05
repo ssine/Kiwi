@@ -1,6 +1,7 @@
 import React from 'react'
 import bus from '../eventBus'
 import './IndexTree.css'
+import { getEmPixels } from '../Common'
 
 const INDENT_WIDTH = 15
 
@@ -100,7 +101,7 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
     </div> : <div
     key={node.absoluteURI}
     className='kiwi-indextree-item'
-      style={{ paddingLeft: INDENT_WIDTH * level + 25 }}
+      style={{ paddingLeft: INDENT_WIDTH * level + getEmPixels() * 1.4 }}
       onClick={_ => {
         bus.emit('item-link-clicked', {
           targetURI: node.absoluteURI
