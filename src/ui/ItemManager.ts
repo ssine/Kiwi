@@ -295,6 +295,7 @@ class ItemManager {
     }
     item.title = suggestedURIToTitle(item.uri)
     item.parsedContent = '<i>This item does not exist.</i>'
+    item.contentLoaded = true
     this.map[item.uri] = item
     this.updateURI()
     this.displayItem(item.uri)
