@@ -167,6 +167,10 @@ frame {
   text-decoration: underline;
 }
 
+.item-link-missing {
+  font-style: italic;
+}
+
 .item-controls {
   float: right;
 }

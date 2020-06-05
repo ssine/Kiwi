@@ -502,9 +502,9 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
           el.target.baseVal = '_blank'
         } else {
           el.onclick = async evt => {
-            evt.cancelBubble = true;
-            evt.stopPropagation();
-            evt.preventDefault();
+            evt.cancelBubble = true
+            evt.stopPropagation()
+            evt.preventDefault()
             bus.emit('item-link-clicked', {
               // emitterURI: this.item.uri,
               targetURI: el.href.baseVal,
@@ -517,17 +517,20 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
       }
       if (isLinkInternal(el)) {
         el.onclick = async evt => {
-          evt.cancelBubble = true;
-          evt.stopPropagation();
-          evt.preventDefault();
+          evt.cancelBubble = true
+          evt.stopPropagation()
+          evt.preventDefault()
           bus.emit('item-link-clicked', {
             // we have resolved all links on server side
             // emitterURI: this.item.uri,
             targetURI: el.getAttribute('href'),
           })
-          return false;
+          return false
         }
         el.classList.add('item-link')
+        if (!(el.getAttribute('href') in manager.map) && !(el.getAttribute('href') in manager.sysMap)) {
+          el.classList.add('item-link-missing')
+        }
       } else {
         el.target = '_blank'
       }
