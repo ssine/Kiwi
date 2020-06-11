@@ -96,7 +96,7 @@ class ItemManager {
         // ugly hack, but who cares? going through react is troublesome
         document.getElementById('site-title').innerHTML = document.title
       } else if (data.uri === pageConfigs.subTitle) {
-        document.getElementById('site-subtitle').innerHTML = 
+        document.getElementById('site-subtitle').innerHTML =
           (await this.getLoadedItemFromURI(pageConfigs.subTitle)).content.trim()
       }
     })
@@ -136,15 +136,15 @@ class ItemManager {
       })
     }
   }
-  
+
   /**
    * Get an item fron given uri, will not load it if not exist.
    */
-  async getItemFromURI(uri: string): Promise<ClientItem|null> {
+  async getItemFromURI(uri: string): Promise<ClientItem | null> {
     const getFromMap = async (uri: string, map: URIItemMap) => {
       const possibleIndex = this.concatURI(uri, 'index')
       if (map[possibleIndex])
-      return map[possibleIndex]
+        return map[possibleIndex]
       if (map[uri]) {
         return map[uri]
       }
@@ -157,27 +157,27 @@ class ItemManager {
     return await getFromMap(uri, this.sysMap)
   }
 
-  async getLoadedItemFromURI(uri: string): Promise<ClientItem|null> {
+  async getLoadedItemFromURI(uri: string): Promise<ClientItem | null> {
     const res = await this.getItemFromURI(uri)
-    if (! res) return res
-    if (! res.contentLoaded) await res.load()
+    if (!res) return res
+    if (!res.contentLoaded) await res.load()
     return res
   }
 
   generateTagMap() {
     this.tagMap = {}
     for (const k in this.map) {
-      if (! this.map[k].headers.tags) continue
+      if (!this.map[k].headers.tags) continue
       for (const tag of this.map[k].headers.tags) {
-        if (! this.tagMap[tag]) this.tagMap[tag] = [this.map[k]]
+        if (!this.tagMap[tag]) this.tagMap[tag] = [this.map[k]]
         else this.tagMap[tag].push(this.map[k])
       }
     }
   }
-  
+
   generateItemTypes() {
     for (const k in this.map) {
-      if (! this.map[k].type) continue
+      if (!this.map[k].type) continue
       this.itemTypes.add(this.map[k].type)
     }
   }
@@ -188,7 +188,7 @@ class ItemManager {
   }
 
   concatURI(a: string, b: string): string {
-    while (a.endsWith('/')) a = a.slice(0, a.length-1)
+    while (a.endsWith('/')) a = a.slice(0, a.length - 1)
     while (b.startsWith('/')) b = b.slice(1)
     return `${a}/${b}`
   }
@@ -196,7 +196,7 @@ class ItemManager {
   async displayItem(uri: string) {
     uri = resolveURI(null, uri)
     let item = await this.getLoadedItemFromURI(uri)
-    if (! item) {
+    if (!item) {
       console.log(`item to display [${uri}] dose not exist, creating a missing one`)
       await this.createItem({ uri: uri }, false)
       return
@@ -213,7 +213,7 @@ class ItemManager {
     this.itemFlowDiv.append(el)
     item.containerDiv = el
     this.itemFlow.push(item)
-    
+
     typesetMath()
 
     item.displaied = true
@@ -237,12 +237,12 @@ class ItemManager {
     bus.emit('item-flow-layout')
   }
 
-  async saveItem(data: {uri: string, editedItem: Partial<ClientItem>, token?: string}) {
+  async saveItem(data: { uri: string, editedItem: Partial<ClientItem>, token?: string }) {
     let item = await this.getLoadedItemFromURI(data.uri)
     if (item === null) return
 
     // if (item.isSystem) {
-      // item = new ClientItem()
+    // item = new ClientItem()
     // }
 
     const changedKeys = {}
@@ -270,22 +270,18 @@ class ItemManager {
       item: itemToSave
     })
     assignCommonProperties(item, savedItem)
-    if (data.token) bus.emit(`item-saved-${data.token}`, {item: item})
+    if (data.token) bus.emit(`item-saved-${data.token}`, { item: item })
     bus.emit('item-saved', { uri: item.uri })
   }
 
   finalizeItemEdit(itemURI: string, rerender: boolean = true) {
-    bus.emit(`external-edit-${itemURI}`, {rerender: rerender})
+    bus.emit(`external-edit-${itemURI}`, { rerender: rerender })
   }
 
-  async createItem(data: {uri: string}, editing: boolean = true) {
+  async createItem(data: Partial<ClientItem>, editing: boolean = true) {
     const item = new ClientItem()
-    item.content = ''
-    if (data.uri) item.uri = data.uri
-    else item.uri = 'new-item'
-    item.editing = editing
-    item.missing = true
-    item.headers.tags = []
+    item.content = data.content ? data.content : ''
+    item.uri = data.uri ? data.uri : 'new-item'
     if (this.map[item.uri]) {
       let cnt = 1
       while (this.map[`${item.uri}${cnt}`]) {
@@ -293,7 +289,10 @@ class ItemManager {
       }
       item.uri = `${item.uri}${cnt}`
     }
-    item.title = suggestedURIToTitle(item.uri)
+    item.title = data.title ? data.title : suggestedURIToTitle(item.uri)
+    item.editing = editing
+    item.missing = true
+    item.headers.tags = []
     item.parsedContent = '<i>This item does not exist.</i>'
     item.contentLoaded = true
     this.map[item.uri] = item
@@ -305,7 +304,7 @@ class ItemManager {
     await this.closeItem(uri)
     delete this.map[uri]
     this.updateURI()
-    postJSON('/delete-item', {uri: uri})
+    postJSON('/delete-item', { uri: uri })
     bus.emit('item-deleted')
   }
 
