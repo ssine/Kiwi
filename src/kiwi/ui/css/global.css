@@ -45,6 +45,14 @@ button:focus {
   outline: none;
 }
 
+button:hover {
+  background-color: var(--blockColorLighter);
+}
+
+button:active {
+  background-color: var(--blockColor);
+}
+
 ::selection {
   background-color: var(--lineColor);
   color: white;

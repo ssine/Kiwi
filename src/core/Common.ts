@@ -257,6 +257,17 @@ function suggestedTitleToURI(title: string): string {
   return uri.toLowerCase()
 }
 
+function extend<T, U>(a: T, b: U): T & U {
+  let t: any = {}
+  for (let k in a) {
+    t[k] = a[k]
+  }
+  for (let k in b) {
+    t[k] = b[k]
+  }
+  return t
+}
+
 export {
   MIME,
   renderableMIME,
@@ -274,4 +285,5 @@ export {
   isURL,
   suggestedURIToTitle,
   suggestedTitleToURI,
+  extend,
 }

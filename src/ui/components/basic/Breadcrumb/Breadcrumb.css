@@ -19,3 +19,7 @@
 .kiwi-breadcrumb-item:hover {
   background-color: var(--blockColorLighter);
 }
+
+.kiwi-breadcrumb-item:active {
+  background-color: var(--blockColor);
+}

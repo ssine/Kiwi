@@ -6,7 +6,9 @@ import '../kiwi/ui/css/global.css'
 import 'highlight.js/styles/solarized-light.css'
 import { language as mdLang } from 'monaco-editor/esm/vs/basic-languages/markdown/markdown'
 import manager from './ItemManager'
-import { postFile, CSSColorToRGBA, RGBtoHSV, HSVtoRGB, RGBtoCSSColor } from './Common'
+import * as common from './Common'
+import * as coreCommon from '../core/Common'
+import eventBus from './eventBus'
 
 async function run() {
   //@ts-ignore
@@ -25,14 +27,11 @@ async function run() {
   // @ts-ignore
   window.itemManager = manager
   // @ts-ignore
-  window.postFile = postFile
+  window.eventBus = eventBus
   // @ts-ignore
-  window.kiwiTools = {
-    CSSColorToRGBA,
-    RGBtoHSV,
-    HSVtoRGB,
-    RGBtoCSSColor
-  }
+  window.postFile = common.postFile
+  // @ts-ignore
+  window.kiwiTools = coreCommon.extend(common, coreCommon)
 }
 
 window.onload = run
