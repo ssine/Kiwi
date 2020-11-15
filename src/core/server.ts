@@ -46,7 +46,7 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.post('/get-item', async (req, res) => {
     let uri: string = req.body.uri
-    const it = manager.getItem(uri)
+    const it = manager.getItem(uri, req.cookies.token, true)
     if (it) res.send(await it.json())
     else res.status(404).send('Item not found!')
   })

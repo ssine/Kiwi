@@ -61,6 +61,13 @@ class UserManager {
     return false
   }
 
+  getUserNameFromToken(token: string): string {
+    for (const act of this.accounts) {
+      if (act.token === token) return act.name
+    }
+    return ''
+  }
+
 }
 
 export { UserManager }

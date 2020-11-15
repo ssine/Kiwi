@@ -7,6 +7,8 @@ type ItemHeader = {
   'modify-time'?: moment.Moment
   'tags'?: string[]
   'uri'?: string
+  'reader'?: string[]
+  'writer'?: string[]
 }
 
 /**

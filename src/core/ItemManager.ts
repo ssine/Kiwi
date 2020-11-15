@@ -5,7 +5,7 @@
 
 import { ServerItem } from './ServerItem'
 import { FileSynchronizer, URIItemMap } from './FileSynchronizer'
-import { UserManager } from './UserManager' 
+import { UserManager } from './UserManager'
 import { assignCommonProperties } from './Common'
 import { getLogger } from './Log'
 import { io as uiNotifier } from './server'
@@ -35,17 +35,44 @@ class ItemManager {
     this.systemItemMap = await this.synchronizer.getSystemItemMap()
     await Promise.all(Object.keys(this.systemItemMap).map(k => this.systemItemMap[k].html()))
     const usersItem = this.getItem(usersURI)
-    if (usersItem) { 
+    if (usersItem) {
       this.userManager.init(usersItem.content)
       delete this.systemItemMap[usersURI]
       delete this.itemMap[usersURI]
     }
   }
 
-  getItem(uri: string): ServerItem | null {
-    if (!! this.itemMap[uri]) return this.itemMap[uri]
-    if (!! this.systemItemMap[uri]) return this.systemItemMap[uri]
-    return null
+  getItem(uri: string, token?: string, verify: boolean = false): ServerItem | null {
+    let item: ServerItem | null = null
+    if (!!this.systemItemMap[uri]) item = this.systemItemMap[uri]
+    if (!!this.itemMap[uri]) item = this.itemMap[uri]
+
+    if (!item)
+      return null
+    if (!verify || !item.headers.reader)
+      return item
+
+    let reader = token ? this.userManager.getUserNameFromToken(token) : 'anonymous'
+    let bannedReaders = new Set()
+    let allowedReaders = new Set()
+    for (let r of item.headers.reader) {
+      if (r[0] === '~') {
+        bannedReaders.add(r.slice(1))
+      } else {
+        allowedReaders.add(r)
+      }
+    }
+    if (allowedReaders.size > 0) {
+      if (!allowedReaders.has(reader)) {
+        return null
+      } else {
+        return item
+      }
+    }
+    if (bannedReaders.has(reader)) {
+      return null
+    }
+    return item
   }
 
   async saveItem(uri: string, it: ServerItem): Promise<ServerItem> {
@@ -131,9 +158,9 @@ class ItemManager {
       item: item
     })
   }
-  
+
   onStorageDelete(item: ServerItem) {
-    if (! this.itemMap[item.uri]) return
+    if (!this.itemMap[item.uri]) return
     delete this.itemMap[item.uri]
     logger.info(`item [${item.uri}] deleted because storage deletion`)
     // notify 
