@@ -81,7 +81,7 @@
     "express": "^4.17.1",
     "express-fileupload": "^1.1.7-alpha.3",
     "he": "^1.2.0",
-    "highlight.js": "^9.18.0",
+    "highlight.js": "^10.1.2",
     "isbinaryfile": "^4.0.4",
     "js-yaml": "^3.13.1",
     "jsdom": "^16.2.1",
