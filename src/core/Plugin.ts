@@ -19,7 +19,7 @@ abstract class RenderPlugin {
     for (const name of this.getNames()) {
       pluginMap[name] = this
     }
-    logger.info(`plugin ${this.getNames()[0]} registered.`)
+    logger.debug(`plugin ${this.getNames()[0]} registered.`)
   }
 }
 

@@ -120,7 +120,7 @@ const serve = function serve(port: number, rootFolder: string) {
     }
   })
 
-  server.listen(port, () => logger.info(`Server set up on port ${port}`))
+  server.listen(port, () => logger.info(`Server running on port ${port}`))
 }
 
 export {

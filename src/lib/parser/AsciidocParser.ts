@@ -1,7 +1,6 @@
 import { Parser } from '../../core/Parser'
 import { MIME } from '../../core/Common'
-// @ts-ignore (sign)
-import * as Processor from 'asciidoctor'
+import Asciidoctor from 'asciidoctor'
 import * as cheerio from 'cheerio'
 import * as hljs from 'highlight.js'
 
@@ -9,7 +8,7 @@ import * as hljs from 'highlight.js'
 class AsciidocParser extends Parser {
   processor: any
   init() {
-    this.processor = Processor()
+    this.processor = Asciidoctor()
   }
 
   parse(kwargs: { input: string }): string {

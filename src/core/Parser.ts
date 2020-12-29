@@ -37,7 +37,7 @@ abstract class Parser {
   register() {
     for (const type of this.supportedTypes()) {
       parserMap.set(type, this)
-      logger.info(`Parser for type ${type} registered.`)
+      logger.debug(`Parser for type ${type} registered.`)
     }
   }
 }

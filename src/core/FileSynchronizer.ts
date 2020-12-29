@@ -26,7 +26,7 @@ import * as fs from "fs"
 import * as path from "path"
 import { promisify } from 'util'
 import * as moment from 'moment'
-import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml' 
+import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml'
 import { ItemHeader } from './BaseItem'
 import { ServerItem } from './ServerItem'
 import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME, sleep, fixedEncodeURIComponent } from './Common'
@@ -58,7 +58,7 @@ async function getFSNode(nodePath: string): Promise<FSNode> {
   return {
     absolutePath: path.resolve(nodePath),
     path: path.parse(nodePath),
-    type: (await fs.promises.lstat(nodePath)).isFile() ? 'file' : 'directory'  
+    type: (await fs.promises.lstat(nodePath)).isFile() ? 'file' : 'directory'
   }
 }
 
@@ -72,7 +72,7 @@ type SynchronizerCallbacks = {
   onItemChange?: SynchronizerCallback
 }
 
-let options: {usePolling: boolean} = {
+let options: { usePolling: boolean } = {
   usePolling: false
 }
 
@@ -86,7 +86,7 @@ class FileSynchronizer {
   init(rootPath: string, callbacks: SynchronizerCallbacks) {
     this.rootPath = path.resolve(rootPath)
     this.callbacks = callbacks
-    this.watcher = chokidar.watch(this.rootPath, {ignoreInitial: true, awaitWriteFinish: { stabilityThreshold: 1100 }, usePolling: options.usePolling})
+    this.watcher = chokidar.watch(this.rootPath, { ignoreInitial: true, awaitWriteFinish: { stabilityThreshold: 1100 }, usePolling: options.usePolling })
     this.watcher.on('add', (path) => { this.onNodeCreated(path, false) })
     this.watcher.on('addDir', (path) => { this.onNodeCreated(path, true) })
     this.watcher.on('unlink', (path) => { this.onNodeDeleted(path, false) })
@@ -131,12 +131,11 @@ class FileSynchronizer {
     }
     let fileString = item.content.trim() + '\n';
     if (!!item.type && renderableMIME.has(item.type)) {
-      fileString = `---\n${
-        dumpYaml({
-          title: item.title,
-          ...item.headers
-        }).trim()
-      }\n---\n\n` + fileString
+      fileString = `---\n${dumpYaml({
+        title: item.title,
+        ...item.headers
+      }).trim()
+        }\n---\n\n` + fileString
     }
     await this.writeFile(filePath, fileString)
     logger.info(`item content written to [${filePath}]`)
@@ -321,13 +320,13 @@ class FileSynchronizer {
       const item = await this.getItemFromNode(node, rootPath, URIPrefix)
       if (!item) return
       URIMap[item.uri] = item
-      pathMap[node.absolutePath] = item  
+      pathMap[node.absolutePath] = item
     }))
 
     return [URIMap, pathMap]
   }
 
-  private splitHeaderContent(raw: string): [ItemHeader & {title?: string}, string] {
+  private splitHeaderContent(raw: string): [ItemHeader & { title?: string }, string] {
     const lines = raw.replace(/\r/g, '').split('\n')
     let headers: ItemHeader = {}
     let divideIndex = 0
@@ -355,7 +354,7 @@ class FileSynchronizer {
     let rawContent: string
     if (node.type === 'file') {
       // wait until the coping is done?
-      let buffer: Buffer = new Buffer('')
+      let buffer: Buffer | null = null
       try {
         buffer = await fs.promises.readFile(node.absolutePath)
       } catch (err) {
@@ -372,16 +371,19 @@ class FileSynchronizer {
           }
         } else {
           logger.warn(`file reading error: ${err}`)
-          console.log(err)
         }
       }
-      const isBinary = await isBinaryFile(buffer)
-      if (isBinary) {
-        currentItem.isContentEditable = false
-        rawContent = ''
+      if (buffer) {
+        const isBinary = await isBinaryFile(buffer)
+        if (isBinary) {
+          currentItem.isContentEditable = false
+          rawContent = ''
+        } else {
+          currentItem.isContentEditable = true
+          rawContent = buffer.toString()
+        }
       } else {
-        currentItem.isContentEditable = true
-        rawContent = buffer.toString()
+        rawContent = ''
       }
     } else {
       rawContent = ''
@@ -410,7 +412,7 @@ class FileSynchronizer {
       itemRouteTable[fixedEncodeURIComponent(currentItem.uri)] = (req, res) => {
         res.sendFile(node.absolutePath)
       }
-      logger.info(`serve ${node.absolutePath} on uri [${fixedEncodeURIComponent(currentItem.uri)}]`)
+      logger.debug(`serve ${node.absolutePath} on uri [${fixedEncodeURIComponent(currentItem.uri)}]`)
     }
     currentItem.missing = false
     return currentItem

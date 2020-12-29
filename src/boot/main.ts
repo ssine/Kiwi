@@ -1,8 +1,34 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs'
+import { initLogger } from '../core/Log'
+
+const args = yargs
+  .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {
+    yargs.option('port', {
+      alias: 'p',
+      describe: 'local port to listen on',
+      default: 3000
+    })
+      .option('use-poll', {
+        describe: 'use polling on listening for fs events, more robust but inefficient',
+        default: false
+      })
+  })
+  .option('log', {
+    alias: 'l',
+    describe: 'log level, possible levels: trace, debug, info, warn, severe',
+    default: 'info'
+  })
+  .demandCommand()
+  .help()
+  .argv as any
+
+
+initLogger(args.log)
+
+
 import manager from '../core/ItemManager'
 import { serve } from '../core/server'
-import { initLogger } from '../core/Log'
 import MarkdownParser from '../lib/parser/MarkdownParser'
 import WikitextParser from '../lib/parser/WikitextParser'
 import AsciidocParser from '../lib/parser/AsciidocParser'
@@ -14,30 +40,6 @@ import TranscludePlugin from '../lib/plugin/TranscludePlugin'
 import ListPlugin from '../lib/plugin/ListPlugin'
 import SVGPlugin from '../lib/plugin/SVGPlugin'
 import CSSEscapePlugin from '../lib/plugin/CSSEscapePlugin'
-
-const args = yargs
-  .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {
-    yargs.option('port', {
-      alias: 'p',
-      describe: 'local port to listen on',
-      default: 3000
-    })
-    .option('use-poll', {
-      describe: 'use polling on listening for fs events, more robust but inefficient',
-      default: false
-    })
-  })
-  .option('log', {
-    alias: 'l',
-    describe: 'log level, possible levels: trace, debug, info, warn, severe',
-    default: 'debug'
-  })
-  .demandCommand()
-  .help()
-  .argv as any
-
-
-initLogger(args.log)
 
 function registLib() {
   const md = new MarkdownParser()
@@ -73,7 +75,7 @@ function registLib() {
   cssesc.register()
 }
 
-async function run () {
+async function run() {
   registLib()
   if (args._[0] === 'serve') {
     require('../core/FileSynchronizer').options.usePolling = args.usePoll
