@@ -3,6 +3,7 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 let CompressionPlugin = require("compression-webpack-plugin");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const LiveReloadWebpackPlugin = require('@kooneko/livereload-webpack-plugin');
 
 module.exports = {
   devtool: process.env.WEBPACK_MODE === 'production' ? 'cheap-module-source-map' : undefined,
@@ -53,12 +54,17 @@ module.exports = {
       test: /\.js$|\.css$|\.html$/,
       minRatio: 0.8
     }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: 'disabled',
-      generateStatsFile: true,
-      statsOptions: {
-        source: false
-      }
-    })
+    new LiveReloadWebpackPlugin({
+      appendScript: true,
+      ignore: ['node_modules/**'],
+    }),
+    // Enable this when analyzing bundle sizes, super time consuming.
+    // new BundleAnalyzerPlugin({
+    //   analyzerMode: 'disabled',
+    //   generateStatsFile: true,
+    //   statsOptions: {
+    //     source: false
+    //   }
+    // })
   ]
 };
