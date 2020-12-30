@@ -580,7 +580,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
         rotateY: 90,
         duration: 100,
         easing: 'linear',
-        complete: () => res()
+        complete: () => res(null)
       })
     })
   }
@@ -596,7 +596,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
         opacity: 0,
         duration: 100,
         easing: 'easeOutQuad',
-        complete: () => res()
+        complete: () => res(null)
       })
     })
   }
@@ -611,7 +611,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
         rotateY: 0,
         duration: 100,
         easing: 'linear',
-        complete: () => res()
+        complete: () => res(null)
       })
     })
   }
@@ -627,7 +627,7 @@ export class ItemComponent extends React.Component<{ item: ClientItem }, { delet
         translateY: dy,
         duration: 100,
         easing: () => (t: number) => 1 - t,
-        complete: () => res()
+        complete: () => res(null)
       })
     })
   }

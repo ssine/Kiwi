@@ -67,7 +67,7 @@ abstract class BaseItem {
   /**
    * Return the HTML content generated, parse content if not
    */
-  abstract async html(): Promise<string>
+  abstract html(): Promise<string>
 
   /**
    * Return the json representation of this item (serialization), without chlids
