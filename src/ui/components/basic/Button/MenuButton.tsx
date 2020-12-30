@@ -41,7 +41,7 @@ class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: bo
         onClick={_ => this.setState({ isMenuVisible: true })} >
           {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
           {this.props.name}
-      </button>}
+        </button>}
       {this.state.isMenuVisible &&
         <Callout
           target={this.buttonRef}

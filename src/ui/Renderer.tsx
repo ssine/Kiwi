@@ -15,21 +15,21 @@ export default class Renderer {
   constructor() {
   }
 
-  renderItem(it: ClientItem, el: Element ) {
+  renderItem(it: ClientItem, el: Element) {
     ReactDOM.render(
       <ItemComponent item={it} />,
       el
     )
   }
 
-  renderSidebar(config: SidebarComponentProperty, el: Element) {    
+  renderSidebar(config: SidebarComponentProperty, el: Element) {
     ReactDOM.render(
       React.createElement(SidebarComponent, config),
       el
     )
   }
 
-  renderSidebarSwitch(el: HTMLElement) {    
+  renderSidebarSwitch(el: HTMLElement) {
     return ReactDOM.render(
       React.createElement(SidebarSwitch, { container: el }),
       el

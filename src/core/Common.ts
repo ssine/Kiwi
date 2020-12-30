@@ -2,7 +2,7 @@
  * A list of some MIME types
  * Partially supported
  */
-type MIME = 
+type MIME =
   'application/pdf' |
   'application/json' |
   'text/plain' |
@@ -136,7 +136,7 @@ const editorMIMETypes = {
  */
 function getExtensionFromMIME(ct: MIME | null): string {
   if (ct === null) return ''
-  return MIMEextDict[ct] || 'txt' 
+  return MIMEextDict[ct] || 'txt'
 }
 
 /**
@@ -151,7 +151,7 @@ function getLanguageFromMIME(ct: MIME | null): string {
     'text/html': 'html',
     'text/wikitext': 'wikitext',
   }
-  return MIMELangDict[ct] || extra[ct] || 'txt' 
+  return MIMELangDict[ct] || extra[ct] || 'txt'
 }
 
 
@@ -186,7 +186,7 @@ function sleep(timeoutMs: number): Promise<void> {
 }
 
 function cloneRegex(re: RegExp): RegExp {
-  const flagMap: {[k: string]: string} = {
+  const flagMap: { [k: string]: string } = {
     global: 'g',
     ignoreCase: 'i',
     multiline: 'm',
@@ -194,17 +194,17 @@ function cloneRegex(re: RegExp): RegExp {
     sticky: 'y',
     unicode: 'u'
   };
-  
+
   // @ts-ignore
   const flags = Object.keys(flagMap).map(flag => re[flag] ? flagMap[flag] : '').join('');
 
-	const clonedRegexp = new RegExp(re.source, flags);
+  const clonedRegexp = new RegExp(re.source, flags);
 
-	return clonedRegexp;
+  return clonedRegexp;
 }
 
 function fixedEncodeURIComponent(str: string) {
-  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
     return '%' + c.charCodeAt(0).toString(16)
   });
 }
@@ -246,7 +246,7 @@ function isURL(url: string): boolean {
 
 function suggestedURIToTitle(uri: string): string {
   let title = uri.split('/').pop()
-  if (! title) return 'No Title Suggestion'
+  if (!title) return 'No Title Suggestion'
   title = title.replace(/-/g, ' ')
   title = title.split(' ').map(word => word === '' ? '' : word[0].toUpperCase() + word.substr(1).toLowerCase()).join(' ')
   return title

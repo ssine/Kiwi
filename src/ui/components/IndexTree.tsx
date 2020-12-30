@@ -99,8 +99,8 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
         }} ></div>
       {node.title}
     </div> : <div
-    key={node.absoluteURI}
-    className='kiwi-indextree-item'
+      key={node.absoluteURI}
+      className='kiwi-indextree-item'
       style={{ paddingLeft: INDENT_WIDTH * level + getEmPixels() * 1.4 }}
       onClick={_ => {
         bus.emit('item-link-clicked', {
@@ -108,8 +108,8 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
         })
       }}
     >
-      {node.title}
-    </div>
+        {node.title}
+      </div>
 
     nodeList.push(curNode)
     if (Object.keys(state.childs).length > 0 && state.expanded) {

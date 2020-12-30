@@ -26,9 +26,9 @@ class Pivot extends React.Component<PivotProperty, PivotState> {
       tabPanels: [],
       activeTab: 0
     }
-    React.Children.forEach(this.props.children, (child: React.ReactElement, idx) => {
-      this.state.tabNames.push(child.props.name)
-      this.state.tabPanels.push(child.props.children)
+    React.Children.forEach(this.props.children, (child, idx) => {
+      this.state.tabNames.push((child as React.ReactElement<{name: string}>).props.name)
+      this.state.tabPanels.push((child as React.ReactElement<{children: any[]}>).props.children)
     })
   }
 

@@ -23,7 +23,7 @@ class ClientItem extends BaseItem {
    * Load all the contents of current item from server
    */
   async load() {
-    let obj = await postJSON('/get-item', {uri: this.uri})
+    let obj = await postJSON('/get-item', { uri: this.uri })
     assignCommonProperties(this, obj)
     this.contentLoaded = true
   }
@@ -33,7 +33,7 @@ class ClientItem extends BaseItem {
    */
   async save() {
     const { containerDiv, parsedContent, ...itemToSave } = this
-    let obj = await postJSON('/save-item', {uri: this.uri, item: itemToSave})
+    let obj = await postJSON('/save-item', { uri: this.uri, item: itemToSave })
     assignCommonProperties(this, obj)
   }
 

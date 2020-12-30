@@ -16,7 +16,7 @@ export default class GraphvizPlugin extends RenderPlugin {
         let cfg = config ? config : {}
         this.viz.renderString(input, cfg)
           .then((v: string) => res(`<div class="graphviz-diagram">${v}</div>`))
-          .catch((err:string) => {
+          .catch((err: string) => {
             this.viz = new Viz({ Module, render });
             res(err)
           })

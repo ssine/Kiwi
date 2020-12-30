@@ -19,7 +19,7 @@ class AsciidocParser extends Parser {
       if (!code) return
       try {
         code = hljs.highlight(lang, code).value
-      } catch (err) {}
+      } catch (err) { }
       $(el).html(code)
     })
     return `<div>${$('body').html()}</div>`

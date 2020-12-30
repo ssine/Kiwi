@@ -16,7 +16,7 @@ class WikitextParser extends Parser {
   init() {
   }
 
-  parse(kwargs: {input: string}): string {
+  parse(kwargs: { input: string }): string {
     const $ = cheerio.load(wtf(kwargs.input).html())
     return `<div>${$('body').html()}</div>`
   }

@@ -15,10 +15,10 @@ async function init() {
   const { AllPackages } = await import(/* webpackChunkName: "mjx.AllPackages" */ 'mathjax-full/js/input/tex/AllPackages')
   const { MenuHandler } = await import(/* webpackChunkName: "mjx.menu" */ 'mathjax-full/js/ui/menu/MenuHandler')
   const { Menu } = await import(/* webpackChunkName: "mjx.menu" */ 'mathjax-full/js/ui/menu/Menu')
-  
+
   // @ts-ignore
-  window.MathJax = {_: {}}
-  
+  window.MathJax = { _: {} }
+
   // This is to fix the Explorer => Activate issue
   // @ts-ignore
   Menu.prototype.checkLoadableItems = function () {

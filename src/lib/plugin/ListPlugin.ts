@@ -20,7 +20,8 @@ export default class ListPlugin extends RenderPlugin {
       let result = filtered.map(it => {
         let href = kw.href ? kw.href(it) : `/${it.uri}`
         let name = kw.name ? kw.name(it) : `${it.title}`
-        return `<li><a href="${href}">${name}</a></li>`}
+        return `<li><a href="${href}">${name}</a></li>`
+      }
       ).join('\n')
       if (kw.ordered) return `<ol>${result}</ol>`
       return `<ul>${result}</ul>`

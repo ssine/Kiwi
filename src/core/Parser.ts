@@ -45,7 +45,7 @@ abstract class Parser {
 /**
  * Parse a content and return html <div>
  */
-const parse = function parse(kwargs: {input: string, uri: string, type: MIME}): string {
+const parse = function parse(kwargs: { input: string, uri: string, type: MIME }): string {
   const parser = parserMap.get(kwargs.type)
   if (!parser) {
     logger.info(`Parser for type ${kwargs.type} not found, empty string returned.`)

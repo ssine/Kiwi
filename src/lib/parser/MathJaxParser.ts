@@ -20,10 +20,10 @@ const tex = new TeX({
     ['\\[', '\\]']
   ],
 })
-const svg = new SVG({fontCache: 'local'})
+const svg = new SVG({ fontCache: 'local' })
 
 function typesetDocumentMath(raw: string) {
-  const html = mathjax.document(raw, {InputJax: tex, OutputJax: svg})
+  const html = mathjax.document(raw, { InputJax: tex, OutputJax: svg })
   html.findMath().compile().getMetrics().typeset().updateDocument()
   return html.document.body.innerHTML
 }

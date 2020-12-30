@@ -46,7 +46,7 @@ class MarkdownParser extends Parser {
     });
   }
 
-  parse(kwargs: {uri: string, input: string}): string {
+  parse(kwargs: { uri: string, input: string }): string {
     let html = marked(kwargs.input)
     html = html.replace(/(src|href)="(.+?)"/g, (match, $1, $2) => {
       if (isURL($2)) return match

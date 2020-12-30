@@ -21,7 +21,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
   layer: HTMLDivElement
   el: React.RefObject<HTMLDivElement>
   scrollCallback: (ev: Event) => void
-  clickCallback: (ev: Event) => void
+  clickCallback: (ev: MouseEvent) => void
 
   constructor(props: CalloutProperty) {
     super(props)

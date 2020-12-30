@@ -19,7 +19,7 @@ const LoginForm: React.FC<{}> = () => {
       window.location.reload()
     }}>Logout</button>
   </div> : <div>
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div className="kiwi-login-input"><input placeholder="Username" id="kiwi-login-name" /></div>
         <div className="kiwi-login-input"><input placeholder="Password" id="kiwi-login-password" type="password" /></div>
         <p style={{ color: 'red', margin: '0', textAlign: 'center' }} id="kiwi-login-error-msg"></p>

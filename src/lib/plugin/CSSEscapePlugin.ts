@@ -15,7 +15,7 @@ export default class CSSEscapePlugin extends RenderPlugin {
 
   getFunctionForItem() {
     return async (src: string): Promise<string> => {
-      return cssesc(src, {isIdentifier: true})
+      return cssesc(src, { isIdentifier: true })
     }
   }
 }
