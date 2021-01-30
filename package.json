@@ -1,6 +1,6 @@
 {
   "name": "kiwi-wiki",
-  "version": "0.0.39",
+  "version": "0.0.41",
   "description": "a flat file personal wiki.",
   "main": "build/boot/main.js",
   "files": [
@@ -20,8 +20,9 @@
     "watch:ui": "webpack --mode=development --watch",
     "watch:core": "tsc-watch --noClear --onFirstSuccess \"shx cp -r src/kiwi build/\" --onSuccess \"node build/boot/main.js serve ../wiki\"",
     "analyze": "webpack-bundle-analyzer --port 8080 build/browser/stats.json",
-    "prepare": "shx rm -rf build && concurrently 'npm run build:core' 'npm run build:ui_prod'",
-    "publish_": "npm --registry https://registry.npmjs.org/ publish"
+    "prepare": "shx rm -rf build && concurrently 'npm:build:core' 'npm:build:ui_prod'",
+    "publish_": "npm --registry https://registry.npmjs.org/ publish",
+    "login_": "npm --registry https://registry.npmjs.org/ login"
   },
   "author": "Sine Liu",
   "license": "ISC",

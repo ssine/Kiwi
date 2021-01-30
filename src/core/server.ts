@@ -40,8 +40,7 @@ const serve = function serve(port: number, rootFolder: string) {
   app.use('/', express.static(resolve(__dirname, '../browser')))
 
   app.use(fileUpload({
-    useTempFiles: true,
-    tempFileDir: resolve(__dirname, '../kiwi/tmp/')
+    // useTempFiles: true
   }))
 
   app.post('/get-item', async (req, res) => {
