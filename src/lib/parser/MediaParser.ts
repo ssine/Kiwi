@@ -1,5 +1,5 @@
-import {Parser} from '../../core/Parser'
-import {MIME, fixedEncodeURIComponent} from '../../core/Common'
+import { Parser } from '../../core/Parser'
+import { MIME, fixedEncodeURIComponent } from '../../core/Common'
 
 class MediaParser extends Parser {
   imageTypes: MIME[] = ['image/gif', 'image/x-icon', 'image/jpeg', 'image/png', 'image/svg+xml']
@@ -9,7 +9,7 @@ class MediaParser extends Parser {
 
   init() {}
 
-  parse(kwargs: {input: string; uri: string; type: MIME}): string {
+  parse(kwargs: { input: string; uri: string; type: MIME }): string {
     if (this.imageTypes.indexOf(kwargs.type) !== -1) {
       if (kwargs.type === 'image/svg+xml')
         return `<embed src="${fixedEncodeURIComponent(

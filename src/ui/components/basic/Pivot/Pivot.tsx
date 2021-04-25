@@ -1,7 +1,7 @@
 import React from 'react'
 import './Pivot.css'
 
-const PivotItem: React.FC<{name: string}> = props => {
+const PivotItem: React.FC<{ name: string }> = props => {
   return <div>{props.children}</div>
 }
 
@@ -27,8 +27,8 @@ class Pivot extends React.Component<PivotProperty, PivotState> {
       activeTab: 0,
     }
     React.Children.forEach(this.props.children, (child, idx) => {
-      this.state.tabNames.push((child as React.ReactElement<{name: string}>).props.name)
-      this.state.tabPanels.push((child as React.ReactElement<{children: any[]}>).props.children)
+      this.state.tabNames.push((child as React.ReactElement<{ name: string }>).props.name)
+      this.state.tabPanels.push((child as React.ReactElement<{ children: any[] }>).props.children)
     })
   }
 
@@ -40,12 +40,12 @@ class Pivot extends React.Component<PivotProperty, PivotState> {
             <button
               key={name}
               className={`kiwi-pivot-button${idx === this.state.activeTab ? ' active' : ''}`}
-              style={{display: 'flex', flexDirection: 'column'}}
+              style={{ display: 'flex', flexDirection: 'column' }}
               onClick={_ => {
-                this.setState({activeTab: idx})
+                this.setState({ activeTab: idx })
               }}
             >
-              <div style={{flexGrow: 1, display: 'flex', alignItems: 'center'}}>{name}</div>
+              <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>{name}</div>
             </button>
           ))}
         </div>
@@ -57,4 +57,4 @@ class Pivot extends React.Component<PivotProperty, PivotState> {
   }
 }
 
-export {Pivot, PivotItem}
+export { Pivot, PivotItem }

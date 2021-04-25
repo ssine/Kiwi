@@ -2,7 +2,7 @@
  * Management of users
  * @packageDocumentation
  */
-import {createHash} from 'crypto'
+import { createHash } from 'crypto'
 
 interface UserAccount {
   name: string
@@ -76,4 +76,4 @@ class UserManager {
   }
 }
 
-export {UserManager}
+export { UserManager }

@@ -1,12 +1,12 @@
 import socketIO from 'socket.io-client'
 import bus from './eventBus'
-import {defaultItemsURI, pageConfigs} from '../boot/config'
+import { defaultItemsURI, pageConfigs } from '../boot/config'
 import ClientItem from './ClientItem'
-import {postJSON, getPositionToDocument, setPageColors, CSSColorToRGBA, RGBtoHSV} from './Common'
+import { postJSON, getPositionToDocument, setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
 import Renderer from './Renderer'
-import {URIParser} from './URIParser'
-import {typesetMath} from './mathjax'
-import {assignCommonProperties, resolveURI, suggestedURIToTitle} from '../core/Common'
+import { URIParser } from './URIParser'
+import { typesetMath } from './mathjax'
+import { assignCommonProperties, resolveURI, suggestedURIToTitle } from '../core/Common'
 
 type URIItemMap = Record<string, ClientItem>
 
@@ -20,7 +20,7 @@ class ItemManager {
   itemFlowDiv!: Element
   renderer: Renderer
   URIParser: URIParser = new URIParser()
-  tagMap: {[tag: string]: ClientItem[]} = {}
+  tagMap: { [tag: string]: ClientItem[] } = {}
   itemTypes: Set<string> = new Set()
   io = socketIO()
 
@@ -108,7 +108,7 @@ class ItemManager {
     this.io.on('item-change', async data => {
       let item: ClientItem = data.item
       item = this.map[item.uri].assign(item)
-      bus.emit('item-saved', {uri: item.uri})
+      bus.emit('item-saved', { uri: item.uri })
       const idx = this.itemFlow.indexOf(item)
       if (idx !== -1) {
         this.itemFlowDiv.children[idx].querySelector('.item-content').innerHTML = await item.html()
@@ -119,7 +119,7 @@ class ItemManager {
       item.assign(data.item)
       this.map[item.uri] = item
       this.updateURI()
-      bus.emit('item-saved', {uri: item.uri})
+      bus.emit('item-saved', { uri: item.uri })
     })
     this.io.on('item-delete', async data => {
       const uri: string = data.uri
@@ -201,7 +201,7 @@ class ItemManager {
     const item = await this.getLoadedItemFromURI(uri)
     if (!item) {
       console.log(`item to display [${uri}] dose not exist, creating a missing one`)
-      await this.createItem({uri: uri}, false)
+      await this.createItem({ uri: uri }, false)
       return
     }
 
@@ -240,7 +240,7 @@ class ItemManager {
     bus.emit('item-flow-layout')
   }
 
-  async saveItem(data: {uri: string; editedItem: Partial<ClientItem>; token?: string}) {
+  async saveItem(data: { uri: string; editedItem: Partial<ClientItem>; token?: string }) {
     const item = await this.getLoadedItemFromURI(data.uri)
     if (item === null) return
 
@@ -267,18 +267,18 @@ class ItemManager {
     this.generateTagMap()
     item.editing = false
     item.missing = false
-    const {containerDiv, parsedContent, ...itemToSave} = item
+    const { containerDiv, parsedContent, ...itemToSave } = item
     const savedItem = await postJSON('/save-item', {
       uri: data.uri,
       item: itemToSave,
     })
     assignCommonProperties(item, savedItem)
-    if (data.token) bus.emit(`item-saved-${data.token}`, {item: item})
-    bus.emit('item-saved', {uri: item.uri})
+    if (data.token) bus.emit(`item-saved-${data.token}`, { item: item })
+    bus.emit('item-saved', { uri: item.uri })
   }
 
   finalizeItemEdit(itemURI: string, rerender = true) {
-    bus.emit(`external-edit-${itemURI}`, {rerender: rerender})
+    bus.emit(`external-edit-${itemURI}`, { rerender: rerender })
   }
 
   async createItem(data: Partial<ClientItem>, editing = true) {
@@ -307,12 +307,12 @@ class ItemManager {
     await this.closeItem(uri)
     delete this.map[uri]
     this.updateURI()
-    postJSON('/delete-item', {uri: uri})
+    postJSON('/delete-item', { uri: uri })
     bus.emit('item-deleted')
   }
 
-  async processSearch(data: {input: string; token: string}) {
-    const result = await postJSON('/get-search-result', {input: data.input})
+  async processSearch(data: { input: string; token: string }) {
+    const result = await postJSON('/get-search-result', { input: data.input })
     const lst = []
     for (const res of result) {
       if (!this.map[res.uri]) {
@@ -322,7 +322,7 @@ class ItemManager {
       }
       lst.push(this.map[res.uri])
     }
-    bus.emit(`search-result-${data.token}`, {items: lst})
+    bus.emit(`search-result-${data.token}`, { items: lst })
   }
 
   updateURI() {

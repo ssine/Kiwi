@@ -50,4 +50,4 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
   }
 }
 
-export {ContextualMenu, ContextualMenuItem, ContextualMenuProperty}
+export { ContextualMenu, ContextualMenuItem, ContextualMenuProperty }

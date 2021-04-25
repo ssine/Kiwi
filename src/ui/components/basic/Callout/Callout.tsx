@@ -17,7 +17,7 @@ enum AttachDirection {
   topRightEdge,
 }
 
-class Callout extends React.Component<CalloutProperty, {direction: AttachDirection}> {
+class Callout extends React.Component<CalloutProperty, { direction: AttachDirection }> {
   layer: HTMLDivElement
   el: React.RefObject<HTMLDivElement>
   scrollCallback: (ev: Event) => void
@@ -62,19 +62,19 @@ class Callout extends React.Component<CalloutProperty, {direction: AttachDirecti
       const upperHeight = boundingRect.top
       const lowerHeight = window.innerHeight - boundingRect.bottom
       if (this.state.direction === AttachDirection.topLeftEdge && upperHeight < lowerHeight) {
-        this.setState({direction: AttachDirection.bottomLeftEdge})
+        this.setState({ direction: AttachDirection.bottomLeftEdge })
         animationDirection = 'bottom'
       }
       if (this.state.direction === AttachDirection.topRightEdge && upperHeight < lowerHeight) {
-        this.setState({direction: AttachDirection.bottomRightEdge})
+        this.setState({ direction: AttachDirection.bottomRightEdge })
         animationDirection = 'bottom'
       }
       if (this.state.direction === AttachDirection.bottomLeftEdge && upperHeight > lowerHeight) {
-        this.setState({direction: AttachDirection.topLeftEdge})
+        this.setState({ direction: AttachDirection.topLeftEdge })
         animationDirection = 'top'
       }
       if (this.state.direction === AttachDirection.bottomRightEdge && upperHeight > lowerHeight) {
-        this.setState({direction: AttachDirection.topRightEdge})
+        this.setState({ direction: AttachDirection.topRightEdge })
         animationDirection = 'top'
       }
     }
@@ -156,4 +156,4 @@ class Callout extends React.Component<CalloutProperty, {direction: AttachDirecti
   }
 }
 
-export {Callout, AttachDirection}
+export { Callout, AttachDirection }

@@ -1,4 +1,4 @@
-import {EventEmitter} from 'events'
+import { EventEmitter } from 'events'
 
 /**
  * List of events and their arguments:

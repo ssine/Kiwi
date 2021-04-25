@@ -33,7 +33,7 @@ type MIME =
 
 const renderableMIME = new Set<MIME>(['text/plain', 'text/markdown', 'text/asciidoc', 'text/wikitext', 'text/html'])
 
-const extMIMEDict: {[name: string]: MIME} = {
+const extMIMEDict: { [name: string]: MIME } = {
   md: 'text/markdown',
   adoc: 'text/asciidoc',
   wiki: 'text/wikitext',
@@ -64,7 +64,7 @@ const extMIMEDict: {[name: string]: MIME} = {
   jsx: 'text/x-typescript',
 }
 
-const MIMEextDict: {[mime: string]: string} = {
+const MIMEextDict: { [mime: string]: string } = {
   'text/plain': 'txt',
   'text/markdown': 'md',
   'text/asciidoc': 'adoc',
@@ -92,7 +92,7 @@ const MIMEextDict: {[mime: string]: string} = {
   'text/x-typescript': 'ts',
 }
 
-const MIMELangDict: {[mime: string]: string} = {
+const MIMELangDict: { [mime: string]: string } = {
   'application/json': 'json',
   'text/yaml': 'yaml',
   'text/x-c': 'cpp',
@@ -132,7 +132,7 @@ function getExtensionFromMIME(ct: MIME | null): string {
  */
 function getLanguageFromMIME(ct: MIME | null): string {
   if (ct === null) return ''
-  const extra: {[mime: string]: string} = {
+  const extra: { [mime: string]: string } = {
     'text/markdown': 'markdown',
     'text/asciidoc': 'asciidoc',
     'text/plain': 'plain',
@@ -172,7 +172,7 @@ function sleep(timeoutMs: number): Promise<void> {
 }
 
 function cloneRegex(re: RegExp): RegExp {
-  const flagMap: {[k: string]: string} = {
+  const flagMap: { [k: string]: string } = {
     global: 'g',
     ignoreCase: 'i',
     multiline: 'm',

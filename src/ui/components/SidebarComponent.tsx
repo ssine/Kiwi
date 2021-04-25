@@ -1,13 +1,13 @@
 import bus from '../eventBus'
 import ClientItem from '../ClientItem'
 import React from 'react'
-import {IconButton} from './basic/Button/IconButton'
-import {Pivot, PivotItem} from './basic/Pivot/Pivot'
-import {Banner} from './basic/Banner/Banner'
-import {URINode} from '../URIParser'
-import {getCookie, isMobile} from '../Common'
+import { IconButton } from './basic/Button/IconButton'
+import { Pivot, PivotItem } from './basic/Pivot/Pivot'
+import { Banner } from './basic/Banner/Banner'
+import { URINode } from '../URIParser'
+import { getCookie, isMobile } from '../Common'
 
-import {IndexTree} from './IndexTree'
+import { IndexTree } from './IndexTree'
 import SearchBar from './SearchBar'
 import ItemFlowVis from './ItemFlowVis'
 import LoginForm from './LoginForm'
@@ -66,7 +66,7 @@ export class SidebarComponent extends React.Component<SidebarComponentProperty, 
         <SearchBar />
         <Pivot
           styles={{
-            panel: {flexGrow: 1, overflow: 'auto', marginTop: 5},
+            panel: { flexGrow: 1, overflow: 'auto', marginTop: 5 },
             root: {
               marginTop: 10,
               display: 'flex',

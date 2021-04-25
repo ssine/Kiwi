@@ -59,4 +59,4 @@ class URIParser {
   }
 }
 
-export {URINode, URIParser}
+export { URINode, URIParser }

@@ -1,4 +1,4 @@
-import {createLogger, format, transports} from 'winston'
+import { createLogger, format, transports } from 'winston'
 import * as logform from 'logform'
 
 let loggingLevel = 'debug'
@@ -20,4 +20,4 @@ function getLogger(moduleName: string) {
   return logger
 }
 
-export {initLogger, getLogger}
+export { initLogger, getLogger }

@@ -1,4 +1,4 @@
-import {RenderPlugin} from '../../core/Plugin'
+import { RenderPlugin } from '../../core/Plugin'
 
 export default class SVGPlugin extends RenderPlugin {
   init() {}

@@ -18,4 +18,4 @@ class PrimaryButton extends React.Component<PrimaryButtonProperty, {}> {
   }
 }
 
-export {PrimaryButton}
+export { PrimaryButton }

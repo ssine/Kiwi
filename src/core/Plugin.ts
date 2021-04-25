@@ -1,14 +1,14 @@
-import {getLogger} from './Log'
+import { getLogger } from './Log'
 import * as he from 'he'
 import * as vm from 'vm'
-import {cloneRegex} from './Common'
-import {app} from './server'
+import { cloneRegex } from './Common'
+import { app } from './server'
 
 const logger = getLogger('plugin')
 
 type renderFunction = (...args: any[]) => Promise<string>
 
-const pluginMap: {[name: string]: RenderPlugin} = {}
+const pluginMap: { [name: string]: RenderPlugin } = {}
 
 abstract class RenderPlugin {
   abstract init(): void
@@ -26,7 +26,7 @@ abstract class RenderPlugin {
   }
 }
 
-type fieldCodeMatchResult = {start: number; end: number} | null
+type fieldCodeMatchResult = { start: number; end: number } | null
 
 function fieldCodeMatch(s: string): fieldCodeMatchResult {
   let lastLeftIndex = -1
@@ -104,4 +104,4 @@ const processRenderPlugin = async function processRenderPlugin(
   return target.replace(/\\{{/g, '{{').replace(/\\}}/g, '}}')
 }
 
-export {RenderPlugin, processRenderPlugin, ItemContext}
+export { RenderPlugin, processRenderPlugin, ItemContext }

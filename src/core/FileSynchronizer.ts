@@ -24,16 +24,16 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-import {promisify} from 'util'
+import { promisify } from 'util'
 import * as moment from 'moment'
-import {safeLoad as loadYaml, dump as dumpYaml} from 'js-yaml'
-import {ItemHeader} from './BaseItem'
-import {ServerItem} from './ServerItem'
-import {getMIMEFromExtension, renderableMIME, getExtensionFromMIME, sleep, fixedEncodeURIComponent} from './Common'
-import {getLogger} from './Log'
+import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml'
+import { ItemHeader } from './BaseItem'
+import { ServerItem } from './ServerItem'
+import { getMIMEFromExtension, renderableMIME, getExtensionFromMIME, sleep, fixedEncodeURIComponent } from './Common'
+import { getLogger } from './Log'
 import * as chokidar from 'chokidar'
-import {isBinaryFile} from 'isbinaryfile'
-import {itemRouteTable} from './server'
+import { isBinaryFile } from 'isbinaryfile'
+import { itemRouteTable } from './server'
 
 const logger = getLogger('fs')
 
@@ -72,7 +72,7 @@ type SynchronizerCallbacks = {
   onItemChange?: SynchronizerCallback
 }
 
-const options: {usePolling: boolean} = {
+const options: { usePolling: boolean } = {
   usePolling: false,
 }
 
@@ -88,7 +88,7 @@ class FileSynchronizer {
     this.callbacks = callbacks
     this.watcher = chokidar.watch(this.rootPath, {
       ignoreInitial: true,
-      awaitWriteFinish: {stabilityThreshold: 1100},
+      awaitWriteFinish: { stabilityThreshold: 1100 },
       usePolling: options.usePolling,
     })
     this.watcher.on('add', path => {
@@ -232,7 +232,7 @@ class FileSynchronizer {
     this.watcher?.unwatch(tryPath)
     const folder = path.resolve(filePath, '..')
     if (!(await exists(folder))) {
-      await fs.promises.mkdir(folder, {recursive: true})
+      await fs.promises.mkdir(folder, { recursive: true })
     }
     await fs.promises.writeFile(filePath, content)
     this.watcher?.add(tryPath)
@@ -349,7 +349,7 @@ class FileSynchronizer {
     return [URIMap, pathMap]
   }
 
-  private splitHeaderContent(raw: string): [ItemHeader & {title?: string}, string] {
+  private splitHeaderContent(raw: string): [ItemHeader & { title?: string }, string] {
     const lines = raw.replace(/\r/g, '').split('\n')
     let headers: ItemHeader = {}
     let divideIndex = 0
@@ -462,4 +462,4 @@ class FileSynchronizer {
   }
 }
 
-export {FSNode, FileSynchronizer, options}
+export { FSNode, FileSynchronizer, options }

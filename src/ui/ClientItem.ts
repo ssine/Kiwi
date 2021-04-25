@@ -6,9 +6,9 @@
  * @packageDocumentation
  */
 
-import {BaseItem} from '../core/BaseItem'
-import {assignCommonProperties} from '../core/Common'
-import {postJSON} from './Common'
+import { BaseItem } from '../core/BaseItem'
+import { assignCommonProperties } from '../core/Common'
+import { postJSON } from './Common'
 
 /**
  * A client side item can have everything empty except its uri
@@ -23,7 +23,7 @@ class ClientItem extends BaseItem {
    * Load all the contents of current item from server
    */
   async load() {
-    const obj = await postJSON('/get-item', {uri: this.uri})
+    const obj = await postJSON('/get-item', { uri: this.uri })
     assignCommonProperties(this, obj)
     this.contentLoaded = true
   }
@@ -32,8 +32,8 @@ class ClientItem extends BaseItem {
    * Save this item back to server
    */
   async save() {
-    const {containerDiv, parsedContent, ...itemToSave} = this
-    const obj = await postJSON('/save-item', {uri: this.uri, item: itemToSave})
+    const { containerDiv, parsedContent, ...itemToSave } = this
+    const obj = await postJSON('/save-item', { uri: this.uri, item: itemToSave })
     assignCommonProperties(this, obj)
   }
 

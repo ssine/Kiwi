@@ -44,4 +44,4 @@ class SearchBox extends React.Component<SearchBoxProperty, {}> {
   }
 }
 
-export {SearchBox}
+export { SearchBox }

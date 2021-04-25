@@ -1,8 +1,8 @@
 import React from 'react'
 import anime from 'animejs/lib/anime.es'
 
-export default class SidebarSwitch extends React.Component<{container: HTMLElement}, {}> {
-  constructor(props: {container: HTMLElement}) {
+export default class SidebarSwitch extends React.Component<{ container: HTMLElement }, {}> {
+  constructor(props: { container: HTMLElement }) {
     super(props)
     const selfEl = props.container
     selfEl.onclick = () => {

@@ -9,12 +9,12 @@ import * as bodyParser from 'body-parser'
 import * as cookieParser from 'cookie-parser'
 import * as fileUpload from 'express-fileupload'
 import * as compression from 'compression'
-import {getLogger} from './Log'
+import { getLogger } from './Log'
 import manager from './ItemManager'
-import {resolve} from 'path'
-import {trimString, fixedEncodeURIComponent} from './Common'
+import { resolve } from 'path'
+import { trimString, fixedEncodeURIComponent } from './Common'
 import * as fs from 'fs'
-import {promisify} from 'util'
+import { promisify } from 'util'
 const exists = promisify(fs.exists)
 
 const logger = getLogger('server')
@@ -30,7 +30,7 @@ app.use(
     },
   })
 )
-app.use(bodyParser.json({limit: '1mb'}))
+app.use(bodyParser.json({ limit: '1mb' }))
 app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
@@ -78,7 +78,7 @@ const serve = function serve(port: number, rootFolder: string) {
     const filePath = resolve(rootFolder, trimString(req.body.path, '/'))
     const folder = resolve(filePath, '..')
     if (!(await exists(folder))) {
-      await fs.promises.mkdir(folder, {recursive: true})
+      await fs.promises.mkdir(folder, { recursive: true })
     }
     // @ts-ignore
     req.files.fn.mv(filePath)
@@ -87,12 +87,12 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.post('/delete-item', async (req, res) => {
     if (!manager.getUserManager().isTokenValid(req.cookies.token)) {
-      res.send({status: false})
+      res.send({ status: false })
       return
     }
     const uri = req.body.uri
     manager.deleteItem(uri)
-    res.send({status: true})
+    res.send({ status: true })
   })
 
   app.post('/get-system-items', (req, res) => {
@@ -125,4 +125,4 @@ const serve = function serve(port: number, rootFolder: string) {
   server.listen(port, () => logger.info(`Server running on port ${port}`))
 }
 
-export {app, io, serve, itemRouteTable}
+export { app, io, serve, itemRouteTable }

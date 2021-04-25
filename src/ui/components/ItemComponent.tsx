@@ -4,26 +4,34 @@ import React from 'react'
 import * as monaco from 'monaco-editor'
 // import anime from 'animejs'
 import anime from 'animejs/lib/anime.es'
-import {isLinkInternal, getPositionToDocument, getCookie, postFile, timeFormat, getEmPixels, isMobile} from '../Common'
-import {MIME, getLanguageFromMIME, resolveURI, suggestedTitleToURI, suggestedURIToTitle} from '../../core/Common'
-import {typesetMath} from '../mathjax'
+import {
+  isLinkInternal,
+  getPositionToDocument,
+  getCookie,
+  postFile,
+  timeFormat,
+  getEmPixels,
+  isMobile,
+} from '../Common'
+import { MIME, getLanguageFromMIME, resolveURI, suggestedTitleToURI, suggestedURIToTitle } from '../../core/Common'
+import { typesetMath } from '../mathjax'
 import loadable from '@loadable/component'
 import manager from '../ItemManager'
 
-import {IconButton} from './basic/Button/IconButton'
-import {PrimaryButton} from './basic/Button/PrimaryButton'
-import {Callout, AttachDirection} from './basic/Callout/Callout'
-import {ContextualMenu} from './basic/Menu/ContextualMenu'
-import {MenuButton} from './basic/Button/MenuButton'
-import {Breadcrumb} from './basic/Breadcrumb/Breadcrumb'
+import { IconButton } from './basic/Button/IconButton'
+import { PrimaryButton } from './basic/Button/PrimaryButton'
+import { Callout, AttachDirection } from './basic/Callout/Callout'
+import { ContextualMenu } from './basic/Menu/ContextualMenu'
+import { MenuButton } from './basic/Button/MenuButton'
+import { Breadcrumb } from './basic/Breadcrumb/Breadcrumb'
 
 const MonacoEditor = loadable(() => import('react-monaco-editor'), {
   fallback: <div>loading editor...</div>,
 })
 
-class TagsComponent extends React.Component<{tags: string[]}, {isEditing: boolean[]}> {
+class TagsComponent extends React.Component<{ tags: string[] }, { isEditing: boolean[] }> {
   stagedValues: string[]
-  constructor(props: {tags: string[]}) {
+  constructor(props: { tags: string[] }) {
     super(props)
     this.state = {
       isEditing: Array(props.tags.length).fill(false),
@@ -33,14 +41,14 @@ class TagsComponent extends React.Component<{tags: string[]}, {isEditing: boolea
 
   render() {
     return (
-      <div style={{display: 'flex', height: isMobile ? '10vw' : 35}}>
+      <div style={{ display: 'flex', height: isMobile ? '10vw' : 35 }}>
         {this.stagedValues.map((tag, idx) => {
           if (this.state.isEditing[idx]) {
             return (
-              <div key={idx} style={{display: 'inline-flex', paddingLeft: 8}}>
+              <div key={idx} style={{ display: 'inline-flex', paddingLeft: 8 }}>
                 <input
                   defaultValue={tag}
-                  style={{width: 80}}
+                  style={{ width: 80 }}
                   onChange={evt => {
                     this.stagedValues[idx] = evt.target.value
                   }}
@@ -48,7 +56,7 @@ class TagsComponent extends React.Component<{tags: string[]}, {isEditing: boolea
                 <IconButton
                   iconName="Accept"
                   styles={{
-                    root: {width: isMobile ? '10vw' : 32, height: '100%'},
+                    root: { width: isMobile ? '10vw' : 32, height: '100%' },
                   }}
                   onClick={_ => {
                     if (this.stagedValues[idx] !== '') {
@@ -80,7 +88,7 @@ class TagsComponent extends React.Component<{tags: string[]}, {isEditing: boolea
                       height: '100%',
                       fontSize: '1em',
                     },
-                    icon: {paddingLeft: 2, paddingRight: 2},
+                    icon: { paddingLeft: 2, paddingRight: 2 },
                   }}
                   onClick={_ => {
                     this.state.isEditing[idx] = true
@@ -131,7 +139,7 @@ class TagsComponent extends React.Component<{tags: string[]}, {isEditing: boolea
 }
 
 class TitleEditorComponent extends React.Component<
-  {editingItem: {uri: string; title: string}; originalURI: string},
+  { editingItem: { uri: string; title: string }; originalURI: string },
   {}
 > {
   editTitleChanged: boolean
@@ -146,8 +154,8 @@ class TitleEditorComponent extends React.Component<
     const height = isMobile ? '12vw' : 40
     return (
       <div>
-        <div style={{display: 'flex', flexDirection: 'row'}}>
-          <div className="item-uri-edit" style={{flexGrow: 1, height: height}}>
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <div className="item-uri-edit" style={{ flexGrow: 1, height: height }}>
             <input
               type="text"
               value={this.props.editingItem.uri}
@@ -161,11 +169,11 @@ class TitleEditorComponent extends React.Component<
               }}
             />
           </div>
-          <div className="item-controls" style={{flexGrow: 0, display: 'flex'}}>
+          <div className="item-controls" style={{ flexGrow: 0, display: 'flex' }}>
             {this.props.children}
           </div>
         </div>
-        <div className="item-title-edit" style={{height: height}}>
+        <div className="item-title-edit" style={{ height: height }}>
           <input
             type="text"
             value={this.props.editingItem.title}
@@ -177,7 +185,7 @@ class TitleEditorComponent extends React.Component<
               }
               this.forceUpdate()
             }}
-            style={{fontFamily: 'var(--serifFont)'}}
+            style={{ fontFamily: 'var(--serifFont)' }}
           />
         </div>
       </div>
@@ -186,8 +194,8 @@ class TitleEditorComponent extends React.Component<
 }
 
 export class ItemComponent extends React.Component<
-  {item: ClientItem},
-  {deleteCalloutVisible: boolean; moreCalloutVisible: boolean}
+  { item: ClientItem },
+  { deleteCalloutVisible: boolean; moreCalloutVisible: boolean }
 > {
   contentRef: React.RefObject<HTMLDivElement>
   rootRef: React.RefObject<HTMLDivElement>
@@ -196,12 +204,12 @@ export class ItemComponent extends React.Component<
   breadcrumbFoldRef: React.RefObject<HTMLDivElement>
   editor: monaco.editor.IStandaloneCodeEditor | null
   item: ClientItem
-  editingItem: Partial<ClientItem> & {title: string; uri: string}
-  lastPosition: {left: number; top: number}
+  editingItem: Partial<ClientItem> & { title: string; uri: string }
+  lastPosition: { left: number; top: number }
   itemFlowLayoutCallback: () => void
-  externalEditCallback: (data: {rerender: string}) => void
+  externalEditCallback: (data: { rerender: string }) => void
 
-  constructor(props: {item: ClientItem}) {
+  constructor(props: { item: ClientItem }) {
     super(props)
     this.contentRef = React.createRef()
     this.rootRef = React.createRef()
@@ -237,7 +245,7 @@ export class ItemComponent extends React.Component<
           const ext = file.name.match(/\.\S+?$/)[0].substr(1)
           const fn = `asset/${timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())}.${ext}`
           postFile(resolveURI(this.editingItem.uri, fn), file)
-          this.editor.trigger('keyboard', 'type', {text: `![img](${fn})`})
+          this.editor.trigger('keyboard', 'type', { text: `![img](${fn})` })
           ev.preventDefault()
         }
       }
@@ -310,28 +318,28 @@ export class ItemComponent extends React.Component<
               }}
               ref={this.breadcrumbFoldRef}
             >
-              <div style={{flexGrow: 1}}>
+              <div style={{ flexGrow: 1 }}>
                 <Breadcrumb
                   box={this.breadcrumbFoldRef}
                   items={this.item.uri.split('/')}
                   onItemClick={it => {
-                    bus.emit('item-link-clicked', {targetURI: it.uri})
+                    bus.emit('item-link-clicked', { targetURI: it.uri })
                   }}
                 />
               </div>
-              <div className="item-controls" style={{display: 'flex'}}>
+              <div className="item-controls" style={{ display: 'flex' }}>
                 {dropdownItems.length > 0 && (
                   <>
                     <IconButton
                       iconName="ChevronDown"
                       divRef={this.moreButtonRef}
-                      onClick={_ => this.setState({moreCalloutVisible: true})}
+                      onClick={_ => this.setState({ moreCalloutVisible: true })}
                     />
                     {this.state.moreCalloutVisible && (
                       <Callout
                         target={this.moreButtonRef}
                         direction={isMobile ? AttachDirection.bottomRightEdge : AttachDirection.bottomLeftEdge}
-                        onDismiss={_ => this.setState({moreCalloutVisible: false})}
+                        onDismiss={_ => this.setState({ moreCalloutVisible: false })}
                       >
                         <ContextualMenu items={dropdownItems} />
                       </Callout>
@@ -343,14 +351,14 @@ export class ItemComponent extends React.Component<
                     <IconButton
                       iconName="Delete"
                       divRef={this.deleteButtonRef}
-                      onClick={_ => this.setState({deleteCalloutVisible: true})}
+                      onClick={_ => this.setState({ deleteCalloutVisible: true })}
                     />
                     {this.state.deleteCalloutVisible && (
                       <Callout
                         target={this.deleteButtonRef}
                         direction={AttachDirection.bottomLeftEdge}
-                        onDismiss={_ => this.setState({deleteCalloutVisible: false})}
-                        style={{transform: 'translateX(-35%)'}}
+                        onDismiss={_ => this.setState({ deleteCalloutVisible: false })}
+                        style={{ transform: 'translateX(-35%)' }}
                       >
                         <PrimaryButton title="Confirm Delete" onClick={this.onDelete.bind(this)} />
                       </Callout>
@@ -364,7 +372,7 @@ export class ItemComponent extends React.Component<
               </div>
             </div>
             <div className="item-titlebar">
-              <h2 className="item-title" style={{margin: 7}}>
+              <h2 className="item-title" style={{ margin: 7 }}>
                 {this.item.title}
               </h2>
             </div>
@@ -372,7 +380,7 @@ export class ItemComponent extends React.Component<
             <div
               className="item-content"
               ref={this.contentRef}
-              dangerouslySetInnerHTML={{__html: this.item.parsedContent}}
+              dangerouslySetInnerHTML={{ __html: this.item.parsedContent }}
             />
             <div className="item-tags">
               {this.item.headers.tags?.map(tag => {
@@ -381,14 +389,14 @@ export class ItemComponent extends React.Component<
                     id: it.uri,
                     key: it.uri,
                     text: it.title,
-                    onClick: () => bus.emit('item-link-clicked', {targetURI: it.uri}),
+                    onClick: () => bus.emit('item-link-clicked', { targetURI: it.uri }),
                   }
                 })
                 return (
                   <MenuButton
                     name={tag}
                     key={tag}
-                    style={{paddingLeft: 10, paddingRight: 10}}
+                    style={{ paddingLeft: 10, paddingRight: 10 }}
                     menuProps={{
                       items: menuProps,
                       styles: {
@@ -431,7 +439,7 @@ export class ItemComponent extends React.Component<
                 editorDidMount={this.onEditorDidMount.bind(this)}
               />
             </div>
-            <div className="item-bottom-bar" style={{minHeight: 35}}>
+            <div className="item-bottom-bar" style={{ minHeight: 35 }}>
               <div
                 className="item-type"
                 style={{
@@ -508,7 +516,7 @@ export class ItemComponent extends React.Component<
     })
   }
 
-  async onRerender(args: {rerender: string}) {
+  async onRerender(args: { rerender: string }) {
     const saveToken = Math.random().toString().slice(2)
     bus.emit('item-save-clicked', {
       uri: this.item.uri,
@@ -641,7 +649,7 @@ export class ItemComponent extends React.Component<
     this.editingItem = this.getNewEditingItem(item)
   }
 
-  getNewEditingItem(item: ClientItem): Partial<ClientItem> & {title: string; uri: string} {
+  getNewEditingItem(item: ClientItem): Partial<ClientItem> & { title: string; uri: string } {
     return {
       title: item.title,
       type: item.type,

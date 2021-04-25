@@ -1,5 +1,5 @@
-import {Parser} from '../../core/Parser'
-import {MIME, resolveURI, isURL} from '../../core/Common'
+import { Parser } from '../../core/Parser'
+import { MIME, resolveURI, isURL } from '../../core/Common'
 // import * as cheerio from 'cheerio'
 import * as marked from 'marked'
 import * as hljs from 'highlight.js'
@@ -21,7 +21,7 @@ const tokenizer = {
   },
 }
 // @ts-ignore
-marked.use({tokenizer})
+marked.use({ tokenizer })
 
 class MarkdownParser extends Parser {
   init() {
@@ -45,7 +45,7 @@ class MarkdownParser extends Parser {
     })
   }
 
-  parse(kwargs: {uri: string; input: string}): string {
+  parse(kwargs: { uri: string; input: string }): string {
     let html = marked(kwargs.input)
     html = html.replace(/(src|href)="(.+?)"/g, (match, $1, $2) => {
       if (isURL($2)) return match

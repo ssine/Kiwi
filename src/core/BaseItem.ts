@@ -1,5 +1,5 @@
 import * as moment from 'moment'
-import {MIME} from './Common'
+import { MIME } from './Common'
 
 type ItemHeader = {
   author?: string
@@ -74,9 +74,9 @@ abstract class BaseItem {
    */
   async json(): Promise<string> {
     if (!this.isContentParsed) await this.html()
-    const {childs, ...thisToSend} = this
+    const { childs, ...thisToSend } = this
     return JSON.stringify(thisToSend)
   }
 }
 
-export {ItemHeader, BaseItem}
+export { ItemHeader, BaseItem }

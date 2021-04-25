@@ -40,4 +40,4 @@ class IconButton extends React.Component<IconButtonProperty, {}> {
   }
 }
 
-export {IconButton}
+export { IconButton }

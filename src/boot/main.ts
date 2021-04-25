@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs'
-import {initLogger} from '../core/Log'
+import { initLogger } from '../core/Log'
 
 const args = yargs
   .command('serve [folder]', 'serve wiki files in a folder', yargs => {
@@ -26,7 +26,7 @@ const args = yargs
 initLogger(args.log)
 
 import manager from '../core/ItemManager'
-import {serve} from '../core/server'
+import { serve } from '../core/server'
 import MarkdownParser from '../lib/parser/MarkdownParser'
 import WikitextParser from '../lib/parser/WikitextParser'
 import AsciidocParser from '../lib/parser/AsciidocParser'

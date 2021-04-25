@@ -3,8 +3,8 @@
  */
 import React from 'react'
 import './MenuButton.css'
-import {ContextualMenu, ContextualMenuProperty} from '../Menu/ContextualMenu'
-import {Callout, AttachDirection} from '../Callout/Callout'
+import { ContextualMenu, ContextualMenuProperty } from '../Menu/ContextualMenu'
+import { Callout, AttachDirection } from '../Callout/Callout'
 
 type MenuButtonProperty = {
   name: string
@@ -14,7 +14,7 @@ type MenuButtonProperty = {
   style?: React.CSSProperties
 }
 
-class MenuButton extends React.Component<MenuButtonProperty, {isMenuVisible: boolean}> {
+class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: boolean }> {
   buttonRef: React.RefObject<HTMLButtonElement>
 
   constructor(props) {
@@ -34,7 +34,7 @@ class MenuButton extends React.Component<MenuButtonProperty, {isMenuVisible: boo
             className="kiwi-menu-button"
             ref={this.buttonRef}
             style={style}
-            onClick={_ => this.setState({isMenuVisible: true})}
+            onClick={_ => this.setState({ isMenuVisible: true })}
           >
             {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
           </button>
@@ -43,7 +43,7 @@ class MenuButton extends React.Component<MenuButtonProperty, {isMenuVisible: boo
             className="kiwi-menu-button"
             ref={this.buttonRef}
             style={style}
-            onClick={_ => this.setState({isMenuVisible: true})}
+            onClick={_ => this.setState({ isMenuVisible: true })}
           >
             {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
             {this.props.name}
@@ -53,7 +53,7 @@ class MenuButton extends React.Component<MenuButtonProperty, {isMenuVisible: boo
           <Callout
             target={this.buttonRef}
             direction={AttachDirection.bottomLeftEdge}
-            onDismiss={_ => this.setState({isMenuVisible: false})}
+            onDismiss={_ => this.setState({ isMenuVisible: false })}
           >
             <ContextualMenu {...this.props.menuProps} />
           </Callout>
@@ -63,4 +63,4 @@ class MenuButton extends React.Component<MenuButtonProperty, {isMenuVisible: boo
   }
 }
 
-export {MenuButton}
+export { MenuButton }

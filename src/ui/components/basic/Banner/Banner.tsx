@@ -6,7 +6,7 @@ const barStyle = {
   backgroundColor: 'var(--blockColorLight)',
 }
 
-const Banner: React.FC<{text: string}> = props => {
+const Banner: React.FC<{ text: string }> = props => {
   return (
     <div
       style={{
@@ -17,10 +17,10 @@ const Banner: React.FC<{text: string}> = props => {
       className="kiwi-banner"
     >
       <div style={barStyle}></div>
-      <div style={{padding: '5px 10px 5px 10px', color: 'var(--lineColor)'}}>{props.text}</div>
+      <div style={{ padding: '5px 10px 5px 10px', color: 'var(--lineColor)' }}>{props.text}</div>
       <div style={barStyle}></div>
     </div>
   )
 }
 
-export {Banner}
+export { Banner }

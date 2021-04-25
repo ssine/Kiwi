@@ -1,6 +1,6 @@
-import {BaseItem} from './BaseItem'
-import {parse} from './Parser'
-import {processRenderPlugin, ItemContext} from './Plugin'
+import { BaseItem } from './BaseItem'
+import { parse } from './Parser'
+import { processRenderPlugin, ItemContext } from './Plugin'
 
 /**
  * Server Side Item Class
@@ -22,4 +22,4 @@ class ServerItem extends BaseItem {
   }
 }
 
-export {ServerItem}
+export { ServerItem }

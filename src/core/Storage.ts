@@ -1,7 +1,7 @@
 /**
  * Storage modules provide a two way mapping between an item and its serialized representation.
  */
-import {Readable} from 'stream'
+import { Readable } from 'stream'
 
 type Node = {
   meta: Record<string, any>
@@ -16,4 +16,4 @@ interface StorageProvider {
   a(): void
 }
 
-export {Node, StorageProvider}
+export { Node, StorageProvider }

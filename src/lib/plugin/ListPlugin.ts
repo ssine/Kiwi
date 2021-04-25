@@ -1,6 +1,6 @@
-import {RenderPlugin} from '../../core/Plugin'
+import { RenderPlugin } from '../../core/Plugin'
 import manager from '../../core/ItemManager'
-import {ServerItem} from '../../core/ServerItem'
+import { ServerItem } from '../../core/ServerItem'
 
 export default class ListPlugin extends RenderPlugin {
   init() {}
@@ -16,7 +16,7 @@ export default class ListPlugin extends RenderPlugin {
   getFunctionForItem() {
     return async (
       filter: (all: Partial<ServerItem>[]) => Partial<ServerItem>[],
-      kw: {ordered?: boolean; href?: any; name?: any} = {}
+      kw: { ordered?: boolean; href?: any; name?: any } = {}
     ): Promise<string> => {
       const filtered = filter(manager.getSkinnyItems())
       const result = filtered

@@ -1,5 +1,5 @@
-import {Parser} from '../../core/Parser'
-import {MIME, getLanguageFromMIME, MIMELangDict} from '../../core/Common'
+import { Parser } from '../../core/Parser'
+import { MIME, getLanguageFromMIME, MIMELangDict } from '../../core/Common'
 import * as hljs from 'highlight.js'
 
 /**
@@ -8,7 +8,7 @@ import * as hljs from 'highlight.js'
 export default class HighlightParser extends Parser {
   init() {}
 
-  parse(kwargs: {input: string; uri: string; type: MIME}): string {
+  parse(kwargs: { input: string; uri: string; type: MIME }): string {
     const lang = getLanguageFromMIME(kwargs.type)
     let res = ''
     try {

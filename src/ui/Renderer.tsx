@@ -7,8 +7,8 @@
 import ClientItem from './ClientItem'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {ItemComponent} from './components/ItemComponent'
-import {SidebarComponentProperty, SidebarComponent} from './components/SidebarComponent'
+import { ItemComponent } from './components/ItemComponent'
+import { SidebarComponentProperty, SidebarComponent } from './components/SidebarComponent'
 import SidebarSwitch from './components/SidebarSwitch'
 
 export default class Renderer {
@@ -23,6 +23,6 @@ export default class Renderer {
   }
 
   renderSidebarSwitch(el: HTMLElement) {
-    return ReactDOM.render(React.createElement(SidebarSwitch, {container: el}), el)
+    return ReactDOM.render(React.createElement(SidebarSwitch, { container: el }), el)
   }
 }

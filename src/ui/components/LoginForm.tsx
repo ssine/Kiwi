@@ -1,5 +1,5 @@
 import React from 'react'
-import {postJSON, setCookie, getCookie, removeCookie} from '../Common'
+import { postJSON, setCookie, getCookie, removeCookie } from '../Common'
 import './LoginForm.css'
 
 const buttonStyle: React.CSSProperties = {
@@ -11,8 +11,8 @@ const buttonStyle: React.CSSProperties = {
 const LoginForm: React.FC<{}> = () => {
   return getCookie('token') !== '' ? (
     <div>
-      <div className="kiwi-login-status" style={{textAlign: 'center', margin: '10px 0 10px 0'}}>
-        Logged in as <span style={{color: 'var(--lineColor)'}}>{getCookie('accountName')}</span> .
+      <div className="kiwi-login-status" style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>
+        Logged in as <span style={{ color: 'var(--lineColor)' }}>{getCookie('accountName')}</span> .
       </div>
       <button
         className="kiwi-menu-button"
@@ -28,14 +28,14 @@ const LoginForm: React.FC<{}> = () => {
     </div>
   ) : (
     <div>
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div className="kiwi-login-input">
           <input placeholder="Username" id="kiwi-login-name" />
         </div>
         <div className="kiwi-login-input">
           <input placeholder="Password" id="kiwi-login-password" type="password" />
         </div>
-        <p style={{color: 'red', margin: '0', textAlign: 'center'}} id="kiwi-login-error-msg"></p>
+        <p style={{ color: 'red', margin: '0', textAlign: 'center' }} id="kiwi-login-error-msg"></p>
       </div>
       <button
         className="kiwi-menu-button"

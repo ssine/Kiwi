@@ -1,5 +1,5 @@
-import {Parser} from '../../core/Parser'
-import {MIME} from '../../core/Common'
+import { Parser } from '../../core/Parser'
+import { MIME } from '../../core/Common'
 import Asciidoctor from 'asciidoctor'
 import * as cheerio from 'cheerio'
 import * as hljs from 'highlight.js'
@@ -10,7 +10,7 @@ class AsciidocParser extends Parser {
     this.processor = Asciidoctor()
   }
 
-  parse(kwargs: {input: string}): string {
+  parse(kwargs: { input: string }): string {
     const $ = cheerio.load(this.processor.convert(kwargs.input))
     $('pre code')
       .toArray()

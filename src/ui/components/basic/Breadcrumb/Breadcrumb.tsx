@@ -1,6 +1,6 @@
 import React from 'react'
-import {sleep} from '../../../../core/Common'
-import {MenuButton} from '../Button/MenuButton'
+import { sleep } from '../../../../core/Common'
+import { MenuButton } from '../Button/MenuButton'
 import './Breadcrumb.css'
 
 type BreadcrumbProperty = {
@@ -54,10 +54,10 @@ class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
     await this.boxReady()
     const boxEl = this.props.box.current
     if (boxEl.scrollWidth > boxEl.offsetWidth) {
-      if (!this.state.fold) this.setState({fold: {start: 0, end: 0}})
+      if (!this.state.fold) this.setState({ fold: { start: 0, end: 0 } })
       if (this.state.fold) {
         if (this.state.fold.end >= this.state.items.length) return
-        this.setState({fold: {start: 0, end: this.state.fold.end + 1}})
+        this.setState({ fold: { start: 0, end: this.state.fold.end + 1 } })
       }
     }
   }
@@ -127,7 +127,7 @@ class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
         iconName="ChevronDown"
         iconOnly={true}
         key="fold"
-        style={{paddingLeft: 5, paddingRight: 5}}
+        style={{ paddingLeft: 5, paddingRight: 5 }}
         menuProps={{
           items: items.map(it => {
             return {
@@ -155,4 +155,4 @@ class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
   }
 }
 
-export {Breadcrumb}
+export { Breadcrumb }

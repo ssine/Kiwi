@@ -33,7 +33,7 @@ function isLinkInternal(el: HTMLAnchorElement): boolean {
 /**
  * Get the postition of an element relative to the root document
  */
-function getPositionToDocument(el: Element): {top: number; left: number} {
+function getPositionToDocument(el: Element): { top: number; left: number } {
   const rect = el.getBoundingClientRect()
   const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
@@ -101,7 +101,7 @@ const CSSColorToRGBA = (function () {
     ctx.fillStyle = '#fff'
     ctx.fillStyle = col
     if (computed !== ctx.fillStyle) {
-      return {r: 0, g: 0, b: 0, a: 0} // invalid color
+      return { r: 0, g: 0, b: 0, a: 0 } // invalid color
     }
     ctx.fillRect(0, 0, 1, 1)
     const data = ctx.getImageData(0, 0, 1, 1).data
@@ -114,7 +114,7 @@ const CSSColorToRGBA = (function () {
   }
 })()
 
-function RGBtoHSV(color: {r: number; g: number; b: number}) {
+function RGBtoHSV(color: { r: number; g: number; b: number }) {
   const r = color.r
   const g = color.g
   const b = color.b
@@ -150,7 +150,7 @@ function RGBtoHSV(color: {r: number; g: number; b: number}) {
   }
 }
 
-function HSVtoRGB(color: {h: number; s: number; v: number}) {
+function HSVtoRGB(color: { h: number; s: number; v: number }) {
   const h = color.h
   const s = color.s
   const v = color.v
@@ -189,18 +189,18 @@ function HSVtoRGB(color: {h: number; s: number; v: number}) {
   }
 }
 
-function RGBtoCSSColor(rgb: {r: number; g: number; b: number}): string {
+function RGBtoCSSColor(rgb: { r: number; g: number; b: number }): string {
   return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
 }
 
 function setPageColors(hue: number) {
   const rootStyle = (document.querySelector(':root') as HTMLElement).style
-  rootStyle.setProperty('--primaryColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 1, v: 1})))
-  rootStyle.setProperty('--lineColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.54, v: 0.62})))
-  rootStyle.setProperty('--blockColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.26, v: 0.84})))
-  rootStyle.setProperty('--blockColorLight', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.24, v: 0.9})))
-  rootStyle.setProperty('--blockColorLighter', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.17, v: 0.93})))
-  rootStyle.setProperty('--areaColor', RGBtoCSSColor(HSVtoRGB({h: hue, s: 0.04, v: 0.98})))
+  rootStyle.setProperty('--primaryColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 1, v: 1 })))
+  rootStyle.setProperty('--lineColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.54, v: 0.62 })))
+  rootStyle.setProperty('--blockColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.26, v: 0.84 })))
+  rootStyle.setProperty('--blockColorLight', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.24, v: 0.9 })))
+  rootStyle.setProperty('--blockColorLighter', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.17, v: 0.93 })))
+  rootStyle.setProperty('--areaColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.04, v: 0.98 })))
 }
 
 const isMobile = window.screen.width >= 1024 ? false : true

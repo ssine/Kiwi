@@ -3,13 +3,13 @@
  * @packageDocumentation
  */
 
-import {ServerItem} from './ServerItem'
-import {FileSynchronizer, URIItemMap} from './FileSynchronizer'
-import {UserManager} from './UserManager'
-import {assignCommonProperties} from './Common'
-import {getLogger} from './Log'
-import {io as uiNotifier} from './server'
-import {usersURI} from '../boot/config'
+import { ServerItem } from './ServerItem'
+import { FileSynchronizer, URIItemMap } from './FileSynchronizer'
+import { UserManager } from './UserManager'
+import { assignCommonProperties } from './Common'
+import { getLogger } from './Log'
+import { io as uiNotifier } from './server'
+import { usersURI } from '../boot/config'
 
 const logger = getLogger('itemm')
 

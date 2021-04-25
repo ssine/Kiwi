@@ -1,5 +1,5 @@
-import {resolveURI} from '../../core/Common'
-import {RenderPlugin} from '../../core/Plugin'
+import { resolveURI } from '../../core/Common'
+import { RenderPlugin } from '../../core/Plugin'
 import manager from '../../core/ItemManager'
 
 export default class TranscludePlugin extends RenderPlugin {
