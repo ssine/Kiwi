@@ -5,18 +5,16 @@
  * @packageDocumentation
  */
 
-import { Parser } from '../../core/Parser'
-import { MIME } from '../../core/Common'
+import {Parser} from '../../core/Parser'
+import {MIME} from '../../core/Common'
 // @ts-ignore (es6 import gets the namespace, sign)
 const wtf = require('wtf_wikipedia')
 import * as cheerio from 'cheerio'
 
 class WikitextParser extends Parser {
+  init() {}
 
-  init() {
-  }
-
-  parse(kwargs: { input: string }): string {
+  parse(kwargs: {input: string}): string {
     const $ = cheerio.load(wtf(kwargs.input).html())
     return `<div>${$('body').html()}</div>`
   }

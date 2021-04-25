@@ -17,7 +17,7 @@ enum AttachDirection {
   topRightEdge,
 }
 
-class Callout extends React.Component<CalloutProperty, { direction: AttachDirection }> {
+class Callout extends React.Component<CalloutProperty, {direction: AttachDirection}> {
   layer: HTMLDivElement
   el: React.RefObject<HTMLDivElement>
   scrollCallback: (ev: Event) => void
@@ -30,15 +30,21 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
     this.layer.className = 'kiwi-callout-layer'
 
     this.state = {
-      direction: this.props.direction
+      direction: this.props.direction,
     }
     this.scrollCallback = (ev: Event) => {
       this.props.onDismiss(ev)
     }
     this.clickCallback = (ev: MouseEvent) => {
-      let targetRect = this.props.target.current.getBoundingClientRect()
-      if (!(targetRect.left < ev.clientX && ev.clientX < targetRect.left + targetRect.width &&
-        targetRect.top < ev.clientY && ev.clientY < targetRect.top + targetRect.height)) {
+      const targetRect = this.props.target.current.getBoundingClientRect()
+      if (
+        !(
+          targetRect.left < ev.clientX &&
+          ev.clientX < targetRect.left + targetRect.width &&
+          targetRect.top < ev.clientY &&
+          ev.clientY < targetRect.top + targetRect.height
+        )
+      ) {
         this.props.onDismiss(ev)
       }
     }
@@ -46,25 +52,29 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
 
   componentDidMount() {
     document.body.appendChild(this.layer)
-    let animationDirection = this.state.direction === AttachDirection.bottomLeftEdge || this.state.direction === AttachDirection.bottomRightEdge ? 'bottom' : 'top'
+    let animationDirection =
+      this.state.direction === AttachDirection.bottomLeftEdge ||
+      this.state.direction === AttachDirection.bottomRightEdge
+        ? 'bottom'
+        : 'top'
     if (this.el.current.offsetHeight < this.el.current.scrollHeight) {
-      let boundingRect = this.props.target.current.getBoundingClientRect()
-      let upperHeight = boundingRect.top
-      let lowerHeight = window.innerHeight - boundingRect.bottom
+      const boundingRect = this.props.target.current.getBoundingClientRect()
+      const upperHeight = boundingRect.top
+      const lowerHeight = window.innerHeight - boundingRect.bottom
       if (this.state.direction === AttachDirection.topLeftEdge && upperHeight < lowerHeight) {
-        this.setState({ direction: AttachDirection.bottomLeftEdge })
+        this.setState({direction: AttachDirection.bottomLeftEdge})
         animationDirection = 'bottom'
       }
       if (this.state.direction === AttachDirection.topRightEdge && upperHeight < lowerHeight) {
-        this.setState({ direction: AttachDirection.bottomRightEdge })
+        this.setState({direction: AttachDirection.bottomRightEdge})
         animationDirection = 'bottom'
       }
       if (this.state.direction === AttachDirection.bottomLeftEdge && upperHeight > lowerHeight) {
-        this.setState({ direction: AttachDirection.topLeftEdge })
+        this.setState({direction: AttachDirection.topLeftEdge})
         animationDirection = 'top'
       }
       if (this.state.direction === AttachDirection.bottomRightEdge && upperHeight > lowerHeight) {
-        this.setState({ direction: AttachDirection.topRightEdge })
+        this.setState({direction: AttachDirection.topRightEdge})
         animationDirection = 'top'
       }
     }
@@ -79,7 +89,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
         opacity: 0,
         duration: 150,
         direction: 'reverse',
-        easing: 'easeInCubic'
+        easing: 'easeInCubic',
       })
     } else {
       anime({
@@ -88,7 +98,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
         opacity: 0,
         duration: 150,
         direction: 'reverse',
-        easing: 'easeInCubic'
+        easing: 'easeInCubic',
       })
     }
   }
@@ -100,47 +110,45 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
   }
 
   render() {
-    let style = Object.assign({}, this._calculatePosition(), this.props.style)
-    return ReactDOM.createPortal((
-      <div
-        className="kiwi-callout"
-        style={style}
-        ref={this.el}>
+    const style = Object.assign({}, this._calculatePosition(), this.props.style)
+    return ReactDOM.createPortal(
+      <div className="kiwi-callout" style={style} ref={this.el}>
         {this.props.children}
-      </div>
-    ), this.layer)
+      </div>,
+      this.layer
+    )
   }
 
   _calculatePosition(): Partial<React.CSSProperties> {
     let res: React.CSSProperties = {}
-    let boundingRect = this.props.target.current.getBoundingClientRect()
+    const boundingRect = this.props.target.current.getBoundingClientRect()
     switch (this.state.direction) {
       case AttachDirection.bottomLeftEdge:
         res = {
           top: boundingRect.bottom,
           left: boundingRect.left,
-          maxHeight: window.innerHeight - boundingRect.bottom
+          maxHeight: window.innerHeight - boundingRect.bottom,
         }
         break
       case AttachDirection.bottomRightEdge:
         res = {
           top: boundingRect.bottom,
           right: window.innerWidth - boundingRect.right,
-          maxHeight: window.innerHeight - boundingRect.bottom
+          maxHeight: window.innerHeight - boundingRect.bottom,
         }
         break
       case AttachDirection.topLeftEdge:
         res = {
           bottom: window.innerHeight - boundingRect.top,
           left: boundingRect.left,
-          maxHeight: window.innerHeight - (window.innerHeight - boundingRect.top)
+          maxHeight: window.innerHeight - (window.innerHeight - boundingRect.top),
         }
         break
       case AttachDirection.topRightEdge:
         res = {
           bottom: window.innerHeight - boundingRect.top,
           right: window.innerWidth - boundingRect.right,
-          maxHeight: window.innerHeight - (window.innerHeight - boundingRect.top)
+          maxHeight: window.innerHeight - (window.innerHeight - boundingRect.top),
         }
         break
     }
@@ -148,4 +156,4 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
   }
 }
 
-export { Callout, AttachDirection }
+export {Callout, AttachDirection}

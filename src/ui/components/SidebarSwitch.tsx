@@ -1,59 +1,63 @@
 import React from 'react'
 import anime from 'animejs/lib/anime.es'
 
-export default class SidebarSwitch extends React.Component<{ container: HTMLElement }, {}> {
-  constructor(props: { container: HTMLElement }) {
+export default class SidebarSwitch extends React.Component<{container: HTMLElement}, {}> {
+  constructor(props: {container: HTMLElement}) {
     super(props)
-    let selfEl = props.container
+    const selfEl = props.container
     selfEl.onclick = () => {
-      let el = document.getElementsByClassName('sidebar')[0] as HTMLElement
+      const el = document.getElementsByClassName('sidebar')[0] as HTMLElement
       if (el.style.display == 'none') {
         anime({
           targets: selfEl,
           rotateY: 0,
           duration: 200,
-          easing: 'linear'
+          easing: 'linear',
         })
         el.style.display = 'flex'
         anime({
           targets: el,
           opacity: 1,
           duration: 200,
-          easing: 'linear'
+          easing: 'linear',
         })
         anime({
           targets: el,
           translateX: 0,
           duration: 200,
-          easing: 'easeOutQuart'
+          easing: 'easeOutQuart',
         })
       } else {
         anime({
           targets: selfEl,
           rotateY: 180,
           duration: 200,
-          easing: 'linear'
+          easing: 'linear',
         })
         anime({
           targets: el,
-          translateX: - el.clientWidth,
+          translateX: -el.clientWidth,
           duration: 200,
-          easing: 'easeInQuart'
+          easing: 'easeInQuart',
         })
         anime({
           targets: el,
           opacity: 0,
           duration: 200,
           easing: 'linear',
-          complete: () => { el.style.display = 'none' }
+          complete: () => {
+            el.style.display = 'none'
+          },
         })
       }
     }
   }
 
   render() {
-    return <div>
-      <i className='ms-Icon ms-Icon--DoubleChevronLeft' />
-    </div>
+    return (
+      <div>
+        <i className="ms-Icon ms-Icon--DoubleChevronLeft" />
+      </div>
+    )
   }
 }

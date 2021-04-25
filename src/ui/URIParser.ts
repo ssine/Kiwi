@@ -50,17 +50,13 @@ class URIParser {
       return cur_node
     }
 
-    for (let key in items) {
+    for (const key in items) {
       const it = items[key]
       const nd = traverse(it.uri.split('/'))
       nd.title = it.title || it.uri
       nd.absoluteURI = it.uri
     }
   }
-
 }
 
-export {
-  URINode,
-  URIParser
-}
+export {URINode, URIParser}

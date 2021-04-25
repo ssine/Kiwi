@@ -4,7 +4,7 @@
  */
 import '../kiwi/ui/css/global.css'
 import 'highlight.js/styles/solarized-light.css'
-import { language as mdLang } from 'monaco-editor/esm/vs/basic-languages/markdown/markdown'
+import {language as mdLang} from 'monaco-editor/esm/vs/basic-languages/markdown/markdown'
 import manager from './ItemManager'
 import * as common from './Common'
 import * as coreCommon from '../core/Common'
@@ -12,13 +12,21 @@ import eventBus from './eventBus'
 
 async function run() {
   //@ts-ignore
-  mdLang.tokenizer.root.unshift([/\{\{/, { token: 'keyword', bracket: '@open', next: '@macroblock', nextEmbedded: 'javascript' }])
+  mdLang.tokenizer.root.unshift([
+    /\{\{/,
+    {
+      token: 'keyword',
+      bracket: '@open',
+      next: '@macroblock',
+      nextEmbedded: 'javascript',
+    },
+  ])
   mdLang.tokenizer.macroblock = [
-    [/\}\}/, { token: 'keyword', bracket: '@close', next: '@pop', nextEmbedded: '@pop' }],
+    [/\}\}/, {token: 'keyword', bracket: '@close', next: '@pop', nextEmbedded: '@pop'}],
     [/[\s\S]*?/, 'variable.source'],
   ]
 
-  let fabricFontStyle = document.createElement('link')
+  const fabricFontStyle = document.createElement('link')
   fabricFontStyle.rel = 'stylesheet'
   fabricFontStyle.href = '/kiwi/ui/css/fabric-icons.css'
   document.head.append(fabricFontStyle)

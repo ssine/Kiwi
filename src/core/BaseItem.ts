@@ -1,14 +1,14 @@
 import * as moment from 'moment'
-import { MIME } from './Common'
+import {MIME} from './Common'
 
 type ItemHeader = {
-  'author'?: string
+  author?: string
   'create-time'?: moment.Moment
   'modify-time'?: moment.Moment
-  'tags'?: string[]
-  'uri'?: string
-  'reader'?: string[]
-  'writer'?: string[]
+  tags?: string[]
+  uri?: string
+  reader?: string[]
+  writer?: string[]
 }
 
 /**
@@ -18,7 +18,7 @@ abstract class BaseItem {
   /**
    * Every item has a title, this is unique under the same namespace
    */
-  title: string = ''
+  title = ''
   /**
    * The MIME type of item content, null if unknown
    * as user can have their own types, we will only maintain a compile time guarantee,
@@ -36,33 +36,33 @@ abstract class BaseItem {
   /**
    * The URI of this item
    */
-  uri: string = ''
+  uri = ''
   /**
    * This item has not been created yet
    */
-  missing: boolean = true
+  missing = true
 
   /**
    * Is this a system item
    */
-  isSystem: boolean = false
+  isSystem = false
 
   /**
    * The raw content of this item
    */
-  content: string = ''
+  content = ''
   /**
    * Parsed content of this item, a string of HTML <div> element
    */
-  parsedContent: string = ''
+  parsedContent = ''
   /**
    * Weather the newest content has been parsed, used to avoid repeated parsing
    */
-  isContentParsed: boolean = false
+  isContentParsed = false
   /**
    * If the content is editable
    */
-  isContentEditable: boolean = true
+  isContentEditable = true
 
   /**
    * Return the HTML content generated, parse content if not
@@ -73,15 +73,10 @@ abstract class BaseItem {
    * Return the json representation of this item (serialization), without chlids
    */
   async json(): Promise<string> {
-    if (!this.isContentParsed)
-      await this.html()
-    const { childs, ...thisToSend } = this
+    if (!this.isContentParsed) await this.html()
+    const {childs, ...thisToSend} = this
     return JSON.stringify(thisToSend)
   }
-
 }
 
-export {
-  ItemHeader,
-  BaseItem
-}
+export {ItemHeader, BaseItem}

@@ -1,5 +1,5 @@
-import { Parser } from '../../core/Parser'
-import { MIME, resolveURI, isURL } from '../../core/Common'
+import {Parser} from '../../core/Parser'
+import {MIME, resolveURI, isURL} from '../../core/Common'
 // import * as cheerio from 'cheerio'
 import * as marked from 'marked'
 import * as hljs from 'highlight.js'
@@ -9,22 +9,21 @@ import * as hljs from 'highlight.js'
 marked.Lexer.rules.inline.gfm.text = /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\$\[`*~]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?= {2,}\n|[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/
 const tokenizer = {
   codespan(src: string) {
-    const match = src.match(/^((\s*\$[\s\S]+(?<!\\)\$)|(\s*\$\$[\s\S]+(?<!\\)\$\$))/g);
+    const match = src.match(/^((\s*\$[\s\S]+(?<!\\)\$)|(\s*\$\$[\s\S]+(?<!\\)\$\$))/g)
     if (match) {
       return {
         type: 'text',
         raw: match[0],
-        text: match[0]
-      };
+        text: match[0],
+      }
     }
-    return false;
-  }
-};
+    return false
+  },
+}
 // @ts-ignore
-marked.use({ tokenizer });
+marked.use({tokenizer})
 
 class MarkdownParser extends Parser {
-
   init() {
     marked.setOptions({
       renderer: new marked.Renderer(),
@@ -42,11 +41,11 @@ class MarkdownParser extends Parser {
         } catch (err) {
           return code
         }
-      }
-    });
+      },
+    })
   }
 
-  parse(kwargs: { uri: string, input: string }): string {
+  parse(kwargs: {uri: string; input: string}): string {
     let html = marked(kwargs.input)
     html = html.replace(/(src|href)="(.+?)"/g, (match, $1, $2) => {
       if (isURL($2)) return match
@@ -56,7 +55,7 @@ class MarkdownParser extends Parser {
     // return `<div>${marked(typesetDocumentMath(kwargs.input))}</div>`
     // const $ = cheerio.load(marked(input))
     // $('a').addClass('item-link')
-    // return $.html($('body'))  
+    // return $.html($('body'))
   }
 
   supportedTypes(): MIME[] {

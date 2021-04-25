@@ -1,5 +1,5 @@
 /**
- * The server 
+ * The server
  * @packageDocumentation
  */
 import * as http from 'http'
@@ -9,12 +9,12 @@ import * as bodyParser from 'body-parser'
 import * as cookieParser from 'cookie-parser'
 import * as fileUpload from 'express-fileupload'
 import * as compression from 'compression'
-import { getLogger } from './Log'
+import {getLogger} from './Log'
 import manager from './ItemManager'
-import { resolve } from 'path'
-import { trimString, fixedEncodeURIComponent } from './Common'
+import {resolve} from 'path'
+import {trimString, fixedEncodeURIComponent} from './Common'
 import * as fs from 'fs'
-import { promisify } from 'util'
+import {promisify} from 'util'
 const exists = promisify(fs.exists)
 
 const logger = getLogger('server')
@@ -22,14 +22,15 @@ const logger = getLogger('server')
 const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
-app.use(compression({
-  filter: (req, res) => {
-    if (req.headers['x-no-compression'])
-      return false
-    return compression.filter(req, res)
-  }
-}))
-app.use(bodyParser.json({ limit: '1mb' }))
+app.use(
+  compression({
+    filter: (req, res) => {
+      if (req.headers['x-no-compression']) return false
+      return compression.filter(req, res)
+    },
+  })
+)
+app.use(bodyParser.json({limit: '1mb'}))
 app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
@@ -39,12 +40,14 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.use('/', express.static(resolve(__dirname, '../browser')))
 
-  app.use(fileUpload({
-    // useTempFiles: true
-  }))
+  app.use(
+    fileUpload({
+      // useTempFiles: true
+    })
+  )
 
   app.post('/get-item', async (req, res) => {
-    let uri: string = req.body.uri
+    const uri: string = req.body.uri
     const it = manager.getItem(uri, req.cookies.token, true)
     if (it) res.send(await it.json())
     else res.status(404).send('Item not found!')
@@ -66,16 +69,16 @@ const serve = function serve(port: number, rootFolder: string) {
       res.send(await manager.getItem(req.body.uri)?.json())
       return
     }
-    let uri = req.body.uri
-    let it = req.body.item
+    const uri = req.body.uri
+    const it = req.body.item
     res.send(await (await manager.saveItem(uri, it)).json())
   })
 
   app.post('/fileupload', async (req, res) => {
-    let filePath = resolve(rootFolder, trimString(req.body.path, '/'))
+    const filePath = resolve(rootFolder, trimString(req.body.path, '/'))
     const folder = resolve(filePath, '..')
-    if (! await exists(folder)) {
-      await fs.promises.mkdir(folder, { recursive: true })
+    if (!(await exists(folder))) {
+      await fs.promises.mkdir(folder, {recursive: true})
     }
     // @ts-ignore
     req.files.fn.mv(filePath)
@@ -84,12 +87,12 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.post('/delete-item', async (req, res) => {
     if (!manager.getUserManager().isTokenValid(req.cookies.token)) {
-      res.send({ status: false })
+      res.send({status: false})
       return
     }
-    let uri = req.body.uri
+    const uri = req.body.uri
     manager.deleteItem(uri)
-    res.send({ status: true })
+    res.send({status: true})
   })
 
   app.post('/get-system-items', (req, res) => {
@@ -122,9 +125,4 @@ const serve = function serve(port: number, rootFolder: string) {
   server.listen(port, () => logger.info(`Server running on port ${port}`))
 }
 
-export {
-  app,
-  io,
-  serve,
-  itemRouteTable,
-}
+export {app, io, serve, itemRouteTable}

@@ -16,21 +16,23 @@ type IconButtonProperty = {
 
 class IconButton extends React.Component<IconButtonProperty, {}> {
   render() {
-    return (this.props.disabled ?
+    return this.props.disabled ? (
       <button
         className="kiwi-icon-button disabled"
         title={this.props.title}
         ref={this.props.divRef}
-        style={this.props.styles?.root} >
+        style={this.props.styles?.root}
+      >
         <i style={this.props.styles?.icon} className={`ms-Icon ms-Icon--${this.props.iconName}`} />
       </button>
-      :
+    ) : (
       <button
         className="kiwi-icon-button"
         title={this.props.title}
         ref={this.props.divRef}
         style={this.props.styles?.root}
-        onClick={this.props.onClick} >
+        onClick={this.props.onClick}
+      >
         {this.props.text}
         <i style={this.props.styles?.icon} className={`ms-Icon ms-Icon--${this.props.iconName}`} />
       </button>
@@ -38,4 +40,4 @@ class IconButton extends React.Component<IconButtonProperty, {}> {
   }
 }
 
-export { IconButton }
+export {IconButton}

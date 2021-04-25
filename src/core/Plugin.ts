@@ -1,21 +1,23 @@
-import { getLogger } from './Log'
+import {getLogger} from './Log'
 import * as he from 'he'
 import * as vm from 'vm'
-import { cloneRegex } from './Common'
-import { app } from './server'
+import {cloneRegex} from './Common'
+import {app} from './server'
 
 const logger = getLogger('plugin')
 
 type renderFunction = (...args: any[]) => Promise<string>
 
-let pluginMap: { [name: string]: RenderPlugin } = {}
+const pluginMap: {[name: string]: RenderPlugin} = {}
 
 abstract class RenderPlugin {
   abstract init(): void
   abstract getNames(): string[]
   abstract getFunctionForItem(uri: string): renderFunction
   // use structural data for editor intellisense later
-  getDescription(): string { return '' }
+  getDescription(): string {
+    return ''
+  }
   register() {
     for (const name of this.getNames()) {
       pluginMap[name] = this
@@ -24,24 +26,24 @@ abstract class RenderPlugin {
   }
 }
 
-type fieldCodeMatchResult = { start: number, end: number } | null
+type fieldCodeMatchResult = {start: number; end: number} | null
 
 function fieldCodeMatch(s: string): fieldCodeMatchResult {
-  let lastLeftIndex = -1;
+  let lastLeftIndex = -1
   for (let i = 0; i < s.length - 1; i++) {
     if (i != 0 && s[i - 1] == '\\') continue
     if (s[i] == '{' && s[i + 1] == '{') {
-      lastLeftIndex = i;
+      lastLeftIndex = i
     } else if (s[i] == '}' && s[i + 1] == '}') {
       if (lastLeftIndex != -1) {
         return {
           start: lastLeftIndex,
-          end: i + 2
+          end: i + 2,
         }
       }
     }
   }
-  return null;
+  return null
 }
 
 class ItemContext {
@@ -67,7 +69,11 @@ class ItemContext {
   }
 }
 
-const processRenderPlugin = async function processRenderPlugin(uri: string, raw: string, ctx: ItemContext): Promise<string> {
+const processRenderPlugin = async function processRenderPlugin(
+  uri: string,
+  raw: string,
+  ctx: ItemContext
+): Promise<string> {
   const fieldCall = async (s: string): Promise<string> => {
     logger.silly(`eval field code call ${he.decode(s).slice(2, -2)}`)
     let res = ''
@@ -82,13 +88,11 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, raw:
 
   let target = raw
   let match: fieldCodeMatchResult = null
-  let executionCount = 0;
+  let executionCount = 0
 
-  while (match = fieldCodeMatch(target)) {
+  while ((match = fieldCodeMatch(target))) {
     target =
-      target.slice(0, match.start) +
-      await fieldCall(target.slice(match.start, match.end)) +
-      target.slice(match.end)
+      target.slice(0, match.start) + (await fieldCall(target.slice(match.start, match.end))) + target.slice(match.end)
 
     executionCount++
     if (executionCount > 10000) {
@@ -100,8 +104,4 @@ const processRenderPlugin = async function processRenderPlugin(uri: string, raw:
   return target.replace(/\\{{/g, '{{').replace(/\\}}/g, '}}')
 }
 
-export {
-  RenderPlugin,
-  processRenderPlugin,
-  ItemContext
-}
+export {RenderPlugin, processRenderPlugin, ItemContext}

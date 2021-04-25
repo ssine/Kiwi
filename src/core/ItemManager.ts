@@ -3,13 +3,13 @@
  * @packageDocumentation
  */
 
-import { ServerItem } from './ServerItem'
-import { FileSynchronizer, URIItemMap } from './FileSynchronizer'
-import { UserManager } from './UserManager'
-import { assignCommonProperties } from './Common'
-import { getLogger } from './Log'
-import { io as uiNotifier } from './server'
-import { usersURI } from '../boot/config'
+import {ServerItem} from './ServerItem'
+import {FileSynchronizer, URIItemMap} from './FileSynchronizer'
+import {UserManager} from './UserManager'
+import {assignCommonProperties} from './Common'
+import {getLogger} from './Log'
+import {io as uiNotifier} from './server'
+import {usersURI} from '../boot/config'
 
 const logger = getLogger('itemm')
 
@@ -42,20 +42,18 @@ class ItemManager {
     }
   }
 
-  getItem(uri: string, token?: string, verify: boolean = false): ServerItem | null {
+  getItem(uri: string, token?: string, verify = false): ServerItem | null {
     let item: ServerItem | null = null
-    if (!!this.systemItemMap[uri]) item = this.systemItemMap[uri]
-    if (!!this.itemMap[uri]) item = this.itemMap[uri]
+    if (this.systemItemMap[uri]) item = this.systemItemMap[uri]
+    if (this.itemMap[uri]) item = this.itemMap[uri]
 
-    if (!item)
-      return null
-    if (!verify || !item.headers.reader)
-      return item
+    if (!item) return null
+    if (!verify || !item.headers.reader) return item
 
-    let reader = token ? this.userManager.getUserNameFromToken(token) : 'anonymous'
-    let bannedReaders = new Set()
-    let allowedReaders = new Set()
-    for (let r of item.headers.reader) {
+    const reader = token ? this.userManager.getUserNameFromToken(token) : 'anonymous'
+    const bannedReaders = new Set()
+    const allowedReaders = new Set()
+    for (const r of item.headers.reader) {
       if (r[0] === '~') {
         bannedReaders.add(r.slice(1))
       } else {
@@ -101,7 +99,7 @@ class ItemManager {
   }
 
   async deleteItem(uri: string) {
-    let _it = this.getItem(uri)
+    const _it = this.getItem(uri)
     if (!_it) {
       logger.warn(`item to delete [${uri}] does not exist!`)
       return
@@ -127,13 +125,12 @@ class ItemManager {
   getSkinnyItems(): ServerItem[] {
     const lst = []
     for (const k in this.itemMap) {
-      let it = new ServerItem()
+      const it = new ServerItem()
       it.uri = k
       it.title = this.itemMap[k].title
       it.type = this.itemMap[k].type
       it.headers = this.itemMap[k].headers
-      if (it.uri.startsWith('$'))
-        it.content = this.itemMap[k].content
+      if (it.uri.startsWith('$')) it.content = this.itemMap[k].content
       lst.push(it)
     }
     return lst
@@ -144,8 +141,7 @@ class ItemManager {
     const pattern = new RegExp(input, 'gim')
     for (const k in this.itemMap) {
       const it = this.itemMap[k]
-      if (pattern.test(it.title) || pattern.test(it.uri) || pattern.test(it.content))
-        res.push(it)
+      if (pattern.test(it.title) || pattern.test(it.uri) || pattern.test(it.content)) res.push(it)
     }
     logger.info(`${res.length} result for search ${input} found`)
     return res
@@ -155,7 +151,7 @@ class ItemManager {
     await item.html()
     // notify ui
     uiNotifier.emit('item-change', {
-      item: item
+      item: item,
     })
   }
 
@@ -163,9 +159,9 @@ class ItemManager {
     if (!this.itemMap[item.uri]) return
     delete this.itemMap[item.uri]
     logger.info(`item [${item.uri}] deleted because storage deletion`)
-    // notify 
+    // notify
     uiNotifier.emit('item-delete', {
-      uri: item.uri
+      uri: item.uri,
     })
   }
 
@@ -175,14 +171,13 @@ class ItemManager {
     logger.info(`item [${item.uri}] created because storage creation`)
     // notify ui
     uiNotifier.emit('item-create', {
-      item: item
+      item: item,
     })
   }
 
   getUserManager(): UserManager {
     return this.userManager
   }
-
 }
 
 const manager = new ItemManager()

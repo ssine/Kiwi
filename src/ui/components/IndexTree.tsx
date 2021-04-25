@@ -1,7 +1,7 @@
 import React from 'react'
 import bus from '../eventBus'
 import './IndexTree.css'
-import { getEmPixels } from '../Common'
+import {getEmPixels} from '../Common'
 
 const INDENT_WIDTH = 15
 
@@ -33,10 +33,12 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
   constructor(props: IndexTreeProperty) {
     super(props)
     this.state = {
-      rootNodeState: this._generateInitialState(props.rootNode)
+      rootNodeState: this._generateInitialState(props.rootNode),
     }
     this.state.rootNodeState.expanded = true
-    this.update = () => { this.onTreeUpdate() }
+    this.update = () => {
+      this.onTreeUpdate()
+    }
   }
 
   componentDidMount() {
@@ -48,7 +50,7 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
   }
 
   _generateInitialState(root: TreeNode): TreeNodeState {
-    let childs = {}
+    const childs = {}
     root.childs.forEach(c => {
       childs[c.URI] = this._generateInitialState(c)
       if (c.URI === 'index') {
@@ -57,13 +59,13 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
     })
     return {
       expanded: false,
-      childs: childs
+      childs: childs,
     }
   }
 
   _assignExpandState(to: TreeNodeState, from: TreeNodeState) {
     to.expanded = from.expanded
-    for (let key in from.childs) {
+    for (const key in from.childs) {
       if (key in to.childs) {
         this._assignExpandState(to.childs[key], from.childs[key])
       }
@@ -71,17 +73,21 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
   }
 
   onTreeUpdate() {
-    let newState = this._generateInitialState(this.props.rootNode)
+    const newState = this._generateInitialState(this.props.rootNode)
     this._assignExpandState(newState, this.state.rootNodeState)
     newState.expanded = true
     this.setState({
-      rootNodeState: newState
+      rootNodeState: newState,
     })
   }
 
-  _renderTree(node: TreeNode, state: TreeNodeState, level: number): JSX.Element[] {
+  _renderTree(
+    node: TreeNode,
+    state: TreeNodeState,
+    level: number
+  ): JSX.Element[] {
     let nodeList = []
-    let curNode = Object.keys(state.childs).length > 0 ? <div
+    const curNode = Object.keys(state.childs).length > 0 ? <div
       key={node.absoluteURI}
       className='kiwi-indextree-item'
       style={{ paddingLeft: INDENT_WIDTH * level }}
@@ -110,22 +116,35 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
     >
         {node.title}
       </div>
+      )
 
     nodeList.push(curNode)
     if (Object.keys(state.childs).length > 0 && state.expanded) {
-      nodeList = nodeList.concat(Object.keys(state.childs).map((uri, idx) => {
-        return this._renderTree(node.childs[idx], state.childs[uri], level + 1)
-      }))
+      nodeList = nodeList.concat(
+        Object.keys(state.childs).map((uri, idx) => {
+          return this._renderTree(
+            node.childs[idx],
+            state.childs[uri],
+            level + 1
+          )
+        })
+      )
     }
 
     return nodeList
   }
 
   render() {
-    return <div className="kiwi-tree-list">
-      {this._renderTree(this.props.rootNode, this.state.rootNodeState, -1).slice(1)}
-    </div>
+    return (
+      <div className="kiwi-tree-list">
+        {this._renderTree(
+          this.props.rootNode,
+          this.state.rootNodeState,
+          -1
+        ).slice(1)}
+      </div>
+    )
   }
 }
 
-export { IndexTree }
+export {IndexTree}

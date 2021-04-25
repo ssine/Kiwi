@@ -9,15 +9,13 @@ type PrimaryButtonProperty = {
 
 class PrimaryButton extends React.Component<PrimaryButtonProperty, {}> {
   render() {
-    let style = Object.assign({}, this.props.style)
-    return <button
-      className="kiwi-primary-button"
-      title={this.props.title}
-      style={style}
-      onClick={this.props.onClick} >
-      {this.props.title}
-    </button>
+    const style = Object.assign({}, this.props.style)
+    return (
+      <button className="kiwi-primary-button" title={this.props.title} style={style} onClick={this.props.onClick}>
+        {this.props.title}
+      </button>
+    )
   }
 }
 
-export { PrimaryButton }
+export {PrimaryButton}

@@ -11,7 +11,9 @@ export default class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}
 
   constructor(props: ItemFlowVisProperty) {
     super(props)
-    this.update = () => { this.forceUpdate() }
+    this.update = () => {
+      this.forceUpdate()
+    }
   }
 
   componentDidMount() {
@@ -27,12 +29,18 @@ export default class ItemFlowVis extends React.Component<ItemFlowVisProperty, {}
   }
 
   render() {
-    return <div>{this.props.itemFlow.map(it =>
-      <div className="kiwi-active-list-item"
-        key={it.uri}
-        onClick={_ => bus.emit('item-link-clicked', { targetURI: it.uri })}>
-        {it.title}
+    return (
+      <div>
+        {this.props.itemFlow.map(it => (
+          <div
+            className="kiwi-active-list-item"
+            key={it.uri}
+            onClick={_ => bus.emit('item-link-clicked', {targetURI: it.uri})}
+          >
+            {it.title}
+          </div>
+        ))}
       </div>
-    )}</div>
+    )
   }
 }

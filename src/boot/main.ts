@@ -1,34 +1,32 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs'
-import { initLogger } from '../core/Log'
+import {initLogger} from '../core/Log'
 
 const args = yargs
-  .command('serve [folder]', 'serve wiki files in a folder', (yargs) => {
-    yargs.option('port', {
-      alias: 'p',
-      describe: 'local port to listen on',
-      default: 3000
-    })
+  .command('serve [folder]', 'serve wiki files in a folder', yargs => {
+    yargs
+      .option('port', {
+        alias: 'p',
+        describe: 'local port to listen on',
+        default: 3000,
+      })
       .option('use-poll', {
         describe: 'use polling on listening for fs events, more robust but inefficient',
-        default: false
+        default: false,
       })
   })
   .option('log', {
     alias: 'l',
     describe: 'log level, possible levels: trace, debug, info, warn, severe',
-    default: 'info'
+    default: 'info',
   })
   .demandCommand()
-  .help()
-  .argv as any
-
+  .help().argv as any
 
 initLogger(args.log)
 
-
 import manager from '../core/ItemManager'
-import { serve } from '../core/server'
+import {serve} from '../core/server'
 import MarkdownParser from '../lib/parser/MarkdownParser'
 import WikitextParser from '../lib/parser/WikitextParser'
 import AsciidocParser from '../lib/parser/AsciidocParser'

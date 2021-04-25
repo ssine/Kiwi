@@ -1,12 +1,12 @@
 import socketIO from 'socket.io-client'
 import bus from './eventBus'
-import { defaultItemsURI, pageConfigs } from '../boot/config'
+import {defaultItemsURI, pageConfigs} from '../boot/config'
 import ClientItem from './ClientItem'
-import { postJSON, getPositionToDocument, setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
+import {postJSON, getPositionToDocument, setPageColors, CSSColorToRGBA, RGBtoHSV} from './Common'
 import Renderer from './Renderer'
-import { URIParser } from './URIParser'
-import { typesetMath } from './mathjax'
-import { assignCommonProperties, resolveURI, suggestedURIToTitle } from '../core/Common'
+import {URIParser} from './URIParser'
+import {typesetMath} from './mathjax'
+import {assignCommonProperties, resolveURI, suggestedURIToTitle} from '../core/Common'
 
 type URIItemMap = Record<string, ClientItem>
 
@@ -20,22 +20,22 @@ class ItemManager {
   itemFlowDiv!: Element
   renderer: Renderer
   URIParser: URIParser = new URIParser()
-  tagMap: { [tag: string]: ClientItem[] } = {}
+  tagMap: {[tag: string]: ClientItem[]} = {}
   itemTypes: Set<string> = new Set()
   io = socketIO()
 
   async init() {
     // get system items
-    let systemItems = await postJSON('/get-system-items', {})
-    for (let k in systemItems) {
+    const systemItems = await postJSON('/get-system-items', {})
+    for (const k in systemItems) {
       systemItems[k].contentLoaded = true
-      this.sysMap[systemItems[k].uri] = (new ClientItem()).assign(systemItems[k])
+      this.sysMap[systemItems[k].uri] = new ClientItem().assign(systemItems[k])
     }
 
     // get skinny items
-    let skinnyItems = await postJSON('/get-skinny-items', {})
-    for (let k in skinnyItems) {
-      let it = new ClientItem()
+    const skinnyItems = await postJSON('/get-skinny-items', {})
+    for (const k in skinnyItems) {
+      const it = new ClientItem()
       it.assign(skinnyItems[k])
       it.contentLoaded = false
       this.map[it.uri] = it
@@ -45,11 +45,11 @@ class ItemManager {
 
     document.title = (await this.getLoadedItemFromURI(pageConfigs.title)).content.trim()
 
-    const link = document.createElement('link');
-    link.type = 'image/x-icon';
-    link.rel = 'shortcut icon';
-    link.href = '/' + pageConfigs.favicon;
-    document.getElementsByTagName('head')[0].appendChild(link);
+    const link = document.createElement('link')
+    link.type = 'image/x-icon'
+    link.rel = 'shortcut icon'
+    link.href = '/' + pageConfigs.favicon
+    document.getElementsByTagName('head')[0].appendChild(link)
 
     this.generateTagMap()
     this.generateItemTypes()
@@ -60,19 +60,22 @@ class ItemManager {
     const rootDiv = document.createElement('div')
 
     // render sidebar switch
-    let sidebarSwitchElement = document.createElement('div')
+    const sidebarSwitchElement = document.createElement('div')
     sidebarSwitchElement.className = 'sidebar-switch'
     this.renderer.renderSidebarSwitch(sidebarSwitchElement)
     rootDiv.append(sidebarSwitchElement)
 
     // render sidebar
-    let sidebarElement = document.createElement('div')
-    this.renderer.renderSidebar({
-      title: (await this.getLoadedItemFromURI(pageConfigs.title)).content.trim(),
-      subTitle: (await this.getLoadedItemFromURI(pageConfigs.subTitle)).content.trim(),
-      itemFlow: this.itemFlow,
-      rootNode: this.URIParser.rootNode
-    }, sidebarElement)
+    const sidebarElement = document.createElement('div')
+    this.renderer.renderSidebar(
+      {
+        title: (await this.getLoadedItemFromURI(pageConfigs.title)).content.trim(),
+        subTitle: (await this.getLoadedItemFromURI(pageConfigs.subTitle)).content.trim(),
+        itemFlow: this.itemFlow,
+        rootNode: this.URIParser.rootNode,
+      },
+      sidebarElement
+    )
     rootDiv.append(sidebarElement)
 
     // render item flow
@@ -84,46 +87,47 @@ class ItemManager {
     document.body.append(rootDiv)
 
     // register event listeners
-    bus.on('item-link-clicked', (data) => this.displayItem(resolveURI(data.emitterURI, data.targetURI)))
-    bus.on('item-close-clicked', (data) => this.closeItem(data.uri))
-    bus.on('item-save-clicked', (data) => this.saveItem(data))
-    bus.on('item-delete-clicked', (data) => this.deleteItem(data.uri))
-    bus.on('create-item-clicked', (data) => this.createItem(data))
-    bus.on('search-triggered', (data) => this.processSearch(data))
-    bus.on('item-saved', async (data) => {
+    bus.on('item-link-clicked', data => this.displayItem(resolveURI(data.emitterURI, data.targetURI)))
+    bus.on('item-close-clicked', data => this.closeItem(data.uri))
+    bus.on('item-save-clicked', data => this.saveItem(data))
+    bus.on('item-delete-clicked', data => this.deleteItem(data.uri))
+    bus.on('create-item-clicked', data => this.createItem(data))
+    bus.on('search-triggered', data => this.processSearch(data))
+    bus.on('item-saved', async data => {
       if (data.uri === pageConfigs.title) {
         document.title = (await this.getLoadedItemFromURI(pageConfigs.title)).content.trim()
         // ugly hack, but who cares? going through react is troublesome
         document.getElementById('site-title').innerHTML = document.title
       } else if (data.uri === pageConfigs.subTitle) {
-        document.getElementById('site-subtitle').innerHTML =
-          (await this.getLoadedItemFromURI(pageConfigs.subTitle)).content.trim()
+        document.getElementById('site-subtitle').innerHTML = (
+          await this.getLoadedItemFromURI(pageConfigs.subTitle)
+        ).content.trim()
       }
     })
 
-    this.io.on('item-change', async (data) => {
+    this.io.on('item-change', async data => {
       let item: ClientItem = data.item
       item = this.map[item.uri].assign(item)
-      bus.emit('item-saved', { uri: item.uri })
+      bus.emit('item-saved', {uri: item.uri})
       const idx = this.itemFlow.indexOf(item)
       if (idx !== -1) {
         this.itemFlowDiv.children[idx].querySelector('.item-content').innerHTML = await item.html()
       }
     })
-    this.io.on('item-create', (data) => {
+    this.io.on('item-create', data => {
       const item = new ClientItem()
       item.assign(data.item)
       this.map[item.uri] = item
       this.updateURI()
-      bus.emit('item-saved', { uri: item.uri })
+      bus.emit('item-saved', {uri: item.uri})
     })
-    this.io.on('item-delete', async (data) => {
+    this.io.on('item-delete', async data => {
       const uri: string = data.uri
       await this.closeItem(uri)
       delete this.map[uri]
       this.updateURI()
       bus.emit('item-deleted')
-    });
+    })
 
     if (window.location.hash != '') {
       this.displayItem(window.location.hash.substr(1))
@@ -143,8 +147,7 @@ class ItemManager {
   async getItemFromURI(uri: string): Promise<ClientItem | null> {
     const getFromMap = async (uri: string, map: URIItemMap) => {
       const possibleIndex = this.concatURI(uri, 'index')
-      if (map[possibleIndex])
-        return map[possibleIndex]
+      if (map[possibleIndex]) return map[possibleIndex]
       if (map[uri]) {
         return map[uri]
       }
@@ -195,10 +198,10 @@ class ItemManager {
 
   async displayItem(uri: string) {
     uri = resolveURI(null, uri)
-    let item = await this.getLoadedItemFromURI(uri)
+    const item = await this.getLoadedItemFromURI(uri)
     if (!item) {
       console.log(`item to display [${uri}] dose not exist, creating a missing one`)
-      await this.createItem({ uri: uri }, false)
+      await this.createItem({uri: uri}, false)
       return
     }
 
@@ -207,7 +210,7 @@ class ItemManager {
       return
     }
 
-    let el = document.createElement('div')
+    const el = document.createElement('div')
     el.className = 'item-container'
     this.renderer.renderItem(item, el)
     this.itemFlowDiv.append(el)
@@ -223,11 +226,11 @@ class ItemManager {
   }
 
   async closeItem(uri: string) {
-    let item = await this.getItemFromURI(uri)
+    const item = await this.getItemFromURI(uri)
 
     if (!item.displaied) return
 
-    let flowIdx = this.itemFlow.indexOf(item)
+    const flowIdx = this.itemFlow.indexOf(item)
     this.itemFlow.splice(flowIdx, 1)
     this.itemFlowDiv.removeChild(item.containerDiv)
     item.containerDiv = null
@@ -237,8 +240,8 @@ class ItemManager {
     bus.emit('item-flow-layout')
   }
 
-  async saveItem(data: { uri: string, editedItem: Partial<ClientItem>, token?: string }) {
-    let item = await this.getLoadedItemFromURI(data.uri)
+  async saveItem(data: {uri: string; editedItem: Partial<ClientItem>; token?: string}) {
+    const item = await this.getLoadedItemFromURI(data.uri)
     if (item === null) return
 
     // if (item.isSystem) {
@@ -246,7 +249,7 @@ class ItemManager {
     // }
 
     const changedKeys = {}
-    for (let k in data.editedItem) {
+    for (const k in data.editedItem) {
       if (item[k] !== data.editedItem[k]) {
         changedKeys[k] = true
         item[k] = data.editedItem[k]
@@ -264,21 +267,21 @@ class ItemManager {
     this.generateTagMap()
     item.editing = false
     item.missing = false
-    const { containerDiv, parsedContent, ...itemToSave } = item
+    const {containerDiv, parsedContent, ...itemToSave} = item
     const savedItem = await postJSON('/save-item', {
       uri: data.uri,
-      item: itemToSave
+      item: itemToSave,
     })
     assignCommonProperties(item, savedItem)
-    if (data.token) bus.emit(`item-saved-${data.token}`, { item: item })
-    bus.emit('item-saved', { uri: item.uri })
+    if (data.token) bus.emit(`item-saved-${data.token}`, {item: item})
+    bus.emit('item-saved', {uri: item.uri})
   }
 
-  finalizeItemEdit(itemURI: string, rerender: boolean = true) {
-    bus.emit(`external-edit-${itemURI}`, { rerender: rerender })
+  finalizeItemEdit(itemURI: string, rerender = true) {
+    bus.emit(`external-edit-${itemURI}`, {rerender: rerender})
   }
 
-  async createItem(data: Partial<ClientItem>, editing: boolean = true) {
+  async createItem(data: Partial<ClientItem>, editing = true) {
     const item = new ClientItem()
     item.content = data.content ? data.content : ''
     item.uri = data.uri ? data.uri : 'new-item'
@@ -304,12 +307,12 @@ class ItemManager {
     await this.closeItem(uri)
     delete this.map[uri]
     this.updateURI()
-    postJSON('/delete-item', { uri: uri })
+    postJSON('/delete-item', {uri: uri})
     bus.emit('item-deleted')
   }
 
-  async processSearch(data: { input: string, token: string }) {
-    const result = await postJSON('/get-search-result', { input: data.input })
+  async processSearch(data: {input: string; token: string}) {
+    const result = await postJSON('/get-search-result', {input: data.input})
     const lst = []
     for (const res of result) {
       if (!this.map[res.uri]) {
@@ -319,7 +322,7 @@ class ItemManager {
       }
       lst.push(this.map[res.uri])
     }
-    bus.emit(`search-result-${data.token}`, { items: lst })
+    bus.emit(`search-result-${data.token}`, {items: lst})
   }
 
   updateURI() {
@@ -333,7 +336,6 @@ class ItemManager {
   async getThemeHue(): Promise<number> {
     return RGBtoHSV(CSSColorToRGBA((await this.getLoadedItemFromURI(pageConfigs.primaryColor)).content)).h
   }
-
 }
 
 const manager = new ItemManager()

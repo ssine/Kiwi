@@ -1,5 +1,5 @@
-import { MIME } from './Common'
-import { getLogger } from './Log'
+import {MIME} from './Common'
+import {getLogger} from './Log'
 
 const logger = getLogger('parser')
 
@@ -10,10 +10,10 @@ const parserMap = new Map<MIME, Parser>()
 
 /**
  * Interface of all content parsers
- * 
+ *
  * They accept the raw strings whose file extension or declared type is in
  * `supported_types()` and returns parsed html `<div>` block.
- * 
+ *
  * @todo support for table of contents
  * @todo Provide the register api to impls later, jsut hard code it now
  */
@@ -25,7 +25,7 @@ abstract class Parser {
   /**
    * Parse input into HTML `<div>` block.
    */
-  abstract parse(kwargs: { input: string, uri: string }): string
+  abstract parse(kwargs: {input: string; uri: string}): string
   /**
    * A list of supported content type in MIME format
    */
@@ -45,7 +45,7 @@ abstract class Parser {
 /**
  * Parse a content and return html <div>
  */
-const parse = function parse(kwargs: { input: string, uri: string, type: MIME }): string {
+const parse = function parse(kwargs: {input: string; uri: string; type: MIME}): string {
   const parser = parserMap.get(kwargs.type)
   if (!parser) {
     logger.info(`Parser for type ${kwargs.type} not found, empty string returned.`)
@@ -54,7 +54,4 @@ const parse = function parse(kwargs: { input: string, uri: string, type: MIME })
   return parser.parse(kwargs)
 }
 
-export {
-  Parser,
-  parse,
-}
+export {Parser, parse}

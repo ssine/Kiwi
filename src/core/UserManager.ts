@@ -2,7 +2,7 @@
  * Management of users
  * @packageDocumentation
  */
-import { createHash } from 'crypto'
+import {createHash} from 'crypto'
 
 interface UserAccount {
   name: string
@@ -10,13 +10,15 @@ interface UserAccount {
   token: string
 }
 
-type LoginResult = {
-  success: false
-  reason: string
-} | {
-  success: true
-  token: string
-}
+type LoginResult =
+  | {
+      success: false
+      reason: string
+    }
+  | {
+      success: true
+      token: string
+    }
 
 class UserManager {
   accounts: UserAccount[]
@@ -29,28 +31,33 @@ class UserManager {
    */
   init(dataContent: string) {
     const data: UserAccount[] = JSON.parse(dataContent)
-    this.accounts = data.filter(act => act.name && act.password).map(act => {
-      act.token = createHash('sha256').update(act.name + act.password).digest('hex')
-      return act
-    })
+    this.accounts = data
+      .filter(act => act.name && act.password)
+      .map(act => {
+        act.token = createHash('sha256')
+          .update(act.name + act.password)
+          .digest('hex')
+        return act
+      })
   }
 
   login(name: string, password: string): LoginResult {
     for (const act of this.accounts) {
       if (act.name === name) {
-        if (act.password !== password) return {
-          success: false,
-          reason: 'password incorrect'
-        }
+        if (act.password !== password)
+          return {
+            success: false,
+            reason: 'password incorrect',
+          }
         return {
           success: true,
-          token: act.token
+          token: act.token,
         }
       }
     }
     return {
       success: false,
-      reason: 'account not exist'
+      reason: 'account not exist',
     }
   }
 
@@ -67,7 +74,6 @@ class UserManager {
     }
     return ''
   }
-
 }
 
-export { UserManager }
+export {UserManager}

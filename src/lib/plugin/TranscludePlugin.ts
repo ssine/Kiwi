@@ -1,10 +1,9 @@
-import { resolveURI } from '../../core/Common'
-import { RenderPlugin } from '../../core/Plugin'
+import {resolveURI} from '../../core/Common'
+import {RenderPlugin} from '../../core/Plugin'
 import manager from '../../core/ItemManager'
 
 export default class TranscludePlugin extends RenderPlugin {
-  init() {
-  }
+  init() {}
 
   getNames() {
     return ['transclude', 'tc']
@@ -17,7 +16,7 @@ export default class TranscludePlugin extends RenderPlugin {
         return 'direct cyclic transclude detected!'
       }
       const it = manager.getItem(targetURI)
-      if (!it) return `Item to transclude doesn't exist!`
+      if (!it) return "Item to transclude doesn't exist!"
       return it.content
     }
   }

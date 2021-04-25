@@ -5,34 +5,24 @@
  *   On desktop, the layout is done by px.
  */
 import ClientItem from './ClientItem'
-import React from "react"
-import ReactDOM from "react-dom"
-import { ItemComponent } from './components/ItemComponent'
-import { SidebarComponentProperty, SidebarComponent } from './components/SidebarComponent'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import {ItemComponent} from './components/ItemComponent'
+import {SidebarComponentProperty, SidebarComponent} from './components/SidebarComponent'
 import SidebarSwitch from './components/SidebarSwitch'
 
 export default class Renderer {
-  constructor() {
-  }
+  constructor() {}
 
   renderItem(it: ClientItem, el: Element) {
-    ReactDOM.render(
-      <ItemComponent item={it} />,
-      el
-    )
+    ReactDOM.render(<ItemComponent item={it} />, el)
   }
 
   renderSidebar(config: SidebarComponentProperty, el: Element) {
-    ReactDOM.render(
-      React.createElement(SidebarComponent, config),
-      el
-    )
+    ReactDOM.render(React.createElement(SidebarComponent, config), el)
   }
 
   renderSidebarSwitch(el: HTMLElement) {
-    return ReactDOM.render(
-      React.createElement(SidebarSwitch, { container: el }),
-      el
-    )
+    return ReactDOM.render(React.createElement(SidebarSwitch, {container: el}), el)
   }
 }
