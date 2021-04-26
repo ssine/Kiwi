@@ -1,7 +1,7 @@
 import React from 'react'
 import bus from '../eventBus'
 import './IndexTree.css'
-import {getEmPixels} from '../Common'
+import { getEmPixels } from '../Common'
 
 const INDENT_WIDTH = 15
 
@@ -81,52 +81,50 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
     })
   }
 
-  _renderTree(
-    node: TreeNode,
-    state: TreeNodeState,
-    level: number
-  ): JSX.Element[] {
+  _renderTree(node: TreeNode, state: TreeNodeState, level: number): JSX.Element[] {
     let nodeList = []
-    const curNode = Object.keys(state.childs).length > 0 ? <div
-      key={node.absoluteURI}
-      className='kiwi-indextree-item'
-      style={{ paddingLeft: INDENT_WIDTH * level }}
-      onClick={_ => {
-        bus.emit('item-link-clicked', {
-          targetURI: node.absoluteURI
-        })
-      }} >
-      <div
-        className={`kiwi-indextree-foldicon ms-Icon ms-Icon--${state.expanded ? 'ChevronDown' : 'ChevronRight'}`}
-        onClick={ev => {
-          state.expanded = !state.expanded
-          this.forceUpdate()
-          ev.stopPropagation()
-        }} ></div>
-      {node.title}
-    </div> : <div
-      key={node.absoluteURI}
-      className='kiwi-indextree-item'
-      style={{ paddingLeft: INDENT_WIDTH * level + getEmPixels() * 1.4 }}
-      onClick={_ => {
-        bus.emit('item-link-clicked', {
-          targetURI: node.absoluteURI
-        })
-      }}
-    >
-        {node.title}
-      </div>
+    const curNode =
+      Object.keys(state.childs).length > 0 ? (
+        <div
+          key={node.absoluteURI}
+          className="kiwi-indextree-item"
+          style={{ paddingLeft: INDENT_WIDTH * level }}
+          onClick={_ => {
+            bus.emit('item-link-clicked', {
+              targetURI: node.absoluteURI,
+            })
+          }}
+        >
+          <div
+            className={`kiwi-indextree-foldicon ms-Icon ms-Icon--${state.expanded ? 'ChevronDown' : 'ChevronRight'}`}
+            onClick={ev => {
+              state.expanded = !state.expanded
+              this.forceUpdate()
+              ev.stopPropagation()
+            }}
+          ></div>
+          {node.title}
+        </div>
+      ) : (
+        <div
+          key={node.absoluteURI}
+          className="kiwi-indextree-item"
+          style={{ paddingLeft: INDENT_WIDTH * level + getEmPixels() * 1.4 }}
+          onClick={_ => {
+            bus.emit('item-link-clicked', {
+              targetURI: node.absoluteURI,
+            })
+          }}
+        >
+          {node.title}
+        </div>
       )
 
     nodeList.push(curNode)
     if (Object.keys(state.childs).length > 0 && state.expanded) {
       nodeList = nodeList.concat(
         Object.keys(state.childs).map((uri, idx) => {
-          return this._renderTree(
-            node.childs[idx],
-            state.childs[uri],
-            level + 1
-          )
+          return this._renderTree(node.childs[idx], state.childs[uri], level + 1)
         })
       )
     }
@@ -137,14 +135,10 @@ class IndexTree extends React.Component<IndexTreeProperty, IndexTreeState> {
   render() {
     return (
       <div className="kiwi-tree-list">
-        {this._renderTree(
-          this.props.rootNode,
-          this.state.rootNodeState,
-          -1
-        ).slice(1)}
+        {this._renderTree(this.props.rootNode, this.state.rootNodeState, -1).slice(1)}
       </div>
     )
   }
 }
 
-export {IndexTree}
+export { IndexTree }

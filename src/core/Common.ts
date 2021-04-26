@@ -181,8 +181,8 @@ function cloneRegex(re: RegExp): RegExp {
     unicode: 'u',
   }
 
-  // @ts-ignore
   const flags = Object.keys(flagMap)
+    // @ts-ignore
     .map(flag => (re[flag] ? flagMap[flag] : ''))
     .join('')
 
