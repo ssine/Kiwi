@@ -3,6 +3,7 @@
  * Partially supported
  */
 type MIME =
+  | 'application/octet-stream'
   | 'application/pdf'
   | 'application/json'
   | 'text/plain'
@@ -20,6 +21,7 @@ type MIME =
   | 'text/x-go'
   | 'text/x-javascript'
   | 'text/x-typescript'
+  | 'text/x-unknown'
   | 'image/gif'
   | 'image/x-icon'
   | 'image/jpeg'
@@ -145,9 +147,9 @@ function getLanguageFromMIME(ct: MIME | null): string {
 /**
  * Infer the MIME content type from file extension
  */
-function getMIMEFromExtension(ext: string): MIME | null {
+function getMIMEFromExtension(ext: string): MIME | undefined {
   ext = ext.replace(/^\.+/, '')
-  return extMIMEDict[ext] || null
+  return extMIMEDict[ext]
 }
 
 /**

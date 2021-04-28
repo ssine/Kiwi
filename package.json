@@ -98,6 +98,7 @@
     "mathjax-full": "^3.0.1",
     "moment": "^2.24.0",
     "socket.io": "^2.3.0",
+    "tosource": "^2.0.0-alpha.2",
     "viz.js": "^2.1.2",
     "winston": "^3.2.1",
     "wtf_wikipedia": "^8.5.1",

@@ -47,6 +47,7 @@ abstract class BaseItem {
    */
   isSystem = false
 
+  isBinary = false
   /**
    * The raw content of this item
    */
