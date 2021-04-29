@@ -1,6 +1,6 @@
 export type MIME = keyof typeof MimeProps
 
-export const registerMimeType = (type: string, props?: Record<string, any>): void => {
+export const registerMimeType = (type: string, props?: Record<string, unknown>): void => {
   // @ts-ignore: external types
   MimeProps[type] = props || {}
 }
@@ -9,7 +9,7 @@ export const isMimeHasProp = (type: MIME, prop: string): boolean => {
   return Object.keys(MimeProps[type]).includes(prop)
 }
 
-export const getMimeProps = (type: MIME): Record<string, any> => {
+export const getMimeProps = (type: MIME): Record<string, unknown> => {
   // @ts-ignore
   return MimeProps[type][prop]
 }
@@ -29,7 +29,7 @@ export const getMimesWithProp = (prop: string): MIME[] => {
   return res
 }
 
-export const getMimesWhichPropIncludes = (prop: string, content: any): MIME[] => {
+export const getMimesWhichPropIncludes = (prop: string, content: unknown): MIME[] => {
   const res: MIME[] = []
   for (const [type, props] of Object.entries(MimeProps)) {
     // @ts-ignore
@@ -56,9 +56,14 @@ export const getTypeFromFileExt = (ext: string): MIME => {
   return getMimesWhichPropIncludes('extensions', ext)[0]
 }
 
+export const getFileExtFromType = (type: MIME): string | null => {
+  // @ts-ignore
+  return getMimeProps(type).extensions?.[0]
+}
+
 /**
- * extensions: file extension
- * monacoLanguage: language id in monaco editor for intelisense
+ * extensions: file extension, content types should have only one extension to avoid multiple mapping
+ * monacoLanguage: language id in monaco editor for intellisense
  * editorClass: class of item in item content type selection when editing
  */
 const MimeProps = {

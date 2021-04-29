@@ -1,4 +1,6 @@
-import { getMimesWhichPropIncludes, getMimesWithProp } from './core/MimeType'
-
-console.log(getMimesWithProp('editorClass'))
-console.log(getMimesWhichPropIncludes('tags', 'content'))
+import * as fs from 'fs'
+;(async () => {
+  const s = fs.createReadStream('package.json')
+  const as = fs.createWriteStream('package1.json')
+  s.pipe(as)
+})()

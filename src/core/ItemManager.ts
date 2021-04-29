@@ -14,7 +14,7 @@ import { usersURI } from '../boot/config'
 const logger = getLogger('itemm')
 
 /**
- * Wrapper class of functions when manageing items
+ * Provides a uniform api for managing items on both frontend and backend side.
  */
 class ItemManager {
   itemMap: URIItemMap = {}

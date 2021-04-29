@@ -1,22 +1,35 @@
+import { Readable } from 'node:stream'
 import * as fs from 'fs'
+import * as path from 'path'
 import { isBinaryFile } from 'isbinaryfile'
 import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml'
-import * as path from 'path'
-import { BaseItem, ItemHeader } from '../../core/BaseItem'
-import { getExtensionFromMIME, getMIMEFromExtension, renderableMIME } from '../../core/Common'
-import {
-  getMimesWhichPropIncludes,
-  getTypeFromFileExt,
-  isContentType,
-  isMimePropIncludes,
-  MIME,
-} from '../../core/MimeType'
-import { StorageProvider } from '../../core/Storage'
+import { getFileExtFromType, getTypeFromFileExt, isBinaryType, isContentType, MIME } from '../../core/MimeType'
+import { ServerItem } from '../../core/ServerItem'
+import { itemToNode, nodeToItem, StorageProvider } from '../../core/Storage'
 
 class FilesystemStorage implements StorageProvider {
-  async getItem(uri: string): Promise<BaseItem | null> {
-    const path = uriTypeToPath(uri)
-    return null
+  rootPath = '/'
+  allItems: Record<string, ServerItem> = {}
+
+  async init(rootPath: string): Promise<void> {
+    this.rootPath = rootPath
+    this.allItems = await getAllItems(this.rootPath)
+  }
+
+  async putItem(uri: string, item: ServerItem): Promise<void> {
+    await saveItem(this.rootPath, uri, item)
+    this.allItems[uri] = item
+  }
+
+  async deleteItem(uri: string): Promise<void> {
+    if (this.allItems[uri]) {
+      await deleteItem(this.rootPath, uri, this.allItems[uri].type)
+      delete this.allItems[uri]
+    }
+  }
+
+  async getAllItems(): Promise<Record<string, ServerItem>> {
+    return this.allItems
   }
 }
 
@@ -27,36 +40,102 @@ class FilesystemStorage implements StorageProvider {
  * to __index__.md, and so on.
  * @param uri a normalized uri
  * @param type mime type of content
- * @returns relative file path to save content in
+ * @returns file path to save content in
  */
 const uriTypeToPath = (rootPath: string, uri: string, type: MIME): string => {
-  return path.resolve(rootPath, uri) + isContentType(type) ? `.${getExtensionFromMIME(type)}` : ''
+  return path.resolve(rootPath, uri) + isContentType(type) ? `.${getFileExtFromType(type)}` : ''
 }
 
-const pathToItem = async (rootPath: string, filePath: string): BaseItem => {
-  const buffer = await fs.promises.readFile(filePath)
-  // infer binary / text from file content
-  const isBinary = await isBinaryFile(buffer)
-
+const pathToUriType = async (rootPath: string, filePath: string): Promise<[string, MIME]> => {
   const parsedPath = path.parse(filePath)
-  const type = getTypeFromFileExt(parsedPath.ext) || (isBinary ? 'application/octet-stream' : 'text/plain')
+  const type =
+    getTypeFromFileExt(parsedPath.ext) || ((await isBinaryFile(filePath)) ? 'application/octet-stream' : 'text/plain')
   const target = path.join(parsedPath.dir, isContentType(type) ? parsedPath.base : parsedPath.name)
   const uri = path.resolve(rootPath, target).replace(/\\+/g, '/')
+  return [uri, type]
+}
 
-  if (isContentType(type)) {
-    const [meta, content] = splitMetaAndContent(buffer.toString())
+const saveItem = async (rootPath: string, uri: string, item: ServerItem): Promise<void> => {
+  const filePath = uriTypeToPath(rootPath, uri, item.type)
+  const node = itemToNode(item)
+  if (isContentType(item.type)) {
+    await fs.promises.writeFile(filePath, `---\n${dumpYaml(node.meta).trim()}\n---\n\n${node.content}`)
   } else {
-    let meta = {}
+    await fs.promises.writeFile(`${filePath}.meta.yaml`, dumpYaml(node.meta))
+    if (isBinaryType(item.type)) {
+      await streamToFile(node.getReadStream!(), filePath)
+    } else {
+      await fs.promises.writeFile(filePath, node.content!)
+    }
+  }
+}
+
+const deleteItem = async (rootPath: string, uri: string, type: MIME, withChild = false): Promise<void> => {
+  const filePath = uriTypeToPath(rootPath, uri, type)
+
+  await fs.promises.rm(filePath, { force: true })
+  if (!isContentType(type)) {
+    await fs.promises.rm(`${filePath}.meta.yaml`, { force: true })
+    await fs.promises.rm(`${filePath}.meta.json`, { force: true })
+  }
+
+  if (withChild && isContentType(type)) {
+    // content typed items may have children, remove them
+    const parsed = path.parse(filePath)
+    await fs.promises.rm(path.join(parsed.dir, parsed.base), { recursive: true, force: true })
+  }
+
+  // remove all empty parents
+  let parent = path.resolve(filePath, '../')
+  let parentFiles = await fs.promises.readdir(parent)
+  while (parentFiles.length === 0 && path.relative(rootPath, parent) !== '') {
+    await fs.promises.rmdir(parent)
+    parent = path.resolve(parent, '../')
+    parentFiles = await fs.promises.readdir(parent)
+  }
+}
+
+const pathToUriItem = async (rootPath: string, filePath: string): Promise<[string, ServerItem]> => {
+  const [uri, type] = await pathToUriType(rootPath, filePath)
+  let meta = {}
+  let content, getReadStream
+  if (isContentType(type)) {
+    // eslint-disable-next-line @typescript-eslint/no-extra-semi
+    ;[meta, content] = splitMetaAndContent((await fs.promises.readFile(filePath)).toString())
+  } else {
+    // get meta
     try {
-      meta = JSON.parse((await fs.promises.readFile(`${filePath}.meta.json`)).toString())
+      meta = loadYaml((await fs.promises.readFile(`${filePath}.meta.yaml`)).toString())
     } catch (err1) {
       try {
-        meta = loadYaml((await fs.promises.readFile(`${filePath}.meta.yaml`)).toString())
+        meta = JSON.parse((await fs.promises.readFile(`${filePath}.meta.json`)).toString())
       } catch (err2) {
         console.log(`Failed to read meta file for ${filePath}: ${err1} | ${err2}`)
       }
     }
+    // get content
+    if (isBinaryType(type)) {
+      getReadStream = () => fs.createReadStream(filePath)
+    } else {
+      content = (await fs.promises.readFile(filePath)).toString()
+    }
   }
+  return [uri, nodeToItem(uri, { type, meta, content, getReadStream })]
+}
+
+const getAllItems = async (rootPath: string): Promise<Record<string, ServerItem>> => {
+  const items: Record<string, ServerItem> = {}
+  const dfs = async (nodePath: string) => {
+    const stat = await fs.promises.lstat(nodePath)
+    if (stat.isFile()) {
+      const [uri, item] = await pathToUriItem(rootPath, nodePath)
+      items[uri] = item
+    } else if (stat.isDirectory()) {
+      await Promise.all((await fs.promises.readdir(nodePath)).map(p => dfs(path.resolve(nodePath, p))))
+    }
+  }
+  await dfs(rootPath)
+  return items
 }
 
 const splitMetaAndContent = (raw: string): [Record<string, any>, string] => {
@@ -75,6 +154,13 @@ const splitMetaAndContent = (raw: string): [Record<string, any>, string] => {
     }
   }
   return [meta, lines.slice(divideIndex).join('\n')]
+}
+
+const streamToFile = (inputStream: Readable, filePath: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const fileWriteStream = fs.createWriteStream(filePath)
+    inputStream.pipe(fileWriteStream).on('finish', resolve).on('error', reject)
+  })
 }
 
 export { FilesystemStorage }

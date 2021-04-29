@@ -15,7 +15,7 @@ const parserMap = new Map<MIME, Parser>()
  * `supported_types()` and returns parsed html `<div>` block.
  *
  * @todo support for table of contents
- * @todo Provide the register api to impls later, jsut hard code it now
+ * @todo Provide the register api to impls later, just hard code it now
  */
 abstract class Parser {
   /**
