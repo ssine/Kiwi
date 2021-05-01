@@ -1,5 +1,6 @@
 export const defaultItemsURI = 'kiwi/config/default-items'
-export const usersURI = 'kiwi/config/users.json'
+export const usersURI = 'kiwi/config/users.yaml'
+export const systemURI = 'kiwi/config/configs.yaml'
 
 export const pageConfigs = {
   title: 'kiwi/config/site-title',

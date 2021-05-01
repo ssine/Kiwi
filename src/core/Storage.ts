@@ -12,6 +12,11 @@ interface StorageProvider {
   init: (...args: any[]) => Promise<void>
 
   /**
+   * Get an item with uri (null if not exist)
+   */
+  getItem: (uri: string) => Promise<ServerItem | null>
+
+  /**
    * Put an item to storage
    */
   putItem: (uri: string, item: ServerItem) => Promise<void>

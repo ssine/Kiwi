@@ -3,7 +3,7 @@ import { parse } from './Parser'
 import { processRenderPlugin, ItemContext } from './Plugin'
 import { Readable } from 'stream'
 
-interface ServerItem extends BaseItem {
+export interface ServerItem extends BaseItem {
   getContentStream?: () => Readable
 }
 
@@ -26,5 +26,3 @@ interface ServerItem extends BaseItem {
 //     return this.parsedContent
 //   }
 // }
-
-export { ServerItem }

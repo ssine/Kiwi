@@ -16,6 +16,10 @@ class FilesystemStorage implements StorageProvider {
     this.allItems = await getAllItems(this.rootPath)
   }
 
+  async getItem(uri: string): Promise<ServerItem | null> {
+    return this.allItems[uri]
+  }
+
   async putItem(uri: string, item: ServerItem): Promise<void> {
     await saveItem(this.rootPath, uri, item)
     this.allItems[uri] = item

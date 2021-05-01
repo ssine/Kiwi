@@ -1,0 +1,115 @@
+/**
+ * Management of users
+ * @packageDocumentation
+ */
+import { createHash } from 'crypto'
+import { ServerItem } from './ServerItem'
+import { safeLoad as loadYaml } from 'js-yaml'
+
+interface UserAccount {
+  name: string
+  token: string
+}
+
+type LoginResult =
+  | {
+      success: false
+      reason: string
+    }
+  | {
+      success: true
+      token: string
+    }
+
+/**
+ * Authentication and authorization.
+ * Each user gets an unique token that identifies the user.
+ */
+class AuthManager {
+  accounts: UserAccount[] = []
+
+  /**
+   * Initialize User Manager with stored accounts
+   */
+  init(storage: ServerItem) {
+    const data: { name: string; token?: string; password?: string }[] = loadYaml(storage.content!) || []
+    this.accounts = data
+      .filter(act => act.name && (act.token || act.password))
+      .map(act => ({
+        name: act.name,
+        token: act.token || getToken(act.name, act.password!),
+      }))
+  }
+
+  login(name: string, password: string): LoginResult {
+    for (const act of this.accounts) {
+      if (act.name === name) {
+        return act.token === getToken(name, password)
+          ? {
+              success: true,
+              token: act.token,
+            }
+          : {
+              success: false,
+              reason: 'password incorrect',
+            }
+      }
+    }
+    return {
+      success: false,
+      reason: 'account not exist',
+    }
+  }
+
+  isTokenValid(token: string): boolean {
+    for (const act of this.accounts) {
+      if (act.token === token) return true
+    }
+    return false
+  }
+
+  getUserNameFromToken(token: string): string {
+    for (const act of this.accounts) {
+      if (act.token === token) return act.name
+    }
+    return ''
+  }
+
+  hasReadPermission(token: string, item: ServerItem): boolean {
+    const reader = this.getUserNameFromToken(token) || 'anonymous'
+    if (item.header.author === reader) return true
+
+    const bannedReaders = new Set()
+    const allowedReaders = new Set()
+    for (const r of item.header.reader || []) {
+      if (r[0] === '~') {
+        bannedReaders.add(r.slice(1))
+      } else {
+        allowedReaders.add(r)
+      }
+    }
+    return bannedReaders.has(reader) ? false : allowedReaders.size === 0 || allowedReaders.has(reader)
+  }
+
+  hasWritePermission(token: string, item: ServerItem): boolean {
+    const writer = this.getUserNameFromToken(token) || 'anonymous'
+    if (item.header.author === writer) return true
+
+    const bannedWriters = new Set()
+    const allowedWriters = new Set()
+    for (const r of item.header.writer || []) {
+      if (r[0] === '~') {
+        bannedWriters.add(r.slice(1))
+      } else {
+        allowedWriters.add(r)
+      }
+    }
+    return bannedWriters.has(writer) ? false : allowedWriters.size === 0 || allowedWriters.has(writer)
+  }
+}
+
+const getToken = (name: string, pass: string): string => {
+  return createHash('sha256').update(`[${name}][${pass}]`).digest('hex')
+}
+
+export { AuthManager }

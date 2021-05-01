@@ -1,6 +1,3 @@
-import * as fs from 'fs'
-;(async () => {
-  const s = fs.createReadStream('package.json')
-  const as = fs.createWriteStream('package1.json')
-  s.pipe(as)
-})()
+import { safeLoad as loadYaml } from 'js-yaml'
+
+console.log(loadYaml())

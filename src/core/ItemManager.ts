@@ -4,182 +4,80 @@
  */
 
 import { ServerItem } from './ServerItem'
-import { FileSynchronizer, URIItemMap } from './FileSynchronizer'
-import { UserManager } from './UserManager'
-import { assignCommonProperties } from './Common'
+import { AuthManager } from './AuthManager'
 import { getLogger } from './Log'
-import { io as uiNotifier } from './server'
 import { usersURI } from '../boot/config'
+import { StorageProvider } from './Storage'
+import { ItemNotExistsError, NoReadPermissionError, NoWritePermissionError } from './Error'
 
 const logger = getLogger('itemm')
 
 /**
  * Provides a uniform api for managing items on both frontend and backend side.
+ * Try to be stateless.
  */
 class ItemManager {
-  itemMap: URIItemMap = {}
-  systemItemMap: URIItemMap = {}
-  synchronizer: FileSynchronizer = new FileSynchronizer()
-  userManager: UserManager = new UserManager()
+  storage: StorageProvider
+  systemStorage: StorageProvider
+  auth: AuthManager
 
-  /**
-   * Load system and user items with user root path specified.
-   */
-  async loadItems(rootPath: string) {
-    this.synchronizer.init(rootPath, {
-      onItemChange: this.onStorageChange.bind(this),
-      onItemCreate: this.onStorageCreate.bind(this),
-      onItemDelete: this.onStorageDelete.bind(this),
-    })
-    this.itemMap = await this.synchronizer.getItemMap()
-    this.systemItemMap = await this.synchronizer.getSystemItemMap()
-    await Promise.all(Object.keys(this.systemItemMap).map(k => this.systemItemMap[k].html()))
-    const usersItem = this.getItem(usersURI)
-    if (usersItem) {
-      this.userManager.init(usersItem.content)
-      delete this.systemItemMap[usersURI]
-      delete this.itemMap[usersURI]
-    }
+  constructor(storage: StorageProvider, systemStorage: StorageProvider, auth: AuthManager) {
+    this.storage = storage
+    this.systemStorage = systemStorage
+    this.auth = auth
   }
 
-  getItem(uri: string, token?: string, verify = false): ServerItem | null {
-    let item: ServerItem | null = null
-    if (this.systemItemMap[uri]) item = this.systemItemMap[uri]
-    if (this.itemMap[uri]) item = this.itemMap[uri]
+  async init() {
+    await this.systemStorage.init()
+    await this.storage.init()
+    this.auth.init((await this.storage.getItem(usersURI)) || (await this.systemStorage.getItem(usersURI))!)
+  }
 
-    if (!item) return null
-    if (!verify || !item.headers.reader) return item
-
-    const reader = token ? this.userManager.getUserNameFromToken(token) : 'anonymous'
-    const bannedReaders = new Set()
-    const allowedReaders = new Set()
-    for (const r of item.headers.reader) {
-      if (r[0] === '~') {
-        bannedReaders.add(r.slice(1))
-      } else {
-        allowedReaders.add(r)
-      }
-    }
-    if (allowedReaders.size > 0) {
-      if (!allowedReaders.has(reader)) {
-        return null
-      } else {
-        return item
-      }
-    }
-    if (bannedReaders.has(reader)) {
-      return null
-    }
+  async getItem(uri: string, token: string): Promise<ServerItem> {
+    const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))
+    if (!item) throw new ItemNotExistsError()
+    if (!this.auth.hasReadPermission(token, item)) throw new NoReadPermissionError()
     return item
   }
 
-  async saveItem(uri: string, it: ServerItem): Promise<ServerItem> {
-    logger.debug(`saving item [${it.uri}] with original uri [${uri}]`)
-    if (uri !== it.uri) {
-      await this.deleteItem(uri)
-    }
-
-    let _it = this.getItem(it.uri)
-    if (!_it) _it = new ServerItem()
-
-    if (_it.isSystem) {
-      _it = new ServerItem()
-      this.systemItemMap[it.uri] = _it
-    } else {
-      this.itemMap[it.uri] = _it
-    }
-
-    assignCommonProperties(_it, it)
-    _it.missing = false
-    // should we await this, i.e., response after item is written to disk?
-    this.synchronizer.saveItem(_it)
-    // await this.synchronizer.saveItem(_it)
-    await _it.html()
-    return _it
+  async putItem(uri: string, item: ServerItem, token: string): Promise<void> {
+    const previousItem = await this.storage.getItem(uri)
+    if (previousItem && !this.auth.hasWritePermission(token, previousItem)) throw new NoWritePermissionError()
+    await this.storage.putItem(uri, item)
   }
 
-  async deleteItem(uri: string) {
-    const _it = this.getItem(uri)
-    if (!_it) {
-      logger.warn(`item to delete [${uri}] does not exist!`)
-      return
+  async deleteItem(uri: string, token: string): Promise<void> {
+    const item = await this.storage.getItem(uri)
+    if (!item) throw new ItemNotExistsError()
+    if (!this.auth.hasWritePermission(token, item)) throw new NoWritePermissionError()
+    return this.storage.deleteItem(uri)
+  }
+
+  async getSystemItems(): Promise<Record<string, ServerItem>> {
+    return this.systemStorage.getAllItems()
+  }
+
+  async getSkinnyItems(): Promise<Record<string, Partial<ServerItem>>> {
+    const items = await this.storage.getAllItems()
+    const result: Record<string, Partial<ServerItem>> = {}
+    for (const k in items) {
+      const { content, renderedHTML, renderSync, getContentStream, ...rest } = items[k]
+      result[k] = rest
     }
-    await this.synchronizer.deleteItem(_it)
-    delete this.itemMap[uri]
-    logger.info(`item [${uri}] deleted`)
-    return true
+    return result
   }
 
-  getItems(uris: string[]): ServerItem[] {
-    return uris.map(u => this.getItem(u)).filter(v => v !== null) as ServerItem[]
-  }
-
-  getSystemItems(): ServerItem[] {
-    const lst = []
-    for (const k in this.systemItemMap) {
-      lst.push(this.systemItemMap[k])
-    }
-    return lst
-  }
-
-  getSkinnyItems(): ServerItem[] {
-    const lst = []
-    for (const k in this.itemMap) {
-      const it = new ServerItem()
-      it.uri = k
-      it.title = this.itemMap[k].title
-      it.type = this.itemMap[k].type
-      it.headers = this.itemMap[k].headers
-      if (it.uri.startsWith('$')) it.content = this.itemMap[k].content
-      lst.push(it)
-    }
-    return lst
-  }
-
-  getSearchResult(input: string): ServerItem[] {
-    const res = []
+  async getSearchResult(input: string): Promise<Record<string, ServerItem>> {
+    const items = await this.storage.getAllItems()
+    const res: Record<string, ServerItem> = {}
     const pattern = new RegExp(input, 'gim')
-    for (const k in this.itemMap) {
-      const it = this.itemMap[k]
-      if (pattern.test(it.title) || pattern.test(it.uri) || pattern.test(it.content)) res.push(it)
+    for (const k in items) {
+      const it = items[k]
+      if (pattern.test(it.title) || pattern.test(k) || (it.content && pattern.test(it.content))) res[k] = it
     }
     logger.info(`${res.length} result for search ${input} found`)
     return res
   }
-
-  async onStorageChange(item: ServerItem) {
-    await item.html()
-    // notify ui
-    uiNotifier.emit('item-change', {
-      item: item,
-    })
-  }
-
-  onStorageDelete(item: ServerItem) {
-    if (!this.itemMap[item.uri]) return
-    delete this.itemMap[item.uri]
-    logger.info(`item [${item.uri}] deleted because storage deletion`)
-    // notify
-    uiNotifier.emit('item-delete', {
-      uri: item.uri,
-    })
-  }
-
-  async onStorageCreate(item: ServerItem) {
-    await item.html()
-    this.itemMap[item.uri] = item
-    logger.info(`item [${item.uri}] created because storage creation`)
-    // notify ui
-    uiNotifier.emit('item-create', {
-      item: item,
-    })
-  }
-
-  getUserManager(): UserManager {
-    return this.userManager
-  }
 }
 
-const manager = new ItemManager()
-
-export default manager
+export default ItemManager
