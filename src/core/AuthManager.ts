@@ -56,11 +56,11 @@ class AuthManager {
     for (const act of this.accounts) {
       if (act.token === token) return act.name
     }
-    return ''
+    return 'anonymous'
   }
 
   hasReadPermission(token: string, item: ServerItem): boolean {
-    const reader = this.getUserNameFromToken(token) || 'anonymous'
+    const reader = this.getUserNameFromToken(token)
     if (item.header.author === reader) return true
 
     const bannedReaders = new Set()
@@ -76,7 +76,7 @@ class AuthManager {
   }
 
   hasWritePermission(token: string, item: ServerItem): boolean {
-    const writer = this.getUserNameFromToken(token) || 'anonymous'
+    const writer = this.getUserNameFromToken(token)
     if (item.header.author === writer) return true
 
     const bannedWriters = new Set()

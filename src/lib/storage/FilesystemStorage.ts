@@ -1,12 +1,14 @@
 import { Readable } from 'node:stream'
 import * as fs from 'fs'
 import * as path from 'path'
+import { promisify } from 'util'
 import { isBinaryFile } from 'isbinaryfile'
 import { safeLoad as loadYaml, dump as dumpYaml } from 'js-yaml'
 import { getFileExtFromType, getTypeFromFileExt, isBinaryType, isContentType, MIME } from '../../core/MimeType'
 import { ServerItem } from '../../core/ServerItem'
 import { itemToNode, nodeToItem, StorageProvider } from '../../core/Storage'
 import { getLogger } from '../../core/Log'
+const exists = promisify(fs.exists)
 
 const logger = getLogger('filesystem')
 
@@ -72,6 +74,10 @@ const pathToUriType = async (rootPath: string, filePath: string): Promise<[strin
 const saveItem = async (rootPath: string, uri: string, item: ServerItem): Promise<void> => {
   const filePath = uriTypeToPath(rootPath, uri, item.type)
   const node = itemToNode(item)
+  const folder = path.resolve(filePath, '..')
+  if (!(await exists(folder))) {
+    await fs.promises.mkdir(folder, { recursive: true })
+  }
   if (isContentType(item.type)) {
     await fs.promises.writeFile(filePath, `---\n${dumpYaml(node.meta).trim()}\n---\n\n${node.content}`)
   } else {

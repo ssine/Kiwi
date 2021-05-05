@@ -10,14 +10,16 @@ import * as cookieParser from 'cookie-parser'
 import * as fileUpload from 'express-fileupload'
 import * as compression from 'compression'
 import { getLogger } from './Log'
+import { MIME } from './MimeType'
 import { resolve } from 'path'
 import { trimString, fixedEncodeURIComponent } from './Common'
 import * as fs from 'fs'
 import { promisify } from 'util'
 import { ItemManager } from './ItemManager'
-import { renderItem } from './ServerItem'
-import { ItemNotExistsError } from './Error'
+import { renderItem, ServerItem } from './ServerItem'
+import { UploadFileError } from './Error'
 import { isBinaryType } from './MimeType'
+import { Readable } from 'node:stream'
 const exists = promisify(fs.exists)
 
 const logger = getLogger('server')
@@ -33,7 +35,7 @@ app.use(
     },
   })
 )
-app.use(bodyParser.json({ limit: '1mb' }))
+app.use(bodyParser.json({ limit: '5mb' }))
 app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
@@ -43,15 +45,25 @@ const manager = ItemManager.getInstance()
 const ok = (data?: any) => ({ code: 0, data: data })
 
 const serve = function serve(port: number, rootFolder: string) {
+  // serve built-in assets
   app.use('/kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
+  // front-end
   app.use('/', express.static(resolve(__dirname, '../browser')))
 
+  const useTmpFileUpload = false
   app.use(
     fileUpload({
+      // TODO: no suitable tmp folder now, enable this when problem solved
       // useTempFiles: true
+      // tempFileDir: '???'
     })
   )
+
+  app.post('/login', async (req, res) => {
+    const result = manager.auth.login(req.body.name, req.body.password)
+    res.json(ok(result))
+  })
 
   app.post('/get-item', async (req, res) => {
     const uri: string = req.body.uri
@@ -60,16 +72,6 @@ const serve = function serve(port: number, rootFolder: string) {
     res.json(ok(it))
   })
 
-  app.post('/login', async (req, res) => {
-    const result = manager.auth.login(req.body.name, req.body.password)
-    res.json(ok(result))
-  })
-
-  /**
-   * Save an item back
-   * uri: original uri
-   * item: the item to save
-   */
   app.post('/put-item', async (req, res) => {
     const uri = req.body.uri
     const it = req.body.item
@@ -79,39 +81,38 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.post('/put-binary-item', async (req, res) => {
     const uri = req.body.uri
-    const it = req.body.item
+    const it: ServerItem = JSON.parse(req.body.item)
+    if (!req.files) throw new UploadFileError('No file uploaded')
+    if (Array.isArray(req.files.fn)) throw new UploadFileError('Too many files uploaded')
+    const file = req.files.fn
+    if (!it.type) it.type = file.mimetype as MIME
+    if (useTmpFileUpload) {
+      it.getContentStream = () => fs.createReadStream(file.tempFilePath)
+      it.contentFilePath = file.tempFilePath
+    } else {
+      it.getContentStream = () => Readable.from(file.data)
+    }
     await manager.putItem(uri, it, req.cookies.token)
     res.json(ok())
   })
 
-  app.post('/fileupload', async (req, res) => {
-    const filePath = resolve(rootFolder, trimString(req.body.path, '/'))
-    const folder = resolve(filePath, '..')
-    if (!(await exists(folder))) {
-      await fs.promises.mkdir(folder, { recursive: true })
-    }
-    // @ts-ignore
-    req.files.fn.mv(filePath)
-    res.send({})
-  })
-
   app.post('/delete-item', async (req, res) => {
     const uri = req.body.uri
-    manager.deleteItem(uri, req.cookies.token)
+    await manager.deleteItem(uri, req.cookies.token)
     res.json(ok())
   })
 
-  app.post('/get-system-items', (req, res) => {
-    res.send(JSON.stringify(manager.getSystemItems()))
+  app.post('/get-system-items', async (req, res) => {
+    res.json(ok(await manager.getSystemItems()))
   })
 
-  app.post('/get-skinny-items', (req, res) => {
-    res.send(JSON.stringify(manager.getSkinnyItems()))
+  app.post('/get-skinny-items', async (req, res) => {
+    res.json(ok(await manager.getSkinnyItems()))
   })
 
-  app.post('/get-search-result', (req, res) => {
+  app.post('/get-search-result', async (req, res) => {
     logger.info(`search request ${req.body.input} got`)
-    res.send(JSON.stringify(manager.getSearchResult(req.body.input)))
+    res.json(ok(JSON.stringify(await manager.getSearchResult(req.body.input))))
   })
 
   app.use(async (req, res, next) => {
@@ -134,7 +135,7 @@ const serve = function serve(port: number, rootFolder: string) {
 
   const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
     logger.error(`error response: code=${err.code}, message=${err.message}`)
-    res.status(500).json({
+    res.status(200).json({
       code: err.code || -1,
       message: err.message,
     })

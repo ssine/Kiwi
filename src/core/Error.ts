@@ -14,8 +14,8 @@ export class KiwiError extends Error {
 
 const codeErrorMap: Record<number, typeof KiwiError> = {}
 
-export const constructErrorFromCode = (code: number): KiwiError => {
-  return new codeErrorMap[code]()
+export const constructErrorFromCode = (code: number, message: string): KiwiError => {
+  return new codeErrorMap[code](message)
 }
 
 const register = (error: typeof KiwiError) => {
@@ -47,4 +47,9 @@ export class UserNotExistsError extends KiwiError {
 export class PasswordIncorrectError extends KiwiError {
   message = 'Passwork incorrect'
   code = 6
+}
+
+@register
+export class UploadFileError extends KiwiError {
+  code = 7
 }

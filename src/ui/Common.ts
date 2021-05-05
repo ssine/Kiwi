@@ -1,29 +1,4 @@
 /**
- * Post an Object ot server and get a responed json object
- */
-async function postJSON(url: string, data: Object): Promise<any> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-  if (response.status === 404) throw 'POST got 404 error'
-  return await response.json()
-}
-
-async function postFile(path: string, file: File): Promise<any> {
-  const fm = new FormData()
-  fm.append('path', path)
-  fm.append('fn', file)
-  await fetch('/fileupload', {
-    method: 'POST',
-    body: fm,
-  })
-}
-
-/**
  * Check if a link is external of internal
  */
 function isLinkInternal(el: HTMLAnchorElement): boolean {

@@ -13,6 +13,7 @@ import { postJSON } from './Common'
 /**
  * A client side item can have everything empty except its uri
  */
+interface ClientItem extends BaseItem {}
 class ClientItem extends BaseItem {
   contentLoaded = false
   displaied = false

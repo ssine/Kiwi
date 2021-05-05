@@ -80,6 +80,7 @@ const itemToNode = (item: ServerItem): Node => {
     },
     content: item.content,
     getReadStream: item.getContentStream,
+    contentFilePath: item.contentFilePath,
   }
 }
 
