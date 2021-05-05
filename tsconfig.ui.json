@@ -10,7 +10,8 @@
     "baseUrl": "./node_modules",
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
-    "typeRoots": ["node_modules/@types"]
+    "typeRoots": ["node_modules/@types"],
+    "experimentalDecorators": true
   },
   "include": ["./src/ui/**/*"],
   "exclude": ["node_modules"]

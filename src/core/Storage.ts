@@ -42,6 +42,7 @@ type Node = {
   meta: Record<string, any> // a kv storage associated with node
   content?: string // text content of non-binary node
   getReadStream?: () => Readable // function to get readable stream of binary node
+  contentFilePath?: string // optional file path of binary node
 }
 
 const nodeToItem = (uri: string, node: Node): ServerItem => {
@@ -60,6 +61,7 @@ const nodeToItem = (uri: string, node: Node): ServerItem => {
     return {
       ...item,
       getContentStream: node.getReadStream,
+      contentFilePath: node.contentFilePath,
     }
   } else {
     return {

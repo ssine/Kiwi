@@ -1,5 +1,6 @@
 import { createLogger, format, transports } from 'winston'
 import * as logform from 'logform'
+import { timeFormat } from './Common'
 
 let loggingLevel = 'debug'
 
@@ -12,7 +13,7 @@ function getLogger(moduleName: string) {
     level: loggingLevel,
     format: format.combine(
       format.printf((info: logform.TransformableInfo): string => {
-        return `[${info.level}] ${moduleName}: ${info.message}`
+        return `${timeFormat('YYYY-MM-DD HH:mm:ss', new Date())} | ${info.level} | ${moduleName} | ${info.message}`
       })
     ),
     transports: [new transports.Console()],

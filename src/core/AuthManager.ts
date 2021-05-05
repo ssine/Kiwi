@@ -5,21 +5,12 @@
 import { createHash } from 'crypto'
 import { ServerItem } from './ServerItem'
 import { safeLoad as loadYaml } from 'js-yaml'
+import { PasswordIncorrectError, UserNotExistsError } from './Error'
 
 interface UserAccount {
   name: string
   token: string
 }
-
-type LoginResult =
-  | {
-      success: false
-      reason: string
-    }
-  | {
-      success: true
-      token: string
-    }
 
 /**
  * Authentication and authorization.
@@ -41,24 +32,17 @@ class AuthManager {
       }))
   }
 
-  login(name: string, password: string): LoginResult {
+  login(name: string, password: string): string {
     for (const act of this.accounts) {
       if (act.name === name) {
-        return act.token === getToken(name, password)
-          ? {
-              success: true,
-              token: act.token,
-            }
-          : {
-              success: false,
-              reason: 'password incorrect',
-            }
+        if (act.token === getToken(name, password)) {
+          return act.token
+        } else {
+          throw new PasswordIncorrectError()
+        }
       }
     }
-    return {
-      success: false,
-      reason: 'account not exist',
-    }
+    throw new UserNotExistsError()
   }
 
   isTokenValid(token: string): boolean {

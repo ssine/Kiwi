@@ -10,11 +10,14 @@ import * as cookieParser from 'cookie-parser'
 import * as fileUpload from 'express-fileupload'
 import * as compression from 'compression'
 import { getLogger } from './Log'
-import manager from './ItemManager'
 import { resolve } from 'path'
 import { trimString, fixedEncodeURIComponent } from './Common'
 import * as fs from 'fs'
 import { promisify } from 'util'
+import { ItemManager } from './ItemManager'
+import { renderItem } from './ServerItem'
+import { ItemNotExistsError } from './Error'
+import { isBinaryType } from './MimeType'
 const exists = promisify(fs.exists)
 
 const logger = getLogger('server')
@@ -35,6 +38,10 @@ app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
 
+const manager = ItemManager.getInstance()
+
+const ok = (data?: any) => ({ code: 0, data: data })
+
 const serve = function serve(port: number, rootFolder: string) {
   app.use('/kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
@@ -48,15 +55,14 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.post('/get-item', async (req, res) => {
     const uri: string = req.body.uri
-    const it = manager.getItem(uri, req.cookies.token, true)
-    if (it) res.send(await it.json())
-    else res.status(404).send('Item not found!')
+    const it = await manager.getItem(uri, req.cookies.token)
+    if (!it.renderSync) await renderItem(uri, it)
+    res.json(ok(it))
   })
 
   app.post('/login', async (req, res) => {
-    req.body.name
-    const result = manager.getUserManager().login(req.body.name, req.body.password)
-    res.send(result)
+    const result = manager.auth.login(req.body.name, req.body.password)
+    res.json(ok(result))
   })
 
   /**
@@ -64,14 +70,18 @@ const serve = function serve(port: number, rootFolder: string) {
    * uri: original uri
    * item: the item to save
    */
-  app.post('/save-item', async (req, res) => {
-    if (!manager.getUserManager().isTokenValid(req.cookies.token)) {
-      res.send(await manager.getItem(req.body.uri)?.json())
-      return
-    }
+  app.post('/put-item', async (req, res) => {
     const uri = req.body.uri
     const it = req.body.item
-    res.send(await (await manager.saveItem(uri, it)).json())
+    await manager.putItem(uri, it, req.cookies.token)
+    res.json(ok())
+  })
+
+  app.post('/put-binary-item', async (req, res) => {
+    const uri = req.body.uri
+    const it = req.body.item
+    await manager.putItem(uri, it, req.cookies.token)
+    res.json(ok())
   })
 
   app.post('/fileupload', async (req, res) => {
@@ -86,13 +96,9 @@ const serve = function serve(port: number, rootFolder: string) {
   })
 
   app.post('/delete-item', async (req, res) => {
-    if (!manager.getUserManager().isTokenValid(req.cookies.token)) {
-      res.send({ status: false })
-      return
-    }
     const uri = req.body.uri
-    manager.deleteItem(uri)
-    res.send({ status: true })
+    manager.deleteItem(uri, req.cookies.token)
+    res.json(ok())
   })
 
   app.post('/get-system-items', (req, res) => {
@@ -108,19 +114,32 @@ const serve = function serve(port: number, rootFolder: string) {
     res.send(JSON.stringify(manager.getSearchResult(req.body.input)))
   })
 
-  app.use((req, res, next) => {
-    const uri = trimString(req.originalUrl.trim(), '/')
-    if (uri in itemRouteTable) {
-      itemRouteTable[uri](req, res, next)
-    } else {
-      const encoded = fixedEncodeURIComponent(decodeURIComponent(uri))
-      if (encoded in itemRouteTable) {
-        itemRouteTable[encoded](req, res, next)
-      } else {
-        res.status(404).send(`not found uri ${uri} or the encoded ${encoded}`)
-      }
+  app.use(async (req, res, next) => {
+    const uri = decodeURIComponent(trimString(req.originalUrl.trim(), '/'))
+    const it = await manager.getItem(uri, req.cookies.token)
+    if (!isBinaryType(it.type)) {
+      // only binary items get served
+      res.status(404).send(`uri ${uri} not found`)
+      return
     }
+    if (it.contentFilePath) {
+      // have a file? send it
+      res.sendFile(it.contentFilePath)
+      return
+    }
+    // no file, can only pipe the stream now, maybe slow, and no positioning supported (maybe later)
+    res.set('Content-Type', it.type)
+    it.getContentStream!().pipe(res)
   })
+
+  const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
+    logger.error(`error response: code=${err.code}, message=${err.message}`)
+    res.status(500).json({
+      code: err.code || -1,
+      message: err.message,
+    })
+  }
+  app.use(errorHandler)
 
   server.listen(port, () => logger.info(`Server running on port ${port}`))
 }

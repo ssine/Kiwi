@@ -4,25 +4,17 @@ import { processRenderPlugin, ItemContext } from './Plugin'
 import { Readable } from 'stream'
 
 export interface ServerItem extends BaseItem {
+  // always present for binary items
   getContentStream?: () => Readable
+  // present for binary item whose content is stored as file
+  contentFilePath?: string
 }
 
-// /**
-//  * Server Side Item Class
-//  */
-// class ServerItem extends BaseItem {
-//   async html() {
-//     if (!this.isContentParsed) {
-//       const plged = await processRenderPlugin(this.uri, this.content, new ItemContext(this.uri))
-//       this.parsedContent = parse({
-//         input: plged,
-//         uri: this.uri,
-//         type: this.type || 'text/markdown',
-//       })
-//       // const html = parse(this.content, this.type || 'text/markdown')
-//       // this.parsedContent = await processRenderPlugin(this.uri, html)
-//       this.isContentParsed = true
-//     }
-//     return this.parsedContent
-//   }
-// }
+export const renderItem = async (uri: string, item: ServerItem): Promise<void> => {
+  item.renderedHTML = parse({
+    input: await processRenderPlugin(uri, item.content || '', new ItemContext(uri)),
+    uri: uri,
+    type: item.type,
+  })
+  item.renderSync = true
+}

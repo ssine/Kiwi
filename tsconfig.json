@@ -6,7 +6,8 @@
     "target": "es5",
     "module": "commonjs",
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "experimentalDecorators": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*", "src/ui"]

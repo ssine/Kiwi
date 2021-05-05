@@ -133,7 +133,7 @@ class ItemManager {
       this.displayItem(window.location.hash.substr(1))
     } else {
       // render default items
-      (await this.getLoadedItemFromURI(defaultItemsURI)).content.split('\n').forEach(l => {
+      ;(await this.getLoadedItemFromURI(defaultItemsURI)).content.split('\n').forEach(l => {
         if (l) {
           this.displayItem(l)
         }
@@ -268,7 +268,7 @@ class ItemManager {
     item.editing = false
     item.missing = false
     const { containerDiv, parsedContent, ...itemToSave } = item
-    const savedItem = await postJSON('/save-item', {
+    const savedItem = await postJSON('/put-item', {
       uri: data.uri,
       item: itemToSave,
     })

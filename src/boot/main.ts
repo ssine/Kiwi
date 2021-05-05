@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs'
+import * as path from 'path'
 import { initLogger } from '../core/Log'
 
 const args = yargs
@@ -25,7 +26,7 @@ const args = yargs
 
 initLogger(args.log)
 
-import manager from '../core/ItemManager'
+import { ItemManager } from '../core/ItemManager'
 import { serve } from '../core/server'
 import MarkdownParser from '../lib/parser/MarkdownParser'
 import WikitextParser from '../lib/parser/WikitextParser'
@@ -38,6 +39,8 @@ import TranscludePlugin from '../lib/plugin/TranscludePlugin'
 import ListPlugin from '../lib/plugin/ListPlugin'
 import SVGPlugin from '../lib/plugin/SVGPlugin'
 import CSSEscapePlugin from '../lib/plugin/CSSEscapePlugin'
+import { FilesystemStorage } from '../lib/storage/FilesystemStorage'
+import { AuthManager } from '../core/AuthManager'
 
 function registLib() {
   const md = new MarkdownParser()
@@ -76,8 +79,12 @@ function registLib() {
 async function run() {
   registLib()
   if (args._[0] === 'serve') {
-    require('../core/FileSynchronizer').options.usePolling = args.usePoll
-    await manager.loadItems(args.folder)
+    // require('../core/FileSynchronizer').options.usePolling = args.usePoll
+    const storage = new FilesystemStorage(args.folder)
+    const systemStorage = new FilesystemStorage(path.resolve(__dirname, '../kiwi'), 'kiwi/')
+    const auth = new AuthManager()
+    const manager = ItemManager.getInstance()
+    await manager.init(storage, systemStorage, auth)
     serve(args.port, args.folder)
   }
 }

@@ -16,25 +16,23 @@ const logger = getLogger('itemm')
  * Provides a uniform api for managing items on both frontend and backend side.
  * Try to be stateless.
  */
-class ItemManager {
-  storage: StorageProvider
-  systemStorage: StorageProvider
-  auth: AuthManager
+export class ItemManager {
+  static instance?: ItemManager
+  storage!: StorageProvider
+  systemStorage!: StorageProvider
+  auth!: AuthManager
 
-  constructor(storage: StorageProvider, systemStorage: StorageProvider, auth: AuthManager) {
+  async init(storage: StorageProvider, systemStorage: StorageProvider, auth: AuthManager) {
     this.storage = storage
     this.systemStorage = systemStorage
     this.auth = auth
-  }
-
-  async init() {
     await this.systemStorage.init()
     await this.storage.init()
     this.auth.init((await this.storage.getItem(usersURI)) || (await this.systemStorage.getItem(usersURI))!)
   }
 
   async getItem(uri: string, token: string): Promise<ServerItem> {
-    const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))
+    const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))!
     if (!item) throw new ItemNotExistsError()
     if (!this.auth.hasReadPermission(token, item)) throw new NoReadPermissionError()
     return item
@@ -78,6 +76,8 @@ class ItemManager {
     logger.info(`${res.length} result for search ${input} found`)
     return res
   }
-}
 
-export default ItemManager
+  static getInstance(): ItemManager {
+    return ItemManager.instance || (ItemManager.instance = new ItemManager())
+  }
+}

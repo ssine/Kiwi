@@ -66,25 +66,6 @@ function removeCookie(key: string) {
   setCookie(key, '', -1)
 }
 
-function timeFormat(fmt: string, date: Date): string {
-  const opt = {
-    'Y+': date.getFullYear().toString(),
-    'M+': (date.getMonth() + 1).toString(),
-    'D+': date.getDate().toString(),
-    'H+': date.getHours().toString(),
-    'm+': date.getMinutes().toString(),
-    's+': date.getSeconds().toString(),
-    'S+': date.getMilliseconds().toString(),
-  }
-  for (const k in opt) {
-    const ret = new RegExp('(' + k + ')').exec(fmt)
-    if (ret) {
-      fmt = fmt.replace(ret[1], ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, '0'))
-    }
-  }
-  return fmt
-}
-
 const CSSColorToRGBA = (function () {
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = 1
@@ -164,22 +145,22 @@ function HSVtoRGB(color: { h: number; s: number; v: number }) {
   let g: number
   switch (i % 6) {
     case 0:
-      (r = v), (g = t), (b = p)
+      ;(r = v), (g = t), (b = p)
       break
     case 1:
-      (r = q), (g = v), (b = p)
+      ;(r = q), (g = v), (b = p)
       break
     case 2:
-      (r = p), (g = v), (b = t)
+      ;(r = p), (g = v), (b = t)
       break
     case 3:
-      (r = p), (g = q), (b = v)
+      ;(r = p), (g = q), (b = v)
       break
     case 4:
-      (r = t), (g = p), (b = v)
+      ;(r = t), (g = p), (b = v)
       break
     case 5:
-      (r = v), (g = p), (b = q)
+      ;(r = v), (g = p), (b = q)
       break
   }
   return {

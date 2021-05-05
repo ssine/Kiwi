@@ -1,23 +1,50 @@
 export class KiwiError extends Error {
-  code = 0
-}
-
-export class ItemNotExistsError extends KiwiError {
   code = 1
+  constructor(message?: string) {
+    super(message)
+    /**
+     * Get xx instanceof xxError work in typescript
+     * @see https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes#extending-built-ins-like-error-array-and-map-may-no-longer-work
+     * @see https://github.com/reduardo7/ts-base-error/blob/master/src/index.ts
+     */
+    const trueProto = new.target.prototype
+    Object.setPrototypeOf(this, trueProto)
+  }
 }
 
-export class NoReadPermissionError extends KiwiError {
+const codeErrorMap: Record<number, typeof KiwiError> = {}
+
+export const constructErrorFromCode = (code: number): KiwiError => {
+  return new codeErrorMap[code]()
+}
+
+const register = (error: typeof KiwiError) => {
+  codeErrorMap[new error().code] = error
+}
+
+@register
+export class ItemNotExistsError extends KiwiError {
   code = 2
 }
 
-export class NoWritePermissionError extends KiwiError {
+@register
+export class NoReadPermissionError extends KiwiError {
   code = 3
 }
 
-export class UserNotExistsError extends KiwiError {
+@register
+export class NoWritePermissionError extends KiwiError {
   code = 4
 }
 
-export class PasswordIncorrectError extends KiwiError {
+@register
+export class UserNotExistsError extends KiwiError {
+  message = 'User not exists'
   code = 5
+}
+
+@register
+export class PasswordIncorrectError extends KiwiError {
+  message = 'Passwork incorrect'
+  code = 6
 }
