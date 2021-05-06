@@ -35,6 +35,6 @@ const getItem = async (uri: string): Promise<ClientItem> => {
   return postJSON('/get-item', { uri: uri })
 }
 
-const putItem = async (uri: string, item: any): Promise<void> => {
+const putItem = async (uri: string, item: ClientItem): Promise<ClientItem> => {
   return postJSON('/put-item', { uri: uri, item: item })
 }

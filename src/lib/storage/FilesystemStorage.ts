@@ -8,6 +8,7 @@ import { getFileExtFromType, getTypeFromFileExt, isBinaryType, isContentType, MI
 import { ServerItem } from '../../core/ServerItem'
 import { itemToNode, nodeToItem, StorageProvider } from '../../core/Storage'
 import { getLogger } from '../../core/Log'
+import { InvalidURIError } from '../../core/Error'
 const exists = promisify(fs.exists)
 
 const logger = getLogger('filesystem')
@@ -31,9 +32,8 @@ class FilesystemStorage implements StorageProvider {
     return this.allItems[uri]
   }
 
-  async putItem(uri: string, item: ServerItem): Promise<void> {
-    await saveItem(this.rootPath, uri, item)
-    this.allItems[uri] = item
+  async putItem(uri: string, item: ServerItem): Promise<ServerItem> {
+    return (this.allItems[uri] = await saveItem(this.rootPath, uri, item))
   }
 
   async deleteItem(uri: string): Promise<void> {
@@ -58,7 +58,18 @@ class FilesystemStorage implements StorageProvider {
  * @returns file path to save content in
  */
 const uriTypeToPath = (rootPath: string, uri: string, type: MIME): string => {
-  return path.resolve(rootPath, uri) + isContentType(type) ? `.${getFileExtFromType(type)}` : ''
+  const absPath = path.resolve(rootPath, uri)
+  if (isContentType(type)) {
+    return `${absPath}.${getFileExtFromType(type)}`
+  } else {
+    const ext = path.parse(absPath).ext.substr(1)
+    if (getTypeFromFileExt(ext) !== type) {
+      // we cannot guarantee a same mime type to be inferred in this situation
+      throw new InvalidURIError(`Mime type ${type} cannot be inferred from uri extension .${ext}`)
+    } else {
+      return absPath
+    }
+  }
 }
 
 const pathToUriType = async (rootPath: string, filePath: string): Promise<[string, MIME]> => {
@@ -71,7 +82,7 @@ const pathToUriType = async (rootPath: string, filePath: string): Promise<[strin
   return [uri, type]
 }
 
-const saveItem = async (rootPath: string, uri: string, item: ServerItem): Promise<void> => {
+const saveItem = async (rootPath: string, uri: string, item: ServerItem): Promise<ServerItem> => {
   const filePath = uriTypeToPath(rootPath, uri, item.type)
   const node = itemToNode(item)
   const folder = path.resolve(filePath, '..')
@@ -88,6 +99,7 @@ const saveItem = async (rootPath: string, uri: string, item: ServerItem): Promis
       await fs.promises.writeFile(filePath, node.content!)
     }
   }
+  return (await pathToUriItem(rootPath, filePath))[1]
 }
 
 const deleteItem = async (rootPath: string, uri: string, type: MIME, withChild = false): Promise<void> => {

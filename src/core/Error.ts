@@ -53,3 +53,8 @@ export class PasswordIncorrectError extends KiwiError {
 export class UploadFileError extends KiwiError {
   code = 7
 }
+
+@register
+export class InvalidURIError extends KiwiError {
+  code = 8
+}

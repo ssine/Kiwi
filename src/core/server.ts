@@ -19,7 +19,7 @@ import { ItemManager } from './ItemManager'
 import { renderItem, ServerItem } from './ServerItem'
 import { UploadFileError } from './Error'
 import { isBinaryType } from './MimeType'
-import { Readable } from 'node:stream'
+import { Readable } from 'stream'
 const exists = promisify(fs.exists)
 
 const logger = getLogger('server')
@@ -75,8 +75,9 @@ const serve = function serve(port: number, rootFolder: string) {
   app.post('/put-item', async (req, res) => {
     const uri = req.body.uri
     const it = req.body.item
-    await manager.putItem(uri, it, req.cookies.token)
-    res.json(ok())
+    const newItem = await manager.putItem(uri, it, req.cookies.token)
+    if (!newItem.renderSync) await renderItem(uri, newItem)
+    res.json(ok(newItem))
   })
 
   app.post('/put-binary-item', async (req, res) => {
@@ -134,7 +135,7 @@ const serve = function serve(port: number, rootFolder: string) {
   })
 
   const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
-    logger.error(`error response: code=${err.code}, message=${err.message}`)
+    logger.error(`error response: code: ${err.code}, stack: ${err.stack}`)
     res.status(200).json({
       code: err.code || -1,
       message: err.message,

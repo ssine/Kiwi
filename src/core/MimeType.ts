@@ -11,7 +11,7 @@ export const isMimeHasProp = (type: MIME, prop: string): boolean => {
 
 export const getMimeProps = (type: MIME): Record<string, unknown> => {
   // @ts-ignore
-  return MimeProps[type][prop]
+  return MimeProps[type]
 }
 
 export const isMimePropIncludes = (type: MIME, prop: string, content: string): boolean => {

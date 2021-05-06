@@ -38,10 +38,10 @@ export class ItemManager {
     return item
   }
 
-  async putItem(uri: string, item: ServerItem, token: string): Promise<void> {
+  async putItem(uri: string, item: ServerItem, token: string): Promise<ServerItem> {
     const previousItem = await this.storage.getItem(uri)
     if (previousItem && !this.auth.hasWritePermission(token, previousItem)) throw new NoWritePermissionError()
-    await this.storage.putItem(uri, item)
+    return await this.storage.putItem(uri, item)
   }
 
   async deleteItem(uri: string, token: string): Promise<void> {

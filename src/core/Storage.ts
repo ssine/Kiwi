@@ -17,9 +17,9 @@ interface StorageProvider {
   getItem: (uri: string) => Promise<ServerItem | null>
 
   /**
-   * Put an item to storage
+   * Put an item to storage, return the normalized version of the item
    */
-  putItem: (uri: string, item: ServerItem) => Promise<void>
+  putItem: (uri: string, item: ServerItem) => Promise<ServerItem>
 
   /**
    * Delete an item from storage, all the child items gets deleted too.
