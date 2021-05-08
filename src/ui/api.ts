@@ -1,7 +1,7 @@
 import { constructErrorFromCode } from '../core/Error'
-import ClientItem from './ClientItem'
+import { ClientItem } from './ClientItem'
 
-async function postJSON(url: string, data: Object): Promise<any> {
+export async function postJSON(url: string, data: Object): Promise<any> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -31,10 +31,26 @@ async function postFile(url: string, data: Object, file: File): Promise<any> {
   return (await response.json()).data
 }
 
-const getItem = async (uri: string): Promise<ClientItem> => {
+export const getItem = async (uri: string): Promise<ClientItem> => {
   return postJSON('/get-item', { uri: uri })
 }
 
-const putItem = async (uri: string, item: ClientItem): Promise<ClientItem> => {
+export const getSystemItems = async (): Promise<ClientItem> => {
+  return postJSON('/get-system-items', {})
+}
+
+export const getSkinnyItems = async (): Promise<ClientItem> => {
+  return postJSON('/get-skinny-items', {})
+}
+
+export const putItem = async (uri: string, item: ClientItem): Promise<ClientItem> => {
   return postJSON('/put-item', { uri: uri, item: item })
+}
+
+export const putBinaryItem = async (uri: string, item: ClientItem, file: File): Promise<ClientItem> => {
+  return postFile('/put-binary-item', { uri: uri, item: JSON.stringify(item) }, file)
+}
+
+export const deleteItem = async (uri: string): Promise<void> => {
+  return postJSON('/delete-item', { uri: uri })
 }

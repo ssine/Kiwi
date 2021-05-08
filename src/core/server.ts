@@ -93,8 +93,9 @@ const serve = function serve(port: number, rootFolder: string) {
     } else {
       it.getContentStream = () => Readable.from(file.data)
     }
-    await manager.putItem(uri, it, req.cookies.token)
-    res.json(ok())
+    const newItem = await manager.putItem(uri, it, req.cookies.token)
+    if (!newItem.renderSync) await renderItem(uri, newItem)
+    res.json(ok(newItem))
   })
 
   app.post('/delete-item', async (req, res) => {
