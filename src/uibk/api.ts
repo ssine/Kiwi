@@ -12,7 +12,7 @@ export async function postJSON(url: string, data: Object): Promise<any> {
   if (response.status !== 200) throw new Error('Request failed')
   const packet = await response.json()
   if (packet.code !== 0) throw constructErrorFromCode(packet.code, packet.message)
-  return packet.data
+  return (await response.json()).data
 }
 
 async function postFile(url: string, data: Object, file: File): Promise<any> {
@@ -28,18 +28,18 @@ async function postFile(url: string, data: Object, file: File): Promise<any> {
   if (response.status !== 200) throw new Error('Request failed')
   const packet = await response.json()
   if (packet.code !== 0) throw constructErrorFromCode(packet.code, packet.message)
-  return packet.data
+  return (await response.json()).data
 }
 
 export const getItem = async (uri: string): Promise<ClientItem> => {
   return postJSON('/get-item', { uri: uri })
 }
 
-export const getSystemItems = async (): Promise<Record<string, ClientItem>> => {
+export const getSystemItems = async (): Promise<ClientItem> => {
   return postJSON('/get-system-items', {})
 }
 
-export const getSkinnyItems = async (): Promise<Record<string, ClientItem>> => {
+export const getSkinnyItems = async (): Promise<ClientItem> => {
   return postJSON('/get-skinny-items', {})
 }
 

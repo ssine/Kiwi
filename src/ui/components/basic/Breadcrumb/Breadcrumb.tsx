@@ -1,125 +1,43 @@
-import React from 'react'
-import { sleep } from '../../../../core/Common'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { MenuButton } from '../Button/MenuButton'
 import './Breadcrumb.css'
 
-type BreadcrumbProperty = {
-  // ancestor element to detect weather an overflow has happened
-  box: React.RefObject<HTMLElement>
-  items: string[]
-  onItemClick?: (it: BreadcrumbItem) => void
-  style?: React.CSSProperties
-}
+export const Breadcrumb = <T,>(props: {
+  items: T[]
+  getKey: (item: T) => string
+  onItemClick?: (item: T) => void
+  renderer?: (item: T) => JSX.Element | string
+}) => {
+  const { items, onItemClick, getKey, renderer } = props
+  const [fold, setFold] = useState({ start: 0, end: 0 })
 
-type BreadcrumbItem = {
-  name: string
-  uri: string
-}
+  const ref = useRef<HTMLDivElement>()
 
-type BreadcrumbState = {
-  items: BreadcrumbItem[]
-  fold:
-    | false
-    | {
-        start: number
-        end: number
-      }
-}
-
-class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
-  constructor(props: BreadcrumbProperty) {
-    super(props)
-    const items: BreadcrumbItem[] = []
-    let uri = ''
-    for (const name of props.items) {
-      uri = `${uri}/${name}`
-      items.push({
-        name: name,
-        uri: uri,
-      })
+  useLayoutEffect(() => {
+    if (ref.current.scrollWidth > ref.current.offsetWidth && fold.end < items.length) {
+      setFold({ ...fold, end: fold.end + 1 })
     }
-    this.state = {
-      items: items,
-      fold: false,
-    }
-  }
+  }, [ref, fold])
 
-  async boxReady() {
-    while (!this.props.box.current) {
-      await sleep(1)
-    }
-  }
-
-  async checkAndCollapse() {
-    await this.boxReady()
-    const boxEl = this.props.box.current
-    if (boxEl.scrollWidth > boxEl.offsetWidth) {
-      if (!this.state.fold) this.setState({ fold: { start: 0, end: 0 } })
-      if (this.state.fold) {
-        if (this.state.fold.end >= this.state.items.length) return
-        this.setState({ fold: { start: 0, end: this.state.fold.end + 1 } })
-      }
-    }
-  }
-
-  componentDidMount() {
-    this.checkAndCollapse()
-  }
-
-  componentDidUpdate() {
-    this.checkAndCollapse()
-  }
-
-  render() {
-    return (
-      <div className="kiwi-breadcrumb">
-        {this.state.fold ? (
-          <>
-            {this.state.fold.start === 0 ? (
-              <>
-                {this._renderFoldedList(this.state.items.slice(0, this.state.fold.end))}
-                {this._renderList(this.state.items.slice(this.state.fold.end))}
-              </>
-            ) : (
-              <>
-                {this._renderList(this.state.items.slice(0, this.state.fold.start))}
-                {this._renderFoldedList(this.state.items.slice(this.state.fold.start, this.state.fold.end))}
-                {this._renderList(this.state.items.slice(this.state.fold.end))}
-              </>
-            )}
-          </>
-        ) : (
-          <>{this._renderList(this.state.items)}</>
-        )}
-      </div>
-    )
-  }
-
-  _renderList(items: BreadcrumbItem[]): JSX.Element[] {
+  const renderList = (items: T[]): JSX.Element[] => {
     if (items.length === 0) return []
     const elements = []
     items.forEach(item => {
-      elements.push(<div key={`${item.uri}-chevron`} className="ms-Icon ms-Icon--ChevronRight"></div>)
+      elements.push(<div key={`${getKey(item)}-chevron`} className="ms-Icon ms-Icon--ChevronRight"></div>)
       elements.push(
         <button
           className="kiwi-breadcrumb-item"
-          key={item.uri}
-          onClick={
-            this.props.onItemClick
-              ? _ => {
-                  this.props.onItemClick(item)
-                }
-              : null
-          }
+          key={getKey(item)}
+          onClick={onItemClick ? () => onItemClick(item) : null}
         >
-          {item.name}
+          {renderer ? renderer(item) : item}
         </button>
       )
     })
     return elements.slice(1)
   }
 
-  _renderFoldedList(items: BreadcrumbItem[]): JSX.Element {
+  const renderFoldedList = (items: T[]) => {
     if (items.length === 0) return <></>
     return (
       <MenuButton
@@ -131,13 +49,9 @@ class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
         menuProps={{
           items: items.map(it => {
             return {
-              id: it.uri,
-              text: it.name,
-              onClick: this.props.onItemClick
-                ? _ => {
-                    this.props.onItemClick(it)
-                  }
-                : null,
+              id: getKey(it),
+              text: renderer ? renderer(it) : String(it),
+              onClick: onItemClick ? () => onItemClick(it) : null,
             }
           }),
           styles: {
@@ -153,6 +67,12 @@ class Breadcrumb extends React.Component<BreadcrumbProperty, BreadcrumbState> {
       />
     )
   }
-}
 
-export { Breadcrumb }
+  return (
+    <div ref={ref} className="kiwi-breadcrumb">
+      {renderList(items.slice(0, fold.start))}
+      {renderFoldedList(items.slice(fold.start, fold.end))}
+      {renderList(items.slice(fold.end))}
+    </div>
+  )
+}

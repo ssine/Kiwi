@@ -1,7 +1,7 @@
 :root {
   --primaryColor: #7e489d;
   /* primary color is used to record hue info to generate other colors */
-  --lineColor: white;
+  --lineColor: black;
   /* darkest color for line-constructed shapes */
   --blockColor: white;
   /* a series lighter than line color for buttons */
@@ -9,9 +9,9 @@
   --blockColorLighter: white;
   --areaColor: white;
   /* the lightest color for backgrounds */
-  --serifFont: Constantia, "Times New Roman", Times, serif;
+  --serifFont: Constantia, 'Times New Roman', Times, serif;
   --sansSerifFont: OpenSans, Arial, Helvetica, sans-serif;
-  --monospaceFont: consolas, "Lucida Console", Monaco, monospace;
+  --monospaceFont: consolas, 'Lucida Console', Monaco, monospace;
   -webkit-text-size-adjust: none;
 }
 
@@ -35,8 +35,7 @@ button {
   box-sizing: unset;
   font: unset;
   text-align: center;
-  transition: background 100ms ease-in-out,
-    transform 100ms ease;
+  transition: background 100ms ease-in-out, transform 100ms ease;
   -webkit-appearance: none;
   -moz-appearance: none;
 }
@@ -194,7 +193,6 @@ frame {
 }
 
 @media (max-width: 1024px) {
-
   .item-uri-edit input,
   .item-title-edit input {
     height: 12vw;
@@ -202,7 +200,6 @@ frame {
 }
 
 @media (min-width: 1024px) {
-
   .item-uri-edit input,
   .item-title-edit input {
     height: calc(100% - 2px);
@@ -229,12 +226,11 @@ frame {
 
 .item-uri-edit::after,
 .item-title-edit::after {
-  content: "";
+  content: '';
   width: 75%;
   height: 2px;
   background-color: var(--blockColorLight);
-  transition: width 400ms ease-in-out,
-    background-color 400ms ease-in-out;
+  transition: width 400ms ease-in-out, background-color 400ms ease-in-out;
 }
 
 .item-uri-edit:hover::after,
@@ -336,7 +332,7 @@ td {
   margin: auto;
 }
 
-mjx-container[display="true"] {
+mjx-container[display='true'] {
   display: block;
   text-align: center;
 }

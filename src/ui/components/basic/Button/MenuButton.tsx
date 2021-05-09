@@ -7,7 +7,7 @@ import { ContextualMenu, ContextualMenuProperty } from '../Menu/ContextualMenu'
 import { Callout, AttachDirection } from '../Callout/Callout'
 
 type MenuButtonProperty = {
-  name: string
+  name?: string
   iconName?: string
   iconOnly?: boolean
   menuProps: ContextualMenuProperty
@@ -15,11 +15,8 @@ type MenuButtonProperty = {
 }
 
 class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: boolean }> {
-  buttonRef: React.RefObject<HTMLButtonElement>
-
   constructor(props) {
     super(props)
-    this.buttonRef = React.createRef()
     this.state = {
       isMenuVisible: false,
     }
@@ -28,37 +25,23 @@ class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: bo
   render() {
     const style = Object.assign({}, this.props.style)
     return (
-      <>
+      <Callout
+        visible={this.state.isMenuVisible}
+        direction={AttachDirection.bottomLeftEdge}
+        onDismiss={_ => this.setState({ isMenuVisible: false })}
+        content={<ContextualMenu {...this.props.menuProps} />}
+      >
         {this.props.iconOnly ? (
-          <button
-            className="kiwi-menu-button"
-            ref={this.buttonRef}
-            style={style}
-            onClick={_ => this.setState({ isMenuVisible: true })}
-          >
+          <button className="kiwi-menu-button" style={style} onClick={_ => this.setState({ isMenuVisible: true })}>
             {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
           </button>
         ) : (
-          <button
-            className="kiwi-menu-button"
-            ref={this.buttonRef}
-            style={style}
-            onClick={_ => this.setState({ isMenuVisible: true })}
-          >
+          <button className="kiwi-menu-button" style={style} onClick={_ => this.setState({ isMenuVisible: true })}>
             {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
             {this.props.name}
           </button>
         )}
-        {this.state.isMenuVisible && (
-          <Callout
-            target={this.buttonRef}
-            direction={AttachDirection.bottomLeftEdge}
-            onDismiss={_ => this.setState({ isMenuVisible: false })}
-          >
-            <ContextualMenu {...this.props.menuProps} />
-          </Callout>
-        )}
-      </>
+      </Callout>
     )
   }
 }

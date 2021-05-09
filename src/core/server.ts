@@ -20,6 +20,7 @@ import { renderItem, ServerItem } from './ServerItem'
 import { UploadFileError } from './Error'
 import { isBinaryType } from './MimeType'
 import { Readable } from 'stream'
+import { ClientItem } from '../ui/ClientItem'
 const exists = promisify(fs.exists)
 
 const logger = getLogger('server')
@@ -67,6 +68,7 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.post('/get-item', async (req, res) => {
     const uri: string = req.body.uri
+    logger.debug(`get item: ${uri}`)
     const it = await manager.getItem(uri, req.cookies.token)
     if (!it.renderSync) await renderItem(uri, it)
     res.json(ok(it))
@@ -109,7 +111,12 @@ const serve = function serve(port: number, rootFolder: string) {
   })
 
   app.post('/get-skinny-items', async (req, res) => {
-    res.json(ok(await manager.getSkinnyItems()))
+    const items = await manager.getSkinnyItems()
+    const result: Record<string, Partial<ClientItem>> = {}
+    for (const [uri, item] of Object.entries(items)) {
+      result[uri] = { ...item, skinny: true }
+    }
+    res.json(ok(result))
   })
 
   app.post('/get-search-result', async (req, res) => {
@@ -119,6 +126,7 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.use(async (req, res, next) => {
     const uri = decodeURIComponent(trimString(req.originalUrl.trim(), '/'))
+    logger.debug(`get static: ${uri}`)
     const it = await manager.getItem(uri, req.cookies.token)
     if (!isBinaryType(it.type)) {
       // only binary items get served

@@ -8,7 +8,7 @@ const LiveReloadWebpackPlugin = require('@kooneko/livereload-webpack-plugin')
 module.exports = {
   devtool: process.env.WEBPACK_MODE === 'production' ? 'cheap-module-source-map' : undefined,
   entry: {
-    app: './src/ui/main.ts',
+    app: './src/ui/main.tsx',
   },
   resolve: {
     extensions: ['.ts', '.js', '.tsx'],

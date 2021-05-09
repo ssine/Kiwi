@@ -73,8 +73,10 @@ import { EventEmitter } from 'events'
  *   and deletion of items.
  *
  */
-export const eventBus = new EventEmitter()
+const eventBus = new EventEmitter()
 eventBus.setMaxListeners(100)
 
 eventBus.on('item-saved', () => eventBus.emit('item-tree-changed'))
 eventBus.on('item-deleted', () => eventBus.emit('item-tree-changed'))
+
+export default eventBus

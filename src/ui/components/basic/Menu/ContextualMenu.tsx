@@ -3,7 +3,7 @@ import './ContextualMenu.css'
 
 type ContextualMenuItem = {
   id: string
-  text: string
+  text: string | JSX.Element
   iconName?: string
   onClick: (it: ContextualMenuItem) => void
 }
