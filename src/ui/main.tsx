@@ -47,6 +47,8 @@ window.onload = async () => {
   document.body.append(rootDiv)
 
   // @ts-ignore
+  window.itemManager = manager
+  // @ts-ignore
   window.kiwiTools = coreCommon.extend(common, coreCommon)
   // @ts-ignore
   window.bus = eventBus

@@ -4,6 +4,9 @@ import { ItemManager } from '../ItemManager'
 import { ItemDisplay } from './ItemDisplay'
 import { Breadcrumb } from './basic/Breadcrumb/Breadcrumb'
 import { ItemCard } from './ItemCard'
+import { defaultItemsURI } from '../../boot/config'
+
+const manager = ItemManager.getInstance()
 
 const reduceUris = (uris: string[], action: any) => {
   switch (action.type) {
@@ -30,13 +33,25 @@ export const ItemFlow = () => {
 
   useEffect(() => {
     eventBus.on('item-link-clicked', onDisplayItem)
+    ;(async () => {
+      await manager.ensureItemLoaded(defaultItemsURI)
+      manager
+        .getItem(defaultItemsURI)
+        .content.split('\n')
+        .forEach(
+          uri =>
+            uri &&
+            eventBus.emit('item-link-clicked', {
+              targetURI: uri,
+            })
+        )
+    })()
     return () => eventBus.off('item-link-clicked', onDisplayItem)
   }, [])
 
-  const onDisplayItem = async (uri: string) => {
-    console.log(uris)
-    await ItemManager.getInstance().ensureItemLoaded(uri)
-    dispatch({ type: 'display', uri: uri })
+  const onDisplayItem = async (data: { targetURI: string }) => {
+    await manager.ensureItemLoaded(data.targetURI)
+    dispatch({ type: 'display', uri: data.targetURI })
   }
 
   return (

@@ -33,8 +33,8 @@ export class ItemManager {
 
   async getItem(uri: string, token: string): Promise<ServerItem> {
     const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))!
-    if (!item) throw new ItemNotExistsError()
-    if (!this.auth.hasReadPermission(token, item)) throw new NoReadPermissionError()
+    if (!item) throw new ItemNotExistsError('')
+    if (!this.auth.hasReadPermission(token, item)) throw new NoReadPermissionError(`no read permission to ${uri}!`)
     return item
   }
 
