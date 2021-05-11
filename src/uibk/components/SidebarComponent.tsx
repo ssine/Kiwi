@@ -3,7 +3,7 @@ import ClientItem from '../ClientItem'
 import React from 'react'
 import { IconButton } from './basic/Button/IconButton'
 import { Pivot, PivotItem } from './basic/Pivot/Pivot'
-import { Banner } from './basic/Banner/Banner'
+import { Banner } from '../../ui/components/basic/Banner/Banner'
 import { URINode } from '../URIParser'
 import { getCookie, isMobile } from '../Common'
 

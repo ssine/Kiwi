@@ -45,7 +45,7 @@ export class UserNotExistsError extends KiwiError {
 
 @register
 export class PasswordIncorrectError extends KiwiError {
-  message = 'Passwork incorrect'
+  message = 'Password incorrect'
   code = 6
 }
 

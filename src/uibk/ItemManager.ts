@@ -61,7 +61,7 @@ class ItemManager {
 
     // render sidebar switch
     const sidebarSwitchElement = document.createElement('div')
-    sidebarSwitchElement.className = 'sidebar-switch'
+    sidebarSwitchElement.className = 'kiwi-sidebar-switch'
     this.renderer.renderSidebarSwitch(sidebarSwitchElement)
     rootDiv.append(sidebarSwitchElement)
 

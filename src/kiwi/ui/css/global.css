@@ -62,7 +62,7 @@ button:active {
     font-size: 4vw;
   }
 
-  .sidebar {
+  .kiwi-sidebar {
     margin-left: 20px;
     margin-right: 20px;
   }
@@ -89,7 +89,7 @@ button:active {
     scroll-behavior: smooth;
   }
 
-  .sidebar {
+  .kiwi-sidebar {
     position: fixed;
     top: 0;
     bottom: 0;
@@ -124,7 +124,7 @@ button:active {
   }
 }
 
-.sidebar-switch {
+.kiwi-sidebar-switch {
   position: fixed;
   z-index: 1;
   top: 10px;
@@ -137,7 +137,7 @@ button:active {
   align-items: center;
 }
 
-.sidebar-switch:hover {
+.kiwi-sidebar-switch:hover {
   color: var(--blockColor);
   cursor: pointer;
 }

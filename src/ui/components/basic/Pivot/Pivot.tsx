@@ -13,8 +13,6 @@ type PivotProperty = {
 }
 
 type PivotState = {
-  tabNames: string[]
-  tabPanels: React.ReactNode[]
   activeTab: number
 }
 
@@ -22,21 +20,21 @@ class Pivot extends React.Component<PivotProperty, PivotState> {
   constructor(props: PivotProperty) {
     super(props)
     this.state = {
-      tabNames: [],
-      tabPanels: [],
       activeTab: 0,
     }
-    React.Children.forEach(this.props.children, (child, idx) => {
-      this.state.tabNames.push((child as React.ReactElement<{ name: string }>).props.name)
-      this.state.tabPanels.push((child as React.ReactElement<{ children: any[] }>).props.children)
-    })
   }
 
   render() {
+    const tabNames = []
+    const tabPanels = []
+    React.Children.forEach(this.props.children, (child, idx) => {
+      tabNames.push((child as React.ReactElement<{ name: string }>).props.name)
+      tabPanels.push((child as React.ReactElement<{ children: any[] }>).props.children)
+    })
     return (
       <div className="kiwi-pivot" style={this.props.styles?.root}>
         <div className="kiwi-pivot-tabname">
-          {this.state.tabNames.map((name, idx) => (
+          {tabNames.map((name, idx) => (
             <button
               key={name}
               className={`kiwi-pivot-button${idx === this.state.activeTab ? ' active' : ''}`}
@@ -50,7 +48,7 @@ class Pivot extends React.Component<PivotProperty, PivotState> {
           ))}
         </div>
         <div className="kiwi-pivot-tabpanel" style={this.props.styles?.panel}>
-          {this.state.tabPanels[this.state.activeTab]}
+          {tabPanels[this.state.activeTab]}
         </div>
       </div>
     )

@@ -1,5 +1,6 @@
 import React from 'react'
-import { postJSON, setCookie, getCookie, removeCookie } from '../Common'
+import { postJSON } from '../api'
+import { setCookie, getCookie, removeCookie } from '../Common'
 import './LoginForm.css'
 
 const buttonStyle: React.CSSProperties = {
@@ -43,16 +44,17 @@ const LoginForm: React.FC<{}> = () => {
         onClick={async _ => {
           const accountName = (document.getElementById('kiwi-login-name') as HTMLInputElement).value
           // post the request
-          const res = await postJSON('login', {
-            name: accountName,
-            password: (document.getElementById('kiwi-login-password') as HTMLInputElement).value,
-          })
-          if (res.success) {
+          try {
+            const res = await postJSON('login', {
+              name: accountName,
+              password: (document.getElementById('kiwi-login-password') as HTMLInputElement).value,
+            })
             setCookie('token', res.token, 365 * 24 * 3600)
             setCookie('accountName', accountName, 365 * 24 * 3600)
             window.location.reload()
-          } else {
-            document.getElementById('kiwi-login-error-msg').innerText = res.reason
+          } catch (err) {
+            console.log(err)
+            document.getElementById('kiwi-login-error-msg').innerText = err.message
           }
         }}
       >

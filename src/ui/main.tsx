@@ -30,8 +30,9 @@ window.onload = async () => {
   await manager.ensureItemLoaded(pageConfigs.primaryColor)
   setPageColors(RGBtoHSV(CSSColorToRGBA(manager.getItem(pageConfigs.primaryColor).content)).h)
 
-  // document title
+  // document title & subtitle
   await manager.ensureItemLoaded(pageConfigs.title)
+  await manager.ensureItemLoaded(pageConfigs.subTitle)
   document.title = manager.getItem(pageConfigs.title).content.trim()
 
   // document favicon
