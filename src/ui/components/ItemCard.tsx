@@ -4,12 +4,33 @@ import { ItemDisplay } from './ItemDisplay'
 import { ItemEditor } from './ItemEditor'
 import anime from 'animejs/lib/anime.es'
 import { getPositionToDocument } from '../Common'
+import { eventBus } from '../eventBus'
+import { ItemManager } from '../ItemManager'
 
-export const ItemCard = (props: { uri: string; item: ClientItem; onClose: () => void }) => {
+const manager = ItemManager.getInstance()
+
+export const ItemCard = (props: {
+  uri: string
+  item: ClientItem
+  onClose: () => void
+  onChange: (target: string) => void
+}) => {
   // display / edit / save
   const [mode, setMode] = useState('display')
   const lastPositoinRef = useRef({ left: 0, top: 0 })
   const ref = useRef()
+
+  useEffect(() => {
+    eventBus.on('item-link-clicked', scrollToSelf)
+    return () => eventBus.off('item-link-clicked', scrollToSelf)
+  }, [])
+
+  const scrollToSelf = async (data: { targetURI: string }) => {
+    if (data.targetURI === props.uri) {
+      const pos = getPositionToDocument(ref.current)
+      scrollTo(pos.left, pos.top)
+    }
+  }
 
   useLayoutEffect(() => {
     ;(async () => {
@@ -25,7 +46,11 @@ export const ItemCard = (props: { uri: string; item: ClientItem; onClose: () => 
           <ItemDisplay
             uri={props.uri}
             item={props.item}
-            onBeginEdit={() => setMode('edit')}
+            onBeginEdit={async () => {
+              await rotateOut(ref.current)
+              setMode('edit')
+              await rotateIn(ref.current)
+            }}
             onDelete={() => {}}
             onClose={async () => {
               await slideOut(ref.current)
@@ -34,7 +59,28 @@ export const ItemCard = (props: { uri: string; item: ClientItem; onClose: () => 
           />
         )
       case 'edit':
-        return <ItemEditor />
+        return (
+          <ItemEditor
+            uri={props.uri}
+            item={props.item}
+            onSave={async (newUri: string, newItem: ClientItem) => {
+              await rotateOut(ref.current)
+              await manager.saveItem(newUri, newItem)
+              if (props.uri !== newUri) {
+                await manager.deleteItem(props.uri)
+                props.onChange(newUri)
+              } else {
+                setMode('display')
+                await rotateIn(ref.current)
+              }
+            }}
+            onCancel={async () => {
+              await rotateOut(ref.current)
+              setMode('display')
+              await rotateIn(ref.current)
+            }}
+          />
+        )
       case 'save':
         return <div>saving...</div>
       default:
@@ -67,6 +113,21 @@ const rotateOut = async (el: HTMLElement) => {
 }
 
 /**
+ * Animation: rotate 90 deg to display
+ */
+const rotateIn = async (el: HTMLElement) => {
+  return new Promise((res, rej) => {
+    anime({
+      targets: el,
+      rotateY: 0,
+      duration: 100,
+      easing: 'linear',
+      complete: () => res(null),
+    })
+  })
+}
+
+/**
  * Animation: slide 400px while fading out
  */
 const slideOut = async (el: HTMLElement) => {
@@ -77,21 +138,6 @@ const slideOut = async (el: HTMLElement) => {
       opacity: 0,
       duration: 100,
       easing: 'easeOutQuad',
-      complete: () => res(null),
-    })
-  })
-}
-
-/**
- * Animation: rotate 90 deg to display
- */
-const rotateIn = async (el: HTMLElement) => {
-  return new Promise((res, rej) => {
-    anime({
-      targets: el,
-      rotateY: 0,
-      duration: 100,
-      easing: 'linear',
       complete: () => res(null),
     })
   })

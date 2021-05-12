@@ -9,6 +9,7 @@ import { resolveURI } from '../../core/Common'
 import { MenuButton } from './basic/Button/MenuButton'
 import { AttachDirection, Callout } from './basic/Callout/Callout'
 import { ItemManager } from '../ItemManager'
+import { typesetMath } from '../mathjax'
 
 const manager = ItemManager.getInstance()
 
@@ -193,6 +194,10 @@ const contentPostProcess = async (contentEl: HTMLDivElement) => {
     }
     script.remove()
     if (onLoad) await onLoad
+  }
+
+  if (contentEl.innerText.includes('$')) {
+    typesetMath()
   }
 }
 

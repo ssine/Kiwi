@@ -200,6 +200,12 @@ const getEmPixels = (() => {
   }
 })()
 
+export const setToNewArray = (arr: any[], idx: number, val: any) => {
+  const newArr = [...arr]
+  newArr[idx] = val
+  return newArr
+}
+
 export {
   isLinkInternal,
   getPositionToDocument,

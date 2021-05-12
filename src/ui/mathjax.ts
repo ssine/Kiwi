@@ -1,7 +1,7 @@
 let html: any
 let inited = false
 
-async function init() {
+export const initMathjax = async () => {
   if (inited) return
 
   // @ts-ignore
@@ -62,10 +62,8 @@ async function init() {
   return
 }
 
-async function typesetMath() {
-  await init()
+export const typesetMath = async () => {
+  await initMathjax()
   html.reset()
   html.render()
 }
-
-export { typesetMath }

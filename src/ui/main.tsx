@@ -14,6 +14,7 @@ import * as common from './Common'
 import * as coreCommon from '../core/Common'
 import { setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
 import { pageConfigs } from '../boot/config'
+import { initMathjax, typesetMath } from './mathjax'
 
 window.onload = async () => {
   const manager = ItemManager.getInstance()

@@ -13,19 +13,7 @@ export const ItemFlow = (props: { uris: string[]; dispatch: React.Dispatch<any> 
 
   useEffect(() => {
     eventBus.on('item-link-clicked', onDisplayItem)
-    ;(async () => {
-      await manager.ensureItemLoaded(defaultItemsURI)
-      manager
-        .getItem(defaultItemsURI)
-        .content.split('\n')
-        .forEach(
-          uri =>
-            uri &&
-            eventBus.emit('item-link-clicked', {
-              targetURI: uri,
-            })
-        )
-    })()
+    displayInitItems()
     return () => eventBus.off('item-link-clicked', onDisplayItem)
   }, [])
 
@@ -44,8 +32,33 @@ export const ItemFlow = (props: { uris: string[]; dispatch: React.Dispatch<any> 
           onClose={() => {
             dispatch({ type: 'remove', uri: uri })
           }}
+          onChange={(target: string) => {
+            dispatch({ type: 'change', fromUri: uri, toUri: target })
+          }}
         />
       ))}
     </div>
   )
+}
+
+const displayInitItems = async () => {
+  if (window.location.hash != '') {
+    // have uris in has
+    eventBus.emit('item-link-clicked', {
+      targetURI: window.location.hash.substr(1),
+    })
+  } else {
+    // render default items
+    await manager.ensureItemLoaded(defaultItemsURI)
+    manager
+      .getItem(defaultItemsURI)
+      .content.split('\n')
+      .forEach(
+        uri =>
+          uri &&
+          eventBus.emit('item-link-clicked', {
+            targetURI: uri,
+          })
+      )
+  }
 }

@@ -18,6 +18,12 @@ const reduceUris = (uris: string[], action: any) => {
         return [...uris]
       }
       return uris
+    case 'change':
+      if (uris.includes(action.fromUri)) {
+        uris.splice(uris.indexOf(action.fromUri), 1, action.toUri)
+        return [...uris]
+      }
+      return uris
     default:
       throw new Error()
   }

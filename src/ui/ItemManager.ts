@@ -1,4 +1,4 @@
-import { getItem, getSkinnyItems, getSystemItems } from './api'
+import { deleteItem, getItem, getSkinnyItems, getSystemItems, putItem } from './api'
 import { ClientItem } from './ClientItem'
 
 export type UriNode = {
@@ -34,8 +34,22 @@ export class ItemManager {
     }
   }
 
+  // get item in sync for effciency, call ensureItemLoaded first
   getItem(uri: string): ClientItem | null {
     return this.items[uri] || this.systemItems[uri]
+  }
+
+  async deleteItem(uri: string) {
+    if (uri in this.items) {
+      await deleteItem(uri)
+      delete this.items[uri]
+    }
+  }
+
+  async saveItem(uri: string, item: ClientItem): Promise<ClientItem> {
+    const rendered = await putItem(uri, item)
+    this.items[uri] = rendered
+    return rendered
   }
 
   hasItem(uri: string): boolean {

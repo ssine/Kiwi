@@ -61,6 +61,11 @@ export const getFileExtFromType = (type: MIME): string | null => {
   return getMimeProps(type).extensions?.[0]
 }
 
+export const getMonacoLangFromType = (type: MIME): string | null => {
+  // @ts-ignore
+  return getMimeProps(type).monacoLanguage
+}
+
 /**
  * extensions: file extension, content types should have only one extension to avoid multiple mapping
  * monacoLanguage: language id in monaco editor for intellisense
