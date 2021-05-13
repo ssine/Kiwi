@@ -121,7 +121,7 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.post('/get-search-result', async (req, res) => {
     logger.info(`search request ${req.body.input} got`)
-    res.json(ok(JSON.stringify(await manager.getSearchResult(req.body.input))))
+    res.json(ok(await manager.getSearchResult(req.body.input)))
   })
 
   app.use(async (req, res, next) => {

@@ -10,6 +10,7 @@ import { Pivot, PivotItem } from './basic/Pivot/Pivot'
 import { IndexTree } from './IndexTree'
 import { Banner } from './basic/Banner/Banner'
 import LoginForm from './LoginForm'
+import { SearchBar } from './SearchBar'
 
 const manager = ItemManager.getInstance()
 
@@ -58,7 +59,7 @@ export const Sidebar = (props: { displaiedUris: string[] }) => {
             <></>
           )}
         </div>
-        {/* <SearchBar /> */}
+        <SearchBar />
         <Pivot
           styles={{
             panel: { flexGrow: 1, overflow: 'auto', marginTop: 5 },

@@ -20,8 +20,6 @@ export const IndexTree = () => {
     generateNodeState(Object.keys(Object.assign({}, manager.systemItems, manager.items)))
   )
 
-  console.log(root)
-
   const _renderTree = (node: NodeState, level: number): JSX.Element[] => {
     let nodeList = []
     const curNode =
@@ -66,9 +64,14 @@ export const IndexTree = () => {
     nodeList.push(curNode)
     if (Object.keys(node.childs).length > 0 && node.expand) {
       nodeList = nodeList.concat(
-        Object.keys(node.childs).map((uri, idx) => {
-          return _renderTree(node.childs[idx], level + 1)
-        })
+        Object.values(node.childs)
+          // sort nodes, folder first, lexicographically smaller one first
+          .sort((a, b) =>
+            `${a.childs.length > 0 ? '0' : '1'}${a.uri}` > `${b.childs.length > 0 ? '0' : '1'}${b.uri}` ? 1 : -1
+          )
+          .map(child => {
+            return _renderTree(child, level + 1)
+          })
       )
     }
 

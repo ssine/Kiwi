@@ -45,7 +45,7 @@ export const ItemDisplay = (props: {
       iconName: 'Add',
       onClick: () => {
         eventBus.emit('create-item-clicked', {
-          uri: resolveURI(uri, 'new-item'),
+          targetURI: resolveURI(uri, 'new-item'),
         })
       },
     })

@@ -65,7 +65,7 @@ export class ItemManager {
     return result
   }
 
-  async getSearchResult(input: string): Promise<Record<string, ServerItem>> {
+  async getSearchResult(input: string): Promise<string[]> {
     const items = await this.storage.getAllItems()
     const res: Record<string, ServerItem> = {}
     const pattern = new RegExp(input, 'gim')
@@ -74,7 +74,7 @@ export class ItemManager {
       if (pattern.test(it.title) || pattern.test(k) || (it.content && pattern.test(it.content))) res[k] = it
     }
     logger.info(`${res.length} result for search ${input} found`)
-    return res
+    return Object.keys(res)
   }
 
   static getInstance(): ItemManager {

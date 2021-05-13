@@ -1,3 +1,5 @@
+import { suggestedURIToTitle } from '../core/Common'
+import { ItemNotExistsError } from '../core/Error'
 import { deleteItem, getItem, getSkinnyItems, getSystemItems, putItem } from './api'
 import { ClientItem } from './ClientItem'
 
@@ -25,13 +27,41 @@ export class ItemManager {
     this.tagMap = {}
     this.generateTagMap()
     this.generateUriTree()
-    console.log(this.rootUriNode)
   }
 
   async ensureItemLoaded(uri: string) {
-    if (this.items[uri].skinny) {
-      this.items[uri] = await getItem(uri)
+    if (!Object.keys(this.items).includes(uri)) {
+      // system item, already pre-loaded
+      if (Object.keys(this.systemItems).includes(uri)) return
+      // not exists
+      throw new ItemNotExistsError(`item ${uri} not exists!`)
     }
+    // exist, load it
+    if (this.items[uri].skinny) this.items[uri] = await getItem(uri)
+  }
+
+  createItem(uri?: string): string {
+    if (!uri) {
+      uri = 'new-item'
+      if (this.items[uri]) {
+        let cnt = 1
+        while (this.items[`${uri}${cnt}`]) {
+          cnt += 1
+        }
+        uri = `${uri}${cnt}`
+      }
+    }
+    this.items[uri] = {
+      title: suggestedURIToTitle(uri),
+      type: 'text/markdown',
+      header: {},
+      content: '',
+      skinny: false,
+      renderSync: false,
+      renderedHTML: 'Content not rendered!',
+      new: true,
+    }
+    return uri
   }
 
   // get item in sync for effciency, call ensureItemLoaded first
@@ -41,7 +71,9 @@ export class ItemManager {
 
   async deleteItem(uri: string) {
     if (uri in this.items) {
-      await deleteItem(uri)
+      if (!this.items[uri].new) {
+        await deleteItem(uri)
+      }
       delete this.items[uri]
     }
   }

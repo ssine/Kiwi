@@ -6,6 +6,7 @@ import './Callout.css'
 type CalloutProperty = {
   visible: boolean
   direction: AttachDirection
+  alignWidth?: boolean
   onDismiss?: (ev?: any) => void
   style?: React.CSSProperties
   content?: React.ReactNode
@@ -26,6 +27,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
   layer: HTMLDivElement
   target: React.RefObject<HTMLDivElement>
   content: React.RefObject<HTMLDivElement>
+  prevVisible: boolean
   scrollCallback: (ev: Event) => void
   clickCallback: (ev: MouseEvent) => void
 
@@ -35,6 +37,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
     this.target = React.createRef()
     this.layer = document.createElement('div')
     this.layer.className = 'kiwi-callout-layer'
+    this.prevVisible = this.props.visible
 
     this.state = {
       direction: this.props.direction,
@@ -62,7 +65,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
   }
 
   componentDidUpdate() {
-    if (this.props.visible) {
+    if (!this.prevVisible && this.props.visible) {
       let animationDirection =
         this.state.direction === AttachDirection.bottomLeftEdge ||
         this.state.direction === AttachDirection.bottomRightEdge
@@ -114,6 +117,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
         })
       }
     }
+    this.prevVisible = this.props.visible
   }
 
   componentWillUnmount() {
@@ -126,6 +130,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
     const style = Object.assign(
       {},
       this.target.current ? calculatePosition(this.target.current, this.props.direction) : {},
+      this.props.alignWidth && this.target.current ? { width: this.target.current.clientWidth } : {},
       this.props.style
     )
     return (

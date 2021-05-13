@@ -54,3 +54,7 @@ export const putBinaryItem = async (uri: string, item: ClientItem, file: File): 
 export const deleteItem = async (uri: string): Promise<void> => {
   return postJSON('/delete-item', { uri: uri })
 }
+
+export const getSearchResult = async (input: string): Promise<string[]> => {
+  return postJSON('/get-search-result', { input: input })
+}

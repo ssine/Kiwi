@@ -9,14 +9,10 @@ import { ItemManager } from '../ItemManager'
 
 const manager = ItemManager.getInstance()
 
-export const ItemCard = (props: {
-  uri: string
-  item: ClientItem
-  onClose: () => void
-  onChange: (target: string) => void
-}) => {
+export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (target: string) => void }) => {
   // display / edit / save
-  const [mode, setMode] = useState('display')
+  const item = ItemManager.getInstance().getItem(props.uri)
+  const [mode, setMode] = useState(item.new ? 'edit' : 'display')
   const lastPositoinRef = useRef({ left: 0, top: 0 })
   const ref = useRef()
 
@@ -45,13 +41,17 @@ export const ItemCard = (props: {
         return (
           <ItemDisplay
             uri={props.uri}
-            item={props.item}
+            item={item}
             onBeginEdit={async () => {
               await rotateOut(ref.current)
               setMode('edit')
               await rotateIn(ref.current)
             }}
-            onDelete={() => {}}
+            onDelete={async () => {
+              await manager.deleteItem(props.uri)
+              await slideOut(ref.current)
+              props.onClose()
+            }}
             onClose={async () => {
               await slideOut(ref.current)
               props.onClose()
@@ -62,7 +62,7 @@ export const ItemCard = (props: {
         return (
           <ItemEditor
             uri={props.uri}
-            item={props.item}
+            item={item}
             onSave={async (newUri: string, newItem: ClientItem) => {
               await rotateOut(ref.current)
               await manager.saveItem(newUri, newItem)
@@ -75,9 +75,15 @@ export const ItemCard = (props: {
               }
             }}
             onCancel={async () => {
-              await rotateOut(ref.current)
-              setMode('display')
-              await rotateIn(ref.current)
+              if (item.new) {
+                await manager.deleteItem(props.uri)
+                await slideOut(ref.current)
+                props.onClose()
+              } else {
+                await rotateOut(ref.current)
+                setMode('display')
+                await rotateIn(ref.current)
+              }
             }}
           />
         )

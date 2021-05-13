@@ -13,13 +13,22 @@ export const ItemFlow = (props: { uris: string[]; dispatch: React.Dispatch<any> 
 
   useEffect(() => {
     eventBus.on('item-link-clicked', onDisplayItem)
+    eventBus.on('create-item-clicked', onCreateItem)
     displayInitItems()
-    return () => eventBus.off('item-link-clicked', onDisplayItem)
+    return () => {
+      eventBus.off('item-link-clicked', onDisplayItem)
+      eventBus.off('create-item-clicked', onCreateItem)
+    }
   }, [])
 
   const onDisplayItem = async (data: { targetURI: string }) => {
     await manager.ensureItemLoaded(data.targetURI)
     dispatch({ type: 'display', uri: data.targetURI })
+  }
+
+  const onCreateItem = async (data: { targetURI?: string }) => {
+    const uri = manager.createItem(data?.targetURI)
+    dispatch({ type: 'display', uri: uri })
   }
 
   return (
@@ -28,7 +37,6 @@ export const ItemFlow = (props: { uris: string[]; dispatch: React.Dispatch<any> 
         <ItemCard
           key={uri}
           uri={uri}
-          item={ItemManager.getInstance().getItem(uri)}
           onClose={() => {
             dispatch({ type: 'remove', uri: uri })
           }}
