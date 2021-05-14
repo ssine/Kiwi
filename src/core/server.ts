@@ -12,16 +12,14 @@ import * as compression from 'compression'
 import { getLogger } from './Log'
 import { MIME } from './MimeType'
 import { resolve } from 'path'
-import { trimString, fixedEncodeURIComponent } from './Common'
+import { trimString } from './Common'
 import * as fs from 'fs'
-import { promisify } from 'util'
 import { ItemManager } from './ItemManager'
 import { renderItem, ServerItem } from './ServerItem'
 import { UploadFileError } from './Error'
 import { isBinaryType } from './MimeType'
 import { Readable } from 'stream'
 import { ClientItem } from '../ui/ClientItem'
-const exists = promisify(fs.exists)
 
 const logger = getLogger('server')
 

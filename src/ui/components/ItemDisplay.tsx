@@ -58,9 +58,10 @@ export const ItemDisplay = (props: {
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
+          width: '100%'
         }}
       >
-        <div style={{ flexGrow: 1 }}>
+        <div style={{ flexGrow: 1, minWidth: 0 }}>
           <Breadcrumb
             items={uri.split('/').map((part, idx, arr) => ({
               name: part,

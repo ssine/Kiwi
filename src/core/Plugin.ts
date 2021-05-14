@@ -1,8 +1,6 @@
 import { getLogger } from './Log'
 import * as he from 'he'
 import * as vm from 'vm'
-import { cloneRegex } from './Common'
-import { app } from './server'
 
 const logger = getLogger('plugin')
 
@@ -58,7 +56,6 @@ class ItemContext {
     this.ctx.setTimeout = setTimeout
     this.ctx.console = console
     this.ctx.require = require
-    this.ctx.app = app
     this.ctx = vm.createContext(this.ctx)
   }
 

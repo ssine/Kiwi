@@ -32,7 +32,11 @@ class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: bo
         content={<ContextualMenu {...this.props.menuProps} />}
       >
         {this.props.iconOnly ? (
-          <button className="kiwi-menu-button" style={style} onClick={_ => this.setState({ isMenuVisible: true })}>
+          <button
+            className="kiwi-menu-button kiwi-icon-button"
+            style={style}
+            onClick={_ => this.setState({ isMenuVisible: true })}
+          >
             {this.props.iconName && <i className={`ms-Icon ms-Icon--${this.props.iconName}`}></i>}
           </button>
         ) : (

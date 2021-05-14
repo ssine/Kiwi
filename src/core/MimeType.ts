@@ -90,16 +90,19 @@ const MimeProps = {
     tags: ['text', 'content'],
     extensions: ['txt'],
     editorClass: 'content',
+    monacoLanguage: 'plain',
   },
   'text/markdown': {
     tags: ['text', 'content'],
     extensions: ['md'],
     editorClass: 'content',
+    monacoLanguage: 'markdown',
   },
   'text/html': {
     tags: ['text', 'content'],
     extensions: ['html'],
     editorClass: 'content',
+    monacoLanguage: 'html',
   },
   'text/css': {
     tags: ['text'],
@@ -111,11 +114,13 @@ const MimeProps = {
     tags: ['text', 'content'],
     extensions: ['adoc'],
     editorClass: 'content',
+    monacoLanguage: 'asciidoc',
   },
   'text/wikitext': {
     tags: ['text', 'content'],
     extensions: ['wiki'],
     editorClass: 'content',
+    monacoLanguage: 'wikitext',
   },
   'text/yaml': {
     tags: ['text'],

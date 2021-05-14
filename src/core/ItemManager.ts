@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { ServerItem } from './ServerItem'
+import { renderItem, ServerItem } from './ServerItem'
 import { AuthManager } from './AuthManager'
 import { getLogger } from './Log'
 import { usersURI } from '../boot/config'
@@ -29,6 +29,7 @@ export class ItemManager {
     await this.systemStorage.init()
     await this.storage.init()
     this.auth.init((await this.storage.getItem(usersURI)) || (await this.systemStorage.getItem(usersURI))!)
+    await Promise.all(Object.entries(await this.systemStorage.getAllItems()).map(entry => renderItem(...entry)))
   }
 
   async getItem(uri: string, token: string): Promise<ServerItem> {
