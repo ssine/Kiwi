@@ -51,8 +51,7 @@
 let data = null
 
 async function getData() {
-  await itemManager.ensureItemLoaded('{{currentURI}}')
-  let item = itemManager.getItem('{{currentURI}}')
+  let item = await kiwi.getItem('{{currentURI}}')
   let reg = /<div id="\{\{currentURI\}\}-data" hidden>([\s\S]*?)<\/div>/gm
   let res = reg.exec(item.content)
   if (res !== null) {
@@ -133,16 +132,16 @@ await getData()
 render()
 
 async function saveData() {
-  // let item = await itemManager.getItemFromURI('{{currentURI}}')
-  // let reg = /<div id="\{\{currentURI\}\}-data" hidden>[\s\S]*?<\/div>/gm
-  // let strToSave = `<div id="\{\{currentURI\}\}-data" hidden>${JSON.stringify(data)}</div>`
-  // let res = reg.exec(item.content)
-  // if (res === null) {
-  //   item.content += `\n${strToSave}`
-  // } else {
-  //   item.content = item.content.substring(0, res.index) + strToSave + item.content.substr(res.index+res[0].length)
-  // }
-  // itemManager.finalizeItemEdit('{{currentURI}}', false)
+  let item = await kiwi.getItem('{{currentURI}}')
+  let reg = /<div id="\{\{currentURI\}\}-data" hidden>[\s\S]*?<\/div>/gm
+  let strToSave = `<div id="\{\{currentURI\}\}-data" hidden>${JSON.stringify(data)}</div>`
+  let res = reg.exec(item.content)
+  if (res === null) {
+    item.content += `\n${strToSave}`
+  } else {
+    item.content = item.content.substring(0, res.index) + strToSave + item.content.substr(res.index+res[0].length)
+  }
+  await kiwi.saveItem('{{currentURI}}', item)
 }
 
 ['ie', 'uie', 'iue', 'uiue'].forEach((className) => {

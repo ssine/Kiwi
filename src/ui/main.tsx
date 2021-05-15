@@ -15,6 +15,7 @@ import * as coreCommon from '../core/Common'
 import { setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
 import { pageConfigs } from '../boot/config'
 import { initMathjax, typesetMath } from './mathjax'
+import { ScriptApi } from './ScriptApi'
 
 window.onload = async () => {
   const manager = ItemManager.getInstance()
@@ -49,11 +50,7 @@ window.onload = async () => {
   document.body.append(rootDiv)
 
   // @ts-ignore
-  window.itemManager = manager
-  // @ts-ignore
-  window.kiwiTools = coreCommon.extend(common, coreCommon)
-  // @ts-ignore
-  window.bus = eventBus
+  window.kiwi = ScriptApi
 }
 
 const initMonacoEditor = () => {

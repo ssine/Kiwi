@@ -23,16 +23,16 @@
   (async () => {
     let saved = true
     let slider = document.getElementById('kiwi-hue-slider')
-    slider.value = (await itemManager.getThemeHue()) * 360
+    slider.value = kiwi.getThemeHue() * 360
     slider.oninput = (value) => {
       if (saved) {
         saved = false;
         setTimeout(async () => {
-          itemManager.saveItem({uri: 'kiwi/config/primary-color', editedItem: {content: kiwiTools.RGBtoCSSColor(kiwiTools.HSVtoRGB({h: slider.value / 360, s: 1, v: 1}))}})
+          kiwi.saveThemeHue(slider.value / 360)
           saved = true
         }, 2000);
       }
-      itemManager.setThemeHue(slider.value / 360)
+      kiwi.setThemeHue(slider.value / 360)
     }
   })()
 </script>

@@ -57,6 +57,7 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
               props.onClose()
             }}
             onPrint={() => {
+              // see https://stackoverflow.com/questions/468881/print-div-id-printarea-div-only
               const oldId = ref.current.id
               ref.current.id = 'kiwi-item-printing'
               const styleEl = document.createElement('style')

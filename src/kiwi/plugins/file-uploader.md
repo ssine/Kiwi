@@ -5,7 +5,10 @@
 <button id="{{currentURI}}-button">Upload</button>
 <script>
 document.getElementById('{{currentURI}}-button').addEventListener('click', () => {
-  var input = document.getElementById('{{currentURI}}-input')
-  postFile(document.getElementById('{{currentURI}}-filename').value, input.files[0])
+  const input = document.getElementById('{{currentURI}}-input')
+  const [uri, item] = kiwi.createItem(document.getElementById('{{currentURI}}-filename').value)
+  const file = input.files[0]
+  item.type = file.type
+  kiwi.saveItem(uri, item, file)
 })
 </script>
