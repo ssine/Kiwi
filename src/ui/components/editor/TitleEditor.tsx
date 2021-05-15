@@ -14,7 +14,6 @@ export const TitleEditorComponent = (
   const [titleChanged, setTitleChanged] = useState(false)
   const [uriChanged, setUriChanged] = useState(false)
 
-  console.log(title, uri)
   const height = isMobile ? '12vw' : 40
   return (
     <div>

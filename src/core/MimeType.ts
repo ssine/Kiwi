@@ -40,6 +40,17 @@ export const getMimesWhichPropIncludes = (prop: string, content: unknown): MIME[
   return res
 }
 
+export const getMimesWhichPropEquals = (prop: string, value: unknown): MIME[] => {
+  const res: MIME[] = []
+  for (const [type, props] of Object.entries(MimeProps)) {
+    // @ts-ignore
+    if (props[prop] === value) {
+      res.push(<MIME>type)
+    }
+  }
+  return res
+}
+
 export const isContentType = (type: MIME): boolean => {
   return isMimePropIncludes(type, 'tags', 'content')
 }
@@ -156,6 +167,7 @@ const MimeProps = {
     tags: ['text'],
     extensions: ['go'],
     editorClass: 'code',
+    monacoLanguage: 'go',
   },
   'text/javascript': {
     tags: ['text'],

@@ -1,14 +1,14 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { CSSProperties, useEffect, useReducer, useState } from 'react'
 import { isMobile, setToNewArray } from '../../Common'
 import { IconButton } from '../basic/Button/IconButton'
 
-export const TagsComponent = (props: { tags: string[]; setTags: (tags: string[]) => void }) => {
-  const { tags, setTags } = props
+export const TagsEditor = (props: { tags: string[]; setTags: (tags: string[]) => void; style?: CSSProperties }) => {
+  const { tags, setTags, style } = props
   const [isEditing, setIsEditing] = useState(Array(props.tags.length).fill(false))
   const [stagedValues, setStagedValues] = useState([...tags])
 
   return (
-    <div style={{ display: 'flex', height: isMobile ? '10vw' : 35 }}>
+    <div style={style}>
       {stagedValues.map((tag, idx) => {
         if (isEditing[idx]) {
           return (

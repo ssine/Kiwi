@@ -42,6 +42,10 @@ export class ItemManager {
   async putItem(uri: string, item: ServerItem, token: string): Promise<ServerItem> {
     const previousItem = await this.storage.getItem(uri)
     if (previousItem && !this.auth.hasWritePermission(token, previousItem)) throw new NoWritePermissionError()
+    const author = this.auth.getUserNameFromToken(token)
+    if (!item.header.author && author !== 'anonymous') {
+      item.header.author = author
+    }
     return await this.storage.putItem(uri, item)
   }
 

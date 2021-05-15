@@ -316,7 +316,7 @@ export class ItemComponent extends React.Component<
               <IconButton iconName="Accept" onClick={this.onSave.bind(this)} />
               <IconButton iconName="RevToggleKey" onClick={this.onCancelEdit.bind(this)} />
             </TitleEditorComponent>
-            <div className="edit-item-content" ref={this.contentRef}>
+            <div className="kiwi-edit-item-content" ref={this.contentRef}>
               <MonacoEditor
                 language={getLanguageFromMIME(this.item.type)}
                 value={this.item.content}
@@ -372,7 +372,7 @@ export class ItemComponent extends React.Component<
                 />
               </div>
               <div className="item-tags">
-                <TagsComponent tags={this.editingItem.headers.tags} />
+                <TagsEditor tags={this.editingItem.headers.tags} />
               </div>
             </div>
           </div>

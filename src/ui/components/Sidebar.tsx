@@ -22,7 +22,9 @@ export const Sidebar = (props: { displaiedUris: string[] }) => {
   return (
     <>
       <div className="kiwi-sidebar-switch" onClick={onSwitchClick}>
-        <i className="ms-Icon ms-Icon--DoubleChevronLeft" />
+        <a>
+          <i className="ms-Icon ms-Icon--DoubleChevronLeft" />
+        </a>
       </div>
       <div
         className="kiwi-sidebar"

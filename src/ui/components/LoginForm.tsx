@@ -45,11 +45,11 @@ const LoginForm: React.FC<{}> = () => {
           const accountName = (document.getElementById('kiwi-login-name') as HTMLInputElement).value
           // post the request
           try {
-            const res = await postJSON('login', {
+            const token = await postJSON('login', {
               name: accountName,
               password: (document.getElementById('kiwi-login-password') as HTMLInputElement).value,
             })
-            setCookie('token', res.token, 365 * 24 * 3600)
+            setCookie('token', token, 365 * 24 * 3600)
             setCookie('accountName', accountName, 365 * 24 * 3600)
             window.location.reload()
           } catch (err) {

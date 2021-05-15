@@ -1,12 +1,14 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react'
 import { ClientItem } from '../ClientItem'
-import { getEmPixels, isMobile, setToNewArray } from '../Common'
+import { getEmPixels, isMobile, setToNewArray, watchElementResize } from '../Common'
 import { IconButton } from './basic/Button/IconButton'
 import { MenuButton } from './basic/Button/MenuButton'
 import { MonacoEditor } from './editor/MonacoEditor'
-import { TagsComponent } from './editor/TagsEditor'
+import { TagsEditor } from './editor/TagsEditor'
 import { TitleEditorComponent } from './editor/TitleEditor'
 import { getMonacoLangFromType, MIME } from '../../core/MimeType'
+import { HeaderEditor, HeaderEntry } from './editor/HeaderEditor'
+import { ItemHeader } from '../../core/BaseItem'
 
 export const ItemEditor = (props: {
   uri: string
@@ -19,11 +21,14 @@ export const ItemEditor = (props: {
   // split parts to edit: uri, title, type, tags
   const [uri, setUri] = useState(originalUri)
   const [title, setTitle] = useState(originalItem.title)
+  const [headerEntries, setHeaderEntries] = useState(headerToEntry(originalItem.header))
   const [type, setType] = useState(originalItem.type)
-  const [tags, setTags] = useState(originalItem.header.tags || [])
 
   // ref to monaco editor, contents are managed by monaco editor
   const monacoRef = useRef(null)
+  // ref to monaco editor container and resizer, used for resize
+  const moncaoContainerRef = useRef<HTMLDivElement>(null)
+  const resizerRef = useRef<HTMLDivElement>(null)
 
   const onSave = () => {
     saveCallback(uri, {
@@ -31,8 +36,10 @@ export const ItemEditor = (props: {
       content: monacoRef.current.getValue(),
       type: type,
       header: {
-        ...originalItem.header,
-        tags: tags,
+        author: originalItem.header.author,
+        createTime: originalItem.header.createTime || Date.now(),
+        modifyTime: Date.now(),
+        ...entryToHeader(headerEntries),
       },
       skinny: false,
       renderSync: false,
@@ -53,10 +60,17 @@ export const ItemEditor = (props: {
         <IconButton iconName="Accept" onClick={onSave} />
         <IconButton iconName="RevToggleKey" onClick={onCancel} />
       </TitleEditorComponent>
-      <div className="edit-item-content">
+      <div
+        className="kiwi-edit-item-content"
+        ref={moncaoContainerRef}
+        onDragOver={evt => {
+          evt.preventDefault()
+        }}
+      >
         <MonacoEditor
           language={getMonacoLangFromType(type)}
           defaultValue={originalItem.content || ''}
+          automaticLayout={true}
           options={{
             lineDecorationsWidth: 0,
             wordWrap: 'on',
@@ -71,46 +85,54 @@ export const ItemEditor = (props: {
           }}
         />
       </div>
-      <div className="item-bottom-bar" style={{ minHeight: 35 }}>
-        <div
-          className="item-type"
-          style={{
-            width: isMobile ? '24vw' : 110,
-            height: isMobile ? '10vw' : 33,
-            float: 'left',
-          }}
-        >
-          <MenuButton
-            name={type.slice(5)}
-            style={{
-              width: '100%',
-              height: '100%',
-              border: '1px solid var(--lineColor)',
-            }}
-            menuProps={{
-              items: ['text/markdown', 'text/asciidoc', 'text/plain', 'text/wikitext'].map(tp => {
-                return {
-                  id: tp,
-                  text: tp.slice(5),
-                  onClick: it => {
-                    setType(it.id as MIME)
-                  },
-                }
-              }),
-              styles: {
-                text: {
-                  // height: 35,
-                  paddingLeft: 5,
-                  paddingRight: 5,
-                },
-              },
-            }}
-          />
-        </div>
-        <div className="item-tags">
-          <TagsComponent tags={tags} setTags={setTags} />
-        </div>
+      <div
+        ref={resizerRef}
+        style={{ width: '100%', height: 5, backgroundColor: 'var(--blockColorLight)', cursor: 'n-resize' }}
+        draggable={false}
+        onMouseDown={evt => {
+          const yDif = evt.pageY - (resizerRef.current.getBoundingClientRect().top + window.scrollY)
+          const onResizeMouseMove = (mvEvt: MouseEvent) => {
+            const c: HTMLDivElement = moncaoContainerRef.current
+            c.style.height = `${mvEvt.pageY - (c.getBoundingClientRect().top + window.scrollY) - yDif}px`
+            monacoRef.current.layout()
+          }
+          window.addEventListener('mousemove', onResizeMouseMove)
+          window.addEventListener('mouseup', () => {
+            window.removeEventListener('mousemove', onResizeMouseMove)
+          })
+        }}
+      ></div>
+      <div className="item-header" style={{ minHeight: 35 }}>
+        <HeaderEditor type={type} setType={setType} entries={headerEntries} setEntries={setHeaderEntries} />
       </div>
     </div>
   )
+}
+
+const headerToEntry = (header: ItemHeader): HeaderEntry[] => {
+  const { author, createTime, modifyTime, ...custom } = header
+  const entries = Object.entries(custom)
+    .map(data => {
+      const [key, val] = data
+      if (Array.isArray(val)) {
+        return { name: key, type: 'list', value: val }
+      } else if (typeof val === 'number') {
+        return { name: key, type: 'number', value: val }
+      } else {
+        return { name: key, type: 'string', value: val }
+      }
+    })
+    .sort((a, b) => (a.name > b.name ? 1 : -1))
+  return entries
+}
+
+const entryToHeader = (entries: HeaderEntry[]): ItemHeader => {
+  return entries.reduce((acc, cur) => {
+    console.log(cur)
+    if (cur.type === 'number') {
+      cur.value = Number(cur.value)
+    }
+    acc[cur.name] = cur.value
+    return acc
+  }, {})
 }

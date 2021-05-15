@@ -81,6 +81,7 @@ export class ItemManager {
   async saveItem(uri: string, item: ClientItem): Promise<ClientItem> {
     const rendered = await putItem(uri, item)
     this.items[uri] = rendered
+    this.generateTagMap()
     return rendered
   }
 
