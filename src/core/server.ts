@@ -126,6 +126,11 @@ const serve = function serve(port: number, rootFolder: string) {
     const uri = decodeURIComponent(trimString(req.originalUrl.trim(), '/'))
     logger.debug(`get static: ${uri}`)
     const it = await manager.getItem(uri, req.cookies.token)
+    if (it.type === 'image/svg+xml') {
+      // svg is the only served non-binary item
+      res.type('svg').send(it.content)
+      return
+    }
     if (!isBinaryType(it.type)) {
       // only binary items get served
       res.status(404).send(`uri ${uri} not found`)
@@ -136,7 +141,7 @@ const serve = function serve(port: number, rootFolder: string) {
       res.sendFile(it.contentFilePath)
       return
     }
-    // no file, can only pipe the stream now, maybe slow, and no positioning supported (maybe later)
+    // no file, can only pipe the stream now, maybe slow, and no positioning supported (cumbersome)
     res.set('Content-Type', it.type)
     it.getContentStream!().pipe(res)
   })
