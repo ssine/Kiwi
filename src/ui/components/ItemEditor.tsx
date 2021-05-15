@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react'
 import { ClientItem } from '../ClientItem'
-import { getEmPixels, isMobile, setToNewArray, watchElementResize } from '../Common'
+import { getEmPixels, isMobile, setToNewArray } from '../Common'
 import { IconButton } from './basic/Button/IconButton'
 import { MenuButton } from './basic/Button/MenuButton'
 import { MonacoEditor } from './editor/MonacoEditor'

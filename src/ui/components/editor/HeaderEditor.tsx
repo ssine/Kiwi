@@ -4,8 +4,6 @@ import { isMobile } from '../../Common'
 import { IconButton } from '../basic/Button/IconButton'
 import { Input } from '../basic/Input/Input'
 import { TagsEditor } from './TagsEditor'
-import Select, { Option, OptGroup } from 'rc-Select'
-import KSelect from '../basic/Select/Select'
 
 export type HeaderEntry = {
   name: string
@@ -88,7 +86,6 @@ export const HeaderEditor = (props: {
         )
     }
   }
-  return <KSelect />
   return (
     <>
       <div key={'type'} style={rowStyle}>
@@ -102,29 +99,29 @@ export const HeaderEditor = (props: {
             }}
           />
         </div>
-        <Select className="kiwi-select" disabled={true}>
-          <Option value="enum">enum</Option>
-        </Select>
-        <Select
+        <select className="kiwi-select" disabled={true}>
+          <option value="enum">enum</option>
+        </select>
+        <select
           className="kiwi-select"
           value={type}
           onChange={value => {
-            setType(value as MIME)
+            setType(value.target.value as MIME)
           }}
         >
           {['content', 'code'].map(group => {
             const types = getMimesWhichPropEquals('editorClass', group)
             return (
-              <OptGroup key={group} label={group}>
+              <optgroup key={group} label={group}>
                 {types.map(type => (
-                  <Option key={type} value={type} className="kiwi-select-option">
+                  <option key={type} value={type} className="kiwi-select-option">
                     {type}
-                  </Option>
+                  </option>
                 ))}
-              </OptGroup>
+              </optgroup>
             )
           })}
-        </Select>
+        </select>
       </div>
       {entries.map((entry, idx) => (
         <div key={idx} style={rowStyle}>
@@ -138,25 +135,25 @@ export const HeaderEditor = (props: {
               }}
             />
           </div>
-          <Select
+          <select
             className="kiwi-select"
             value={entry.type}
             onChange={value => {
-              entry.type = value
+              entry.type = value.target.value
               setEntries([...entries])
             }}
             // style={typeStyle}
           >
-            <Option className="kiwi-select-option" value="string">
+            <option className="kiwi-select-option" value="string">
               string
-            </Option>
-            <Option className="kiwi-select-option" value="number">
+            </option>
+            <option className="kiwi-select-option" value="number">
               number
-            </Option>
-            <Option className="kiwi-select-option" value="list">
+            </option>
+            <option className="kiwi-select-option" value="list">
               list
-            </Option>
-          </Select>
+            </option>
+          </select>
           {renderEntryValue(entry)}
           <IconButton
             onClick={() => {
