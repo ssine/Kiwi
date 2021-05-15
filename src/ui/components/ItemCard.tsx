@@ -18,6 +18,7 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
 
   useEffect(() => {
     eventBus.on('item-link-clicked', scrollToSelf)
+    scrollToSelf({ targetURI: props.uri })
     return () => eventBus.off('item-link-clicked', scrollToSelf)
   }, [])
 
