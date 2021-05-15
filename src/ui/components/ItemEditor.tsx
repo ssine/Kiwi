@@ -87,7 +87,7 @@ export const ItemEditor = (props: {
       </div>
       <div
         ref={resizerRef}
-        style={{ width: '100%', height: 5, backgroundColor: 'var(--blockColorLight)', cursor: 'n-resize' }}
+        style={{ width: '100%', height: 3, backgroundColor: 'var(--blockColorLight)', cursor: 'n-resize' }}
         draggable={false}
         onMouseDown={evt => {
           const yDif = evt.pageY - (resizerRef.current.getBoundingClientRect().top + window.scrollY)
@@ -128,7 +128,7 @@ const headerToEntry = (header: ItemHeader): HeaderEntry[] => {
 
 const entryToHeader = (entries: HeaderEntry[]): ItemHeader => {
   return entries.reduce((acc, cur) => {
-    console.log(cur)
+    if (!cur.name) return acc
     if (cur.type === 'number') {
       cur.value = Number(cur.value)
     }

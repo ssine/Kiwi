@@ -5,7 +5,7 @@ import { PrimaryButton } from './basic/Button/PrimaryButton'
 import { IconButton } from './basic/Button/IconButton'
 import { getCookie, isLinkInternal, isMobile } from '../Common'
 import { eventBus } from '../eventBus'
-import { resolveURI } from '../../core/Common'
+import { resolveURI, timeFormat } from '../../core/Common'
 import { MenuButton } from './basic/Button/MenuButton'
 import { AttachDirection, Callout } from './basic/Callout/Callout'
 import { ItemManager } from '../ItemManager'
@@ -58,7 +58,7 @@ export const ItemDisplay = (props: {
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          width: '100%'
+          width: '100%',
         }}
       >
         <div style={{ flexGrow: 1, minWidth: 0 }}>
@@ -103,6 +103,13 @@ export const ItemDisplay = (props: {
         </h2>
       </div>
       <div className="item-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: item.renderedHTML }} />
+      <div className="item-info" style={{ color: 'grey', paddingLeft: 20 }}>
+        {item.header.author && item.header.createTime && 'Created '}
+        {item.header.author && `by ${item.header.author} `}
+        {item.header.createTime && `at ${timeFormat('YYYY-MM-DD HH:mm:ss', new Date(item.header.createTime))}`}
+        {item.header.modifyTime &&
+          `. Last modification: ${timeFormat('YYYY-MM-DD HH:mm:ss', new Date(item.header.modifyTime))}`}
+      </div>
       <div className="item-tags">
         {item.header.tags?.map(tag => {
           const menuProps = manager.tagMap[tag]?.map(tagUri => {

@@ -3,6 +3,7 @@ import { getMimesWhichPropEquals, MIME } from '../../../core/MimeType'
 import { isMobile } from '../../Common'
 import { IconButton } from '../basic/Button/IconButton'
 import { Input } from '../basic/Input/Input'
+import { Select } from '../basic/Select/Select'
 import { TagsEditor } from './TagsEditor'
 
 export type HeaderEntry = {
@@ -19,13 +20,13 @@ const rowStyle: CSSProperties = {
   alignItems: 'center',
   width: '100%',
   height: HEIGHT,
-  paddingTop: 1,
-  paddingBottom: 1,
 }
 
 const nameStyle: CSSProperties = {
   height: '100%',
   border: 'none',
+  outline: 'none',
+  paddingBottom: '2px black',
 }
 
 const typeStyle: CSSProperties = {
@@ -38,6 +39,7 @@ const valueStyle: CSSProperties = {
   display: 'flex',
   height: '100%',
   flex: `0 0 calc(70% - ${HEIGHT})`,
+  alignItems: 'center',
   border: 'none',
 }
 
@@ -54,7 +56,7 @@ export const HeaderEditor = (props: {
       case 'string':
         return (
           <Input
-            style={valueStyle}
+            style={{ width: '100%', height: '100%' }}
             value={entry.value as string}
             onChange={val => {
               entry.value = val
@@ -65,7 +67,7 @@ export const HeaderEditor = (props: {
       case 'number':
         return (
           <Input
-            style={valueStyle}
+            style={{ width: '100%', height: '100%' }}
             value={String(entry.value) || ''}
             onChange={val => {
               entry.value = val
@@ -76,7 +78,7 @@ export const HeaderEditor = (props: {
       case 'list':
         return (
           <TagsEditor
-            style={valueStyle}
+            style={{ display: 'flex', flexDirection: 'row', height: '90%' }}
             tags={entry.value as string[]}
             setTags={tags => {
               entry.value = tags
@@ -89,25 +91,18 @@ export const HeaderEditor = (props: {
   return (
     <>
       <div key={'type'} style={rowStyle}>
-        <div className="item-header-name" style={{ width: '20%' }}>
-          <Input
-            style={nameStyle}
-            value="type"
-            disabled={true}
-            onChange={val => {
-              setType(val as MIME)
-            }}
-          />
+        <div className="item-header-name" style={{ width: '20%', height: '100%' }}>
+          <Input style={{ height: '100%' }} disabled={true} value="type" />
         </div>
-        <select className="kiwi-select" disabled={true}>
+        <Select value="enum" disabled={true} style={typeStyle}>
           <option value="enum">enum</option>
-        </select>
-        <select
-          className="kiwi-select"
+        </Select>
+        <Select
           value={type}
-          onChange={value => {
-            setType(value.target.value as MIME)
+          onSelect={value => {
+            setType(value as MIME)
           }}
+          style={valueStyle}
         >
           {['content', 'code'].map(group => {
             const types = getMimesWhichPropEquals('editorClass', group)
@@ -121,13 +116,14 @@ export const HeaderEditor = (props: {
               </optgroup>
             )
           })}
-        </select>
+        </Select>
+        <IconButton disabled={true} styles={{ root: { height: '100%', width: HEIGHT } }} iconName="Delete" />
       </div>
       {entries.map((entry, idx) => (
         <div key={idx} style={rowStyle}>
-          <div className="item-header-name" style={{ width: '20%' }}>
+          <div className="item-header-name" style={{ width: '20%', height: '100%' }}>
             <Input
-              style={nameStyle}
+              style={{ height: '100%' }}
               value={entry.name}
               onChange={val => {
                 entry.name = val
@@ -135,26 +131,21 @@ export const HeaderEditor = (props: {
               }}
             />
           </div>
-          <select
-            className="kiwi-select"
+          <Select
             value={entry.type}
-            onChange={value => {
-              entry.type = value.target.value
+            onSelect={value => {
+              entry.type = value
               setEntries([...entries])
             }}
-            // style={typeStyle}
+            style={typeStyle}
           >
-            <option className="kiwi-select-option" value="string">
-              string
-            </option>
-            <option className="kiwi-select-option" value="number">
-              number
-            </option>
-            <option className="kiwi-select-option" value="list">
-              list
-            </option>
-          </select>
-          {renderEntryValue(entry)}
+            <option value="string">string</option>
+            <option value="number">number</option>
+            <option value="list">list</option>
+          </Select>
+          <div className="item-header-value" style={valueStyle}>
+            {renderEntryValue(entry)}
+          </div>
           <IconButton
             onClick={() => {
               entries.splice(idx, 1)

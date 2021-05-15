@@ -85,7 +85,7 @@ export const TagsEditor = (props: { tags: string[]; setTags: (tags: string[]) =>
         iconName="Add"
         styles={{
           root: {
-            height: isMobile ? '10vw' : 35,
+            height: '100%',
             width: isMobile ? '10vw' : 35,
             fontSize: isMobile ? '1.5rem' : 'inherit',
           },

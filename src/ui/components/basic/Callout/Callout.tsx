@@ -9,6 +9,7 @@ type CalloutProperty = {
   alignWidth?: boolean
   onDismiss?: (ev?: any) => void
   style?: React.CSSProperties
+  wrapperStyle?: React.CSSProperties
   content?: React.ReactNode
 }
 
@@ -135,7 +136,9 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
     )
     return (
       <>
-        <div ref={this.target}>{this.props.children}</div>
+        <div ref={this.target} style={this.props.wrapperStyle}>
+          {this.props.children}
+        </div>
         {this.props.visible &&
           ReactDOM.createPortal(
             <div className="kiwi-callout" style={style} ref={this.content}>

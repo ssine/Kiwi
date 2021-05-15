@@ -182,12 +182,7 @@ frame {
   float: right;
 }
 
-.item-header-name {
-  flex: 0 0 20%;
-}
-
 .item-uri-edit,
-.item-header-name,
 .item-title-edit {
   display: flex;
   flex-direction: column;
@@ -212,7 +207,6 @@ frame {
 }
 
 .item-uri-edit input,
-.item-header-name input,
 .item-title-edit input {
   font-size: 1.6rem;
   padding-left: 10px;
@@ -221,19 +215,16 @@ frame {
 }
 
 .item-uri-edit input:hover,
-.item-header-name input:hover,
 .item-title-edit input:hover {
   outline: none;
 }
 
 .item-uri-edit input:focus,
-.item-header-name input:focus,
 .item-title-edit input:focus {
   outline: none;
 }
 
 .item-uri-edit::after,
-.item-header-name::after,
 .item-title-edit::after {
   content: '';
   width: 75%;
@@ -243,13 +234,11 @@ frame {
 }
 
 .item-uri-edit:hover::after,
-.item-header-name:hover::after,
 .item-title-edit:hover::after {
   width: 100%;
 }
 
 .item-uri-edit:focus-within::after,
-.item-header-name:focus-within::after,
 .item-title-edit:focus-within::after {
   background-color: var(--lineColor);
   width: 100%;
