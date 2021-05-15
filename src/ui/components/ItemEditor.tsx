@@ -9,6 +9,10 @@ import { TitleEditorComponent } from './editor/TitleEditor'
 import { getMonacoLangFromType, MIME } from '../../core/MimeType'
 import { HeaderEditor, HeaderEntry } from './editor/HeaderEditor'
 import { ItemHeader } from '../../core/BaseItem'
+import { resolveURI, timeFormat } from '../../core/Common'
+import { ItemManager } from '../ItemManager'
+
+const manager = ItemManager.getInstance()
 
 export const ItemEditor = (props: {
   uri: string
@@ -29,6 +33,35 @@ export const ItemEditor = (props: {
   // ref to monaco editor container and resizer, used for resize
   const moncaoContainerRef = useRef<HTMLDivElement>(null)
   const resizerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    moncaoContainerRef.current.addEventListener('paste', async ev => {
+      const files = ev.clipboardData.files
+      if (files && files.length > 0) {
+        for (let idx = 0; idx < files.length; idx++) {
+          const file = files[idx]
+          if (file.type.indexOf('image') !== -1) {
+            const ext = file.name.match(/\.\S+?$/)[0].substr(1)
+            const fn = `asset/${timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())}.${ext}`
+            await manager.saveItem(
+              resolveURI(uri, fn),
+              {
+                title: 'Autouploaded Image',
+                skinny: true,
+                type: file.type as MIME,
+                header: {},
+                renderSync: false,
+                renderedHTML: '',
+              },
+              file
+            )
+            monacoRef.current.trigger('keyboard', 'type', { text: `![img](${fn})` })
+            ev.preventDefault()
+          }
+        }
+      }
+    })
+  }, [])
 
   const onSave = () => {
     saveCallback(uri, {

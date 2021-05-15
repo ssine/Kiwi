@@ -1,7 +1,9 @@
 import { suggestedURIToTitle } from '../core/Common'
 import { ItemNotExistsError } from '../core/Error'
-import { deleteItem, getItem, getSkinnyItems, getSystemItems, putItem } from './api'
+import { isBinaryType } from '../core/MimeType'
+import { deleteItem, getItem, getSkinnyItems, getSystemItems, putBinaryItem, putItem } from './api'
 import { ClientItem } from './ClientItem'
+import { eventBus } from './eventBus'
 
 export type UriNode = {
   // absolute uri of this node
@@ -75,13 +77,23 @@ export class ItemManager {
         await deleteItem(uri)
       }
       delete this.items[uri]
+      this.generateTagMap()
+      this.generateUriTree()
+      eventBus.emit('item-deleted')
     }
   }
 
-  async saveItem(uri: string, item: ClientItem): Promise<ClientItem> {
-    const rendered = await putItem(uri, item)
+  async saveItem(uri: string, item: ClientItem, file?: File): Promise<ClientItem> {
+    let rendered: ClientItem
+    if (isBinaryType(item.type)) {
+      rendered = await putBinaryItem(uri, item, file)
+    } else {
+      rendered = await putItem(uri, item)
+    }
     this.items[uri] = rendered
     this.generateTagMap()
+    this.generateUriTree()
+    eventBus.emit('item-saved')
     return rendered
   }
 

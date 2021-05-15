@@ -14,11 +14,19 @@ type NodeState = {
 
 const INDENT_WIDTH = 15
 
+const getState = () => generateNodeState(Object.keys(Object.assign({}, manager.systemItems, manager.items)))
+
 // TODO: update tree on items change
 export const IndexTree = () => {
-  const [root, setRoot] = useState(
-    generateNodeState(Object.keys(Object.assign({}, manager.systemItems, manager.items)))
-  )
+  const [root, setRoot] = useState(getState())
+
+  useEffect(() => {
+    eventBus.on('item-tree-changed', () => {
+      setRoot(oldRoot => {
+        return assignNodeState(getState(), oldRoot)
+      })
+    })
+  }, [])
 
   const _renderTree = (node: NodeState, level: number): JSX.Element[] => {
     let nodeList = []
@@ -120,4 +128,5 @@ const assignNodeState = (toState: NodeState, fromState: NodeState) => {
     if (filtered.length === 0) return
     assignNodeState(filtered[0], fs)
   })
+  return toState
 }
