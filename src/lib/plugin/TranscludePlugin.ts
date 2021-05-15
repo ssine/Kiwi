@@ -1,6 +1,6 @@
 import { resolveURI } from '../../core/Common'
-import { ItemManager } from '../../core/ItemManager'
 import { RenderPlugin } from '../../core/Plugin'
+import { ScriptApi } from '../../core/ScriptApi'
 
 export default class TranscludePlugin extends RenderPlugin {
   init() {}
@@ -15,7 +15,7 @@ export default class TranscludePlugin extends RenderPlugin {
       if (targetURI === uri) {
         return 'direct cyclic transclude detected!'
       }
-      const it = await ItemManager.getInstance().getItem(targetURI, '')
+      const it = await ScriptApi.getItem(targetURI)
       if (!it) return "Item to transclude doesn't exist!"
       return it.content || ''
     }

@@ -32,16 +32,18 @@ export class ItemManager {
     await Promise.all(Object.entries(await this.systemStorage.getAllItems()).map(entry => renderItem(...entry)))
   }
 
-  async getItem(uri: string, token: string): Promise<ServerItem> {
+  async getItem(uri: string, token: string, noAuth?: boolean): Promise<ServerItem> {
     const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))!
     if (!item) throw new ItemNotExistsError('')
-    if (!this.auth.hasReadPermission(token, item)) throw new NoReadPermissionError(`no read permission to ${uri}!`)
+    if (!noAuth && !this.auth.hasReadPermission(token, item))
+      throw new NoReadPermissionError(`no read permission to ${uri}!`)
     return item
   }
 
-  async putItem(uri: string, item: ServerItem, token: string): Promise<ServerItem> {
+  async putItem(uri: string, item: ServerItem, token: string, noAuth?: boolean): Promise<ServerItem> {
     const previousItem = await this.storage.getItem(uri)
-    if (previousItem && !this.auth.hasWritePermission(token, previousItem)) throw new NoWritePermissionError()
+    if (previousItem && !noAuth && !this.auth.hasWritePermission(token, previousItem))
+      throw new NoWritePermissionError()
     const author = this.auth.getUserNameFromToken(token)
     if (!item.header.author && author !== 'anonymous') {
       item.header.author = author
@@ -49,15 +51,19 @@ export class ItemManager {
     return await this.storage.putItem(uri, item)
   }
 
-  async deleteItem(uri: string, token: string): Promise<void> {
+  async deleteItem(uri: string, token: string, noAuth?: boolean): Promise<void> {
     const item = await this.storage.getItem(uri)
     if (!item) throw new ItemNotExistsError()
-    if (!this.auth.hasWritePermission(token, item)) throw new NoWritePermissionError()
+    if (!noAuth && !this.auth.hasWritePermission(token, item)) throw new NoWritePermissionError()
     return this.storage.deleteItem(uri)
   }
 
   async getSystemItems(): Promise<Record<string, ServerItem>> {
     return this.systemStorage.getAllItems()
+  }
+
+  async getAllItems(): Promise<Record<string, ServerItem>> {
+    return this.storage.getAllItems()
   }
 
   async getSkinnyItems(): Promise<Record<string, Partial<ServerItem>>> {
