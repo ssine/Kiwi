@@ -14,7 +14,7 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
   const item = ItemManager.getInstance().getItem(props.uri)
   const [mode, setMode] = useState(item.new ? 'edit' : 'display')
   const lastPositoinRef = useRef({ left: 0, top: 0 })
-  const ref = useRef()
+  const ref = useRef<HTMLDivElement>()
 
   useEffect(() => {
     eventBus.on('item-link-clicked', scrollToSelf)
@@ -55,6 +55,18 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
             onClose={async () => {
               await slideOut(ref.current)
               props.onClose()
+            }}
+            onPrint={() => {
+              const oldId = ref.current.id
+              ref.current.id = 'kiwi-item-printing'
+              const styleEl = document.createElement('style')
+              styleEl.innerHTML = printHidingCSS
+              document.head.append(styleEl)
+              setTimeout(() => {
+                window.print()
+                ref.current.id = oldId
+                styleEl.remove()
+              }, 100)
             }}
           />
         )
@@ -178,3 +190,25 @@ const smoothLayoutChange = async (el: HTMLElement, lastPosition: { left: number;
   const dy = lastPosition.top - newPosition.top
   await FLIPOperation(el, 0, dy)
 }
+
+const printHidingCSS = `
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #kiwi-item-printing,
+  #kiwi-item-printing * {
+    visibility: visible;
+  }
+  #kiwi-item-printing {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none;
+  }
+  .item-controls {
+    display: none !important;
+  }
+}
+`

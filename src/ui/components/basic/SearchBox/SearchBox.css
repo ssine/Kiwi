@@ -65,9 +65,8 @@
   justify-content: center;
   color: var(--lineColor);
   background-color: white;
-  opacity: 1.0;
-  transition: opacity 0.167s ease 0s,
-    width 0.167s ease 0s;
+  opacity: 1;
+  transition: opacity 0.167s ease 0s, width 0.167s ease 0s;
 }
 
 .kiwi-searchbox-clear-wrapper {

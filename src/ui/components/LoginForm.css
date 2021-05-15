@@ -37,12 +37,11 @@
 }
 
 .kiwi-login-input::after {
-  content: "";
+  content: '';
   width: 75%;
   height: 2px;
   background-color: var(--blockColorLight);
-  transition: width 200ms ease-in-out,
-    background-color 200ms ease-in-out;
+  transition: width 200ms ease-in-out, background-color 200ms ease-in-out;
 }
 
 .kiwi-login-input:hover::after {

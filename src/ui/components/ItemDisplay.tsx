@@ -19,8 +19,9 @@ export const ItemDisplay = (props: {
   onBeginEdit: () => void
   onClose: () => void
   onDelete: () => void
+  onPrint: () => void
 }) => {
-  const { uri, item, onBeginEdit, onClose, onDelete } = props
+  const { uri, item, onBeginEdit, onClose, onDelete, onPrint } = props
   const [deleteCalloutVisible, setDeleteCalloutVisible] = useState(false)
   const contentRef = useRef()
 
@@ -36,6 +37,12 @@ export const ItemDisplay = (props: {
       onClick: () => {
         navigator.clipboard.writeText(`${window.location.origin}/#${uri}`)
       },
+    },
+    {
+      id: 'Print Item',
+      text: 'Print Item',
+      iconName: 'Print',
+      onClick: onPrint,
     },
   ]
   if (getCookie('token') !== '') {
