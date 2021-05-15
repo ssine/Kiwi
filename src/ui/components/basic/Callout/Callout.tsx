@@ -129,7 +129,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
   render() {
     const style = Object.assign(
       {},
-      this.target.current ? calculatePosition(this.target.current, this.props.direction) : {},
+      this.target.current ? calculatePosition(this.target.current, this.state.direction) : {},
       this.props.alignWidth && this.target.current ? { width: this.target.current.clientWidth } : {},
       this.props.style
     )
