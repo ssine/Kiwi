@@ -7,7 +7,6 @@ import { getSearchResult } from '../api'
 export const SearchBar = () => {
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState([])
-  console.log(isSearching)
 
   return (
     <Callout

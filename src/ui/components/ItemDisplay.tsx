@@ -111,9 +111,9 @@ export const ItemDisplay = (props: {
       </div>
       <div className="item-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: item.renderedHTML }} />
       <div className="item-info" style={{ color: 'grey', paddingLeft: 20 }}>
-        {item.header.author && item.header.createTime && 'Created '}
-        {item.header.author && `by ${item.header.author} `}
-        {item.header.createTime && `at ${timeFormat('YYYY-MM-DD HH:mm:ss', new Date(item.header.createTime))}`}
+        {(item.header.author || item.header.createTime) && 'Created'}
+        {item.header.author && ` by ${item.header.author}`}
+        {item.header.createTime && ` at ${timeFormat('YYYY-MM-DD HH:mm:ss', new Date(item.header.createTime))}`}
         {item.header.modifyTime &&
           `. Last modification: ${timeFormat('YYYY-MM-DD HH:mm:ss', new Date(item.header.modifyTime))}`}
       </div>

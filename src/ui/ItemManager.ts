@@ -56,7 +56,9 @@ export class ItemManager {
     this.items[uri] = {
       title: suggestedURIToTitle(uri),
       type: 'text/markdown',
-      header: {},
+      header: {
+        createTime: Date.now(),
+      },
       content: '',
       skinny: false,
       renderSync: false,

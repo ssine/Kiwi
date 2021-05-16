@@ -70,7 +70,7 @@ export const ItemEditor = (props: {
       type: type,
       header: {
         author: originalItem.header.author,
-        createTime: originalItem.header.createTime || Date.now(),
+        createTime: originalItem.header.createTime,
         modifyTime: Date.now(),
         ...entryToHeader(headerEntries),
       },
