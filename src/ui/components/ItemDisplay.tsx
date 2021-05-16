@@ -56,6 +56,17 @@ export const ItemDisplay = (props: {
         })
       },
     })
+    dropdownItems.push({
+      id: 'Duplicate Item',
+      text: 'Duplicate Item',
+      iconName: 'Copy',
+      onClick: () => {
+        const newUri = manager.duplicateItem(uri)
+        eventBus.emit('item-link-clicked', {
+          targetURI: newUri,
+        })
+      },
+    })
   }
 
   return (

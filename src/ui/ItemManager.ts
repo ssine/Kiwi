@@ -68,6 +68,26 @@ export class ItemManager {
     return uri
   }
 
+  duplicateItem(uri: string): string {
+    const item = this.getItem(uri)
+    if (!item) throw new ItemNotExistsError(`item ${uri} not exists!`)
+    let cnt = 1
+    while (this.getItem(`${uri}${cnt}`)) {
+      cnt += 1
+    }
+    uri = `${uri}${cnt}`
+    this.items[uri] = {
+      ...item,
+      title: suggestedURIToTitle(uri),
+      header: {
+        ...item.header,
+        createTime: Date.now(),
+      },
+      new: true,
+    }
+    return uri
+  }
+
   // get item in sync for effciency, call ensureItemLoaded first
   getItem(uri: string): ClientItem | null {
     return this.items[uri] || this.systemItems[uri]
