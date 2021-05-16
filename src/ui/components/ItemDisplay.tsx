@@ -182,7 +182,7 @@ const contentPostProcess = async (contentEl: HTMLDivElement) => {
           evt.preventDefault()
           eventBus.emit('item-link-clicked', {
             // emitterURI: this.item.uri,
-            targetURI: el.href.baseVal,
+            targetURI: decodeURIComponent(el.href.baseVal),
           })
           return false
         }
@@ -191,6 +191,7 @@ const contentPostProcess = async (contentEl: HTMLDivElement) => {
       return
     }
     if (isLinkInternal(el)) {
+      const elUri = decodeURIComponent(el.getAttribute('href'))
       el.onclick = async evt => {
         evt.cancelBubble = true
         evt.stopPropagation()
@@ -198,12 +199,12 @@ const contentPostProcess = async (contentEl: HTMLDivElement) => {
         eventBus.emit('item-link-clicked', {
           // we have resolved all links on server side
           // emitterURI: this.item.uri,
-          targetURI: el.getAttribute('href'),
+          targetURI: elUri,
         })
         return false
       }
       el.classList.add('item-link')
-      if (!manager.hasItem(el.getAttribute('href'))) {
+      if (!manager.hasItem(elUri)) {
         el.classList.add('item-link-missing')
       }
     } else {

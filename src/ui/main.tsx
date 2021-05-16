@@ -9,12 +9,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { App } from './App'
 import { ItemManager } from './ItemManager'
-import { eventBus } from './eventBus'
-import * as common from './Common'
-import * as coreCommon from '../core/Common'
 import { setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
 import { pageConfigs } from '../boot/config'
-import { initMathjax, typesetMath } from './mathjax'
 import { ScriptApi } from './ScriptApi'
 
 window.onload = async () => {
