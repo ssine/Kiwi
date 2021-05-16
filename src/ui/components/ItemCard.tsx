@@ -13,6 +13,7 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
   // display / edit / save
   const item = ItemManager.getInstance().getItem(props.uri)
   const [mode, setMode] = useState(item.new ? 'edit' : 'display')
+  const [fullscreen, _setFullscreen] = useState(false)
   const lastPositoinRef = useRef({ left: 0, top: 0 })
   const ref = useRef<HTMLDivElement>()
 
@@ -27,6 +28,17 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
       const pos = getPositionToDocument(ref.current)
       scrollTo(pos.left, pos.top)
     }
+  }
+
+  const setFullscreen = (fsmode: boolean) => {
+    _setFullscreen(fsmode)
+    setTimeout(() => {
+      if (fsmode) {
+        scrollTo({ top: 0 })
+      } else {
+        scrollToSelf({ targetURI: props.uri })
+      }
+    }, 10)
   }
 
   useLayoutEffect(() => {
@@ -70,6 +82,8 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
                 styleEl.remove()
               }, 100)
             }}
+            fullscreen={fullscreen}
+            setFullscreen={setFullscreen}
           />
         )
       case 'edit':
@@ -99,6 +113,8 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
                 await rotateIn(ref.current)
               }
             }}
+            fullscreen={fullscreen}
+            setFullscreen={setFullscreen}
           />
         )
       case 'save':
@@ -109,7 +125,7 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
   }
 
   return (
-    <div className="item" ref={ref}>
+    <div className="item" id={fullscreen ? 'kiwi-fullscreen-item' : ''} ref={ref}>
       {render()}
     </div>
   )

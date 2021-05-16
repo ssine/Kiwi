@@ -19,8 +19,10 @@ export const ItemEditor = (props: {
   item: ClientItem
   onSave: (uri: string, item: ClientItem) => void
   onCancel: () => void
+  fullscreen: boolean
+  setFullscreen: (fullscreen: boolean) => void
 }) => {
-  const { uri: originalUri, item: originalItem, onSave: saveCallback, onCancel } = props
+  const { uri: originalUri, item: originalItem, onSave: saveCallback, onCancel, fullscreen, setFullscreen } = props
 
   // split parts to edit: uri, title, type, tags
   const [uri, setUri] = useState(originalUri)
@@ -90,6 +92,27 @@ export const ItemEditor = (props: {
       }}
     >
       <TitleEditorComponent uri={uri} setUri={setUri} title={title} setTitle={setTitle}>
+        {fullscreen ? (
+          <IconButton
+            iconName="FocusView"
+            onClick={() => {
+              setFullscreen(false)
+              setTimeout(() => {
+                monacoRef.current.layout()
+              }, 0)
+            }}
+          />
+        ) : (
+          <IconButton
+            iconName="FullView"
+            onClick={() => {
+              setFullscreen(true)
+              setTimeout(() => {
+                monacoRef.current.layout()
+              }, 0)
+            }}
+          />
+        )}
         <IconButton iconName="Accept" onClick={onSave} />
         <IconButton iconName="RevToggleKey" onClick={onCancel} />
       </TitleEditorComponent>

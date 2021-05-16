@@ -79,6 +79,12 @@
 .ms-Icon--FileImage:before {
   content: '\F311';
 }
+.ms-Icon--FocusView:before {
+  content: '\F1A3';
+}
+.ms-Icon--FullView:before {
+  content: '\F1A2';
+}
 .ms-Icon--GenericScan:before {
   content: '\EE6F';
 }

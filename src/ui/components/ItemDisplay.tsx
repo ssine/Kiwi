@@ -20,8 +20,10 @@ export const ItemDisplay = (props: {
   onClose: () => void
   onDelete: () => void
   onPrint: () => void
+  fullscreen: boolean
+  setFullscreen: (fullscreen: boolean) => void
 }) => {
-  const { uri, item, onBeginEdit, onClose, onDelete, onPrint } = props
+  const { uri, item, onBeginEdit, onClose, onDelete, onPrint, fullscreen, setFullscreen } = props
   const [deleteCalloutVisible, setDeleteCalloutVisible] = useState(false)
   const contentRef = useRef()
 
@@ -97,6 +99,11 @@ export const ItemDisplay = (props: {
         <div className="item-controls" style={{ display: 'flex' }}>
           {dropdownItems.length > 0 && (
             <MenuButton iconOnly={true} iconName="ChevronDown" menuProps={{ items: dropdownItems }} />
+          )}
+          {fullscreen ? (
+            <IconButton iconName="FocusView" onClick={() => setFullscreen(false)} />
+          ) : (
+            <IconButton iconName="FullView" onClick={() => setFullscreen(true)} />
           )}
           {getCookie('token') !== '' && (
             <>

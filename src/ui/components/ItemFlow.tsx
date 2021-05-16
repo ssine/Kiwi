@@ -22,6 +22,7 @@ export const ItemFlow = (props: { uris: string[]; dispatch: React.Dispatch<any> 
   }, [])
 
   const onDisplayItem = async (data: { targetURI: string }) => {
+    if (!manager.hasItem(data.targetURI)) return onCreateItem(data)
     await manager.ensureItemLoaded(data.targetURI)
     dispatch({ type: 'display', uri: data.targetURI })
   }
