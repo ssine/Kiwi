@@ -1,6 +1,7 @@
 import { getLogger } from './Log'
 import * as he from 'he'
 import * as vm from 'vm'
+import { ScriptApi } from './ScriptApi'
 
 const logger = getLogger('plugin')
 
@@ -49,10 +50,19 @@ class ItemContext {
 
   constructor(uri: string) {
     this.ctx = {}
+    const kiwi: Record<string, any> = { ...ScriptApi }
+    for (const name in pluginMap) {
+      kiwi[name] = pluginMap[name].getFunctionForItem(uri)
+    }
+    kiwi.uri = uri
+
+    // TODO: deprecated this
     for (const name in pluginMap) {
       this.ctx[name] = pluginMap[name].getFunctionForItem(uri)
     }
     this.ctx['currentURI'] = uri
+
+    this.ctx.kiwi = kiwi
     this.ctx.setTimeout = setTimeout
     this.ctx.console = console
     this.ctx.require = require

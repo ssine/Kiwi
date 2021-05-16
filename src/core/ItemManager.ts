@@ -3,7 +3,7 @@
  * @packageDocumentation
  */
 
-import { renderItem, ServerItem } from './ServerItem'
+import { ServerItem } from './ServerItem'
 import { AuthManager } from './AuthManager'
 import { getLogger } from './Log'
 import { usersURI } from '../boot/config'
@@ -22,14 +22,19 @@ export class ItemManager {
   systemStorage!: StorageProvider
   auth!: AuthManager
 
-  async init(storage: StorageProvider, systemStorage: StorageProvider, auth: AuthManager) {
+  async init(
+    storage: StorageProvider,
+    systemStorage: StorageProvider,
+    auth: AuthManager,
+    render: (uri: string, item: ServerItem) => Promise<void>
+  ) {
     this.storage = storage
     this.systemStorage = systemStorage
     this.auth = auth
     await this.systemStorage.init()
     await this.storage.init()
     this.auth.init((await this.storage.getItem(usersURI)) || (await this.systemStorage.getItem(usersURI))!)
-    await Promise.all(Object.entries(await this.systemStorage.getAllItems()).map(entry => renderItem(...entry)))
+    await Promise.all(Object.entries(await this.systemStorage.getAllItems()).map(entry => render(...entry)))
   }
 
   async getItem(uri: string, token: string, noAuth?: boolean): Promise<ServerItem> {

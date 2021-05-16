@@ -15,11 +15,12 @@ import { resolve } from 'path'
 import { trimString } from './Common'
 import * as fs from 'fs'
 import { ItemManager } from './ItemManager'
-import { renderItem, ServerItem } from './ServerItem'
+import { ServerItem } from './ServerItem'
 import { UploadFileError } from './Error'
 import { isBinaryType } from './MimeType'
 import { Readable } from 'stream'
 import { ClientItem } from '../ui/ClientItem'
+import { renderItem } from './render'
 
 const logger = getLogger('server')
 

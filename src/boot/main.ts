@@ -41,6 +41,7 @@ import SVGPlugin from '../lib/plugin/SVGPlugin'
 import CSSEscapePlugin from '../lib/plugin/CSSEscapePlugin'
 import { FilesystemStorage } from '../lib/storage/FilesystemStorage'
 import { AuthManager } from '../core/AuthManager'
+import { renderItem } from '../core/render'
 
 function registLib() {
   const md = new MarkdownParser()
@@ -84,7 +85,7 @@ async function run() {
     const systemStorage = new FilesystemStorage(path.resolve(__dirname, '../kiwi'), 'kiwi/')
     const auth = new AuthManager()
     const manager = ItemManager.getInstance()
-    await manager.init(storage, systemStorage, auth)
+    await manager.init(storage, systemStorage, auth, renderItem)
     serve(args.port, args.folder)
   }
 }
