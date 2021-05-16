@@ -11,7 +11,11 @@ export async function postJSON(url: string, data: Object): Promise<any> {
   })
   if (response.status !== 200) throw new Error('Request failed')
   const packet = await response.json()
-  if (packet.code !== 0) throw constructErrorFromCode(packet.code, packet.message)
+  if (packet.code !== 0) {
+    const err = constructErrorFromCode(packet.code, packet.message)
+    err.stack = packet.stack
+    throw err
+  }
   return packet.data
 }
 
@@ -27,7 +31,11 @@ async function postFile(url: string, data: Object, file: File): Promise<any> {
   })
   if (response.status !== 200) throw new Error('Request failed')
   const packet = await response.json()
-  if (packet.code !== 0) throw constructErrorFromCode(packet.code, packet.message)
+  if (packet.code !== 0) {
+    const err = constructErrorFromCode(packet.code, packet.message)
+    err.stack = packet.stack
+    throw err
+  }
   return packet.data
 }
 

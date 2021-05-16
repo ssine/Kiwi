@@ -151,6 +151,7 @@ const serve = function serve(port: number, rootFolder: string) {
     res.status(200).json({
       code: err.code || -1,
       message: err.message,
+      stack: err.stack,
     })
   }
   app.use(errorHandler)
