@@ -27,9 +27,9 @@ export const ItemDisplay = (props: {
   const [deleteCalloutVisible, setDeleteCalloutVisible] = useState(false)
   const contentRef = useRef()
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     contentPostProcess(contentRef.current)
-  })
+  }, [])
 
   const dropdownItems = [
     {
