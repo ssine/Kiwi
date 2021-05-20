@@ -169,7 +169,7 @@ export const ItemDisplay = (props: {
   )
 }
 
-const contentPostProcess = async (contentEl: HTMLDivElement) => {
+export const contentPostProcess = async (contentEl: HTMLDivElement) => {
   const links = contentEl.querySelectorAll('a')
   links.forEach((el: HTMLAnchorElement | SVGAElement) => {
     if (el instanceof SVGAElement) {
