@@ -4,7 +4,6 @@
  */
 import * as http from 'http'
 import * as express from 'express'
-import * as socketIO from 'socket.io'
 import * as bodyParser from 'body-parser'
 import * as cookieParser from 'cookie-parser'
 import * as fileUpload from 'express-fileupload'
@@ -26,7 +25,6 @@ const logger = getLogger('server')
 
 const app = express()
 const server = http.createServer(app)
-const io = socketIO(server)
 app.use(
   compression({
     filter: (req, res) => {
@@ -160,4 +158,4 @@ const serve = function serve(port: number, rootFolder: string) {
   server.listen(port, () => logger.info(`Server running on port ${port}`))
 }
 
-export { app, io, serve, itemRouteTable }
+export { app, serve, itemRouteTable }
