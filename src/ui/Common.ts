@@ -159,7 +159,7 @@ function setPageColors(hue: number) {
   rootStyle.setProperty('--areaColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.04, v: 0.98 })))
 }
 
-const isMobile = window.screen.width >= 1024 ? false : true
+const isMobile = window.screen.width >= 641 ? false : true
 
 // adapted from:
 /*! getEmPixels  | Author: Tyson Matanich (http://matanich.com), 2013 | License: MIT */

@@ -15,7 +15,7 @@
   background-color: var(--blockColor);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 641px) {
   .kiwi-contextual-menu-item-icon {
     height: 12vw;
     width: 12vw;
@@ -27,7 +27,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 641px) {
   .kiwi-contextual-menu-item-icon {
     width: 40px;
     height: 40px;

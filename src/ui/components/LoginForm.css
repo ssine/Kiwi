@@ -4,7 +4,7 @@
   align-items: center;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 641px) {
   .kiwi-login-input input {
     height: 1.5rem;
     width: 80vw;
@@ -12,7 +12,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 641px) {
   .kiwi-login-input input {
     height: 25px;
     width: 250px;

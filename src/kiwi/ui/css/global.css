@@ -57,7 +57,7 @@ button:active {
   color: white;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 641px) {
   :root {
     font-size: 4vw;
   }
@@ -80,7 +80,7 @@ button:active {
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 641px) {
   :root {
     font-size: 16px;
   }
@@ -192,14 +192,14 @@ frame {
   font-family: var(--sansSerifFont);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 641px) {
   .item-uri-edit input,
   .item-title-edit input {
     height: 12vw;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 641px) {
   .item-uri-edit input,
   .item-title-edit input {
     height: calc(100% - 2px);

@@ -1,4 +1,4 @@
-@media (max-width: 1024px) {
+@media (max-width: 641px) {
   .kiwi-icon-button {
     height: 12vw;
     width: 12vw;
@@ -6,7 +6,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 641px) {
   .kiwi-icon-button {
     height: 40px;
     width: 40px;

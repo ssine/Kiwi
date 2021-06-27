@@ -1,4 +1,4 @@
-@media (max-width: 1024px) {
+@media (max-width: 641px) {
   .kiwi-searchbox-wrapper {
     height: 2rem;
   }
@@ -12,7 +12,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 641px) {
   .kiwi-searchbox-wrapper {
     height: 32px;
   }

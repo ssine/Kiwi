@@ -1,10 +1,10 @@
-@media (max-width: 1024px) {
+@media (max-width: 641px) {
   .kiwi-menu-button {
     height: 10.5vw;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 641px) {
   .kiwi-menu-button {
     height: 35px;
   }
