@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, useState } from 'react'
 import { getSkinnyItems, getSystemItems } from './api'
 import { ClientItem } from './ClientItem'
 import { ItemFlow } from './components/ItemFlow'
+import { MessageList } from './components/MessageList'
 import { Sidebar } from './components/Sidebar'
 
 const reduceUris = (uris: string[], action: any) => {
@@ -34,6 +35,7 @@ export const App = () => {
 
   return (
     <div>
+      <MessageList />
       <Sidebar displaiedUris={uris} /> <ItemFlow uris={uris} dispatch={dispatch} />
     </div>
   )

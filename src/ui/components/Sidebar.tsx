@@ -1,5 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
-import { ClientItem } from '../ClientItem'
+import React, { useState } from 'react'
 import anime from 'animejs/lib/anime.es'
 import { getCookie, isMobile } from '../Common'
 import { IconButton } from './basic/Button/IconButton'

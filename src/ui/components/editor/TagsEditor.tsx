@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useReducer, useState } from 'react'
+import React, { CSSProperties, useState } from 'react'
 import { isMobile, setToNewArray } from '../../Common'
 import { IconButton } from '../basic/Button/IconButton'
 

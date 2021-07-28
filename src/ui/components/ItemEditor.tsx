@@ -1,16 +1,15 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ClientItem } from '../ClientItem'
-import { getEmPixels, isMobile, setToNewArray } from '../Common'
+import { getEmPixels } from '../Common'
 import { IconButton } from './basic/Button/IconButton'
-import { MenuButton } from './basic/Button/MenuButton'
 import { MonacoEditor } from './editor/MonacoEditor'
-import { TagsEditor } from './editor/TagsEditor'
 import { TitleEditorComponent } from './editor/TitleEditor'
 import { getMonacoLangFromType, MIME } from '../../core/MimeType'
 import { HeaderEditor, HeaderEntry } from './editor/HeaderEditor'
 import { ItemHeader } from '../../core/BaseItem'
 import { resolveURI, timeFormat } from '../../core/Common'
 import { ItemManager } from '../ItemManager'
+import { MessageType, showMessage } from './MessageList'
 
 const manager = ItemManager.getInstance()
 
@@ -45,6 +44,7 @@ export const ItemEditor = (props: {
           if (file.type.indexOf('image') !== -1) {
             const ext = file.name.match(/\.\S+?$/)[0].substr(1)
             const fn = `asset/${timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())}.${ext}`
+            showMessage(MessageType.info, `uploading image as ${fn}`, 3)
             await manager.saveItem(
               resolveURI(uri, fn),
               {
@@ -57,6 +57,7 @@ export const ItemEditor = (props: {
               },
               file
             )
+            showMessage(MessageType.success, `image saved to ${fn}`, 3)
             monacoRef.current.trigger('keyboard', 'type', { text: `![img](${fn})` })
             ev.preventDefault()
           }

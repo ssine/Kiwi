@@ -12,6 +12,7 @@ import { ItemManager } from './ItemManager'
 import { setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
 import { pageConfigs } from '../boot/config'
 import { ScriptApi } from './ScriptApi'
+import { eventBus } from './eventBus'
 
 window.onload = async () => {
   const manager = ItemManager.getInstance()
@@ -47,6 +48,8 @@ window.onload = async () => {
 
   // @ts-ignore
   window.kiwi = ScriptApi
+  // @ts-ignore
+  window.bus = eventBus
 }
 
 const initMonacoEditor = () => {

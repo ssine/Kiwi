@@ -3,6 +3,7 @@ import { ItemNotExistsError } from '../core/Error'
 import { isBinaryType } from '../core/MimeType'
 import { deleteItem, getItem, getSkinnyItems, getSystemItems, putBinaryItem, putItem } from './api'
 import { ClientItem } from './ClientItem'
+import { MessageType, showMessage } from './components/MessageList'
 import { eventBus } from './eventBus'
 
 export type UriNode = {
@@ -36,6 +37,7 @@ export class ItemManager {
       // system item, already pre-loaded
       if (Object.keys(this.systemItems).includes(uri)) return
       // not exists
+      showMessage(MessageType.error, `item ${uri} not exists!`, 5)
       throw new ItemNotExistsError(`item ${uri} not exists!`)
     }
     // exist, load it

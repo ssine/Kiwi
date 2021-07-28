@@ -1,8 +1,6 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect } from 'react'
 import { eventBus } from '../eventBus'
 import { ItemManager } from '../ItemManager'
-import { ItemDisplay } from './ItemDisplay'
-import { Breadcrumb } from './basic/Breadcrumb/Breadcrumb'
 import { ItemCard } from './ItemCard'
 import { defaultItemsURI } from '../../boot/config'
 

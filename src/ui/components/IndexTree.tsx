@@ -1,5 +1,5 @@
 import './IndexTree.css'
-import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { getEmPixels } from '../Common'
 import { eventBus } from '../eventBus'
 import { ItemManager } from '../ItemManager'
