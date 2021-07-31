@@ -7,6 +7,6 @@ export const ScriptApi = {
     return manager.getItem(uri, '', true)
   },
   getAllItems: async () => {
-    return manager.getAllItems()
+    return manager.getAllItems('', true)
   },
 }

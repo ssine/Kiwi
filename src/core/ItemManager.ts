@@ -9,6 +9,7 @@ import { getLogger } from './Log'
 import { usersURI } from '../boot/config'
 import { StorageProvider } from './Storage'
 import { ItemNotExistsError, NoReadPermissionError, NoWritePermissionError } from './Error'
+import { resolveURI } from './Common'
 
 const logger = getLogger('itemm')
 
@@ -38,17 +39,32 @@ export class ItemManager {
   }
 
   async getItem(uri: string, token: string, noAuth?: boolean): Promise<ServerItem> {
-    const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))!
-    if (!item) throw new ItemNotExistsError('')
-    if (!noAuth && !this.auth.hasReadPermission(token, item))
-      throw new NoReadPermissionError(`no read permission to ${uri}!`)
+    const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))
+    if (!item) throw new ItemNotExistsError(`item ${uri} not exists`)
+    if (!noAuth) {
+      // check read permission up to root
+      let uriToCheck = uri
+      while (uriToCheck) {
+        const itemToCheck = (await this.storage.getItem(uriToCheck)) || (await this.systemStorage.getItem(uriToCheck))
+        if (itemToCheck && !this.auth.hasReadPermission(token, itemToCheck))
+          throw new NoReadPermissionError(`no read permission to ${uri}!`)
+        uriToCheck = resolveURI(uriToCheck, '.')
+      }
+    }
     return item
   }
 
   async putItem(uri: string, item: ServerItem, token: string, noAuth?: boolean): Promise<ServerItem> {
-    const previousItem = await this.storage.getItem(uri)
-    if (previousItem && !noAuth && !this.auth.hasWritePermission(token, previousItem))
-      throw new NoWritePermissionError()
+    if (!noAuth) {
+      // check write permission up to root
+      let uriToCheck = uri
+      while (uriToCheck) {
+        const itemToCheck = await this.storage.getItem(uriToCheck)
+        if (itemToCheck && !this.auth.hasWritePermission(token, itemToCheck))
+          throw new NoWritePermissionError(`no write permission to ${uri}!`)
+        uriToCheck = resolveURI(uriToCheck, '.')
+      }
+    }
     const author = this.auth.getUserNameFromToken(token)
     if (!item.header.author && author !== 'anonymous') {
       item.header.author = author
@@ -58,7 +74,7 @@ export class ItemManager {
 
   async deleteItem(uri: string, token: string, noAuth?: boolean): Promise<void> {
     const item = await this.storage.getItem(uri)
-    if (!item) throw new ItemNotExistsError()
+    if (!item) throw new ItemNotExistsError(`item to delete (${uri}) not exists`)
     if (!noAuth && !this.auth.hasWritePermission(token, item)) throw new NoWritePermissionError()
     return this.storage.deleteItem(uri)
   }
@@ -67,12 +83,57 @@ export class ItemManager {
     return this.systemStorage.getAllItems()
   }
 
-  async getAllItems(): Promise<Record<string, ServerItem>> {
-    return this.storage.getAllItems()
+  async getAllItems(token: string, noAuth?: boolean): Promise<Record<string, ServerItem>> {
+    const items = await this.storage.getAllItems()
+    if (noAuth) return items
+
+    type Node = {
+      name: string
+      childs: Record<string, Node>
+    }
+
+    const bannedNodes: Node = { name: '', childs: {} }
+
+    const addNode = (uri: string) => {
+      let cur = bannedNodes
+      for (let name of uri.split('/')) {
+        if (cur.childs[name] && Object.keys(cur.childs).length === 0) break // a banned parent exists
+        if (!cur.childs[name]) {
+          cur.childs[name] = {
+            name: name,
+            childs: {},
+          }
+        }
+        cur = cur.childs[name]
+      }
+      if (Object.keys(cur.childs).length > 0) cur.childs = {}
+    }
+    const isBanned = (uri: string): boolean => {
+      let cur = bannedNodes
+      let name = ''
+      for (name of uri.split('/')) {
+        if (!cur.childs[name]) {
+          if (cur.name === '') return false
+          if (Object.keys(cur.childs).length === 0) {
+            return true
+          } else {
+            return false
+          }
+        }
+        cur = cur.childs[name]
+      }
+      return Object.keys(cur.childs).length === 0
+    }
+
+    Object.entries(items)
+      .filter(([uri, item]) => !this.auth.hasReadPermission(token, item))
+      .forEach(([uri, item]) => addNode(uri))
+
+    return Object.fromEntries(Object.entries(items).filter(([uri, item]) => !isBanned(uri)))
   }
 
-  async getSkinnyItems(): Promise<Record<string, Partial<ServerItem>>> {
-    const items = await this.storage.getAllItems()
+  async getSkinnyItems(token: string, noAuth?: boolean): Promise<Record<string, Partial<ServerItem>>> {
+    const items = await this.getAllItems(token, noAuth)
     const result: Record<string, Partial<ServerItem>> = {}
     for (const k in items) {
       const { content, renderedHTML, renderSync, getContentStream, ...rest } = items[k]
@@ -81,8 +142,8 @@ export class ItemManager {
     return result
   }
 
-  async getSearchResult(input: string): Promise<string[]> {
-    const items = await this.storage.getAllItems()
+  async getSearchResult(input: string, token: string, noAuth?: boolean): Promise<string[]> {
+    const items = await this.getAllItems(token, noAuth)
     const res: Record<string, ServerItem> = {}
     const pattern = new RegExp(input, 'gim')
     for (const k in items) {

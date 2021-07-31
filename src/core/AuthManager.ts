@@ -76,7 +76,9 @@ class AuthManager {
   }
 
   hasWritePermission(token: string, item: ServerItem): boolean {
+    if (!this.hasReadPermission(token, item)) return false
     const writer = this.getUserNameFromToken(token)
+    if (writer === 'anonymous') return false
     if (item.header.author === writer) return true
 
     const bannedWriters = new Set()

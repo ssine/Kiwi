@@ -108,7 +108,7 @@ const serve = function serve(port: number, rootFolder: string) {
   })
 
   app.post('/get-skinny-items', async (req, res) => {
-    const items = await manager.getSkinnyItems()
+    const items = await manager.getSkinnyItems(req.cookies.token)
     const result: Record<string, Partial<ClientItem>> = {}
     for (const [uri, item] of Object.entries(items)) {
       result[uri] = { ...item, skinny: true }
@@ -118,7 +118,7 @@ const serve = function serve(port: number, rootFolder: string) {
 
   app.post('/get-search-result', async (req, res) => {
     logger.info(`search request ${req.body.input} got`)
-    res.json(ok(await manager.getSearchResult(req.body.input)))
+    res.json(ok(await manager.getSearchResult(req.body.input, req.cookies.token)))
   })
 
   app.use(async (req, res, next) => {
