@@ -79,7 +79,7 @@ export const HeaderEditor = (props: {
         return (
           <TagsEditor
             style={{ display: 'flex', flexDirection: 'row', height: '90%' }}
-            tags={entry.value as string[]}
+            tags={Array.isArray(entry.value) ? entry.value : [String(entry.value)]}
             setTags={tags => {
               entry.value = tags
               setEntries([...entries])
