@@ -3,6 +3,7 @@ import { eventBus } from '../eventBus'
 import { ItemManager } from '../ItemManager'
 import { ItemCard } from './ItemCard'
 import { defaultItemsURI } from '../../boot/config'
+import { getCookie } from '../Common'
 
 const manager = ItemManager.getInstance()
 
@@ -20,7 +21,7 @@ export const ItemFlow = (props: { uris: string[]; dispatch: React.Dispatch<any> 
   }, [])
 
   const onDisplayItem = async (data: { targetURI: string }) => {
-    if (!manager.hasItem(data.targetURI)) return onCreateItem(data)
+    if (!manager.hasItem(data.targetURI) && getCookie('token') !== '') return onCreateItem(data)
     await manager.ensureItemLoaded(data.targetURI)
     dispatch({ type: 'display', uri: data.targetURI })
   }

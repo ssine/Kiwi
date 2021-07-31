@@ -3,7 +3,6 @@ import { ItemNotExistsError } from '../core/Error'
 import { isBinaryType } from '../core/MimeType'
 import { deleteItem, getItem, getSkinnyItems, getSystemItems, putBinaryItem, putItem } from './api'
 import { ClientItem } from './ClientItem'
-import { MessageType, showMessage } from './components/MessageList'
 import { eventBus } from './eventBus'
 
 export type UriNode = {
@@ -33,15 +32,13 @@ export class ItemManager {
   }
 
   async ensureItemLoaded(uri: string) {
-    if (!Object.keys(this.items).includes(uri)) {
-      // system item, already pre-loaded
-      if (Object.keys(this.systemItems).includes(uri)) return
-      // not exists
-      showMessage(MessageType.error, `item ${uri} not exists!`, 5)
-      throw new ItemNotExistsError(`item ${uri} not exists!`)
-    }
-    // exist, load it
-    if (this.items[uri].skinny) this.items[uri] = await getItem(uri)
+    // Make sure an item is loaded (with content available)
+    // item already loaded
+    if (uri in this.items && !this.items[uri].skinny) return
+    // system items are also loaded
+    if (!(uri in this.items) && uri in this.systemItems) return
+    // need fetching or not exists
+    this.items[uri] = await getItem(uri)
   }
 
   createItem(uri?: string): string {

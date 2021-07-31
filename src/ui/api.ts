@@ -1,5 +1,6 @@
 import { constructErrorFromCode } from '../core/Error'
 import { ClientItem } from './ClientItem'
+import { MessageType, showMessage } from './components/MessageList'
 
 export async function postJSON(url: string, data: Object): Promise<any> {
   const response = await fetch(url, {
@@ -14,6 +15,7 @@ export async function postJSON(url: string, data: Object): Promise<any> {
   if (packet.code !== 0) {
     const err = constructErrorFromCode(packet.code, packet.message)
     err.stack = packet.stack
+    showMessage(MessageType.error, packet.message, 5)
     throw err
   }
   return packet.data
@@ -34,6 +36,7 @@ async function postFile(url: string, data: Object, file: File): Promise<any> {
   if (packet.code !== 0) {
     const err = constructErrorFromCode(packet.code, packet.message)
     err.stack = packet.stack
+    showMessage(MessageType.error, packet.message, 5)
     throw err
   }
   return packet.data
