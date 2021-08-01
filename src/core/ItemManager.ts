@@ -97,7 +97,8 @@ export class ItemManager {
     const addNode = (uri: string) => {
       let cur = bannedNodes
       for (let name of uri.split('/')) {
-        if (cur.childs[name] && Object.keys(cur.childs).length === 0) break // a banned parent exists
+        // abort if a banned parent exists
+        if (cur.childs[name] && Object.keys(cur.childs[name].childs).length === 0) return
         if (!cur.childs[name]) {
           cur.childs[name] = {
             name: name,
@@ -106,7 +107,7 @@ export class ItemManager {
         }
         cur = cur.childs[name]
       }
-      if (Object.keys(cur.childs).length > 0) cur.childs = {}
+      cur.childs = {}
     }
     const isBanned = (uri: string): boolean => {
       let cur = bannedNodes
