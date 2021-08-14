@@ -93,7 +93,12 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
             item={item}
             onSave={async (newUri: string, newItem: ClientItem) => {
               await rotateOut(ref.current)
-              await manager.saveItem(newUri, newItem)
+              try {
+                await manager.saveItem(newUri, newItem)
+              } catch (err) {
+                await rotateIn(ref.current)
+                return
+              }
               if (props.uri !== newUri) {
                 await manager.deleteItem(props.uri)
                 props.onChange(newUri)
