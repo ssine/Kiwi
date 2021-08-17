@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import anime from 'animejs/lib/anime.es'
 import { FlowDisplayMode, getCookie, isMobile } from '../Common'
 import { IconButton } from './basic/Button/IconButton'
@@ -21,6 +21,7 @@ export const Sidebar = (props: {
   setDisplayMode: (mode: FlowDisplayMode) => void
   itemWidth: number
   setItemWidth: (w: number) => void
+  showSidebar: boolean
   setShowSidebar: (s: boolean) => void
   sidebarWidth: number
   setSidebarWidth: (w: number) => void
@@ -36,62 +37,30 @@ export const Sidebar = (props: {
     setSidebarWidth,
     displayMode,
     setDisplayMode,
+    showSidebar,
     setShowSidebar,
   } = props
 
-  const onSwitchClick = () => {
-    const switchEl = document.getElementsByClassName('kiwi-sidebar-switch')[0] as HTMLElement
-    const sidebarEl = document.getElementsByClassName('kiwi-sidebar')[0] as HTMLElement
-    if (sidebarEl.style.display === 'none') {
-      setShowSidebar(true)
-      anime({
-        targets: switchEl,
-        rotateY: 0,
-        duration: 200,
-        easing: 'linear',
-      })
-      sidebarEl.style.display = 'flex'
-      anime({
-        targets: sidebarEl,
-        opacity: 1,
-        duration: 200,
-        easing: 'linear',
-      })
-      anime({
-        targets: sidebarEl,
-        translateX: 0,
-        duration: 200,
-        easing: 'easeOutQuart',
-      })
-    } else {
-      setShowSidebar(false)
-      anime({
-        targets: switchEl,
-        rotateY: 180,
-        duration: 200,
-        easing: 'linear',
-      })
-      anime({
-        targets: sidebarEl,
-        translateX: -sidebarEl.clientWidth,
-        duration: 200,
-        easing: 'easeInQuart',
-      })
-      anime({
-        targets: sidebarEl,
-        opacity: 0,
-        duration: 200,
-        easing: 'linear',
-        complete: () => {
-          sidebarEl.style.display = 'none'
-        },
-      })
-    }
-  }
+  useEffect(() => {
+    // hide sidebar if its initially hidden
+    setTimeout(() => {
+      if (!showSidebar) {
+        const switchEl = document.getElementsByClassName('kiwi-sidebar-switch')[0] as HTMLElement
+        const sidebarEl = document.getElementsByClassName('kiwi-sidebar')[0] as HTMLElement
+        sidebarEl.style.display = 'none'
+        switchEl.style.transform = 'rotateY(180)'
+      }
+    }, 0)
+  }, [])
 
   return (
     <>
-      <div className="kiwi-sidebar-switch" onClick={onSwitchClick}>
+      <div
+        className="kiwi-sidebar-switch"
+        onClick={() => {
+          onSwitchClick(setShowSidebar)
+        }}
+      >
         <a>
           <i className="ms-Icon ms-Icon--DoubleChevronLeft" />
         </a>
@@ -186,4 +155,54 @@ export const Sidebar = (props: {
       </div>
     </>
   )
+}
+
+const onSwitchClick = (setShowSidebar: (v: boolean) => void) => {
+  const switchEl = document.getElementsByClassName('kiwi-sidebar-switch')[0] as HTMLElement
+  const sidebarEl = document.getElementsByClassName('kiwi-sidebar')[0] as HTMLElement
+  if (sidebarEl.style.display === 'none') {
+    setShowSidebar(true)
+    anime({
+      targets: switchEl,
+      rotateY: 0,
+      duration: 200,
+      easing: 'linear',
+    })
+    sidebarEl.style.display = 'flex'
+    anime({
+      targets: sidebarEl,
+      opacity: 1,
+      duration: 200,
+      easing: 'linear',
+    })
+    anime({
+      targets: sidebarEl,
+      translateX: 0,
+      duration: 200,
+      easing: 'easeOutQuart',
+    })
+  } else {
+    setShowSidebar(false)
+    anime({
+      targets: switchEl,
+      rotateY: 180,
+      duration: 200,
+      easing: 'linear',
+    })
+    anime({
+      targets: sidebarEl,
+      translateX: -sidebarEl.clientWidth,
+      duration: 200,
+      easing: 'easeInQuart',
+    })
+    anime({
+      targets: sidebarEl,
+      opacity: 0,
+      duration: 200,
+      easing: 'linear',
+      complete: () => {
+        sidebarEl.style.display = 'none'
+      },
+    })
+  }
 }

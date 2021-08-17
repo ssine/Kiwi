@@ -31,12 +31,25 @@ const reduceUris = (uris: string[], action: any) => {
   }
 }
 
+type SetFunction<T> = (val: T) => void
+
+const wrapLocalStorageSet = <T,>(name: string, func: SetFunction<T>): SetFunction<T> => {
+  return (value: T) => {
+    localStorage.setItem(name, String(value))
+    func(value)
+  }
+}
+
 export const App = () => {
   const [uris, dispatch] = useReducer(reduceUris, [])
-  const [showSidebar, setShowSidebar] = useState(true)
-  const [displayMode, setDisplayMode] = useState<FlowDisplayMode>('center')
-  const [sidebarWidth, setSidebarWidth] = useState(400)
-  const [itemWidth, setItemWidth] = useState(750)
+  const [showSidebar, setShowSidebar] = useState(
+    localStorage.getItem('showSidebar') ? localStorage.getItem('showSidebar') === 'true' : true
+  )
+  const [displayMode, setDisplayMode] = useState<FlowDisplayMode>(
+    (localStorage.getItem('displayMode') as FlowDisplayMode) || 'center'
+  )
+  const [sidebarWidth, setSidebarWidth] = useState(parseInt(localStorage.getItem('sidebarWidth')) || 400)
+  const [itemWidth, setItemWidth] = useState(parseInt(localStorage.getItem('itemWidth')) || 750)
 
   return (
     <div>
@@ -44,12 +57,13 @@ export const App = () => {
       <Sidebar
         displaiedUris={uris}
         displayMode={displayMode}
-        setDisplayMode={setDisplayMode}
+        setDisplayMode={wrapLocalStorageSet('displayMode', setDisplayMode)}
         itemWidth={itemWidth}
-        setItemWidth={setItemWidth}
+        setItemWidth={wrapLocalStorageSet('itemWidth', setItemWidth)}
         sidebarWidth={sidebarWidth}
-        setSidebarWidth={setSidebarWidth}
-        setShowSidebar={setShowSidebar}
+        setSidebarWidth={wrapLocalStorageSet('sidebarWidth', setSidebarWidth)}
+        showSidebar={showSidebar}
+        setShowSidebar={wrapLocalStorageSet('showSidebar', setShowSidebar)}
       />
       <ItemFlow
         uris={uris}

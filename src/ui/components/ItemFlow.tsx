@@ -42,7 +42,7 @@ export const ItemFlow = (props: {
       for (const u of uris) {
         const minIdx = argMin(heights)
         tmpFlows[minIdx].push(u)
-        heights[minIdx] += (itemRefs.current[u]?.current?.getBoundingClientRect?.()?.height || 0) + 40
+        heights[minIdx] += (itemRefs.current[u]?.current?.getBoundingClientRect?.()?.height || 0) + 25
       }
     }
     const oldPosition = {}
