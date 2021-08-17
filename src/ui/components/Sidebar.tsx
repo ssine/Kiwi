@@ -48,7 +48,7 @@ export const Sidebar = (props: {
         const switchEl = document.getElementsByClassName('kiwi-sidebar-switch')[0] as HTMLElement
         const sidebarEl = document.getElementsByClassName('kiwi-sidebar')[0] as HTMLElement
         sidebarEl.style.display = 'none'
-        switchEl.style.transform = 'rotateY(180)'
+        switchEl.style.transform = 'rotateY(180deg)'
       }
     }, 0)
   }, [])
