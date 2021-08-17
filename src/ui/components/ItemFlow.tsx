@@ -108,7 +108,10 @@ export const ItemFlow = (props: {
   }
 
   return (
-    <div className="item-flow-container" style={{ marginLeft: (showSidebar ? sidebarWidth : 0) + 30, display: 'flex' }}>
+    <div
+      className="item-flow-container"
+      style={{ marginLeft: (showSidebar ? sidebarWidth : 0) + 30, display: 'flex', marginTop: 25 }}
+    >
       {[...flows, [] /* add an empty column to avoid remounting of elements sent to new column */].map((flow, idx) => (
         <div style={{ marginLeft: 30 }} key={idx}>
           <Reparentable id={String(idx)}>

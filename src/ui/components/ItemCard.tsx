@@ -137,7 +137,12 @@ export const ItemCard = (props: {
   }
 
   return (
-    <div className="item" id={fullscreen ? 'kiwi-fullscreen-item' : ''} ref={ref} style={{ width: props.itemWidth }}>
+    <div
+      className="item"
+      id={fullscreen ? 'kiwi-fullscreen-item' : ''}
+      ref={ref}
+      style={{ width: fullscreen ? '100%' : props.itemWidth }}
+    >
       {render()}
     </div>
   )
