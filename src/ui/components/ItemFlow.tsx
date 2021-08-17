@@ -11,10 +11,8 @@ const { Reparentable, sendReparentableChild } = createReparentableSpace()
 
 const manager = ItemManager.getInstance()
 
-type ComposedType = {
-  ref: React.RefObject<HTMLDivElement>
-  uri: string
-  idx: number
+const getNumColumns = (sidebarWidth: number, itemWidth: number): number => {
+  return Math.max(Math.floor((window.innerWidth - sidebarWidth - 30) / (itemWidth + 40)), 1)
 }
 
 export const ItemFlow = (props: {
@@ -25,70 +23,66 @@ export const ItemFlow = (props: {
   dispatch: React.Dispatch<any>
   style?: CSSProperties
 }) => {
-  const { uris, itemWidth, sidebarWidth, dispatch, style, displayMode } = props
-  const genComposedUris = (us: string[]) => us.map((uri, idx) => ({ ref: createRef<HTMLDivElement>(), uri, idx }))
+  const { uris, itemWidth, sidebarWidth, dispatch, displayMode } = props
 
-  const [composedUris, setComposedUris] = useState(genComposedUris(uris)) // ref在setstate之后不会保留，考虑换成uri->ref的map手动维护
-  const [flows, setFlows] = useState<ComposedType[][]>([])
+  const itemRefs = useRef(Object.fromEntries(uris.map(u => [u, createRef<HTMLDivElement>()])))
+  const [flows, setFlows] = useState<string[][]>([])
 
-  const updateFlow = (cUris: ComposedType[]) => {
-    let tmpFlows: ComposedType[][] = []
+  const updateFlow = () => {
+    let tmpFlows: string[][] = []
     if (displayMode === 'center') {
-      tmpFlows = [cUris]
+      tmpFlows = [uris]
     } else {
       const heights = []
-      console.log(window.innerWidth, itemWidth, Math.floor((window.innerWidth - sidebarWidth - 30) / (itemWidth + 40)))
-      for (let idx = 0; idx < Math.floor((window.innerWidth - sidebarWidth - 30) / (itemWidth + 40)); idx++) {
+      for (let idx = 0; idx < getNumColumns(sidebarWidth, itemWidth); idx++) {
         tmpFlows.push([])
         heights.push(0)
       }
-      if (tmpFlows.length === 0) {
-        tmpFlows.push([])
-        heights.push(0)
-      }
-      for (let c of cUris) {
+      for (const u of uris) {
         const minIdx = argMin(heights)
-        tmpFlows[minIdx].push(c)
-        heights[minIdx] += (c.ref.current?.getBoundingClientRect?.()?.height || 0) + 40
+        tmpFlows[minIdx].push(u)
+        heights[minIdx] += (itemRefs.current[u]?.current?.getBoundingClientRect?.()?.height || 0) + 40
       }
     }
-    console.log(tmpFlows, flows)
     const oldPosition = {}
     flows.forEach((flow, flowIdx) => {
-      flow.forEach(c => {
-        oldPosition[c.uri] = flowIdx
+      flow.forEach(u => {
+        oldPosition[u] = flowIdx
       })
     })
     tmpFlows.forEach((flow, flowIdx) => {
-      flow.forEach((c, cidx) => {
-        if (!(c.uri in oldPosition)) {
-          return
-        }
-        if (oldPosition[c.uri] === flowIdx) {
-          return
-        }
-        console.log('send', String(oldPosition[c.uri]), String(flowIdx), c.uri, cidx)
-        sendReparentableChild(String(oldPosition[c.uri]), String(flowIdx), c.uri, cidx)
+      flow.forEach((u, cidx) => {
+        if (!(u in oldPosition) || oldPosition[u] === flowIdx) return
+        sendReparentableChild(String(oldPosition[u]), String(flowIdx), u, cidx)
       })
     })
     if (
-      tmpFlows.length !== 0 &&
-      tmpFlows[0].length !== 0 &&
-      !tmpFlows.every((lst, i) => lst.every((val, j) => val.uri === flows[i]?.[j]?.uri))
+      flows.length === tmpFlows.length &&
+      tmpFlows.every(
+        (flow, fidx) => flow.length === flows[fidx].length && flow.every((uri, uidx) => uri === flows[fidx][uidx])
+      )
     ) {
-      console.log('set', tmpFlows)
-      setFlows([...tmpFlows, []])
+      return
     }
+    setFlows(tmpFlows)
   }
 
   useEffect(() => {
-    const newCUris = genComposedUris(uris)
-    setComposedUris(newCUris)
-    updateFlow(newCUris)
+    // uri change => update ref
+    uris
+      .filter(u => !(u in itemRefs.current))
+      .forEach(uri => {
+        itemRefs.current[uri] = createRef<HTMLDivElement>()
+      })
+    Object.keys(itemRefs.current)
+      .filter(u => !uris.includes(u))
+      .forEach(uri => {
+        delete itemRefs.current[uri]
+      })
   }, [uris])
 
   useLayoutEffect(() => {
-    updateFlow(composedUris)
+    updateFlow()
   })
 
   useEffect(() => {
@@ -114,20 +108,20 @@ export const ItemFlow = (props: {
 
   return (
     <div className="item-flow-container" style={{ marginLeft: sidebarWidth + 30, display: 'flex' }}>
-      {flows.map((flow, idx) => (
+      {[...flows, [] /* add an empty column to avoid remounting of elements sent to new column */].map((flow, idx) => (
         <div style={{ marginLeft: 30 }} key={idx}>
           <Reparentable id={String(idx)}>
-            {flow.map(val => (
+            {flow.map(uri => (
               <ItemCard
-                key={val.uri}
-                uri={val.uri}
-                containerRef={composedUris[val.idx].ref}
+                key={uri}
+                uri={uri}
+                containerRef={itemRefs.current[uri]}
                 itemWidth={itemWidth}
                 onClose={() => {
-                  dispatch({ type: 'remove', uri: val.uri })
+                  dispatch({ type: 'remove', uri: uri })
                 }}
                 onChange={(target: string) => {
-                  dispatch({ type: 'change', fromUri: val.uri, toUri: target })
+                  dispatch({ type: 'change', fromUri: uri, toUri: target })
                 }}
               />
             ))}
@@ -139,7 +133,7 @@ export const ItemFlow = (props: {
 }
 
 const displayInitItems = async () => {
-  if (window.location.hash != '') {
+  if (window.location.hash !== '') {
     // have uris in has
     eventBus.emit('item-link-clicked', {
       targetURI: window.location.hash.substr(1),

@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "target": "es6",
     "outDir": "./build/kiwi/ui/js",
-    "lib": ["dom", "es2017"],
+    "lib": ["dom", "es2017", "ES2019"],
     "types": [],
     "baseUrl": "./node_modules",
     "jsx": "react",
