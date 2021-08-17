@@ -116,9 +116,9 @@ export const ItemCard = (props: {
             }}
             onCancel={async () => {
               if (item.new) {
-                await manager.deleteItem(props.uri)
                 await slideOut(ref.current)
                 props.onClose()
+                await manager.deleteItem(props.uri)
               } else {
                 await rotateOut(ref.current)
                 setMode('display')
