@@ -21,12 +21,73 @@ export const Sidebar = (props: {
   setDisplayMode: (mode: FlowDisplayMode) => void
   itemWidth: number
   setItemWidth: (w: number) => void
+  setShowSidebar: (s: boolean) => void
   sidebarWidth: number
   setSidebarWidth: (w: number) => void
 }) => {
+  // TODO: update on title item changes
   const [title, setTitle] = useState(manager.getItem(pageConfigs.title).content.trim())
   const [subTitle, setSubTitle] = useState(manager.getItem(pageConfigs.subTitle).content.trim())
-  const { displaiedUris, itemWidth, setItemWidth, sidebarWidth, setSidebarWidth, displayMode, setDisplayMode } = props
+  const {
+    displaiedUris,
+    itemWidth,
+    setItemWidth,
+    sidebarWidth,
+    setSidebarWidth,
+    displayMode,
+    setDisplayMode,
+    setShowSidebar,
+  } = props
+
+  const onSwitchClick = () => {
+    const switchEl = document.getElementsByClassName('kiwi-sidebar-switch')[0] as HTMLElement
+    const sidebarEl = document.getElementsByClassName('kiwi-sidebar')[0] as HTMLElement
+    if (sidebarEl.style.display === 'none') {
+      setShowSidebar(true)
+      anime({
+        targets: switchEl,
+        rotateY: 0,
+        duration: 200,
+        easing: 'linear',
+      })
+      sidebarEl.style.display = 'flex'
+      anime({
+        targets: sidebarEl,
+        opacity: 1,
+        duration: 200,
+        easing: 'linear',
+      })
+      anime({
+        targets: sidebarEl,
+        translateX: 0,
+        duration: 200,
+        easing: 'easeOutQuart',
+      })
+    } else {
+      setShowSidebar(false)
+      anime({
+        targets: switchEl,
+        rotateY: 180,
+        duration: 200,
+        easing: 'linear',
+      })
+      anime({
+        targets: sidebarEl,
+        translateX: -sidebarEl.clientWidth,
+        duration: 200,
+        easing: 'easeInQuart',
+      })
+      anime({
+        targets: sidebarEl,
+        opacity: 0,
+        duration: 200,
+        easing: 'linear',
+        complete: () => {
+          sidebarEl.style.display = 'none'
+        },
+      })
+    }
+  }
 
   return (
     <>
@@ -125,52 +186,4 @@ export const Sidebar = (props: {
       </div>
     </>
   )
-}
-
-const onSwitchClick = () => {
-  const switchEl = document.getElementsByClassName('kiwi-sidebar-switch')[0] as HTMLElement
-  const sidebarEl = document.getElementsByClassName('kiwi-sidebar')[0] as HTMLElement
-  if (sidebarEl.style.display == 'none') {
-    anime({
-      targets: switchEl,
-      rotateY: 0,
-      duration: 200,
-      easing: 'linear',
-    })
-    sidebarEl.style.display = 'flex'
-    anime({
-      targets: sidebarEl,
-      opacity: 1,
-      duration: 200,
-      easing: 'linear',
-    })
-    anime({
-      targets: sidebarEl,
-      translateX: 0,
-      duration: 200,
-      easing: 'easeOutQuart',
-    })
-  } else {
-    anime({
-      targets: switchEl,
-      rotateY: 180,
-      duration: 200,
-      easing: 'linear',
-    })
-    anime({
-      targets: sidebarEl,
-      translateX: -sidebarEl.clientWidth,
-      duration: 200,
-      easing: 'easeInQuart',
-    })
-    anime({
-      targets: sidebarEl,
-      opacity: 0,
-      duration: 200,
-      easing: 'linear',
-      complete: () => {
-        sidebarEl.style.display = 'none'
-      },
-    })
-  }
 }

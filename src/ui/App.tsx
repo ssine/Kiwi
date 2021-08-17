@@ -33,19 +33,10 @@ const reduceUris = (uris: string[], action: any) => {
 
 export const App = () => {
   const [uris, dispatch] = useReducer(reduceUris, [])
+  const [showSidebar, setShowSidebar] = useState(true)
   const [displayMode, setDisplayMode] = useState<FlowDisplayMode>('center')
   const [sidebarWidth, setSidebarWidth] = useState(400)
   const [itemWidth, setItemWidth] = useState(750)
-
-  const flowStyle: CSSProperties =
-    displayMode === 'fill'
-      ? {
-          margin: '0 auto',
-          width: 750,
-        }
-      : {
-          marginLeft: sidebarWidth + 40,
-        }
 
   return (
     <div>
@@ -58,14 +49,15 @@ export const App = () => {
         setItemWidth={setItemWidth}
         sidebarWidth={sidebarWidth}
         setSidebarWidth={setSidebarWidth}
+        setShowSidebar={setShowSidebar}
       />
       <ItemFlow
         uris={uris}
         displayMode={displayMode}
         itemWidth={itemWidth}
+        showSidebar={showSidebar}
         sidebarWidth={sidebarWidth}
         dispatch={dispatch}
-        style={flowStyle}
       />
     </div>
   )

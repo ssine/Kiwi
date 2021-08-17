@@ -11,19 +11,20 @@ const { Reparentable, sendReparentableChild } = createReparentableSpace()
 
 const manager = ItemManager.getInstance()
 
-const getNumColumns = (sidebarWidth: number, itemWidth: number): number => {
-  return Math.max(Math.floor((window.innerWidth - sidebarWidth - 30) / (itemWidth + 40)), 1)
+const getNumColumns = (showSidebar: boolean, sidebarWidth: number, itemWidth: number): number => {
+  return Math.max(Math.floor((window.innerWidth - (showSidebar ? sidebarWidth : 0) - 30) / (itemWidth + 40)), 1)
 }
 
 export const ItemFlow = (props: {
   uris: string[]
   displayMode: FlowDisplayMode
   itemWidth: number
+  showSidebar: boolean
   sidebarWidth: number
   dispatch: React.Dispatch<any>
   style?: CSSProperties
 }) => {
-  const { uris, itemWidth, sidebarWidth, dispatch, displayMode } = props
+  const { uris, itemWidth, sidebarWidth, dispatch, displayMode, showSidebar } = props
 
   const itemRefs = useRef(Object.fromEntries(uris.map(u => [u, createRef<HTMLDivElement>()])))
   const [flows, setFlows] = useState<string[][]>([])
@@ -34,7 +35,7 @@ export const ItemFlow = (props: {
       tmpFlows = [uris]
     } else {
       const heights = []
-      for (let idx = 0; idx < getNumColumns(sidebarWidth, itemWidth); idx++) {
+      for (let idx = 0; idx < getNumColumns(showSidebar, sidebarWidth, itemWidth); idx++) {
         tmpFlows.push([])
         heights.push(0)
       }
@@ -107,7 +108,7 @@ export const ItemFlow = (props: {
   }
 
   return (
-    <div className="item-flow-container" style={{ marginLeft: sidebarWidth + 30, display: 'flex' }}>
+    <div className="item-flow-container" style={{ marginLeft: (showSidebar ? sidebarWidth : 0) + 30, display: 'flex' }}>
       {[...flows, [] /* add an empty column to avoid remounting of elements sent to new column */].map((flow, idx) => (
         <div style={{ marginLeft: 30 }} key={idx}>
           <Reparentable id={String(idx)}>
