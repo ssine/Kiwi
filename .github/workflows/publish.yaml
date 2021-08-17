@@ -3,7 +3,7 @@ name: ci
 on: push
 
 jobs:
-  publish-npm:
+  publish-npm-and-docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -15,9 +15,6 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
 
-  publish-docker:
-    runs-on: ubuntu-latest
-    steps:
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -36,4 +33,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: sineliu/kiwi:latest
+          tags: |
+            sineliu/kiwi:latest
+            sineliu/kiwi:${{ steps.publish.outputs.version }}
