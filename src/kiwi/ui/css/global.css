@@ -240,10 +240,6 @@ frame {
   width: 100%;
 }
 
-.kiwi-edit-item-content {
-  height: 400px;
-}
-
 .kiwi-edit-item-content::-webkit-resizer {
   width: 100% !important;
   box-shadow: inset;

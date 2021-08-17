@@ -83,6 +83,8 @@ export const ItemEditor = (props: {
     })
   }
 
+  const heightKey = fullscreen ? 'fullscreen-editor-height' : `editor-height-${uri}`
+
   return (
     <div
       onKeyDown={evt => {
@@ -120,6 +122,7 @@ export const ItemEditor = (props: {
       <div
         className="kiwi-edit-item-content"
         ref={moncaoContainerRef}
+        style={{ height: parseInt(localStorage.getItem(heightKey)) || 400 }}
         onDragOver={evt => {
           evt.preventDefault()
         }}
@@ -150,7 +153,9 @@ export const ItemEditor = (props: {
           const yDif = evt.pageY - (resizerRef.current.getBoundingClientRect().top + window.scrollY)
           const onResizeMouseMove = (mvEvt: MouseEvent) => {
             const c: HTMLDivElement = moncaoContainerRef.current
-            c.style.height = `${mvEvt.pageY - (c.getBoundingClientRect().top + window.scrollY) - yDif}px`
+            const height = mvEvt.pageY - (c.getBoundingClientRect().top + window.scrollY) - yDif
+            c.style.height = `${height}px`
+            localStorage.setItem(heightKey, String(height))
             monacoRef.current.layout()
           }
           window.addEventListener('mousemove', onResizeMouseMove)
