@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import anime from 'animejs/lib/anime.es'
-import { getCookie, isMobile } from '../Common'
+import { FlowDisplayMode, getCookie, isMobile } from '../Common'
 import { IconButton } from './basic/Button/IconButton'
 import { eventBus } from '../eventBus'
 import { ItemManager } from '../ItemManager'
@@ -10,13 +10,23 @@ import { IndexTree } from './IndexTree'
 import { Banner } from './basic/Banner/Banner'
 import LoginForm from './LoginForm'
 import { SearchBar } from './SearchBar'
+import { Slider } from './basic/Slider/Slider'
+import { Select } from './basic/Select/Select'
 
 const manager = ItemManager.getInstance()
 
-export const Sidebar = (props: { displaiedUris: string[] }) => {
+export const Sidebar = (props: {
+  displaiedUris: string[]
+  displayMode: FlowDisplayMode
+  setDisplayMode: (mode: FlowDisplayMode) => void
+  itemWidth: number
+  setItemWidth: (w: number) => void
+  sidebarWidth: number
+  setSidebarWidth: (w: number) => void
+}) => {
   const [title, setTitle] = useState(manager.getItem(pageConfigs.title).content.trim())
   const [subTitle, setSubTitle] = useState(manager.getItem(pageConfigs.subTitle).content.trim())
-  const { displaiedUris } = props
+  const { displaiedUris, itemWidth, setItemWidth, sidebarWidth, setSidebarWidth, displayMode, setDisplayMode } = props
 
   return (
     <>
@@ -30,6 +40,7 @@ export const Sidebar = (props: { displaiedUris: string[] }) => {
         style={{
           display: 'flex',
           flexDirection: 'column',
+          width: sidebarWidth,
         }}
       >
         <h1 className="site-title" id="site-title">
@@ -90,6 +101,25 @@ export const Sidebar = (props: { displaiedUris: string[] }) => {
           <PivotItem name="Action">
             <Banner text="Account" />
             <LoginForm />
+            <Banner text="UI" />
+            <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>Item Width</div>
+            <Slider value={itemWidth} onChange={val => setItemWidth(parseInt(val))} range={[350, 1500]} />
+            <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>Sidebar Width</div>
+            <Slider value={sidebarWidth} onChange={val => setSidebarWidth(parseInt(val))} range={[200, 700]} />
+            <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>Flow Type</div>
+            <Select
+              value={
+                {
+                  center: 'Center',
+                  flow: 'Flow',
+                }[displayMode]
+              }
+              style={{ height: 23 }}
+              onSelect={val => setDisplayMode(val as FlowDisplayMode)}
+            >
+              <option value="center">Center</option>
+              <option value="flow">Flow</option>
+            </Select>
           </PivotItem>
         </Pivot>
       </div>

@@ -12,7 +12,7 @@ const buttonStyle: React.CSSProperties = {
 const LoginForm: React.FC<{}> = () => {
   return getCookie('token') !== '' ? (
     <div>
-      <div className="kiwi-login-status" style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>
+      <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>
         Logged in as <span style={{ color: 'var(--lineColor)' }}>{getCookie('accountName')}</span> .
       </div>
       <button

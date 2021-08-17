@@ -206,6 +206,8 @@ export const setToNewArray = (arr: any[], idx: number, val: any) => {
   return newArr
 }
 
+export type FlowDisplayMode = 'center' | 'fill'
+
 export {
   isLinkInternal,
   getPositionToDocument,

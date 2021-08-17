@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { MutableRefObject, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ClientItem } from '../ClientItem'
 import { ItemDisplay } from './ItemDisplay'
 import { ItemEditor } from './ItemEditor'
@@ -9,17 +9,24 @@ import { ItemManager } from '../ItemManager'
 
 const manager = ItemManager.getInstance()
 
-export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (target: string) => void }) => {
+export const ItemCard = (props: {
+  uri: string
+  itemWidth: number
+  containerRef?: MutableRefObject<HTMLDivElement>
+  onClose: () => void
+  onChange: (target: string) => void
+}) => {
   // display / edit / save
   const item = ItemManager.getInstance().getItem(props.uri)
   const [mode, setMode] = useState(item.new ? 'edit' : 'display')
   const [fullscreen, _setFullscreen] = useState(false)
   const lastPositoinRef = useRef({ left: 0, top: 0 })
-  const ref = useRef<HTMLDivElement>()
+  const ref = props.containerRef || useRef<HTMLDivElement>()
 
   useEffect(() => {
     eventBus.on('item-link-clicked', scrollToSelf)
     scrollToSelf({ targetURI: props.uri })
+    console.log('remounted', props.uri)
     return () => eventBus.off('item-link-clicked', scrollToSelf)
   }, [])
 
@@ -130,7 +137,7 @@ export const ItemCard = (props: { uri: string; onClose: () => void; onChange: (t
   }
 
   return (
-    <div className="item" id={fullscreen ? 'kiwi-fullscreen-item' : ''} ref={ref}>
+    <div className="item" id={fullscreen ? 'kiwi-fullscreen-item' : ''} ref={ref} style={{ width: props.itemWidth }}>
       {render()}
     </div>
   )
@@ -211,7 +218,8 @@ const smoothLayoutChange = async (el: HTMLElement, lastPosition: { left: number;
     return
   }
   const dy = lastPosition.top - newPosition.top
-  await FLIPOperation(el, 0, dy)
+  const dx = lastPosition.left - newPosition.left
+  await FLIPOperation(el, dx, dy)
 }
 
 const printHidingCSS = `

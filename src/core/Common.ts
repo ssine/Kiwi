@@ -277,6 +277,12 @@ function timeFormat(fmt: string, date: Date): string {
   return fmt
 }
 
+const argFact = (compareFn: (a: number[], b: number[]) => number[]) => (array: number[]) =>
+  array.map((el, idx) => [el, idx]).reduce(compareFn)[1]
+
+export const argMax = argFact((min, el) => (el[0] > min[0] ? el : min))
+export const argMin = argFact((max, el) => (el[0] < max[0] ? el : max))
+
 export {
   MIME,
   renderableMIME,

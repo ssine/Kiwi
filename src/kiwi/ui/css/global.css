@@ -95,7 +95,6 @@ button:active {
     bottom: 0;
     float: left;
     padding-left: 20px;
-    max-width: 500px;
     width: calc((100% - 750px) / 2 - 40px);
     overflow: auto;
     display: flex;
@@ -103,9 +102,7 @@ button:active {
   }
 
   .item-flow {
-    margin: 0 auto;
     padding-top: 40px;
-    width: 750px;
   }
 
   .item-content {

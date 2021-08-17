@@ -1,0 +1,27 @@
+.kiwi-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 23px;
+  background: var(--blockColorLighter);
+  outline: none;
+}
+
+.kiwi-slider:hover {
+  background: var(--blockColorLight);
+}
+
+.kiwi-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 23px;
+  height: 23px;
+  background: var(--lineColor);
+  cursor: pointer;
+}
+
+.kiwi-slider::-moz-range-thumb {
+  width: 23px;
+  height: 23px;
+  background: var(--lineColor);
+  cursor: pointer;
+}

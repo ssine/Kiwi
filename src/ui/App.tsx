@@ -1,6 +1,7 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { CSSProperties, useEffect, useReducer, useState } from 'react'
 import { getSkinnyItems, getSystemItems } from './api'
 import { ClientItem } from './ClientItem'
+import { FlowDisplayMode } from './Common'
 import { ItemFlow } from './components/ItemFlow'
 import { MessageList } from './components/MessageList'
 import { Sidebar } from './components/Sidebar'
@@ -32,11 +33,40 @@ const reduceUris = (uris: string[], action: any) => {
 
 export const App = () => {
   const [uris, dispatch] = useReducer(reduceUris, [])
+  const [displayMode, setDisplayMode] = useState<FlowDisplayMode>('center')
+  const [sidebarWidth, setSidebarWidth] = useState(400)
+  const [itemWidth, setItemWidth] = useState(750)
+
+  const flowStyle: CSSProperties =
+    displayMode === 'fill'
+      ? {
+          margin: '0 auto',
+          width: 750,
+        }
+      : {
+          marginLeft: sidebarWidth + 40,
+        }
 
   return (
     <div>
       <MessageList />
-      <Sidebar displaiedUris={uris} /> <ItemFlow uris={uris} dispatch={dispatch} />
+      <Sidebar
+        displaiedUris={uris}
+        displayMode={displayMode}
+        setDisplayMode={setDisplayMode}
+        itemWidth={itemWidth}
+        setItemWidth={setItemWidth}
+        sidebarWidth={sidebarWidth}
+        setSidebarWidth={setSidebarWidth}
+      />
+      <ItemFlow
+        uris={uris}
+        displayMode={displayMode}
+        itemWidth={itemWidth}
+        sidebarWidth={sidebarWidth}
+        dispatch={dispatch}
+        style={flowStyle}
+      />
     </div>
   )
 }
