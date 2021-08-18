@@ -107,7 +107,7 @@ export const ItemFlow = (props: {
     dispatch({ type: 'display', uri: uri })
   }
 
-  return (
+  return displayMode === 'flow' ? (
     <div
       className="item-flow-container"
       style={{ marginLeft: (showSidebar ? sidebarWidth : 0) + 30, display: 'flex', marginTop: 25 }}
@@ -132,6 +132,28 @@ export const ItemFlow = (props: {
           </Reparentable>
         </div>
       ))}
+    </div>
+  ) : (
+    <div className="item-flow-container" style={{ margin: '25px auto', display: 'flex' }}>
+      <div style={{ margin: '0 auto' }}>
+        <Reparentable id="0">
+          {flows[0]?.map(uri => (
+            <ItemCard
+              key={uri}
+              uri={uri}
+              containerRef={itemRefs.current[uri]}
+              itemWidth={itemWidth}
+              onClose={() => {
+                dispatch({ type: 'remove', uri: uri })
+              }}
+              onChange={(target: string) => {
+                dispatch({ type: 'change', fromUri: uri, toUri: target })
+              }}
+            />
+          )) || null}
+        </Reparentable>
+        <Reparentable id="1">{null}</Reparentable>
+      </div>
     </div>
   )
 }

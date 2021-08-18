@@ -26,7 +26,6 @@ export const ItemCard = (props: {
   useEffect(() => {
     eventBus.on('item-link-clicked', scrollToSelf)
     scrollToSelf({ targetURI: props.uri })
-    console.log('remounted', props.uri)
     return () => eventBus.off('item-link-clicked', scrollToSelf)
   }, [])
 
