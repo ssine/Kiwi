@@ -5,6 +5,7 @@ import * as marked from 'marked'
 import * as hljs from 'highlight.js'
 // import { typesetDocumentMath } from './MathJaxParser'
 
+// keep dollar symbols untouched for mathjax
 // @ts-ignore
 marked.Lexer.rules.inline.gfm.text = /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\$\[`*~]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?= {2,}\n|[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/
 const tokenizer = {

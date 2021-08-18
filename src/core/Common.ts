@@ -1,3 +1,4 @@
+// TODO: refactor to MimeType.ts
 /**
  * A list of some MIME types
  * Partially supported
@@ -103,6 +104,7 @@ const MIMELangDict: { [mime: string]: string } = {
   'text/x-python': 'python',
   'text/x-java': 'java',
   'text/x-javascript': 'javascript',
+  'text/javascript': 'javascript',
   'text/x-typescript': 'typescript',
 }
 
