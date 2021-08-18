@@ -1,5 +1,5 @@
 import { RenderPlugin } from '../../core/Plugin'
-import * as cssesc from 'cssesc'
+import cssesc from 'cssesc'
 
 export default class CSSEscapePlugin extends RenderPlugin {
   init() {}

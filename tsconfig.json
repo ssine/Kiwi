@@ -8,7 +8,8 @@
     "module": "commonjs",
     "strict": true,
     "skipLibCheck": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "esModuleInterop": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*", "src/ui", "src/uibk"]

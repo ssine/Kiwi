@@ -42,11 +42,15 @@ import CSSEscapePlugin from '../lib/plugin/CSSEscapePlugin'
 import { FilesystemStorage } from '../lib/storage/FilesystemStorage'
 import { AuthManager } from '../core/AuthManager'
 import { renderItem } from '../core/render'
+import PlaintextParser from '../lib/parser/PlaintextParser'
 
 function registLib() {
   const md = new MarkdownParser()
   md.init()
   md.register()
+  const pt = new PlaintextParser()
+  pt.init()
+  pt.register()
   const wt = new WikitextParser()
   wt.init()
   wt.register()

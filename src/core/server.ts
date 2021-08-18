@@ -3,11 +3,11 @@
  * @packageDocumentation
  */
 import * as http from 'http'
-import * as express from 'express'
+import express from 'express'
 import * as bodyParser from 'body-parser'
-import * as cookieParser from 'cookie-parser'
-import * as fileUpload from 'express-fileupload'
-import * as compression from 'compression'
+import cookieParser from 'cookie-parser'
+import fileUpload from 'express-fileupload'
+import compression from 'compression'
 import { getLogger } from './Log'
 import { MIME } from './MimeType'
 import { resolve } from 'path'
