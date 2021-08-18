@@ -3,13 +3,19 @@ import { ClientItem } from './ClientItem'
 import { MessageType, showMessage } from './components/MessageList'
 
 export async function postJSON(url: string, data: Object): Promise<any> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
+  let response: Response
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+  } catch (err) {
+    showMessage(MessageType.error, `Error fetching ${url}: ${err.message}`, 5)
+    throw err
+  }
   if (response.status !== 200) throw new Error('Request failed')
   const packet = await response.json()
   if (packet.code !== 0) {
@@ -27,10 +33,16 @@ async function postFile(url: string, data: Object, file: File): Promise<any> {
     fm.append(key, val)
   }
   fm.append('fn', file)
-  const response = await fetch(url, {
-    method: 'POST',
-    body: fm,
-  })
+  let response: Response
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      body: fm,
+    })
+  } catch (err) {
+    showMessage(MessageType.error, `Error fetching ${url}: ${err.message}`, 5)
+    throw err
+  }
   if (response.status !== 200) throw new Error('Request failed')
   const packet = await response.json()
   if (packet.code !== 0) {
