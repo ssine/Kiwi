@@ -135,7 +135,8 @@ export const HeaderEditor = (props: {
             value={entry.type}
             onSelect={value => {
               entry.type = value
-              if (value === 'list' && !Array.isArray(entry.value)) entry.value = [String(entry.value)]
+              if (value === 'list' && !Array.isArray(entry.value))
+                entry.value = entry.value === '' ? [] : [String(entry.value)]
               setEntries([...entries])
             }}
             style={typeStyle}
