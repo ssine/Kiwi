@@ -1,6 +1,7 @@
 import { getLogger } from './Log'
 import * as he from 'he'
 import * as vm from 'vm'
+import ts from 'typescript'
 import { ScriptApi } from './ScriptApi'
 
 const logger = getLogger('plugin')
@@ -70,7 +71,7 @@ class ItemContext {
   }
 
   async eval(x: string): Promise<any> {
-    const res = vm.runInContext(x, this.ctx)
+    const res = vm.runInContext(ts.transpile(x, this.ctx), this.ctx)
     if (res instanceof Promise) return await res
     else return res
   }
