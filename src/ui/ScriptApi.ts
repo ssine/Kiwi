@@ -13,6 +13,10 @@ export const ScriptApi = {
     await manager.ensureItemLoaded(uri)
     return JSON.parse(JSON.stringify(manager.getItem(uri)))
   },
+  getItemUnsafe: (uri: string) => {
+    const item = manager.getItem(uri)
+    return item && JSON.parse(JSON.stringify(item))
+  },
   saveItem: async (uri: string, item: ClientItem, file?: File) => {
     return manager.saveItem(uri, item, file)
   },
