@@ -100,7 +100,7 @@ export class ItemManager {
       delete this.items[uri]
       this.generateTagMap()
       this.generateUriTree()
-      eventBus.emit('item-deleted')
+      eventBus.emit('item-deleted', { uri })
     }
   }
 
@@ -114,7 +114,7 @@ export class ItemManager {
     this.items[uri] = rendered
     this.generateTagMap()
     this.generateUriTree()
-    eventBus.emit('item-saved')
+    eventBus.emit('item-saved', { uri, item })
     return rendered
   }
 

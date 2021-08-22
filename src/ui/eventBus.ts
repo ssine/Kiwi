@@ -47,6 +47,8 @@ import { EventEmitter } from 'events'
  *
  * item-saved:
  *   triggered when an item is saved.
+ *   uri: string
+ *   item: ClientItem
  *
  * item-deleted:
  *   triggered when an item is deleted.
