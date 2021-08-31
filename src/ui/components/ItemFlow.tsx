@@ -3,7 +3,7 @@ import { eventBus } from '../eventBus'
 import { ItemManager } from '../ItemManager'
 import { ItemCard } from './ItemCard'
 import { defaultItemsURI } from '../../boot/config'
-import { FlowDisplayMode, getCookie } from '../Common'
+import { FlowDisplayMode, getCookie, openEditorCount } from '../Common'
 import { argMin } from '../../core/Common'
 import { createReparentableSpace } from 'react-reparenting'
 
@@ -89,12 +89,18 @@ export const ItemFlow = (props: {
   useEffect(() => {
     eventBus.on('item-link-clicked', onDisplayItem)
     eventBus.on('create-item-clicked', onCreateItem)
+    window.addEventListener('beforeunload', onWindowClose)
     displayInitItems()
     return () => {
       eventBus.off('item-link-clicked', onDisplayItem)
       eventBus.off('create-item-clicked', onCreateItem)
+      window.removeEventListener('beforeunload', onWindowClose)
     }
   }, [])
+
+  const onWindowClose = () => {
+    return openEditorCount.val > 0 ? 'Check opened editors' : null
+  }
 
   const onDisplayItem = async (data: { targetURI: string }) => {
     if (!manager.hasItem(data.targetURI) && getCookie('token') !== '') return onCreateItem(data)

@@ -208,6 +208,8 @@ export const setToNewArray = (arr: any[], idx: number, val: any) => {
 
 export type FlowDisplayMode = 'center' | 'flow'
 
+export let openEditorCount = { val: 0 }
+
 export {
   isLinkInternal,
   getPositionToDocument,

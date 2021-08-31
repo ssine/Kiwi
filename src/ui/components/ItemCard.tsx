@@ -3,7 +3,7 @@ import { ClientItem } from '../ClientItem'
 import { ItemDisplay } from './ItemDisplay'
 import { ItemEditor } from './ItemEditor'
 import anime from 'animejs/lib/anime.es'
-import { getPositionToDocument } from '../Common'
+import { getPositionToDocument, openEditorCount } from '../Common'
 import { eventBus } from '../eventBus'
 import { ItemManager } from '../ItemManager'
 
@@ -65,6 +65,7 @@ export const ItemCard = (props: {
             onBeginEdit={async () => {
               await rotateOut(ref.current)
               setMode('edit')
+              openEditorCount.val++
               await rotateIn(ref.current)
             }}
             onDelete={async () => {
@@ -111,6 +112,7 @@ export const ItemCard = (props: {
                 props.onChange(newUri)
               } else {
                 setMode('display')
+                openEditorCount.val--
                 await rotateIn(ref.current)
               }
             }}
@@ -122,6 +124,7 @@ export const ItemCard = (props: {
               } else {
                 await rotateOut(ref.current)
                 setMode('display')
+                openEditorCount.val--
                 await rotateIn(ref.current)
               }
             }}
