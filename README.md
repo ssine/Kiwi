@@ -14,10 +14,10 @@ Kiwi is an extensible content management system. Main features:
 ### Docker
 
 ```bash
-docker run -p 80:80 -v /path/to/data:/data sineliu/kiwi
+docker run --user $(id -u):$(id -g) -p 8080:8080 -v /path/to/data:/data sineliu/kiwi
 ```
 
-Visit http://localhost !
+Visit http://localhost:8080 !
 
 User data are put under `/path/to/data` in a human-readable manner as markdown files, making them usable even outside Kiwi.
 
@@ -27,10 +27,10 @@ Install version 14.14.0 or later at [NodeJS](https://nodejs.org/en/).
 
 ```bash
 npm install kiwi-wiki --global
-kiwi serve /path/to/data --port 80
+kiwi serve /path/to/data --port 8080
 ```
 
-Visit http://localhost !
+Visit http://localhost:8080 !
 
 ## Origin
 
