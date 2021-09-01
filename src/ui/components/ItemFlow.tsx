@@ -98,8 +98,13 @@ export const ItemFlow = (props: {
     }
   }, [])
 
-  const onWindowClose = () => {
-    return openEditorCount.val > 0 ? 'Check opened editors' : null
+  const onWindowClose = (ev: BeforeUnloadEvent) => {
+    if (openEditorCount.val > 0) {
+      ev.preventDefault()
+      ev.returnValue = 'Please check and save opened editors before leaving.'
+    } else {
+      delete ev.returnValue
+    }
   }
 
   const onDisplayItem = async (data: { targetURI: string }) => {

@@ -112,9 +112,9 @@ export const ItemCard = (props: {
                 props.onChange(newUri)
               } else {
                 setMode('display')
-                openEditorCount.val--
                 await rotateIn(ref.current)
               }
+              openEditorCount.val--
             }}
             onCancel={async () => {
               if (item.new) {
@@ -124,9 +124,9 @@ export const ItemCard = (props: {
               } else {
                 await rotateOut(ref.current)
                 setMode('display')
-                openEditorCount.val--
                 await rotateIn(ref.current)
               }
+              openEditorCount.val--
             }}
             fullscreen={fullscreen}
             setFullscreen={setFullscreen}
