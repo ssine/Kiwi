@@ -45,7 +45,8 @@ export const Breadcrumb = <T,>(props: {
         iconName="ChevronDown"
         iconOnly={true}
         key="fold"
-        style={{ paddingLeft: 5, paddingRight: 5 }}
+        calloutWarpperStyle={{ height: '100%' }}
+        style={{ height: '100%' }}
         menuProps={{
           items: items.map(it => {
             return {

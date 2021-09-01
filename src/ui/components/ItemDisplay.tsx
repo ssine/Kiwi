@@ -98,7 +98,12 @@ export const ItemDisplay = (props: {
         </div>
         <div className="item-controls" style={{ display: 'flex' }}>
           {dropdownItems.length > 0 && (
-            <MenuButton iconOnly={true} iconName="ChevronDown" menuProps={{ items: dropdownItems }} />
+            <MenuButton
+              iconOnly={true}
+              iconName="ChevronDown"
+              menuProps={{ items: dropdownItems }}
+              style={{ height: '100%' }}
+            />
           )}
           {fullscreen ? (
             <IconButton iconName="FocusView" onClick={() => setFullscreen(false)} />

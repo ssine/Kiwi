@@ -12,6 +12,7 @@ type MenuButtonProperty = {
   iconOnly?: boolean
   menuProps: ContextualMenuProperty
   style?: React.CSSProperties
+  calloutWarpperStyle?: React.CSSProperties
 }
 
 class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: boolean }> {
@@ -30,6 +31,7 @@ class MenuButton extends React.Component<MenuButtonProperty, { isMenuVisible: bo
         direction={AttachDirection.bottomLeftEdge}
         onDismiss={_ => this.setState({ isMenuVisible: false })}
         content={<ContextualMenu {...this.props.menuProps} />}
+        wrapperStyle={this.props.calloutWarpperStyle}
       >
         {this.props.iconOnly ? (
           <button
