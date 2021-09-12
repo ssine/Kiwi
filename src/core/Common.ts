@@ -195,6 +195,12 @@ function cloneRegex(re: RegExp): RegExp {
   return clonedRegexp
 }
 
+/**
+ * RFC 3986 URI encoding
+ * [see] https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+ * @param str the uri to encode
+ * @returns the encoded uri
+ */
 function fixedEncodeURIComponent(str: string) {
   return encodeURIComponent(str).replace(/[!'()*]/g, c => {
     return '%' + c.charCodeAt(0).toString(16)

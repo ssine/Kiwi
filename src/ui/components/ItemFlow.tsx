@@ -173,7 +173,7 @@ const displayInitItems = async () => {
   if (window.location.hash !== '') {
     // have uris in has
     eventBus.emit('item-link-clicked', {
-      targetURI: window.location.hash.substr(1),
+      targetURI: decodeURIComponent(window.location.hash.substr(1)),
     })
   } else {
     // render default items

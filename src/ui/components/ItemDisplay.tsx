@@ -5,7 +5,7 @@ import { PrimaryButton } from './basic/Button/PrimaryButton'
 import { IconButton } from './basic/Button/IconButton'
 import { getCookie, isLinkInternal, isMobile } from '../Common'
 import { eventBus } from '../eventBus'
-import { resolveURI, timeFormat } from '../../core/Common'
+import { fixedEncodeURIComponent, resolveURI, timeFormat } from '../../core/Common'
 import { MenuButton } from './basic/Button/MenuButton'
 import { AttachDirection, Callout } from './basic/Callout/Callout'
 import { ItemManager } from '../ItemManager'
@@ -37,7 +37,7 @@ export const ItemDisplay = (props: {
       text: 'Copy PermaLink',
       iconName: 'Link',
       onClick: () => {
-        navigator.clipboard.writeText(`${window.location.origin}/#${uri}`)
+        navigator.clipboard.writeText(`${window.location.origin}/#${fixedEncodeURIComponent(uri)}`)
       },
     },
     {
