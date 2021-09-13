@@ -25,6 +25,7 @@ export const ItemCard = (props: {
   const ref = props.containerRef || useRef<HTMLDivElement>()
 
   useEffect(() => {
+    if (item.new) openEditorCount.val++
     eventBus.on('item-link-clicked', scrollToSelf)
     scrollToSelf({ targetURI: props.uri })
     return () => eventBus.off('item-link-clicked', scrollToSelf)
