@@ -164,8 +164,8 @@ const getAllItems = async (rootPath: string, uriPrefix: string): Promise<Record<
   const dfs = async (nodePath: string) => {
     const stat = await fs.promises.lstat(nodePath)
     if (stat.isFile()) {
-      if (nodePath.endsWith('.meta.yaml') || nodePath.endsWith('.meta.json')) {
-        // skip meta files
+      if (['.meta.yaml', '.meta.json', '.gitattributes'].some(p => nodePath.endsWith(p))) {
+        // skip meta files and git related files
         return
       }
       const [uri, item] = await pathToUriItem(rootPath, nodePath)
