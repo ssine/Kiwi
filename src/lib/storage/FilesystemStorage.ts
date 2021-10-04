@@ -171,6 +171,10 @@ const getAllItems = async (rootPath: string, uriPrefix: string): Promise<Record<
       const [uri, item] = await pathToUriItem(rootPath, nodePath)
       items[`${uriPrefix}${uri}`] = item
     } else if (stat.isDirectory()) {
+      if (nodePath.endsWith('.git')) {
+        // ignore git folder
+        return
+      }
       await Promise.all((await fs.promises.readdir(nodePath)).map(p => dfs(path.resolve(nodePath, p))))
     }
   }
