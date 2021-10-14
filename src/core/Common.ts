@@ -207,6 +207,11 @@ function fixedEncodeURIComponent(str: string) {
   })
 }
 
+// ignore '/' only
+function encodeItemURI(str: string) {
+  return fixedEncodeURIComponent(str).replace(/%2F/g, '/')
+}
+
 function trimString(s: string, c: string) {
   if (c.length !== 1) throw 'only one char trim supported!'
   if (c === ']') c = '\\]'
@@ -303,6 +308,7 @@ export {
   cloneRegex,
   editorMIMETypes,
   fixedEncodeURIComponent,
+  encodeItemURI,
   trimString,
   resolveURI,
   isURL,
