@@ -33,6 +33,9 @@ const css = `
   display: inline-block;
   width: 0.5em;
 }
+.mel-link:hover {
+  border-bottom: 2px solid var(--lineColor);
+}
 </style>
 `
 
@@ -51,6 +54,9 @@ const renderDeweyIndex = (deweyEntries, kiwiEntries) => {
     next = next.padEnd(maxLen, ' ')
     let html = ''
     let faPushed = false
+    const befores = []
+    const actives = []
+    const afters = []
     for (let i = 0; i < maxLen; i++) {
       switch (state) {
         case 'before': {
@@ -59,7 +65,7 @@ const renderDeweyIndex = (deweyEntries, kiwiEntries) => {
             i -= 1
             break
           }
-          html += `<div class="dewey-digit dewey-digit-before">${cur[i]}</div>`
+          befores.push(cur[i])
           break
         }
         case 'active': {
@@ -70,15 +76,25 @@ const renderDeweyIndex = (deweyEntries, kiwiEntries) => {
           if (cur[i] != '.' && next[i] != ' ' && cur[i] != next[i]) {
             state = 'after'
           }
-          html += `<div class="dewey-digit dewey-digit-active">${cur[i]}</div>`
+          actives.push(cur[i])
           break
         }
         case 'after': {
-          html += `<div class="dewey-digit dewey-digit-after">${cur[i]}</div>`
+          afters.push(cur[i])
           break
         }
       }
     }
+    const getDigitDiv = (ds, c) => {
+      return ds.map(d => `<div class="dewey-digit dewey-digit-${c}">${d}</div>`)
+    }
+    const arr = [].concat(getDigitDiv(befores, 'before'), getDigitDiv(actives, 'active'), getDigitDiv(afters, 'after'))
+    const links = arr.filter(s => !s.match(/> </))
+    const others = arr.filter(s => s.match(/> </))
+    if (links.length > 0) {
+      html += `<a href="https://www.librarything.com/mds/${cur.trim()}" class="mel-link">` + links.join('') + `</a>`
+    }
+    html += others.join('')
     html += '<div class="dewey-padding"></div>'
     for (let i = 0; i < firstActives[firstActives.length - 1]; i++) {
       html += '<div class="dewey-indent"></div>'
@@ -105,13 +121,13 @@ const renderDeweyIndex = (deweyEntries, kiwiEntries) => {
       let prefix = ents[keys.indexOf(key)]
       if (replaceMode) {
         if (!replaceFirst) {
-          prefix = prefix.replace(/[\.\d]/g, ' ')
+          prefix = prefix.replace(/<a.*?>(.*?)<\/a>/, '$1').replace(/[\.\d]/g, ' ')
         }
         res.splice(keys.indexOf(key) + replaceIdx, replaceFirst ? 1 : 0, prefix + `<a href="${config[name]}">${name}📄</a>`)
         replaceFirst = false
         replaceIdx++
       } else {
-        prefix = prefix.replace(/[\.\d]/g, ' ')
+        prefix = prefix.replace(/<a.*?>(.*?)<\/a>/, '$1').replace(/[\.\d]/g, ' ')
         res.splice(keys.indexOf(key) + 1, 0, prefix + `<div class="dewey-indent"></div><a href="${config[name]}">${name}📄</a>`)
       }
     }
