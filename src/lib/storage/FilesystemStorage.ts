@@ -8,6 +8,7 @@ import { ServerItem } from '../../core/ServerItem'
 import { itemToNode, nodeToItem, StorageProvider } from '../../core/Storage'
 import { getLogger } from '../../core/Log'
 import { InvalidURIError } from '../../core/Error'
+import { isErrnoException } from '../../core/Common'
 
 const logger = getLogger('filesystem')
 
@@ -142,7 +143,7 @@ const pathToUriItem = async (rootPath: string, filePath: string): Promise<[strin
       try {
         meta = JSON.parse((await fs.promises.readFile(`${filePath}.meta.json`)).toString())
       } catch (err2) {
-        if (err1.code === 'ENOENT' && err2.code === 'ENOENT') {
+        if (isErrnoException(err1) && isErrnoException(err2) && err1.code === 'ENOENT' && err2.code === 'ENOENT') {
           logger.debug(`Meta file (*.meta.yaml or *.meta.json) for ${filePath} not exists`)
         } else {
           logger.info(`Failed to read meta file for ${filePath}: ${err1} ${err2}`)

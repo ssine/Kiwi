@@ -296,6 +296,11 @@ const argFact = (compareFn: (a: number[], b: number[]) => number[]) => (array: n
 export const argMax = argFact((min, el) => (el[0] > min[0] ? el : min))
 export const argMin = argFact((max, el) => (el[0] < max[0] ? el : max))
 
+export function isErrnoException(e: unknown): e is NodeJS.ErrnoException {
+  if ('code' in (e as any)) return true
+  else return false
+}
+
 export {
   MIME,
   renderableMIME,
