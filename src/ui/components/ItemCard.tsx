@@ -17,7 +17,7 @@ export const ItemCard = (props: {
   onChange: (target: string) => void
 }) => {
   // display / edit / save
-  const item = ItemManager.getInstance().getItem(props.uri)
+  const item = manager.getItem(props.uri)
   if (!item) return <></>
   const [mode, setMode] = useState(item.new ? 'edit' : 'display')
   const [fullscreen, _setFullscreen] = useState(false)
