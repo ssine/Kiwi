@@ -33,7 +33,7 @@ kiwi serve /path/to/directory
 
 （在当前目录的话 `kiwi serve .` 即可）指令就可以启动 Kiwi 了。
 
-默认端口为 3000 ，在浏览器访问 `http://localhost:3000/` 即可。 要改变端口，可以添加命令行参数： `kiwi serve . --port 8080` 。
+默认端口为 8000 ，在浏览器访问 `http://localhost:8000/` 即可。 要改变端口，可以添加命令行参数： `kiwi serve . --port 8080` 。
 
 # 层级结构
 

@@ -9,7 +9,7 @@ const args = yargs
       .option('port', {
         alias: 'p',
         describe: 'local port to listen on',
-        default: 3000,
+        default: 8000,
       })
       .option('use-poll', {
         describe: 'use polling on listening for fs events, more robust but inefficient',
