@@ -16,6 +16,7 @@ class AsciidocParser extends Parser {
       .toArray()
       .forEach(el => {
         const lang = el.attribs['data-lang']
+        // @ts-ignore
         let code = el.children[0].data
         if (!code) return
         try {
