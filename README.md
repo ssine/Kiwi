@@ -14,7 +14,7 @@ Kiwi is an extensible content management system. Main features:
 ### Docker
 
 ```bash
-docker run --user $(id -u):$(id -g) -p 8080:8080 -v /path/to/data:/data sineliu/kiwi
+docker run -it --user $(id -u):$(id -g) -p 8080:8080 -v /path/to/data:/data sineliu/kiwi
 ```
 
 Visit http://localhost:8080 !
