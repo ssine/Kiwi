@@ -7,7 +7,7 @@ import * as hljs from 'highlight.js'
 
 // keep dollar symbols untouched for mathjax
 // @ts-ignore
-marked.Lexer.rules.inline.gfm.text = /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\$\[`*~]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?= {2,}\n|[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/
+marked.Lexer.rules.inline.gfm.text = /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\$\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
 const tokenizer = {
   codespan(src: string) {
     const match = src.match(/^((\s*\$[\s\S]+(?<!\\)\$)|(\s*\$\$[\s\S]+(?<!\\)\$\$))/g)
