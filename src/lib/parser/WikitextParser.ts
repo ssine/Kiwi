@@ -6,7 +6,7 @@
  */
 
 import { Parser } from '../../core/Parser'
-import { MIME } from '../../core/Common'
+import { MIME } from '../../core/MimeType'
 // @ts-ignore (es6 import gets the namespace, sign)
 const wtf = require('wtf_wikipedia')
 import * as cheerio from 'cheerio'

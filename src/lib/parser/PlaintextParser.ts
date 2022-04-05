@@ -1,5 +1,5 @@
 import { Parser } from '../../core/Parser'
-import { MIME } from '../../core/Common'
+import { MIME } from '../../core/MimeType'
 import escapeHTML from 'escape-html'
 
 class PlaintextParser extends Parser {

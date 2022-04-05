@@ -1,5 +1,6 @@
 import { Parser } from '../../core/Parser'
-import { MIME, fixedEncodeURIComponent } from '../../core/Common'
+import { fixedEncodeURIComponent } from '../../core/Common'
+import { MIME } from '../../core/MimeType'
 
 class MediaParser extends Parser {
   imageTypes: MIME[] = ['image/gif', 'image/x-icon', 'image/jpeg', 'image/png', 'image/svg+xml']

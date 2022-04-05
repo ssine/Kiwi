@@ -1,6 +1,6 @@
 import { Parser } from '../../core/Parser'
-import { MIME, getLanguageFromMIME, MIMELangDict } from '../../core/Common'
 import * as hljs from 'highlight.js'
+import { MIME, getMonacoLangFromType } from '../../core/MimeType'
 
 /**
  * Highlight parser for code items
@@ -9,7 +9,7 @@ export default class HighlightParser extends Parser {
   init() {}
 
   parse(kwargs: { input: string; uri: string; type: MIME }): string {
-    const lang = getLanguageFromMIME(kwargs.type)
+    const lang = getMonacoLangFromType(kwargs.type) || ''
     let res = ''
     try {
       res = hljs.highlight(lang, kwargs.input).value
@@ -18,7 +18,16 @@ export default class HighlightParser extends Parser {
   }
 
   supportedTypes(): MIME[] {
-    // @ts-ignore
-    return Object.keys(MIMELangDict)
+    return [
+      'application/json',
+      'text/yaml',
+      'text/x-c',
+      'text/x-cpp',
+      'text/css',
+      'text/x-python',
+      'text/x-java',
+      'text/javascript',
+      'text/x-typescript',
+    ]
   }
 }

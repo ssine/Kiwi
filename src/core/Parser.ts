@@ -1,4 +1,4 @@
-import { MIME } from './Common'
+import { MIME } from './MimeType'
 import { getLogger } from './Log'
 
 const logger = getLogger('parser')

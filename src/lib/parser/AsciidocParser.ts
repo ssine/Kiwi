@@ -1,5 +1,5 @@
 import { Parser } from '../../core/Parser'
-import { MIME } from '../../core/Common'
+import { MIME } from '../../core/MimeType'
 import Asciidoctor from 'asciidoctor'
 import * as cheerio from 'cheerio'
 import * as hljs from 'highlight.js'
