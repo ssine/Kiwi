@@ -65,7 +65,7 @@ class AuthManager {
 
     const bannedReaders = new Set()
     const allowedReaders = new Set()
-    for (const r of item.header.reader || []) {
+    for (const r of getNameList(item.header.reader, item.header.readers)) {
       if (r[0] === '~') {
         bannedReaders.add(r.slice(1))
       } else {
@@ -83,7 +83,7 @@ class AuthManager {
 
     const bannedWriters = new Set()
     const allowedWriters = new Set()
-    for (const r of item.header.writer || []) {
+    for (const r of getNameList(item.header.writer, item.header.writers)) {
       if (r[0] === '~') {
         bannedWriters.add(r.slice(1))
       } else {
@@ -96,6 +96,18 @@ class AuthManager {
 
 const getToken = (name: string, pass: string): string => {
   return createHash('sha256').update(`[${name}][${pass}]`).digest('hex')
+}
+
+const getNameList = (...args: (string | number | string[] | undefined)[]) => {
+  const names = []
+  for (const arg of args) {
+    if (typeof arg === 'string' || typeof arg === 'number') {
+      names.push(String(arg))
+    } else if (Array.isArray(arg)) {
+      names.push(...arg.map(v => String(v)))
+    }
+  }
+  return names
 }
 
 export { AuthManager }
