@@ -5,26 +5,14 @@
     "moduleResolution": "node",
     "target": "es6",
     "outDir": "./build/kiwi/ui/js",
-    "lib": [
-      "dom",
-      "es2017",
-      "ES2019"
-    ],
-    "types": [
-      "node"
-    ],
+    "lib": ["dom", "es2017", "ES2019"],
+    "types": ["node"],
     "baseUrl": "./node_modules",
     "jsx": "react",
     "allowSyntheticDefaultImports": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
+    "typeRoots": ["node_modules/@types"],
     "experimentalDecorators": true
   },
-  "include": [
-    "./src/ui/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./src/ui/**/*"],
+  "exclude": ["node_modules"]
 }

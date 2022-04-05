@@ -4,22 +4,13 @@
     "rootDir": "src",
     "outDir": "build",
     "target": "es5",
-    "lib": [
-      "ES2019"
-    ],
+    "lib": ["ES2019"],
     "module": "commonjs",
     "strict": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "esModuleInterop": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/__tests__/*",
-    "src/ui",
-    "src/uibk"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "**/__tests__/*", "src/ui", "src/uibk"]
 }

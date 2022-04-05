@@ -28,7 +28,8 @@
     "login_": "npm --registry https://registry.npmjs.org/ login",
     "lint": "gts lint",
     "clean": "gts clean",
-    "fix": "gts fix"
+    "fix": "gts fix",
+    "format": "npx prettier --write ."
   },
   "author": "Sine Liu",
   "license": "ISC",
@@ -64,6 +65,7 @@
     "mj-context-menu": "^0.2.2",
     "monaco-editor": "^0.21.2",
     "monaco-editor-webpack-plugin": "^2.1.0",
+    "prettier": "^2.6.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-monaco-editor": "^0.33.0",
