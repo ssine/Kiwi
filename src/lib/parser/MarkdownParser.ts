@@ -1,7 +1,7 @@
 import { Parser } from '../../core/Parser'
 import { MIME, resolveURI, isURL } from '../../core/Common'
 // import * as cheerio from 'cheerio'
-import marked from 'marked'
+import { marked } from 'marked'
 import * as hljs from 'highlight.js'
 // import { typesetDocumentMath } from './MathJaxParser'
 
