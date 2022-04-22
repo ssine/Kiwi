@@ -132,7 +132,11 @@ export const ItemDisplay = (props: {
           {item.title}
         </h2>
       </div>
-      <div className="item-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: item.renderedHTML }} />
+      {item.type === 'text/html' ? (
+        <iframe src={`/${uri}`} frameBorder="0" style={{ width: '100%', height: 800 }}></iframe>
+      ) : (
+        <div className="item-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: item.renderedHTML }} />
+      )}
       <div className="item-info" style={{ color: 'grey', paddingLeft: 20 }}>
         {(item.header.author || item.header.createTime) && 'Created'}
         {item.header.author && ` by ${item.header.author}`}

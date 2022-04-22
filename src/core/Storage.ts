@@ -56,19 +56,10 @@ const nodeToItem = (uri: string, node: Node): ServerItem => {
     content: node.content || '',
     renderedHTML: '',
     renderSync: false,
+    getContentStream: node.getReadStream,
+    contentFilePath: node.contentFilePath,
   }
-  if (isBinaryType(node.type)) {
-    return {
-      ...item,
-      getContentStream: node.getReadStream,
-      contentFilePath: node.contentFilePath,
-    }
-  } else {
-    return {
-      ...item,
-      content: node.content,
-    }
-  }
+  return item
 }
 
 const itemToNode = (item: ServerItem): Node => {

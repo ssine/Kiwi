@@ -130,7 +130,7 @@ const serve = function serve(port: number, rootFolder: string) {
       res.type('svg').send(it.content)
       return
     }
-    if (!isBinaryType(it.type)) {
+    if (it.type !== 'text/html' && !isBinaryType(it.type)) {
       // only binary items get served
       res.status(404).send(`uri ${uri} not found`)
       return

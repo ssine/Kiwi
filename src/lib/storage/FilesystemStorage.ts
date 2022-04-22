@@ -151,9 +151,8 @@ const pathToUriItem = async (rootPath: string, filePath: string): Promise<[strin
       }
     }
     // get content
-    if (isBinaryType(type)) {
-      getReadStream = () => fs.createReadStream(filePath)
-    } else {
+    getReadStream = () => fs.createReadStream(filePath)
+    if (!isBinaryType(type)) {
       content = (await fs.promises.readFile(filePath)).toString()
     }
   }
