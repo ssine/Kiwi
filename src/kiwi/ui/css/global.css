@@ -149,6 +149,10 @@ button:active {
   text-align: center;
 }
 
+.graphviz-diagram svg {
+  max-width: 100%;
+}
+
 .item-content img,
 frame {
   display: block;
