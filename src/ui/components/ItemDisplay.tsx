@@ -133,7 +133,13 @@ export const ItemDisplay = (props: {
         </h2>
       </div>
       {item.type === 'text/html' ? (
-        <iframe src={`/${uri}`} frameBorder="0" style={{ width: '100%', height: 800 }}></iframe>
+        <iframe
+          src={`/${uri}`}
+          ref={contentRef}
+          frameBorder="0"
+          onLoad={() => setIframeHeight(contentRef.current)}
+          style={{ width: '100%', maxHeight: 800 }}
+        ></iframe>
       ) : (
         <div className="item-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: item.renderedHTML }} />
       )}
@@ -250,4 +256,8 @@ const waitScriptLoad = async (sc: HTMLScriptElement): Promise<void> => {
       res()
     })
   })
+}
+
+const setIframeHeight = (el: HTMLIFrameElement) => {
+  el.style.height = `${el.contentWindow.document.body.scrollHeight}px`
 }
