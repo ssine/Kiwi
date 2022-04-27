@@ -4,6 +4,8 @@ import * as vm from 'vm'
 import ts from 'typescript'
 import { ScriptApi } from '../ScriptApi'
 import { processTopLevelAwait } from './await'
+import { resolveURI } from '../Common'
+import { ItemNotExistsError } from '../Error'
 
 const logger = getLogger('plugin')
 
@@ -49,8 +51,10 @@ function fieldCodeMatch(s: string): fieldCodeMatchResult {
 
 class ItemContext {
   ctx: vm.Context
+  uri: string
 
   constructor(uri: string) {
+    this.uri = uri
     this.ctx = {}
     const kiwi: Record<string, any> = { ...ScriptApi }
     for (const name in pluginMap) {
@@ -72,16 +76,27 @@ class ItemContext {
   }
 
   async eval(x: string): Promise<any> {
-    let code = ts.transpile(x, this.ctx)
-    if (code.includes('await')) {
-      const potentialWrappedCode = processTopLevelAwait(code)
-      if (potentialWrappedCode !== null) {
-        code = potentialWrappedCode
+    try {
+      let code = ts.transpile(x, {
+        target: ts.ScriptTarget.ES2021,
+      })
+      if (code.includes('await')) {
+        const potentialWrappedCode = processTopLevelAwait(code)
+        if (potentialWrappedCode !== null) {
+          code = potentialWrappedCode
+        }
       }
+      const res = vm.runInContext(code, this.ctx, {
+        //@ts-ignore
+        importModuleDynamically: async (specifier: string) => {
+          return loadKiwiModule(await resolveModuleUri(this.uri, specifier), this.ctx)
+        },
+      })
+      if (res instanceof Promise) return await res
+      else return res
+    } catch (e) {
+      return String(e)
     }
-    const res = vm.runInContext(code, this.ctx)
-    if (res instanceof Promise) return await res
-    else return res
   }
 }
 
@@ -90,34 +105,79 @@ const processRenderPlugin = async function processRenderPlugin(
   raw: string,
   ctx: ItemContext
 ): Promise<string> {
-  const fieldCall = async (s: string): Promise<string> => {
-    logger.silly(`eval field code call ${he.decode(s).slice(2, -2)}`)
-    let res = ''
+  try {
+    const fieldCall = async (s: string): Promise<string> => {
+      logger.silly(`eval field code call ${he.decode(s).slice(2, -2)}`)
+      let res = ''
+      try {
+        if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
+        else res = await ctx.eval(he.decode(s).slice(2, -2))
+      } catch (err) {
+        res = String(err)
+      }
+      return res
+    }
+
+    let target = raw
+    let match: fieldCodeMatchResult = null
+    let executionCount = 0
+
+    while ((match = fieldCodeMatch(target))) {
+      target =
+        target.slice(0, match.start) + (await fieldCall(target.slice(match.start, match.end))) + target.slice(match.end)
+
+      executionCount++
+      if (executionCount > 10000) {
+        target = 'Number of field code calls exceeds limit(10000).'
+        break
+      }
+    }
+
+    return target.replace(/\\{{/g, '{{').replace(/\\}}/g, '}}')
+  } catch (e) {
+    return String(e)
+  }
+}
+
+const resolveModuleUri = async (from: string, to: string) => {
+  if (to.endsWith('.ts') || to.endsWith('.js')) {
+    return resolveURI(from, to)
+  } else {
     try {
-      if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
-      else res = await ctx.eval(he.decode(s).slice(2, -2))
-    } catch (err) {
-      res = String(err)
-    }
-    return res
-  }
-
-  let target = raw
-  let match: fieldCodeMatchResult = null
-  let executionCount = 0
-
-  while ((match = fieldCodeMatch(target))) {
-    target =
-      target.slice(0, match.start) + (await fieldCall(target.slice(match.start, match.end))) + target.slice(match.end)
-
-    executionCount++
-    if (executionCount > 10000) {
-      target = 'Number of field code calls exceeds limit(10000).'
-      break
+      const tsuri = resolveURI(from, `${to}.ts`)
+      await ScriptApi.getItem(tsuri)
+      return tsuri
+    } catch (e) {
+      if (e instanceof ItemNotExistsError) {
+        try {
+          const jsuri = resolveURI(from, `${to}.js`)
+          await ScriptApi.getItem(jsuri)
+          return jsuri
+        } catch (e) {
+          throw e
+        }
+      } else {
+        throw e
+      }
     }
   }
+}
 
-  return target.replace(/\\{{/g, '{{').replace(/\\}}/g, '}}')
+const loadKiwiModule = async (uri: string, ctx: vm.Context) => {
+  const item = await ScriptApi.getItem(uri)
+  // @ts-ignore
+  const module = new vm.SourceTextModule(item.content, {
+    context: ctx,
+    importModuleDynamically: async (specifier: string) => {
+      return loadKiwiModule(await resolveModuleUri(uri, specifier), ctx)
+    },
+  })
+  await module.link(async (specifier: string, referencingModule: any) => {
+    const target = await resolveModuleUri(uri, specifier)
+    return loadKiwiModule(target, referencingModule.context)
+  })
+  await module.evaluate()
+  return module
 }
 
 export { RenderPlugin, processRenderPlugin, ItemContext }
