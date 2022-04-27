@@ -1,4 +1,4 @@
-import { RenderPlugin } from '../../core/Plugin'
+import { RenderPlugin } from '../../core/plugin'
 import { ScriptApi } from '../../core/ScriptApi'
 import { ServerItem } from '../../core/ServerItem'
 

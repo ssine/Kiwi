@@ -1,5 +1,5 @@
 import { parse } from './Parser'
-import { ItemContext, processRenderPlugin } from './Plugin'
+import { ItemContext, processRenderPlugin } from './plugin'
 import { ServerItem } from './ServerItem'
 
 export const renderItem = async (uri: string, item: ServerItem): Promise<void> => {

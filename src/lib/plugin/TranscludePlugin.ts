@@ -1,5 +1,5 @@
 import { resolveURI } from '../../core/Common'
-import { RenderPlugin } from '../../core/Plugin'
+import { RenderPlugin } from '../../core/plugin'
 import { ScriptApi } from '../../core/ScriptApi'
 
 export default class TranscludePlugin extends RenderPlugin {

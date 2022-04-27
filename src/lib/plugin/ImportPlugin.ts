@@ -1,4 +1,4 @@
-import { RenderPlugin } from '../../core/Plugin'
+import { RenderPlugin } from '../../core/plugin'
 
 export default class ImportPlugin extends RenderPlugin {
   init() {}

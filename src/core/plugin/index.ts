@@ -1,8 +1,9 @@
-import { getLogger } from './Log'
+import { getLogger } from '../Log'
 import * as he from 'he'
 import * as vm from 'vm'
 import ts from 'typescript'
-import { ScriptApi } from './ScriptApi'
+import { ScriptApi } from '../ScriptApi'
+import { processTopLevelAwait } from './await'
 
 const logger = getLogger('plugin')
 
@@ -71,7 +72,14 @@ class ItemContext {
   }
 
   async eval(x: string): Promise<any> {
-    const res = vm.runInContext(ts.transpile(x, this.ctx), this.ctx)
+    let code = ts.transpile(x, this.ctx)
+    if (code.includes('await')) {
+      const potentialWrappedCode = processTopLevelAwait(code)
+      if (potentialWrappedCode !== null) {
+        code = potentialWrappedCode
+      }
+    }
+    const res = vm.runInContext(code, this.ctx)
     if (res instanceof Promise) return await res
     else return res
   }
@@ -89,7 +97,7 @@ const processRenderPlugin = async function processRenderPlugin(
       if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
       else res = await ctx.eval(he.decode(s).slice(2, -2))
     } catch (err) {
-      res = err
+      res = String(err)
     }
     return res
   }

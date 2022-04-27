@@ -1,4 +1,4 @@
-import { RenderPlugin } from '../../core/Plugin'
+import { RenderPlugin } from '../../core/plugin'
 const Viz = require('viz.js')
 const { Module, render } = require('viz.js/full.render.js')
 import * as cheerio from 'cheerio'
