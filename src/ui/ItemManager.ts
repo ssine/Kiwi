@@ -1,4 +1,4 @@
-import { suggestedURIToTitle } from '../core/Common'
+import { resolveURI, suggestedURIToTitle } from '../core/Common'
 import { ItemNotExistsError } from '../core/Error'
 import { isBinaryType } from '../core/MimeType'
 import { deleteItem, getItem, getSkinnyItems, getSystemItems, putBinaryItem, putItem } from './api'
@@ -116,6 +116,38 @@ export class ItemManager {
     this.generateUriTree()
     eventBus.emit('item-saved', { uri, item })
     return rendered
+  }
+
+  async moveItem(fromUri: string, toUri: string): Promise<void> {
+    console.log(`move item from ${fromUri} to ${toUri}`)
+    if (fromUri === toUri) return
+    // TODO: Move entire tree. Maybe new operation is needed.
+    await this.ensureItemLoaded(fromUri)
+    const item = this.getItem(fromUri)
+    await this.saveItem(toUri, item)
+    await this.deleteItem(fromUri)
+  }
+
+  /**
+   * Move a node together with it's childs to new location
+   * a/b/c/d
+   * e/f
+   */
+  async moveTree(fromUri: string, toUri: string): Promise<void> {
+    console.log(`move tree from ${fromUri} to ${toUri}`)
+    const numFromSegments = fromUri.split('/').length
+    for (const uri of Object.keys(this.items)) {
+      if (uri === fromUri) {
+        const fromName = uri.split('/').pop()
+        await this.moveItem(uri, resolveURI(toUri, fromName))
+      } else if (uri.startsWith(`${fromUri}/`)) {
+        const fromName = uri
+          .split('/')
+          .slice(numFromSegments - 1)
+          .join('/')
+        await this.moveItem(uri, resolveURI(toUri, fromName))
+      }
+    }
   }
 
   hasItem(uri: string): boolean {

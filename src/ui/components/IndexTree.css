@@ -22,15 +22,19 @@
   background-color: var(--blockColorLighter);
 }
 
-.kiwi-indextree-foldicon {
+.kiwi-indextree-frontblock {
   height: 1.4rem;
   width: 1.4rem;
   line-height: 1.4rem;
-  font-size: 0.7em;
+  font-size: 0.7rem;
   text-align: center;
   color: rgb(96, 94, 92);
 }
 
-.kiwi-indextree-foldicon:hover {
+.kiwi-indextree-hovereffect {
+  width: 100%;
+}
+
+.kiwi-indextree-hovereffect:hover {
   background-color: var(--blockColor);
 }

@@ -1,6 +1,5 @@
 import './IndexTree.css'
 import React, { useEffect, useState } from 'react'
-import { getEmPixels } from '../Common'
 import { eventBus } from '../eventBus'
 import { ItemManager } from '../ItemManager'
 
@@ -10,6 +9,7 @@ type NodeState = {
   uri: string
   expand: boolean
   childs: NodeState[]
+  dragOverCount: number
 }
 
 const INDENT_WIDTH = 15
@@ -30,44 +30,91 @@ export const IndexTree = () => {
 
   const _renderTree = (node: NodeState, level: number): JSX.Element[] => {
     let nodeList = []
-    const curNode =
-      Object.keys(node.childs).length > 0 ? (
+    const hasChild = Object.keys(node.childs).length > 0
+    const curNode = (
+      <div
+        key={node.uri}
+        className="kiwi-indextree-item"
+        style={{ paddingLeft: INDENT_WIDTH * level }}
+        draggable={true}
+        onDragStart={ev => {
+          ev.dataTransfer.setData('text/plain', node.uri)
+          /**
+           * we don't want to allow drop on the same object, but html api won't allow reading
+           * data content on drag over (only on drop). So we add uri as a type and just inspect
+           * if that type exists.
+           * see https://stackoverflow.com/a/28487486
+           */
+          ev.dataTransfer.setData(node.uri, 'dummy')
+        }}
+        onDragOver={ev => {
+          const isSelf = node.uri.startsWith(ev.dataTransfer.types[1])
+          if (!isSelf) {
+            ev.preventDefault()
+          }
+          if (hasChild && !isSelf && !node.expand) {
+            node.expand = true
+            setRoot({ ...root })
+          }
+        }}
+        onDragEnter={ev => {
+          node.dragOverCount++
+          setRoot({ ...root })
+        }}
+        onDragLeave={ev => {
+          node.dragOverCount--
+          setRoot({ ...root })
+        }}
+        onDrop={async ev => {
+          const dropInside = node.dragOverCount > 1
+          node.dragOverCount = 0
+          setRoot({ ...root })
+          const from = ev.dataTransfer.getData('text/plain')
+          if (from !== node.uri) {
+            await manager.moveTree(from, `${node.uri}${dropInside ? '/' : ''}`)
+          }
+        }}
+        onClick={_ => {
+          eventBus.emit('item-link-clicked', {
+            targetURI: node.uri,
+          })
+        }}
+      >
         <div
-          key={node.uri}
-          className="kiwi-indextree-item"
-          style={{ paddingLeft: INDENT_WIDTH * level }}
-          onClick={_ => {
-            eventBus.emit('item-link-clicked', {
-              targetURI: node.uri,
-            })
+          className="kiwi-indextree-frontblock"
+          onDragEnter={ev => {
+            node.dragOverCount++
+            setRoot({ ...root })
+          }}
+          onDragLeave={ev => {
+            node.dragOverCount--
+            setRoot({ ...root })
           }}
         >
-          <div
-            className={`kiwi-indextree-foldicon ms-Icon ms-Icon--${node.expand ? 'ChevronDown' : 'ChevronRight'}`}
-            onClick={ev => {
-              node.expand = !node.expand
-              setRoot({
-                ...root,
-              })
-              ev.stopPropagation()
-            }}
-          ></div>
-          {manager.getItem(node.uri) ? manager.getItem(node.uri).title : node.uri.split('/').pop()}
+          {node.dragOverCount > 0 ? (
+            <div
+              className={`kiwi-indextree-hovereffect ms-Icon ms-Icon--${
+                node.dragOverCount > 1 ? 'RadioBtnOn' : 'RadioBtnOff'
+              }`}
+            ></div>
+          ) : hasChild ? (
+            <div
+              className={`kiwi-indextree-hovereffect ms-Icon ms-Icon--${node.expand ? 'ChevronDown' : 'ChevronRight'}`}
+              onClick={ev => {
+                node.expand = !node.expand
+                setRoot({
+                  ...root,
+                })
+                ev.stopPropagation()
+              }}
+            ></div>
+          ) : (
+            <></>
+          )}
         </div>
-      ) : (
-        <div
-          key={node.uri}
-          className="kiwi-indextree-item"
-          style={{ paddingLeft: INDENT_WIDTH * level + getEmPixels() * 1.4 }}
-          onClick={_ => {
-            eventBus.emit('item-link-clicked', {
-              targetURI: node.uri,
-            })
-          }}
-        >
-          {manager.getItem(node.uri) ? manager.getItem(node.uri).title : node.uri.split('/').pop()}
-        </div>
-      )
+        {manager.getItem(node.uri) ? manager.getItem(node.uri).title : node.uri.split('/').pop()}
+      </div>
+    )
 
     nodeList.push(curNode)
     if (Object.keys(node.childs).length > 0 && node.expand) {
@@ -94,6 +141,7 @@ const generateNodeState = (uris: string[]): NodeState => {
     uri: '/',
     expand: true,
     childs: [],
+    dragOverCount: 0,
   }
 
   const traverse = (segments: string[]): NodeState => {
@@ -109,6 +157,7 @@ const generateNodeState = (uris: string[]): NodeState => {
           uri: uri,
           expand: false,
           childs: [],
+          dragOverCount: 0,
         }
         cur_node.childs.push(new_node)
         cur_node = new_node
