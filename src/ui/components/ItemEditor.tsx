@@ -42,13 +42,14 @@ export const ItemEditor = (props: {
         for (let idx = 0; idx < files.length; idx++) {
           const file = files[idx]
           if (file.type.indexOf('image') !== -1) {
-            const ext = file.name.match(/\.\S+?$/)[0].substr(1)
-            const fn = `asset/${timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())}.${ext}`
+            const ext = file.name.match(/\.\S+?$/)[0].substring(1)
+            const time = timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())
+            const fn = `asset/${time}.${ext}`
             showMessage(MessageType.info, `uploading image as ${fn}`, 3)
             await manager.saveItem(
               resolveURI(uri, fn),
               {
-                title: 'Autouploaded Image',
+                title: `${time}.${ext}`,
                 skinny: true,
                 type: file.type as MIME,
                 header: {},
