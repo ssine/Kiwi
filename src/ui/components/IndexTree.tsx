@@ -38,7 +38,10 @@ export const IndexTree = () => {
       <div
         key={node.uri}
         className="kiwi-indextree-item"
-        style={{ paddingLeft: INDENT_WIDTH * level }}
+        style={{
+          paddingLeft: INDENT_WIDTH * level,
+          ...(node.dragOverCount > 0 && { backgroundColor: 'var(--blockColorLighter)' }),
+        }}
         draggable={true}
         onDragStart={ev => {
           ev.dataTransfer.setData('text/plain', node.uri)
