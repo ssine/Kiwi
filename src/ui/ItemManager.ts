@@ -124,7 +124,11 @@ export class ItemManager {
     // TODO: Move entire tree. Maybe new operation is needed.
     await this.ensureItemLoaded(fromUri)
     const item = this.getItem(fromUri)
-    await this.saveItem(toUri, item)
+    if (isBinaryType(item.type)) {
+      await this.saveItem(toUri, item, new File([await (await fetch(`/${fromUri}`)).blob()], ''))
+    } else {
+      await this.saveItem(toUri, item)
+    }
     await this.deleteItem(fromUri)
   }
 
