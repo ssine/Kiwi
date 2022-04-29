@@ -204,7 +204,7 @@ const processDroppedContent = async (ev: React.DragEvent<HTMLDivElement>, zoneUr
               title: file.name,
               skinny: true,
               type: file.type as MIME,
-              header: {},
+              header: { createTime: Date.now() },
               renderSync: false,
               renderedHTML: '',
             },
@@ -218,7 +218,7 @@ const processDroppedContent = async (ev: React.DragEvent<HTMLDivElement>, zoneUr
             skinny: true,
             type: file.type as MIME,
             content: await file.text(),
-            header: {},
+            header: { createTime: Date.now() },
             renderSync: false,
             renderedHTML: '',
           })
