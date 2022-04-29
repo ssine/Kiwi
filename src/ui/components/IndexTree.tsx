@@ -2,6 +2,9 @@ import './IndexTree.css'
 import React, { useEffect, useState } from 'react'
 import { eventBus } from '../eventBus'
 import { ItemManager } from '../ItemManager'
+import { isBinaryType, isContentType, MIME } from '../../core/MimeType'
+import { MessageType, showMessage } from './MessageList'
+import { resolveURI } from '../../core/Common'
 
 const manager = ItemManager.getInstance()
 
@@ -66,13 +69,12 @@ export const IndexTree = () => {
           setRoot({ ...root })
         }}
         onDrop={async ev => {
+          ev.preventDefault()
+          ev.persist()
           const dropInside = node.dragOverCount > 1
           node.dragOverCount = 0
           setRoot({ ...root })
-          const from = ev.dataTransfer.getData('text/plain')
-          if (from !== node.uri) {
-            await manager.moveTree(from, `${node.uri}${dropInside ? '/' : ''}`)
-          }
+          await processDroppedContent(ev, node.uri, dropInside)
         }}
         onClick={_ => {
           eventBus.emit('item-link-clicked', {
@@ -178,4 +180,53 @@ const assignNodeState = (toState: NodeState, fromState: NodeState) => {
     assignNodeState(filtered[0], fs)
   })
   return toState
+}
+
+const processDroppedContent = async (ev: React.DragEvent<HTMLDivElement>, zoneUri: string, inside: boolean) => {
+  const from = ev.dataTransfer.getData('text/plain')
+  // TODO: no an accurate description
+  if (from !== '') {
+    // item drag and drop
+    if (from !== zoneUri) {
+      await manager.moveTree(from, `${zoneUri}${inside ? '/' : ''}`)
+    }
+  } else {
+    // check for possible files
+    for (let i = 0; i < ev.dataTransfer.items.length; i++) {
+      const d = ev.dataTransfer.items[i]
+      if (d.kind === 'file') {
+        const file = d.getAsFile()
+        if (isBinaryType(file.type as MIME)) {
+          const targetUri = resolveURI(`${zoneUri}${inside ? '/' : ''}`, file.name)
+          await manager.saveItem(
+            targetUri,
+            {
+              title: file.name,
+              skinny: true,
+              type: file.type as MIME,
+              header: {},
+              renderSync: false,
+              renderedHTML: '',
+            },
+            file
+          )
+        } else if (isContentType(file.type as MIME)) {
+          const basename = file.name.substring(0, file.name.lastIndexOf('.')) || file.name
+          const targetUri = resolveURI(`${zoneUri}${inside ? '/' : ''}`, basename)
+          await manager.saveItem(targetUri, {
+            title: basename,
+            skinny: true,
+            type: file.type as MIME,
+            content: await file.text(),
+            header: {},
+            renderSync: false,
+            renderedHTML: '',
+          })
+        } else {
+          showMessage(MessageType.warning, `${file.name} ignored as type ${file.type} is not supported`)
+          continue
+        }
+      }
+    }
+  }
 }
