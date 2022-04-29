@@ -135,11 +135,12 @@ export const ItemDisplay = (props: {
       {item.type === 'text/html' ? (
         <iframe
           src={`/${uri}`}
+          srcDoc={item.content}
           ref={contentRef}
           frameBorder="0"
           onLoad={() => setIframeHeight(contentRef.current)}
           style={{ width: '100%', maxHeight: 800 }}
-        ></iframe>
+        />
       ) : (
         <div className="item-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: item.renderedHTML }} />
       )}
