@@ -1,10 +1,9 @@
-import React, { CSSProperties, useEffect, useReducer, useState } from 'react'
-import { getSkinnyItems, getSystemItems } from './api'
-import { ClientItem } from './ClientItem'
+import React, { useEffect, useReducer, useState } from 'react'
 import { FlowDisplayMode } from './Common'
 import { ItemFlow } from './components/ItemFlow'
 import { MessageList } from './components/MessageList'
 import { Sidebar } from './components/Sidebar'
+import { eventBus } from './eventBus'
 
 const reduceUris = (uris: string[], action: any) => {
   switch (action.type) {
@@ -50,6 +49,12 @@ export const App = () => {
   )
   const [sidebarWidth, setSidebarWidth] = useState(parseInt(localStorage.getItem('sidebarWidth')) || 400)
   const [itemWidth, setItemWidth] = useState(parseInt(localStorage.getItem('itemWidth')) || 750)
+
+  useEffect(() => {
+    eventBus.on('item-deleted', data => {
+      dispatch({ type: 'remove', uri: data.uri })
+    })
+  }, [])
 
   return (
     <div>
