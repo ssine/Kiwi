@@ -49,6 +49,15 @@ window.onload = async () => {
 
   // @ts-ignore
   window.kiwi = ScriptApi
+
+  window.addEventListener('beforeunload', (ev: BeforeUnloadEvent) => {
+    if (Object.values(store.getState().opened.items).filter(i => i.mode === 'edit').length > 0) {
+      ev.preventDefault()
+      ev.returnValue = 'Please check and save opened editors before leaving.'
+    } else {
+      delete ev.returnValue
+    }
+  })
 }
 
 const initMonacoEditor = () => {

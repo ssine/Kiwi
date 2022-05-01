@@ -19,8 +19,6 @@ export const ItemFlow = () => {
   const showSidebar = useAppSelector(s => s.sidebar.show)
   const sidebarWidth = useAppSelector(s => s.sidebar.width)
   const uris = useAppSelector(s => s.opened.uris)
-  const items = useAppSelector(s => s.opened.items)
-  const openedEditorCount = Object.values(items).filter(i => i.mode === 'edit').length
 
   const [flows, setFlows] = useState<string[][]>([])
 
@@ -68,21 +66,8 @@ export const ItemFlow = () => {
   })
 
   useEffect(() => {
-    window.addEventListener('beforeunload', onWindowClose)
     displayInitItems()
-    return () => {
-      window.removeEventListener('beforeunload', onWindowClose)
-    }
   }, [])
-
-  const onWindowClose = (ev: BeforeUnloadEvent) => {
-    if (openedEditorCount > 0) {
-      ev.preventDefault()
-      ev.returnValue = 'Please check and save opened editors before leaving.'
-    } else {
-      delete ev.returnValue
-    }
-  }
 
   return displayMode === 'flow' ? (
     <div
