@@ -9,7 +9,6 @@ import { smoothLayoutChange } from './operations'
 export const ItemCard = (props: { uri: string }) => {
   // display / edit / save
   const { uri } = props
-  console.log(`rendering ${uri}`)
   const item = useAppSelector(s => getItemFromState(s, uri))
   const itemWidth = useAppSelector(s => s.itemFlow.itemWidth)
   const mode = useAppSelector(s => s.opened.items[uri]?.mode)
@@ -19,6 +18,7 @@ export const ItemCard = (props: { uri: string }) => {
   useLayoutEffect(() => {
     ;(async () => {
       const containerDiv = getItemCardDiv(uri)
+      console.log(containerDiv)
       if (containerDiv) {
         await smoothLayoutChange(containerDiv, lastPositoinRef.current)
         lastPositoinRef.current = getPositionToDocument(containerDiv)
@@ -26,7 +26,9 @@ export const ItemCard = (props: { uri: string }) => {
     })()
   })
 
-  if (!item) return <></>
+  if (!item) {
+    return <div id={`kiwi-itemcard-${uri}`}></div>
+  }
 
   const render = () => {
     switch (mode) {
