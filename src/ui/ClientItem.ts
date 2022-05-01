@@ -1,7 +1,9 @@
 import { BaseItem } from '../core/BaseItem'
 
+export type ClientItemStatus = 'bare' | 'loading' | 'saving' | 'full' | 'creating'
+
 export interface ClientItem extends BaseItem {
-  skinny: boolean
+  state: ClientItemStatus
   /**
    * is this item newly created?
    * if new === true, the item was initialy displaied in edit mode,

@@ -145,6 +145,13 @@ export function isErrnoException(e: unknown): e is NodeJS.ErrnoException {
   else return false
 }
 
+export const arrayEqual = (a: any[], b: any[]) => {
+  if (a === b) return true
+  if (!a || !b) return false
+  if (a.length !== b.length) return false
+  return a.every((val, idx) => val === b[idx])
+}
+
 export {
   assignCommonProperties,
   sleep,

@@ -1,33 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { ClientItem } from '../ClientItem'
-import { getEmPixels } from '../Common'
-import { IconButton } from './basic/Button/IconButton'
-import { MonacoEditor } from './editor/MonacoEditor'
-import { TitleEditorComponent } from './editor/TitleEditor'
-import { getMonacoLangFromType, MIME } from '../../core/MimeType'
-import { HeaderEditor, HeaderEntry } from './editor/HeaderEditor'
-import { ItemHeader } from '../../core/BaseItem'
-import { resolveURI, timeFormat } from '../../core/Common'
-import { ItemManager } from '../ItemManager'
-import { MessageType, showMessage } from './MessageList'
+import { getEmPixels, getItemCardDiv } from '../../Common'
+import { IconButton } from '../../components/basic/Button/IconButton'
+import { MonacoEditor } from '../../components/editor/MonacoEditor'
+import { TitleEditorComponent } from '../../components/editor/TitleEditor'
+import { getMonacoLangFromType, MIME } from '../../../core/MimeType'
+import { HeaderEditor, HeaderEntry } from '../../components/editor/HeaderEditor'
+import { ItemHeader } from '../../../core/BaseItem'
+import { resolveURI, sleep, timeFormat } from '../../../core/Common'
+import { useAppDispatch, useAppSelector } from '../../store'
+import { deleteItem, displayItem, saveItem } from '../global/item'
+import { rotateIn, rotateOut, setItemFullScreen, setItemMode } from './operations'
+import { MessageType, showMessage } from '../messageList/messageListSlice'
 
-const manager = ItemManager.getInstance()
-
-export const ItemEditor = (props: {
-  uri: string
-  item: ClientItem
-  onSave: (uri: string, item: ClientItem) => void
-  onCancel: () => void
-  fullscreen: boolean
-  setFullscreen: (fullscreen: boolean) => void
-}) => {
-  const { uri: originalUri, item: originalItem, onSave: saveCallback, onCancel, fullscreen, setFullscreen } = props
+export const ItemEditor = (props: { uri: string }) => {
+  const { uri: originalUri } = props
+  const originalItem = useAppSelector(s => s.items[originalUri])
+  const fullScreen = useAppSelector(s => s.opened.items[originalUri].fullScreen)
+  const dispatch = useAppDispatch()
 
   // split parts to edit: uri, title, type, tags
   const [uri, setUri] = useState(originalUri)
   const [title, setTitle] = useState(originalItem.title)
   const [headerEntries, setHeaderEntries] = useState(headerToEntry(originalItem.header))
   const [type, setType] = useState(originalItem.type)
+  const [saving, setSaving] = useState(false)
 
   // ref to monaco editor, contents are managed by monaco editor
   const monacoRef = useRef(null)
@@ -45,20 +41,20 @@ export const ItemEditor = (props: {
             const ext = file.name.match(/\.\S+?$/)[0].substring(1)
             const time = timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())
             const fn = `asset/${time}.${ext}`
-            showMessage(MessageType.info, `uploading image as ${fn}`, 3)
-            await manager.saveItem(
-              resolveURI(uri, fn),
-              {
+            showMessage({ type: MessageType.info, text: `uploading image as ${fn}`, liveSecond: 3 })
+            await saveItem({
+              uri: resolveURI(uri, fn),
+              item: {
                 title: `${time}.${ext}`,
-                skinny: true,
+                state: 'bare',
                 type: file.type as MIME,
                 header: {},
                 renderSync: false,
                 renderedHTML: '',
               },
-              file
-            )
-            showMessage(MessageType.success, `image saved to ${fn}`, 3)
+              file,
+            })
+            showMessage({ type: MessageType.success, text: `image saved to ${fn}`, liveSecond: 3 })
             monacoRef.current.trigger('keyboard', 'type', { text: `![img](${fn})` })
             ev.preventDefault()
           }
@@ -67,24 +63,38 @@ export const ItemEditor = (props: {
     })
   }, [])
 
-  const onSave = () => {
-    saveCallback(uri, {
-      title: title,
-      content: monacoRef.current.getValue(),
-      type: type,
-      header: {
-        author: originalItem.header.author,
-        createTime: originalItem.header.createTime,
-        modifyTime: Date.now(),
-        ...entryToHeader(headerEntries),
-      },
-      skinny: false,
-      renderSync: false,
-      renderedHTML: '',
-    })
+  const onSave = async () => {
+    setSaving(true)
+    try {
+      await saveItem({
+        uri,
+        item: {
+          title: title,
+          content: monacoRef.current.getValue(),
+          type: type,
+          state: 'full',
+          header: {
+            author: originalItem.header.author,
+            createTime: originalItem.header.createTime,
+            modifyTime: Date.now(),
+            ...entryToHeader(headerEntries),
+          },
+          renderSync: false,
+          renderedHTML: '',
+        },
+      })
+      if (originalUri !== uri) {
+        await deleteItem(originalUri, uri)
+      }
+    } catch (err) {
+      setSaving(false)
+      return
+    }
+    dispatch(setItemMode({ uri: uri, mode: 'display' }))
+    setSaving(false)
   }
 
-  const heightKey = fullscreen ? 'fullscreen-editor-height' : `editor-height-${uri}`
+  const heightKey = fullScreen ? 'fullscreen-editor-height' : `editor-height-${uri}`
 
   return (
     <div
@@ -94,13 +104,20 @@ export const ItemEditor = (props: {
           evt.preventDefault()
         }
       }}
+      style={
+        saving
+          ? {
+              filter: 'blur(5px)',
+            }
+          : {}
+      }
     >
       <TitleEditorComponent uri={uri} setUri={setUri} title={title} setTitle={setTitle}>
-        {fullscreen ? (
+        {fullScreen ? (
           <IconButton
             iconName="FocusView"
             onClick={() => {
-              setFullscreen(false)
+              setItemFullScreen({ uri: originalUri, fullScreen: false })
               setTimeout(() => {
                 monacoRef.current.layout()
               }, 0)
@@ -110,7 +127,7 @@ export const ItemEditor = (props: {
           <IconButton
             iconName="FullView"
             onClick={() => {
-              setFullscreen(true)
+              setItemFullScreen({ uri: originalUri, fullScreen: true })
               setTimeout(() => {
                 monacoRef.current.layout()
               }, 0)
@@ -118,7 +135,14 @@ export const ItemEditor = (props: {
           />
         )}
         <IconButton iconName="Accept" onClick={onSave} />
-        <IconButton iconName="RevToggleKey" onClick={onCancel} />
+        <IconButton
+          iconName="RevToggleKey"
+          onClick={async () => {
+            await rotateOut(getItemCardDiv(originalUri))
+            dispatch(setItemMode({ uri: uri, mode: 'display' }))
+            await rotateIn(getItemCardDiv(originalUri))
+          }}
+        />
       </TitleEditorComponent>
       <div
         className="kiwi-edit-item-content"

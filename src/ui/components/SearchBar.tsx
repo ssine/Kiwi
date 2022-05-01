@@ -1,8 +1,8 @@
-import { eventBus } from '../../ui/eventBus'
 import React, { useState } from 'react'
 import { Callout, AttachDirection } from './basic/Callout/Callout'
 import { SearchBox } from './basic/SearchBox/SearchBox'
 import { getSearchResult } from '../api'
+import { displayItem } from '../features/global/item'
 
 export const SearchBar = () => {
   const [isSearching, setIsSearching] = useState(false)
@@ -16,11 +16,7 @@ export const SearchBar = () => {
       content={
         <>
           {searchResults.map(uri => (
-            <div
-              className="kiwi-search-item"
-              key={uri}
-              onClick={_ => eventBus.emit('item-link-clicked', { targetURI: uri })}
-            >
+            <div className="kiwi-search-item" key={uri} onClick={() => displayItem(uri)}>
               {uri}
             </div>
           ))}

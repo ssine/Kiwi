@@ -1,35 +1,22 @@
 import './IndexTree.css'
-import React, { useEffect, useState } from 'react'
-import { eventBus } from '../eventBus'
-import { ItemManager } from '../ItemManager'
-import { isBinaryType, isContentType, MIME } from '../../core/MimeType'
-import { MessageType, showMessage } from './MessageList'
-import { resolveURI } from '../../core/Common'
-
-const manager = ItemManager.getInstance()
-
-type NodeState = {
-  uri: string
-  expand: boolean
-  childs: NodeState[]
-  dragOverCount: number
-}
+import React from 'react'
+import { isBinaryType, isContentType, MIME } from '../../../core/MimeType'
+import { MessageType, showMessage } from '../messageList/messageListSlice'
+import { resolveURI } from '../../../core/Common'
+import { store, useAppDispatch, useAppSelector } from '../../store'
+import { NodeState, setRoot } from './indexTreeSlice'
+import { displayItem, moveTree, saveItem } from '../global/item'
+import clone from 'clone'
 
 const INDENT_WIDTH = 15
 
-const getState = () => generateNodeState(Object.keys(Object.assign({}, manager.systemItems, manager.items)))
-
 // TODO: update tree on items change
 export const IndexTree = () => {
-  const [root, setRoot] = useState(getState())
-
-  useEffect(() => {
-    eventBus.on('item-tree-changed', () => {
-      setRoot(oldRoot => {
-        return assignNodeState(getState(), oldRoot)
-      })
-    })
-  }, [])
+  const dispatch = useAppDispatch()
+  const root = clone(useAppSelector(s => s.indexTree))
+  const systemItems = useAppSelector(s => s.systemItems)
+  const items = useAppSelector(s => s.items)
+  const getItem = (uri: string) => items[uri] || systemItems[uri]
 
   const _renderTree = (node: NodeState, level: number): JSX.Element[] => {
     let nodeList = []
@@ -58,42 +45,46 @@ export const IndexTree = () => {
           if (!isSelf) {
             ev.preventDefault()
           }
-          if (hasChild && !isSelf && !node.expand) {
-            node.expand = true
-            setRoot({ ...root })
-          }
         }}
         onDragEnter={ev => {
           node.dragOverCount++
-          setRoot({ ...root })
+          dispatch(setRoot(clone(root)))
+          setTimeout(() => {
+            const newRoot = store.getState().indexTree
+            const curNode = findNodeinTree(newRoot, node.uri)
+            if (curNode && !curNode.expand && curNode.dragOverCount > 0) {
+              const newRootCopy = clone(newRoot)
+              const curNodeCopy = findNodeinTree(newRootCopy, node.uri)
+              curNodeCopy.expand = true
+              dispatch(setRoot(newRootCopy))
+            }
+          }, 500)
         }}
         onDragLeave={ev => {
           node.dragOverCount--
-          setRoot({ ...root })
+          dispatch(setRoot(clone(root)))
         }}
         onDrop={async ev => {
           ev.preventDefault()
           ev.persist()
           const dropInside = node.dragOverCount > 1
           node.dragOverCount = 0
-          setRoot({ ...root })
+          dispatch(setRoot(clone(root)))
           await processDroppedContent(ev, node.uri, dropInside)
         }}
         onClick={_ => {
-          eventBus.emit('item-link-clicked', {
-            targetURI: node.uri,
-          })
+          displayItem(node.uri)
         }}
       >
         <div
           className="kiwi-indextree-frontblock"
           onDragEnter={ev => {
             node.dragOverCount++
-            setRoot({ ...root })
+            dispatch(setRoot(clone(root)))
           }}
           onDragLeave={ev => {
             node.dragOverCount--
-            setRoot({ ...root })
+            dispatch(setRoot(clone(root)))
           }}
         >
           {node.dragOverCount > 0 ? (
@@ -107,9 +98,7 @@ export const IndexTree = () => {
               className={`kiwi-indextree-hovereffect ms-Icon ms-Icon--${node.expand ? 'ChevronDown' : 'ChevronRight'}`}
               onClick={ev => {
                 node.expand = !node.expand
-                setRoot({
-                  ...root,
-                })
+                dispatch(setRoot(clone(root)))
                 ev.stopPropagation()
               }}
             ></div>
@@ -117,7 +106,7 @@ export const IndexTree = () => {
             <></>
           )}
         </div>
-        {manager.getItem(node.uri) ? manager.getItem(node.uri).title : node.uri.split('/').pop()}
+        {getItem(node.uri) ? getItem(node.uri).title : node.uri.split('/').pop()}
       </div>
     )
 
@@ -141,57 +130,13 @@ export const IndexTree = () => {
   return <div className="kiwi-tree-list">{_renderTree(root, -1).slice(1)}</div>
 }
 
-const generateNodeState = (uris: string[]): NodeState => {
-  const root: NodeState = {
-    uri: '/',
-    expand: true,
-    childs: [],
-    dragOverCount: 0,
-  }
-
-  const traverse = (segments: string[]): NodeState => {
-    let cur_node = root
-    for (const [idx, seg] of segments.entries()) {
-      if (seg === '') continue
-      const uri = segments.slice(0, idx + 1).join('/')
-      const next_nodes = cur_node.childs.filter(node => node.uri === uri)
-      if (next_nodes.length > 0) {
-        cur_node = next_nodes[0]
-      } else {
-        const new_node = {
-          uri: uri,
-          expand: false,
-          childs: [],
-          dragOverCount: 0,
-        }
-        cur_node.childs.push(new_node)
-        cur_node = new_node
-      }
-    }
-    return cur_node
-  }
-
-  uris.forEach(uri => traverse(uri.split('/')))
-  return root
-}
-
-const assignNodeState = (toState: NodeState, fromState: NodeState) => {
-  toState.expand = fromState.expand
-  fromState.childs.forEach(fs => {
-    const filtered = toState.childs.filter(ts => ts.uri === fs.uri)
-    if (filtered.length === 0) return
-    assignNodeState(filtered[0], fs)
-  })
-  return toState
-}
-
 const processDroppedContent = async (ev: React.DragEvent<HTMLDivElement>, zoneUri: string, inside: boolean) => {
   const from = ev.dataTransfer.getData('text/plain')
   // TODO: no an accurate description
   if (from !== '') {
     // item drag and drop
     if (from !== zoneUri) {
-      await manager.moveTree(from, `${zoneUri}${inside ? '/' : ''}`)
+      await moveTree(from, `${zoneUri}${inside ? '/' : ''}`)
     }
   } else {
     // check for possible files
@@ -201,35 +146,53 @@ const processDroppedContent = async (ev: React.DragEvent<HTMLDivElement>, zoneUr
         const file = d.getAsFile()
         if (isBinaryType(file.type as MIME)) {
           const targetUri = resolveURI(`${zoneUri}${inside ? '/' : ''}`, file.name)
-          await manager.saveItem(
-            targetUri,
-            {
+          await saveItem({
+            uri: targetUri,
+            item: {
               title: file.name,
-              skinny: true,
+              state: 'bare',
               type: file.type as MIME,
               header: { createTime: Date.now() },
               renderSync: false,
               renderedHTML: '',
             },
-            file
-          )
+            file,
+          })
         } else if (isContentType(file.type as MIME)) {
           const basename = file.name.substring(0, file.name.lastIndexOf('.')) || file.name
           const targetUri = resolveURI(`${zoneUri}${inside ? '/' : ''}`, basename)
-          await manager.saveItem(targetUri, {
-            title: basename,
-            skinny: true,
-            type: file.type as MIME,
-            content: await file.text(),
-            header: { createTime: Date.now() },
-            renderSync: false,
-            renderedHTML: '',
+          await saveItem({
+            uri: targetUri,
+            item: {
+              title: basename,
+              state: 'bare',
+              type: file.type as MIME,
+              content: await file.text(),
+              header: { createTime: Date.now() },
+              renderSync: false,
+              renderedHTML: '',
+            },
           })
         } else {
-          showMessage(MessageType.warning, `${file.name} ignored as type ${file.type} is not supported`)
+          showMessage({ type: MessageType.warning, text: `${file.name} ignored as type ${file.type} is not supported` })
           continue
         }
       }
     }
   }
+}
+
+const findNodeinTree = (root: NodeState, uri: string): NodeState | null => {
+  let cur = root
+  const segments = uri.split('/')
+  for (const [idx, segment] of segments.entries()) {
+    const prefix = segments.slice(0, idx + 1).join('/')
+    const next = cur.childs.filter(n => n.uri === prefix)
+    if (next.length > 0) {
+      cur = next[0]
+    } else {
+      return null
+    }
+  }
+  return cur
 }

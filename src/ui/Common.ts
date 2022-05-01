@@ -210,6 +210,15 @@ export type FlowDisplayMode = 'center' | 'flow'
 
 export const openEditorCount = { val: 0 }
 
+export const scrollToElement = async (el: HTMLElement) => {
+  const pos = getPositionToDocument(el)
+  scrollTo(pos.left, pos.top)
+}
+
+export const getItemCardDiv = (uri: string) => {
+  return document.getElementById(`kiwi-itemcard-${uri}`)
+}
+
 export {
   isLinkInternal,
   getPositionToDocument,

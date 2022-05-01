@@ -8,15 +8,15 @@ import { language as mdLang } from 'monaco-editor/esm/vs/basic-languages/markdow
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { App } from './App'
-import { ItemManager } from './ItemManager'
 import { setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
 import { pageConfigs } from '../boot/config'
 import { ScriptApi } from './ScriptApi'
-import { eventBus } from './eventBus'
+import { getItem, initItems, loadItem } from './features/global/item'
+import { store } from './store'
+import { setSubtitle, setTitle } from './features/global/title'
 
 window.onload = async () => {
-  const manager = ItemManager.getInstance()
-  await manager.init()
+  await initItems()
   initMonacoEditor()
 
   // fabric icons
@@ -26,13 +26,14 @@ window.onload = async () => {
   document.head.append(fabricFontStyle)
 
   // theme color
-  await manager.ensureItemLoaded(pageConfigs.primaryColor)
-  setPageColors(RGBtoHSV(CSSColorToRGBA(manager.getItem(pageConfigs.primaryColor).content)).h)
+  await Promise.all([loadItem(pageConfigs.primaryColor), loadItem(pageConfigs.title), loadItem(pageConfigs.subTitle)])
+  setPageColors(RGBtoHSV(CSSColorToRGBA(getItem(pageConfigs.primaryColor).content)).h)
 
   // document title & subtitle
-  await manager.ensureItemLoaded(pageConfigs.title)
-  await manager.ensureItemLoaded(pageConfigs.subTitle)
-  document.title = manager.getItem(pageConfigs.title).content.trim()
+  const title = getItem(pageConfigs.title).content.trim()
+  document.title = title
+  store.dispatch(setTitle(title))
+  store.dispatch(setSubtitle(getItem(pageConfigs.subTitle).content.trim()))
 
   // document favicon
   const link = document.createElement('link')
@@ -48,8 +49,6 @@ window.onload = async () => {
 
   // @ts-ignore
   window.kiwi = ScriptApi
-  // @ts-ignore
-  window.bus = eventBus
 }
 
 const initMonacoEditor = () => {

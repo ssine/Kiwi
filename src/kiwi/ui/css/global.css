@@ -339,7 +339,7 @@ mjx-container[display='true'] {
   text-align: center;
 }
 
-#kiwi-fullscreen-item {
+.kiwi-fullscreen-item {
   position: absolute;
   top: 0px;
   left: 0px;

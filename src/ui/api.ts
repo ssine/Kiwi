@@ -1,6 +1,6 @@
 import { constructErrorFromCode } from '../core/Error'
 import { ClientItem } from './ClientItem'
-import { MessageType, showMessage } from './components/MessageList'
+import { MessageType, showMessage } from './features/messageList/messageListSlice'
 
 export async function postJSON(url: string, data: Object): Promise<any> {
   let response: Response
@@ -13,7 +13,7 @@ export async function postJSON(url: string, data: Object): Promise<any> {
       body: JSON.stringify(data),
     })
   } catch (err) {
-    showMessage(MessageType.error, `Error fetching ${url}: ${err.message}`, 5)
+    showMessage({ type: MessageType.error, text: `Error fetching ${url}: ${err.message}`, liveSecond: 5 })
     throw err
   }
   if (response.status !== 200) throw new Error('Request failed')
@@ -21,7 +21,7 @@ export async function postJSON(url: string, data: Object): Promise<any> {
   if (packet.code !== 0) {
     const err = constructErrorFromCode(packet.code, packet.message)
     err.stack = packet.stack
-    showMessage(MessageType.error, packet.message, 5)
+    showMessage({ type: MessageType.error, text: packet.message, liveSecond: 5 })
     throw err
   }
   return packet.data
@@ -40,7 +40,7 @@ async function postFile(url: string, data: Object, file: File): Promise<any> {
       body: fm,
     })
   } catch (err) {
-    showMessage(MessageType.error, `Error fetching ${url}: ${err.message}`, 5)
+    showMessage({ type: MessageType.error, text: `Error fetching ${url}: ${err.message}`, liveSecond: 5 })
     throw err
   }
   if (response.status !== 200) throw new Error('Request failed')
@@ -48,7 +48,7 @@ async function postFile(url: string, data: Object, file: File): Promise<any> {
   if (packet.code !== 0) {
     const err = constructErrorFromCode(packet.code, packet.message)
     err.stack = packet.stack
-    showMessage(MessageType.error, packet.message, 5)
+    showMessage({ type: MessageType.error, text: packet.message, liveSecond: 5 })
     throw err
   }
   return packet.data

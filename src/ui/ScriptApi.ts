@@ -1,38 +1,38 @@
 import { pageConfigs } from '../boot/config'
 import { ClientItem } from './ClientItem'
 import { CSSColorToRGBA, HSVtoRGB, RGBtoCSSColor, RGBtoHSV, setPageColors } from './Common'
-import { ItemManager } from './ItemManager'
-import { contentPostProcess } from './components/ItemDisplay'
 import * as common from './Common'
 import * as coreCommon from '../core/Common'
-
-const manager = ItemManager.getInstance()
+import { createItem, deleteItem, getItem, loadItem, saveItem } from './features/global/item'
+import { store } from './store'
+import { contentPostProcess } from './features/itemCard/ItemDisplay'
 
 export const ScriptApi = {
   getItem: async (uri: string) => {
-    await manager.ensureItemLoaded(uri)
-    return JSON.parse(JSON.stringify(manager.getItem(uri)))
+    await loadItem(uri)
+    return JSON.parse(JSON.stringify(getItem(uri)))
   },
   getItemUnsafe: (uri: string) => {
-    const item = manager.getItem(uri)
+    const item = getItem(uri)
     return item && JSON.parse(JSON.stringify(item))
   },
   saveItem: async (uri: string, item: ClientItem, file?: File) => {
-    return manager.saveItem(uri, item, file)
+    return saveItem({ uri, item, file })
   },
   deleteItem: async (uri: string) => {
-    return manager.deleteItem(uri)
+    return deleteItem(uri)
   },
-  createItem: (uri?: string) => {
-    const finalUri = manager.createItem(uri)
-    return [finalUri, manager.getItem(finalUri)]
+  createItem: async (uri?: string) => {
+    const finalUri = await createItem(uri)
+    return [finalUri, getItem(finalUri)]
   },
   getAllItems: () => {
-    return manager.items
+    const state = store.getState()
+    return state.items
   },
 
   getThemeHue: (): string => {
-    return RGBtoHSV(CSSColorToRGBA(manager.getItem(pageConfigs.primaryColor).content.trim())).h
+    return RGBtoHSV(CSSColorToRGBA(getItem(pageConfigs.primaryColor).content.trim())).h
   },
   // hue: [0, 1]
   setThemeHue: (hue: number) => {
@@ -40,9 +40,9 @@ export const ScriptApi = {
   },
   // hue: [0, 1]
   saveThemeHue: async (hue: number) => {
-    const item = manager.getItem(pageConfigs.primaryColor)
+    const item = getItem(pageConfigs.primaryColor)
     item.content = RGBtoCSSColor(HSVtoRGB({ h: hue, s: 1, v: 1 }))
-    return manager.saveItem(pageConfigs.primaryColor, item)
+    return saveItem({ uri: pageConfigs.primaryColor, item })
   },
 
   tools: Object.assign({}, coreCommon, common),

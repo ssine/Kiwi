@@ -104,14 +104,19 @@ const serve = function serve(port: number, rootFolder: string) {
   })
 
   app.post('/get-system-items', async (req, res) => {
-    res.json(ok(await manager.getSystemItems()))
+    const items = await manager.getSystemItems()
+    const result: Record<string, Partial<ClientItem>> = {}
+    for (const [uri, item] of Object.entries(items)) {
+      result[uri] = { ...item, state: 'full' }
+    }
+    res.json(ok(items))
   })
 
   app.post('/get-skinny-items', async (req, res) => {
     const items = await manager.getSkinnyItems(req.cookies.token)
     const result: Record<string, Partial<ClientItem>> = {}
     for (const [uri, item] of Object.entries(items)) {
-      result[uri] = { ...item, skinny: true }
+      result[uri] = { ...item, state: 'bare' }
     }
     res.json(ok(result))
   })

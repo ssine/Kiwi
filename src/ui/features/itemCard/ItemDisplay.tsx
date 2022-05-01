@@ -1,29 +1,37 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { ClientItem } from '../ClientItem'
-import { Breadcrumb } from './basic/Breadcrumb/Breadcrumb'
-import { PrimaryButton } from './basic/Button/PrimaryButton'
-import { IconButton } from './basic/Button/IconButton'
-import { getCookie, isLinkInternal, isMobile } from '../Common'
-import { eventBus } from '../eventBus'
-import { encodeItemURI, resolveURI, timeFormat } from '../../core/Common'
-import { MenuButton } from './basic/Button/MenuButton'
-import { AttachDirection, Callout } from './basic/Callout/Callout'
-import { ItemManager } from '../ItemManager'
-import { typesetMath } from '../mathjax'
+import { Breadcrumb } from '../../components/basic/Breadcrumb/Breadcrumb'
+import { PrimaryButton } from '../../components/basic/Button/PrimaryButton'
+import { IconButton } from '../../components/basic/Button/IconButton'
+import { getCookie, getItemCardDiv, isLinkInternal, isMobile } from '../../Common'
+import { encodeItemURI, resolveURI, timeFormat } from '../../../core/Common'
+import { MenuButton } from '../../components/basic/Button/MenuButton'
+import { AttachDirection, Callout } from '../../components/basic/Callout/Callout'
+import { typesetMath } from '../../mathjax'
+import { useAppDispatch, useAppSelector } from '../../store'
+import { printItem, rotateIn, rotateOut, setItemFullScreen, setItemMode, slideOut } from './operations'
+import {
+  closeItem,
+  createItem,
+  deleteItem,
+  displayItem,
+  duplicateItem,
+  getItem,
+  getItemFromState,
+} from '../global/item'
+import { ContextualMenuItem } from '../../components/basic/Menu/ContextualMenu'
 
-const manager = ItemManager.getInstance()
+export const ItemDisplay = (props: { uri: string }) => {
+  const { uri } = props
+  const dispatch = useAppDispatch()
+  const item = useAppSelector(s => getItemFromState(s, uri))
+  const fullScreen = useAppSelector(s => s.opened.items[uri].fullScreen)
+  const tags = useAppSelector(s =>
+    (item.header.tags || []).map(tag => ({
+      name: tag,
+      links: s.tagMap[tag].map(linkUri => ({ uri: linkUri, title: getItemFromState(s, linkUri).title })),
+    }))
+  )
 
-export const ItemDisplay = (props: {
-  uri: string
-  item: ClientItem
-  onBeginEdit: () => void
-  onClose: () => void
-  onDelete: () => void
-  onPrint: () => void
-  fullscreen: boolean
-  setFullscreen: (fullscreen: boolean) => void
-}) => {
-  const { uri, item, onBeginEdit, onClose, onDelete, onPrint, fullscreen, setFullscreen } = props
   const [deleteCalloutVisible, setDeleteCalloutVisible] = useState(false)
   const contentRef = useRef()
 
@@ -31,7 +39,7 @@ export const ItemDisplay = (props: {
     contentPostProcess(contentRef.current)
   }, [])
 
-  const dropdownItems = [
+  const dropdownItems: ContextualMenuItem[] = [
     {
       id: 'Copy PermaLink',
       text: 'Copy PermaLink',
@@ -44,7 +52,7 @@ export const ItemDisplay = (props: {
       id: 'Print Item',
       text: 'Print Item',
       iconName: 'Print',
-      onClick: onPrint,
+      onClick: () => printItem(uri),
     },
   ]
   if (getCookie('token') !== '') {
@@ -52,21 +60,18 @@ export const ItemDisplay = (props: {
       id: 'Create Sibling',
       text: 'Create Sibling',
       iconName: 'Add',
-      onClick: () => {
-        eventBus.emit('create-item-clicked', {
-          targetURI: resolveURI(uri, 'new-item'),
-        })
+      onClick: async () => {
+        const newUri = await createItem(resolveURI(uri, 'new-item'))
+        displayItem(newUri)
       },
     })
     dropdownItems.push({
       id: 'Duplicate Item',
       text: 'Duplicate Item',
       iconName: 'Copy',
-      onClick: () => {
-        const newUri = manager.duplicateItem(uri)
-        eventBus.emit('item-link-clicked', {
-          targetURI: newUri,
-        })
+      onClick: async () => {
+        const newUri = await duplicateItem(uri)
+        displayItem(newUri)
       },
     })
   }
@@ -89,11 +94,7 @@ export const ItemDisplay = (props: {
             }))}
             getKey={i => i.uri}
             renderer={i => i.name}
-            onItemClick={i =>
-              eventBus.emit('item-link-clicked', {
-                targetURI: i.uri,
-              })
-            }
+            onItemClick={i => displayItem(i.uri)}
           />
         </div>
         <div className="item-controls" style={{ display: 'flex' }}>
@@ -105,10 +106,10 @@ export const ItemDisplay = (props: {
               style={{ height: '100%' }}
             />
           )}
-          {fullscreen ? (
-            <IconButton iconName="FocusView" onClick={() => setFullscreen(false)} />
+          {fullScreen ? (
+            <IconButton iconName="FocusView" onClick={() => setItemFullScreen({ uri, fullScreen: false })} />
           ) : (
-            <IconButton iconName="FullView" onClick={() => setFullscreen(true)} />
+            <IconButton iconName="FullView" onClick={() => setItemFullScreen({ uri, fullScreen: true })} />
           )}
           {getCookie('token') !== '' && (
             <>
@@ -117,14 +118,35 @@ export const ItemDisplay = (props: {
                 direction={AttachDirection.bottomLeftEdge}
                 onDismiss={() => setDeleteCalloutVisible(false)}
                 style={{ transform: 'translateX(-35%)' }}
-                content={<PrimaryButton title="Confirm Delete" onClick={onDelete} />}
+                content={
+                  <PrimaryButton
+                    title="Confirm Delete"
+                    onClick={async () => {
+                      await slideOut(getItemCardDiv(uri))
+                      await deleteItem(props.uri)
+                    }}
+                  />
+                }
               >
                 <IconButton iconName="Delete" onClick={() => setDeleteCalloutVisible(true)} />
               </Callout>
-              <IconButton iconName="Edit" onClick={onBeginEdit} />
+              <IconButton
+                iconName="Edit"
+                onClick={async () => {
+                  await rotateOut(getItemCardDiv(uri))
+                  dispatch(setItemMode({ uri, mode: 'edit' }))
+                  await rotateIn(getItemCardDiv(uri))
+                }}
+              />
             </>
           )}
-          <IconButton iconName="Cancel" onClick={onClose} />
+          <IconButton
+            iconName="Cancel"
+            onClick={async () => {
+              await slideOut(getItemCardDiv(uri))
+              dispatch(closeItem(uri))
+            }}
+          />
         </div>
       </div>
       <div className="item-titlebar">
@@ -152,20 +174,17 @@ export const ItemDisplay = (props: {
           `. Last modification: ${timeFormat('YYYY-MM-DD HH:mm:ss', new Date(item.header.modifyTime))}`}
       </div>
       <div className="item-tags">
-        {item.header.tags?.map(tag => {
-          const menuProps = manager.tagMap[tag]?.map(tagUri => {
-            const tagItem = manager.getItem(tagUri)
-            return {
-              id: tagUri,
-              key: tagUri,
-              text: tagItem.title,
-              onClick: () => eventBus.emit('item-link-clicked', { targetURI: tagUri }),
-            }
-          })
+        {tags.map(({ name, links }) => {
+          const menuProps = links.map(({ uri, title }) => ({
+            id: uri,
+            key: uri,
+            text: title,
+            onClick: () => displayItem(uri),
+          }))
           return (
             <MenuButton
-              name={tag}
-              key={tag}
+              name={name}
+              key={name}
               style={{ paddingLeft: 10, paddingRight: 10 }}
               menuProps={{
                 items: menuProps,
@@ -196,10 +215,7 @@ export const contentPostProcess = async (contentEl: HTMLDivElement) => {
           evt.cancelBubble = true
           evt.stopPropagation()
           evt.preventDefault()
-          eventBus.emit('item-link-clicked', {
-            // emitterURI: this.item.uri,
-            targetURI: decodeURIComponent(el.href.baseVal),
-          })
+          displayItem(el.href.baseVal)
           return false
         }
         el.classList.add('item-link')
@@ -208,19 +224,19 @@ export const contentPostProcess = async (contentEl: HTMLDivElement) => {
     }
     if (isLinkInternal(el)) {
       const elUri = decodeURIComponent(el.getAttribute('href'))
+      const missing = !getItem(elUri)
       el.onclick = async evt => {
         evt.cancelBubble = true
         evt.stopPropagation()
         evt.preventDefault()
-        eventBus.emit('item-link-clicked', {
-          // we have resolved all links on server side
-          // emitterURI: this.item.uri,
-          targetURI: elUri,
-        })
+        if (missing) {
+          await createItem(elUri)
+        }
+        await displayItem(elUri)
         return false
       }
       el.classList.add('item-link')
-      if (!manager.hasItem(elUri)) {
+      if (missing) {
         el.classList.add('item-link-missing')
       }
     } else {
