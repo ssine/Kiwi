@@ -141,18 +141,14 @@ export const initItemReducer: CaseReducer<RootState, PayloadAction<InitItemPaylo
  */
 export const saveItem = async (arg: SaveItemPayload) => {
   store.dispatch(saveItemPending({ uri: arg.uri, item: arg.item }))
-  try {
-    const { uri, item, file } = arg
-    let rendered: ClientItem
-    if (isBinaryType(item.type)) {
-      rendered = await api.putBinaryItem(uri, item, file)
-    } else {
-      rendered = await api.putItem(uri, item)
-    }
-    store.dispatch(saveItemFufilled([arg, rendered]))
-  } catch (e) {
-    store.dispatch(saveItemFailed(arg))
+  const { uri, item, file } = arg
+  let rendered: ClientItem
+  if (isBinaryType(item.type)) {
+    rendered = await api.putBinaryItem(uri, item, file)
+  } else {
+    rendered = await api.putItem(uri, item)
   }
+  store.dispatch(saveItemFufilled([arg, rendered]))
 }
 
 /**

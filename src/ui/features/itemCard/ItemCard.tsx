@@ -18,7 +18,6 @@ export const ItemCard = (props: { uri: string }) => {
   useLayoutEffect(() => {
     ;(async () => {
       const containerDiv = getItemCardDiv(uri)
-      console.log(containerDiv)
       if (containerDiv) {
         await smoothLayoutChange(containerDiv, lastPositoinRef.current)
         lastPositoinRef.current = getPositionToDocument(containerDiv)
