@@ -201,12 +201,8 @@ export const loadItem = async (uri: string) => {
   if (state.items[uri].state !== 'bare') return
 
   store.dispatch(saveItemPending({ uri }))
-  try {
-    const item = await api.getItem(uri)
-    store.dispatch(saveItemFufilled([{ uri }, item]))
-  } catch (e) {
-    store.dispatch(saveItemFailed({ uri }))
-  }
+  const item = await api.getItem(uri)
+  store.dispatch(saveItemFufilled([{ uri }, item]))
 }
 
 export const duplicateItem = async (oldUri: string) => {
