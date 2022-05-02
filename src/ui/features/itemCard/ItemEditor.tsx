@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { getEmPixels, getItemCardDiv } from '../../Common'
 import { IconButton } from '../../components/basic/Button/IconButton'
-import { MonacoEditor } from '../../components/editor/MonacoEditor'
 import { TitleEditorComponent } from '../../components/editor/TitleEditor'
 import { getMonacoLangFromType, MIME } from '../../../core/MimeType'
 import { HeaderEditor, HeaderEntry } from '../../components/editor/HeaderEditor'
 import { ItemHeader } from '../../../core/BaseItem'
-import { resolveURI, sleep, timeFormat } from '../../../core/Common'
+import { resolveURI, timeFormat } from '../../../core/Common'
 import { useAppDispatch, useAppSelector } from '../../store'
-import { deleteItem, displayItem, saveItem } from '../global/item'
+import { deleteItem, saveItem } from '../global/item'
 import { rotateIn, rotateOut, setItemFullScreen, setItemMode } from './operations'
 import { MessageType, showMessage } from '../messageList/messageListSlice'
+import { DynamicMonacoEditor } from '../../components/editor/DynamicMonacoEditor'
 
 export const ItemEditor = (props: { uri: string }) => {
   const { uri: originalUri } = props
@@ -152,15 +152,13 @@ export const ItemEditor = (props: { uri: string }) => {
           evt.preventDefault()
         }}
       >
-        <MonacoEditor
+        <DynamicMonacoEditor
           language={getMonacoLangFromType(type)}
           defaultValue={originalItem.content || ''}
-          automaticLayout={true}
           options={{
             lineDecorationsWidth: 0,
             wordWrap: 'on',
             wrappingIndent: 'same',
-            tabSize: 2,
             fontSize: getEmPixels(),
           }}
           editorDidMount={(editor: any) => {
