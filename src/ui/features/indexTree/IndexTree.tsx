@@ -4,30 +4,32 @@ import { isBinaryType, isContentType, MIME } from '../../../core/MimeType'
 import { MessageType, showMessage } from '../messageList/messageListSlice'
 import { resolveURI } from '../../../core/Common'
 import { store, useAppDispatch, useAppSelector } from '../../store'
-import { NodeState, setRoot } from './indexTreeSlice'
+import { addNodeDragCount, IndexNode, NodeState, setNodeDragCount, setRoot, switchNodeExpand } from './indexTreeSlice'
 import { displayItem, moveTree, saveItem } from '../global/item'
-import clone from 'clone'
 
 const INDENT_WIDTH = 15
 
 // TODO: update tree on items change
 export const IndexTree = () => {
   const dispatch = useAppDispatch()
-  const root = clone(useAppSelector(s => s.indexTree))
+  const root = useAppSelector(s => s.indexTree.root)
+  const stateMap = useAppSelector(s => s.indexTree.stateMap)
   const systemItems = useAppSelector(s => s.systemItems)
   const items = useAppSelector(s => s.items)
   const getItem = (uri: string) => items[uri] || systemItems[uri]
 
-  const _renderTree = (node: NodeState, level: number): JSX.Element[] => {
+  const _renderTree = (node: IndexNode, level: number): JSX.Element[] => {
     let nodeList = []
     const hasChild = Object.keys(node.childs).length > 0
+    const nodeState = getNodeState(stateMap, node.uri)
+
     const curNode = (
       <div
         key={node.uri}
         className="kiwi-indextree-item"
         style={{
           paddingLeft: INDENT_WIDTH * level,
-          ...(node.dragOverCount > 0 && { backgroundColor: 'var(--blockColorLighter)' }),
+          ...(nodeState.dragOverCount > 0 && { backgroundColor: 'var(--blockColorLighter)' }),
         }}
         draggable={true}
         onDragStart={ev => {
@@ -47,29 +49,24 @@ export const IndexTree = () => {
           }
         }}
         onDragEnter={ev => {
-          node.dragOverCount++
-          dispatch(setRoot(clone(root)))
+          dispatch(addNodeDragCount({ uri: node.uri, amount: 1 }))
           setTimeout(() => {
-            const newRoot = store.getState().indexTree
+            const { root: newRoot, stateMap: newStateMap } = store.getState().indexTree
             const curNode = findNodeinTree(newRoot, node.uri)
-            if (curNode && !curNode.expand && curNode.dragOverCount > 0) {
-              const newRootCopy = clone(newRoot)
-              const curNodeCopy = findNodeinTree(newRootCopy, node.uri)
-              curNodeCopy.expand = true
-              dispatch(setRoot(newRootCopy))
+            const curState = getNodeState(newStateMap, node.uri)
+            if (curNode && !curState.expand && curState.dragOverCount > 0) {
+              dispatch(switchNodeExpand(node.uri))
             }
           }, 500)
         }}
         onDragLeave={ev => {
-          node.dragOverCount--
-          dispatch(setRoot(clone(root)))
+          dispatch(addNodeDragCount({ uri: node.uri, amount: -1 }))
         }}
         onDrop={async ev => {
           ev.preventDefault()
           ev.persist()
-          const dropInside = node.dragOverCount > 1
-          node.dragOverCount = 0
-          dispatch(setRoot(clone(root)))
+          const dropInside = nodeState.dragOverCount > 1
+          dispatch(setNodeDragCount({ uri: node.uri, count: 0 }))
           await processDroppedContent(ev, node.uri, dropInside)
         }}
         onClick={_ => {
@@ -79,26 +76,25 @@ export const IndexTree = () => {
         <div
           className="kiwi-indextree-frontblock"
           onDragEnter={ev => {
-            node.dragOverCount++
-            dispatch(setRoot(clone(root)))
+            dispatch(addNodeDragCount({ uri: node.uri, amount: 1 }))
           }}
           onDragLeave={ev => {
-            node.dragOverCount--
-            dispatch(setRoot(clone(root)))
+            dispatch(addNodeDragCount({ uri: node.uri, amount: -1 }))
           }}
         >
-          {node.dragOverCount > 0 ? (
+          {nodeState.dragOverCount > 0 ? (
             <div
               className={`kiwi-indextree-hovereffect ms-Icon ms-Icon--${
-                node.dragOverCount > 1 ? 'RadioBtnOn' : 'RadioBtnOff'
+                nodeState.dragOverCount > 1 ? 'RadioBtnOn' : 'RadioBtnOff'
               }`}
             ></div>
           ) : hasChild ? (
             <div
-              className={`kiwi-indextree-hovereffect ms-Icon ms-Icon--${node.expand ? 'ChevronDown' : 'ChevronRight'}`}
+              className={`kiwi-indextree-hovereffect ms-Icon ms-Icon--${
+                nodeState.expand ? 'ChevronDown' : 'ChevronRight'
+              }`}
               onClick={ev => {
-                node.expand = !node.expand
-                dispatch(setRoot(clone(root)))
+                dispatch(switchNodeExpand(node.uri))
                 ev.stopPropagation()
               }}
             ></div>
@@ -111,7 +107,7 @@ export const IndexTree = () => {
     )
 
     nodeList.push(curNode)
-    if (Object.keys(node.childs).length > 0 && node.expand) {
+    if (Object.keys(node.childs).length > 0 && nodeState.expand) {
       nodeList = nodeList.concat(
         Object.values(node.childs)
           // sort nodes, folder first, lexicographically smaller one first
@@ -182,7 +178,7 @@ const processDroppedContent = async (ev: React.DragEvent<HTMLDivElement>, zoneUr
   }
 }
 
-const findNodeinTree = (root: NodeState, uri: string): NodeState | null => {
+const findNodeinTree = (root: IndexNode, uri: string): IndexNode | null => {
   let cur = root
   const segments = uri.split('/')
   for (const [idx, segment] of segments.entries()) {
@@ -195,4 +191,8 @@ const findNodeinTree = (root: NodeState, uri: string): NodeState | null => {
     }
   }
   return cur
+}
+
+const getNodeState = (state: Record<string, NodeState>, uri: string) => {
+  return state[uri] || { dragOverCount: 0, expand: false }
 }

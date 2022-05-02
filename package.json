@@ -56,7 +56,6 @@
     "@types/node": "^16.11.31",
     "@types/yargs": "^15.0.1",
     "animejs": "^3.1.0",
-    "clone": "^2.1.2",
     "compression-webpack-plugin": "^7.1.1",
     "concurrently": "^6.5.1",
     "css-loader": "^3.4.2",

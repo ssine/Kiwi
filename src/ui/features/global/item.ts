@@ -8,7 +8,7 @@ import * as api from '../../api'
 import { ClientItem } from '../../ClientItem'
 import { getItemCardDiv, scrollToElement } from '../../Common'
 import { store } from '../../store'
-import { NodeState } from '../indexTree/indexTreeSlice'
+import { IndexNode } from '../indexTree/indexTreeSlice'
 
 type SaveItemPayload = {
   uri: string
@@ -50,10 +50,7 @@ export const saveItemFufilledReducer: CaseReducer<RootState, PayloadAction<[Save
   }
 
   if (!oldItem || oldItem.title !== item.title) {
-    state.indexTree = assignNodeState(
-      generateNodeState(Object.keys(Object.assign({}, state.systemItems, state.items))),
-      state.indexTree
-    )
+    state.indexTree.root = generateNodeState(Object.keys(Object.assign({}, state.systemItems, state.items)))
   }
 }
 
@@ -118,10 +115,7 @@ export const deleteItemReducer: CaseReducer<RootState, PayloadAction<DeleteItemP
   if (item.header.tags && item.header.tags.length > 0) {
     state.tagMap = generateTagMap(state.items)
   }
-  state.indexTree = assignNodeState(
-    generateNodeState(Object.keys(Object.assign({}, state.systemItems, state.items))),
-    state.indexTree
-  )
+  state.indexTree.root = generateNodeState(Object.keys(Object.assign({}, state.systemItems, state.items)))
 }
 
 type InitItemPayload = {
@@ -133,7 +127,7 @@ export const initItemReducer: CaseReducer<RootState, PayloadAction<InitItemPaylo
   state.items = action.payload.items
   state.systemItems = action.payload.systemItems
   state.tagMap = generateTagMap(state.items)
-  state.indexTree = generateNodeState(Object.keys(Object.assign({}, state.systemItems, state.items)))
+  state.indexTree.root = generateNodeState(Object.keys(Object.assign({}, state.systemItems, state.items)))
 }
 
 /**
@@ -314,15 +308,13 @@ const generateTagMap = (items: Record<string, ClientItem>) => {
   return tagMap
 }
 
-const generateNodeState = (uris: string[]): NodeState => {
-  const root: NodeState = {
+const generateNodeState = (uris: string[]): IndexNode => {
+  const root: IndexNode = {
     uri: '/',
-    expand: true,
     childs: [],
-    dragOverCount: 0,
   }
 
-  const traverse = (segments: string[]): NodeState => {
+  const traverse = (segments: string[]): IndexNode => {
     let cur_node = root
     for (const [idx, seg] of segments.entries()) {
       if (seg === '') continue
@@ -333,9 +325,7 @@ const generateNodeState = (uris: string[]): NodeState => {
       } else {
         const new_node = {
           uri: uri,
-          expand: false,
           childs: [],
-          dragOverCount: 0,
         }
         cur_node.childs.push(new_node)
         cur_node = new_node
@@ -346,14 +336,4 @@ const generateNodeState = (uris: string[]): NodeState => {
 
   uris.forEach(uri => traverse(uri.split('/')))
   return root
-}
-
-const assignNodeState = (toState: NodeState, fromState: NodeState) => {
-  toState.expand = fromState.expand
-  fromState.childs.forEach(fs => {
-    const filtered = toState.childs.filter(ts => ts.uri === fs.uri)
-    if (filtered.length === 0) return
-    assignNodeState(filtered[0], fs)
-  })
-  return toState
 }

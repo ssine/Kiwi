@@ -19,7 +19,7 @@ import {
 import { setSubtitle, setSubtitleReducer, setTitle, setTitleReducer } from './global/title'
 import { itemFlowSlice, ItemFlowState } from './itemFlow/itemFlowSlice'
 import { sidebarSlice, SidebarState } from './sidebar/sidebarSlice'
-import { indexTreeSlice, NodeState } from './indexTree/indexTreeSlice'
+import { indexTreeSlice, IndexTreeState } from './indexTree/indexTreeSlice'
 import { messageListSlice, MessageListState } from './messageList/messageListSlice'
 import {
   setItemFullScreenActionCreator,
@@ -36,7 +36,7 @@ export type RootState = {
   // tag -> uris
   tagMap: Record<string, string[]>
 
-  indexTree: NodeState
+  indexTree: IndexTreeState
 
   opened: {
     uris: string[]
