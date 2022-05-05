@@ -5,7 +5,7 @@ import { MessageType, showMessage } from '../messageList/messageListSlice'
 import { resolveURI } from '../../../core/Common'
 import { store, useAppDispatch, useAppSelector } from '../../store'
 import { addNodeDragCount, IndexNode, NodeState, setNodeDragCount, setRoot, switchNodeExpand } from './indexTreeSlice'
-import { displayItem, moveTree, saveItem } from '../global/item'
+import { createItem, displayItem, moveTree, saveItem } from '../global/item'
 
 const INDENT_WIDTH = 15
 
@@ -69,8 +69,13 @@ export const IndexTree = () => {
           dispatch(setNodeDragCount({ uri: node.uri, count: 0 }))
           await processDroppedContent(ev, node.uri, dropInside)
         }}
-        onClick={_ => {
-          displayItem(node.uri)
+        onClick={async _ => {
+          if (!getItem(node.uri)) {
+            await createItem(node.uri)
+            displayItem(node.uri, 'edit')
+          } else {
+            displayItem(node.uri)
+          }
         }}
       >
         <div
