@@ -47,10 +47,7 @@ export const showMessage = (req: ShowMessageRequest) => {
   store.dispatch(showMessageInternal({ ...req, id: msgId }))
   if (req.liveSecond) {
     setTimeout(() => {
-      store.dispatch({
-        type: 'dismiss',
-        id: msgId,
-      })
+      store.dispatch(dismissMessage(msgId))
     }, req.liveSecond * 1000)
   }
 }
