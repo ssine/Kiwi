@@ -1,6 +1,6 @@
 {
   "name": "kiwi-wiki",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "a flat file personal wiki.",
   "main": "build/boot/main.js",
   "engines": {
