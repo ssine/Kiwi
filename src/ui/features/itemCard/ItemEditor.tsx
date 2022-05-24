@@ -160,6 +160,13 @@ export const ItemEditor = (props: { uri: string }) => {
             wordWrap: 'on',
             wrappingIndent: 'same',
             fontSize: getEmPixels(),
+            unicodeHighlight: {
+              allowedLocales: {
+                _os: true,
+                'zh-hans': true,
+                'zh-hant': true,
+              },
+            },
           }}
           editorDidMount={(editor: any) => {
             editor.layout()
