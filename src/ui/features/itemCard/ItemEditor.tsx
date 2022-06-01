@@ -14,7 +14,7 @@ import { DynamicMonacoEditor } from '../../components/editor/DynamicMonacoEditor
 
 export const ItemEditor = (props: { uri: string }) => {
   const { uri: originalUri } = props
-  const originalItem = useAppSelector(s => s.items[originalUri])
+  const originalItem = useAppSelector(s => s.items[originalUri] || s.systemItems[originalUri])
   const fullScreen = useAppSelector(s => s.opened.items[originalUri].fullScreen)
   const dispatch = useAppDispatch()
 
