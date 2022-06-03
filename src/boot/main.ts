@@ -16,6 +16,7 @@ const args = yargs
         default: false,
       })
   })
+  .command('migrate [from] [to]', 'migrate from tw folder')
   .option('log', {
     alias: 'l',
     describe: 'log level, possible levels: trace, debug, info, warn, severe',
@@ -43,6 +44,7 @@ import { FilesystemStorage } from '../lib/storage/FilesystemStorage'
 import { AuthManager } from '../core/AuthManager'
 import { renderItem } from '../core/render'
 import PlaintextParser from '../lib/parser/PlaintextParser'
+import { migrateTiddlyWiki } from './migrateTiddlyWiki'
 
 function registLib() {
   const md = new MarkdownParser()
@@ -91,6 +93,8 @@ async function run() {
     const manager = ItemManager.getInstance()
     await manager.init(storage, systemStorage, auth, renderItem)
     serve(args.port, args.folder)
+  } else if (args._[0] === 'migrate') {
+    await migrateTiddlyWiki(args.from, args.to)
   }
 }
 

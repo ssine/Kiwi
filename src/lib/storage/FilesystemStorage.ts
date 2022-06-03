@@ -81,7 +81,7 @@ const pathToUriType = async (rootPath: string, filePath: string): Promise<[strin
   return [uri, type]
 }
 
-const saveItem = async (rootPath: string, uri: string, item: ServerItem): Promise<ServerItem> => {
+export const saveItem = async (rootPath: string, uri: string, item: ServerItem): Promise<ServerItem> => {
   const filePath = uriTypeToPath(rootPath, uri, item.type)
   const node = itemToNode(item)
   const folder = path.resolve(filePath, '..')
