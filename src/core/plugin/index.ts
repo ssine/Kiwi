@@ -166,12 +166,17 @@ const resolveModuleUri = async (from: string, to: string) => {
 const loadKiwiModule = async (uri: string, ctx: vm.Context) => {
   const item = await ScriptApi.getItem(uri)
   // @ts-ignore
-  const module = new vm.SourceTextModule(item.content, {
-    context: ctx,
-    importModuleDynamically: async (specifier: string) => {
-      return loadKiwiModule(await resolveModuleUri(uri, specifier), ctx)
-    },
-  })
+  const module = new vm.SourceTextModule(
+    ts.transpile(item.content || '', {
+      target: ts.ScriptTarget.ES2021,
+    }),
+    {
+      context: ctx,
+      importModuleDynamically: async (specifier: string) => {
+        return loadKiwiModule(await resolveModuleUri(uri, specifier), ctx)
+      },
+    }
+  )
   await module.link(async (specifier: string, referencingModule: any) => {
     const target = await resolveModuleUri(uri, specifier)
     return loadKiwiModule(target, referencingModule.context)
