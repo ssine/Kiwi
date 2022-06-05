@@ -19,6 +19,7 @@ import {
   getItemFromState,
 } from '../global/item'
 import { ContextualMenuItem } from '../../components/basic/Menu/ContextualMenu'
+import { MessageType, showMessage } from '../messageList/messageListSlice'
 
 export const ItemDisplay = (props: { uri: string }) => {
   const { uri } = props
@@ -230,7 +231,12 @@ export const contentPostProcess = async (contentEl: HTMLDivElement) => {
         evt.stopPropagation()
         evt.preventDefault()
         if (missing) {
-          await createItem(elUri)
+          if (getCookie('token') !== '') {
+            await createItem(elUri)
+          } else {
+            showMessage({ type: MessageType.error, text: `no read permission to ${elUri}!`, liveSecond: 5 })
+            return false
+          }
         }
         await displayItem(elUri)
         return false
