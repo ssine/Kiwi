@@ -14,6 +14,7 @@ import { setSidebarWidth } from './sidebarSlice'
 import { setDisplayMode, setItemWidth } from '../itemFlow/itemFlowSlice'
 import { createItem, displayItem, getItemFromState } from '../global/item'
 import { IndexTree } from '../indexTree/IndexTree'
+import { RecentList } from '../recentList/RecentList'
 
 export const Sidebar = () => {
   const dispatch = useAppDispatch()
@@ -91,6 +92,9 @@ export const Sidebar = () => {
           </PivotItem>
           <PivotItem name="Index">
             <IndexTree />
+          </PivotItem>
+          <PivotItem name="Recent">
+            <RecentList />
           </PivotItem>
           <PivotItem name="Action">
             <Banner text="Account" />
