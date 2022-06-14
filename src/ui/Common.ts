@@ -219,6 +219,15 @@ export const getItemCardDiv = (uri: string) => {
   return document.getElementById(`kiwi-itemcard-${uri}`)
 }
 
+export const getTitleWithPath = (getTitle: (uri: string) => string, uri: string) => {
+  const segments = uri.split('/')
+  const titles = []
+  for (let i = 0; i < segments.length; i++) {
+    titles.push(getTitle(segments.slice(0, i + 1).join('/')))
+  }
+  return titles.join(' / ')
+}
+
 export {
   isLinkInternal,
   getPositionToDocument,

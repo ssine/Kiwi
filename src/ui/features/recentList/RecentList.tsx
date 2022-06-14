@@ -4,6 +4,7 @@ import { useAppSelector } from '../../store'
 import { displayItem } from '../global/item'
 import { ClientItem } from '../../ClientItem'
 import { Banner } from '../../components/basic/Banner/Banner'
+import { getTitleWithPath } from '../../Common'
 
 export const RecentList = () => {
   const items = useAppSelector(s => s.items)
@@ -27,7 +28,7 @@ export const RecentList = () => {
             <Banner text={group[0]} />
             {group[1].map(i => (
               <div className="kiwi-active-list-item" key={i[0]} onClick={() => displayItem(i[0])}>
-                {i[1].title}
+                {getTitleWithPath(uri => (items[uri] ? items[uri].title : uri.split('/').pop()), i[0])}
               </div>
             ))}
           </>
