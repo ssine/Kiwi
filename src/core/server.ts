@@ -129,8 +129,8 @@ const serve = function serve(port: number, rootFolder: string) {
     res.json(ok(await manager.getSearchResult(req.body.input, req.cookies.token)))
   })
 
-  app.get('/raw/:uri(*)', async (req, res) => {
-    const uri = decodeURIComponent(trimString(req.params.uri.trim(), '/'))
+  app.get(/^\/raw\/(.+)/, async (req, res) => {
+    const uri = decodeURIComponent(trimString(req.params[0].trim(), '/'))
     logger.debug(`get raw content of ${uri}`)
     const it = await manager.getItem(uri, req.cookies.token)
     if (!isBinaryType(it.type)) {
@@ -148,8 +148,8 @@ const serve = function serve(port: number, rootFolder: string) {
     it.getContentStream!().pipe(res)
   })
 
-  app.get('/static/:uri(*)', async (req, res) => {
-    const uri = decodeURIComponent(trimString(req.params.uri.trim(), '/'))
+  app.get(/^\/static\/(.+)/, async (req, res) => {
+    const uri = decodeURIComponent(trimString(req.params[0].trim(), '/'))
     logger.debug(`get static: ${uri}`)
     let it: ServerItem | null = null
     try {
