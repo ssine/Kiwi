@@ -9,7 +9,7 @@ const args = yargs
       .option('port', {
         alias: 'p',
         describe: 'local port to listen on',
-        default: 8000,
+        default: 31001,
       })
       .option('use-poll', {
         describe: 'use polling on listening for fs events, more robust but inefficient',
@@ -91,8 +91,11 @@ async function run() {
     const systemStorage = new FilesystemStorage(path.resolve(__dirname, '../kiwi'), 'kiwi/')
     const auth = new AuthManager()
     const manager = ItemManager.getInstance()
+    console.log(1)
     await manager.init(storage, systemStorage, auth, renderItem)
+    console.log(2)
     serve(args.port, args.folder)
+    console.log(3)
   } else if (args._[0] === 'migrate') {
     await migrateTiddlyWiki(args.from, args.to)
   }
