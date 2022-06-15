@@ -152,6 +152,15 @@ export const arrayEqual = (a: any[], b: any[]) => {
   return a.every((val, idx) => val === b[idx])
 }
 
+export const uriCumSum = (uri: string) => {
+  const segments = uri.split('/')
+  const sums: string[] = []
+  for (let i = 0; i < segments.length; i++) {
+    sums.push(segments.slice(0, i + 1).join('/'))
+  }
+  return sums
+}
+
 export {
   assignCommonProperties,
   sleep,

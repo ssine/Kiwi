@@ -1,3 +1,6 @@
+import parseCSSColor from 'parse-css-color'
+import { uriCumSum } from '../core/Common'
+
 /**
  * Check if a link is external of internal
  */
@@ -41,44 +44,32 @@ function removeCookie(key: string) {
   setCookie(key, '', -1)
 }
 
-const CSSColorToRGBA = (function () {
-  const dummy = () => ({
-    r: 0,
-    g: 0,
-    b: 0,
-    a: 0,
-  })
-  if (typeof document === 'undefined') return dummy
-  const canvas = document.createElement('canvas')
-  canvas.width = canvas.height = 1
-  const ctx = canvas.getContext('2d')
-  if (!ctx) {
-    return dummy
-  }
+const HSL2HSV = (h: number, s: number, l: number, v = s * Math.min(l, 1 - l) + l) => ({
+  h,
+  s: v ? 2 - (2 * l) / v : 0,
+  v,
+})
 
-  return function (col: string) {
-    ctx.clearRect(0, 0, 1, 1)
-    // In order to detect invalid values,
-    // we can't rely on col being in the same format as what fillStyle is computed as,
-    // but we can ask it to implicitly compute a normalized value twice and compare.
-    ctx.fillStyle = '#000'
-    ctx.fillStyle = col
-    const computed = ctx.fillStyle
-    ctx.fillStyle = '#fff'
-    ctx.fillStyle = col
-    if (computed !== ctx.fillStyle) {
-      return { r: 0, g: 0, b: 0, a: 0 } // invalid color
-    }
-    ctx.fillRect(0, 0, 1, 1)
-    const data = ctx.getImageData(0, 0, 1, 1).data
+const CSSColorToRGBA = function (col: string) {
+  const res = parseCSSColor(col)
+  if (!res) return { r: 0, g: 0, b: 0, a: 0 }
+  if (res.type === 'rgb') {
     return {
-      r: data[0],
-      g: data[1],
-      b: data[2],
-      a: data[3],
+      r: res.values[0],
+      g: res.values[1],
+      b: res.values[2],
+      a: res.alpha,
     }
   }
-})()
+  if (res.type === 'hsl') {
+    return {
+      // @ts-ignore
+      ...HSVtoRGB(HSL2HSV.apply(null, res.values)),
+      a: res.alpha,
+    }
+  }
+  throw new Error('Unknown color type')
+}
 
 function RGBtoHSV(color: { r: number; g: number; b: number }) {
   const r = color.r
@@ -161,12 +152,20 @@ function RGBtoCSSColor(rgb: { r: number; g: number; b: number }): string {
 
 function setPageColors(hue: number) {
   const rootStyle = (document.querySelector(':root') as HTMLElement).style
-  rootStyle.setProperty('--primaryColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 1, v: 1 })))
-  rootStyle.setProperty('--lineColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.54, v: 0.62 })))
-  rootStyle.setProperty('--blockColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.26, v: 0.84 })))
-  rootStyle.setProperty('--blockColorLight', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.24, v: 0.9 })))
-  rootStyle.setProperty('--blockColorLighter', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.17, v: 0.93 })))
-  rootStyle.setProperty('--areaColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.04, v: 0.98 })))
+  for (const [key, val] of Object.entries(getColorScheme(hue))) {
+    rootStyle.setProperty(key, val)
+  }
+}
+
+export const getColorScheme = (hue: number) => {
+  return {
+    '--primaryColor': RGBtoCSSColor(HSVtoRGB({ h: hue, s: 1, v: 1 })),
+    '--lineColor': RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.54, v: 0.62 })),
+    '--blockColor': RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.26, v: 0.84 })),
+    '--blockColorLight': RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.24, v: 0.9 })),
+    '--blockColorLighter': RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.17, v: 0.93 })),
+    '--areaColor': RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.04, v: 0.98 })),
+  }
 }
 
 const isMobile = typeof window !== 'undefined' && window.screen.width >= 641 ? false : true
@@ -231,11 +230,8 @@ export const getItemCardDiv = (uri: string) => {
 }
 
 export const getTitleWithPath = (getTitle: (uri: string) => string, uri: string) => {
-  const segments = uri.split('/')
-  const titles: string[] = []
-  for (let i = 0; i < segments.length; i++) {
-    titles.push(getTitle(segments.slice(0, i + 1).join('/')))
-  }
+  const sums = uriCumSum(uri)
+  const titles = sums.map(sum => getTitle(sum))
   return titles.join(' / ')
 }
 

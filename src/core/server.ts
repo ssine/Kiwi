@@ -11,16 +11,18 @@ import compression from 'compression'
 import { getLogger } from './Log'
 import { MIME } from './MimeType'
 import { resolve } from 'path'
-import { trimString } from './Common'
+import { trimString, uriCumSum } from './Common'
 import * as fs from 'fs'
 import { ItemManager } from './ItemManager'
 import { ServerItem } from './ServerItem'
-import { UploadFileError } from './Error'
+import { ItemNotExistsError, NoReadPermissionError, UploadFileError } from './Error'
 import { isBinaryType } from './MimeType'
 import { Readable } from 'stream'
 import { ClientItem } from '../ui/ClientItem'
 import { renderItem } from './render'
-import { getStaticItemHTML } from '../ui/static/getStaticItemHtml'
+import { pageConfigs } from '../boot/config'
+import { getStaticItemHTML, StaticConfig } from '../ui/static/getStaticItemHtml'
+import { CSSColorToRGBA, RGBtoHSV } from '../ui/Common'
 
 const logger = getLogger('server')
 
@@ -131,14 +133,9 @@ const serve = function serve(port: number, rootFolder: string) {
     const uri = decodeURIComponent(trimString(req.params.uri.trim(), '/'))
     logger.debug(`get raw content of ${uri}`)
     const it = await manager.getItem(uri, req.cookies.token)
-    if (it.type === 'image/svg+xml') {
+    if (!isBinaryType(it.type)) {
       // svg is the only served non-binary item
-      res.type('svg').send(it.content)
-      return
-    }
-    if (it.type !== 'text/html' && !isBinaryType(it.type)) {
-      // only binary items get served
-      res.status(404).send(`uri ${uri} not found`)
+      res.contentType(it.type).send(it.content)
       return
     }
     if (it.contentFilePath) {
@@ -154,9 +151,43 @@ const serve = function serve(port: number, rootFolder: string) {
   app.get('/static/:uri(*)', async (req, res) => {
     const uri = decodeURIComponent(trimString(req.params.uri.trim(), '/'))
     logger.debug(`get static: ${uri}`)
-    const it = await manager.getItem(uri, req.cookies.token)
+    let it: ServerItem | null = null
+    try {
+      it = await manager.getItem(uri, req.cookies.token)
+    } catch (err) {
+      if (err instanceof ItemNotExistsError) {
+        res.status(404).send('Item Not Exists')
+      } else if (err instanceof NoReadPermissionError) {
+        res.status(403).send('No Read Permission')
+      }
+    }
+    if (!it) return
     if (!it.renderSync) await renderItem(uri, it)
-    res.send(getStaticItemHTML(uri, { ...it, state: 'full' }))
+    const paths = await Promise.all(
+      uriCumSum(uri).map(async prefix => {
+        const pUri = `/static/${prefix}`
+        try {
+          const pItem = await manager.getItem(prefix, req.cookies.token)
+          return {
+            uri: pUri,
+            title: pItem.title,
+          }
+        } catch {
+          return {
+            uri: pUri,
+            title: prefix.split('/').pop()!,
+          }
+        }
+      })
+    )
+    const config: StaticConfig = {
+      hue:
+        RGBtoHSV(CSSColorToRGBA((await manager.getItem(pageConfigs.primaryColor, req.cookies.token)).content!)).h || 0,
+      title: (await manager.getItem(pageConfigs.title, req.cookies.token)).content!,
+      subTitle: (await manager.getItem(pageConfigs.subTitle, req.cookies.token)).content!,
+      paths: (uri !== 'index' ? [{ uri: '/static/index', title: 'Index' }] : []).concat(...paths),
+    }
+    res.send(getStaticItemHTML(uri, { ...it, state: 'full' }, config))
   })
 
   const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {

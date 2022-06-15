@@ -347,3 +347,17 @@ mjx-container[display='true'] {
   z-index: 2;
   min-height: 100%;
 }
+
+@media (max-width: 1024px) {
+  .static-item {
+    width: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .static-item {
+    width: 750px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
