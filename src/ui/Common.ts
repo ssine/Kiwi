@@ -42,9 +42,19 @@ function removeCookie(key: string) {
 }
 
 const CSSColorToRGBA = (function () {
+  const dummy = () => ({
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 0,
+  })
+  if (typeof document === 'undefined') return dummy
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = 1
   const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    return dummy
+  }
 
   return function (col: string) {
     ctx.clearRect(0, 0, 1, 1)
@@ -115,9 +125,9 @@ function HSVtoRGB(color: { h: number; s: number; v: number }) {
   const p = v * (1 - s)
   const q = v * (1 - f * s)
   const t = v * (1 - (1 - f) * s)
-  let r: number
-  let b: number
-  let g: number
+  let r: number = 0
+  let b: number = 0
+  let g: number = 0
   switch (i % 6) {
     case 0:
       ;(r = v), (g = t), (b = p)
@@ -159,18 +169,19 @@ function setPageColors(hue: number) {
   rootStyle.setProperty('--areaColor', RGBtoCSSColor(HSVtoRGB({ h: hue, s: 0.04, v: 0.98 })))
 }
 
-const isMobile = window.screen.width >= 641 ? false : true
+const isMobile = typeof window !== 'undefined' && window.screen.width >= 641 ? false : true
 
 // adapted from:
 /*! getEmPixels  | Author: Tyson Matanich (http://matanich.com), 2013 | License: MIT */
 const getEmPixels = (() => {
+  if (typeof document === 'undefined') return () => 0
   const documentElement = document.documentElement
   const important = '!important;'
   const style =
     ['position:absolute', 'visibility:hidden', 'width:1em', 'font-size:1em', 'padding:0'].join(important) + important
 
   return (element?: HTMLElement): number => {
-    let extraBody: HTMLBodyElement
+    let extraBody: HTMLBodyElement | null = null
 
     if (!element) {
       // Emulate the documentElement to get rem value (documentElement does not work in IE6-7)
@@ -216,16 +227,24 @@ export const scrollToElement = async (el: HTMLElement) => {
 }
 
 export const getItemCardDiv = (uri: string) => {
-  return document.getElementById(`kiwi-itemcard-${uri}`)
+  return document.getElementById(`kiwi-itemcard-${uri}`)!
 }
 
 export const getTitleWithPath = (getTitle: (uri: string) => string, uri: string) => {
   const segments = uri.split('/')
-  const titles = []
+  const titles: string[] = []
   for (let i = 0; i < segments.length; i++) {
     titles.push(getTitle(segments.slice(0, i + 1).join('/')))
   }
   return titles.join(' / ')
+}
+
+export const waitScriptLoad = async (sc: HTMLScriptElement): Promise<void> => {
+  return new Promise((res, rej) => {
+    sc.addEventListener('load', () => {
+      res()
+    })
+  })
 }
 
 export {

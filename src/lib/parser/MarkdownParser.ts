@@ -1,7 +1,7 @@
 import { Parser } from '../../core/Parser'
 import { resolveURI, isURL } from '../../core/Common'
 import { MIME } from '../../core/MimeType'
-// import * as cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 import { marked } from 'marked'
 import * as hljs from 'highlight.js'
 // import { typesetDocumentMath } from './MathJaxParser'
@@ -50,15 +50,18 @@ class MarkdownParser extends Parser {
 
   parse(kwargs: { uri: string; input: string }): string {
     let html = marked(kwargs.input)
+    // resolve relative links
     html = html.replace(/(src|href)="(.+?)"/g, (match, $1, $2) => {
       if (isURL($2)) return match
       return `${$1}="${resolveURI(kwargs.uri, $2)}"`
     })
-    return `<div>${html}</div>`
-    // return `<div>${marked(typesetDocumentMath(kwargs.input))}</div>`
-    // const $ = cheerio.load(marked(input))
-    // $('a').addClass('item-link')
-    // return $.html($('body'))
+    const $ = cheerio.load(html)
+    // @ts-ignore
+    $('embed,img,video,audio').attr('src', (i: number, src: string) => {
+      if (isURL(src)) return src
+      return `/raw/${src}`
+    })
+    return $.html($('body'))
   }
 
   supportedTypes(): MIME[] {

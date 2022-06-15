@@ -32,7 +32,7 @@ export const ScriptApi = {
   },
 
   getThemeHue: (): string => {
-    return RGBtoHSV(CSSColorToRGBA(getItem(pageConfigs.primaryColor).content.trim())).h
+    return RGBtoHSV(CSSColorToRGBA(getItem(pageConfigs.primaryColor).content!.trim())).h
   },
   // hue: [0, 1]
   setThemeHue: (hue: number) => {

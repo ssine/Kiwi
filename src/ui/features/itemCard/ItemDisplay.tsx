@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Breadcrumb } from '../../components/basic/Breadcrumb/Breadcrumb'
 import { PrimaryButton } from '../../components/basic/Button/PrimaryButton'
 import { IconButton } from '../../components/basic/Button/IconButton'
-import { getCookie, getItemCardDiv, isLinkInternal, isMobile } from '../../Common'
+import { getCookie, getItemCardDiv, isLinkInternal, isMobile, waitScriptLoad } from '../../Common'
 import { encodeItemURI, resolveURI, timeFormat } from '../../../core/Common'
 import { MenuButton } from '../../components/basic/Button/MenuButton'
 import { AttachDirection, Callout } from '../../components/basic/Callout/Callout'
@@ -34,10 +34,10 @@ export const ItemDisplay = (props: { uri: string }) => {
   )
 
   const [deleteCalloutVisible, setDeleteCalloutVisible] = useState(false)
-  const contentRef = useRef()
+  const contentRef = useRef<HTMLElement>()
 
   useEffect(() => {
-    contentPostProcess(contentRef.current)
+    contentPostProcess(contentRef.current!)
   }, [])
 
   const dropdownItems: ContextualMenuItem[] = [
@@ -159,12 +159,14 @@ export const ItemDisplay = (props: { uri: string }) => {
         <iframe
           src={`/${uri}`}
           srcDoc={item.content}
+          // @ts-ignore
           ref={contentRef}
           frameBorder="0"
-          onLoad={() => setIframeHeight(contentRef.current)}
+          onLoad={() => setIframeHeight(contentRef.current as HTMLIFrameElement)}
           style={{ width: '100%', maxHeight: 800 }}
         />
       ) : (
+        // @ts-ignore
         <div className="item-content" ref={contentRef} dangerouslySetInnerHTML={{ __html: item.renderedHTML }} />
       )}
       <div className="item-info" style={{ color: 'grey', paddingLeft: 20 }}>
@@ -205,7 +207,7 @@ export const ItemDisplay = (props: { uri: string }) => {
   )
 }
 
-export const contentPostProcess = async (contentEl: HTMLDivElement) => {
+export const contentPostProcess = async (contentEl: HTMLElement) => {
   const links = contentEl.querySelectorAll('a')
   links.forEach((el: HTMLAnchorElement | SVGAElement) => {
     if (el instanceof SVGAElement) {
@@ -224,7 +226,7 @@ export const contentPostProcess = async (contentEl: HTMLDivElement) => {
       return
     }
     if (isLinkInternal(el)) {
-      const elUri = decodeURIComponent(el.getAttribute('href'))
+      const elUri = decodeURIComponent(el.getAttribute('href')!)
       const missing = !getItem(elUri)
       el.onclick = async evt => {
         evt.cancelBubble = true
@@ -254,10 +256,11 @@ export const contentPostProcess = async (contentEl: HTMLDivElement) => {
   const scripts = contentEl.getElementsByTagName('script')
   for (let idx = 0; idx < scripts.length; idx++) {
     const script = scripts.item(idx)
+    if (!script) return
     const newScript = document.createElement('script')
     const scriptContent = document.createTextNode(script.text)
     newScript.appendChild(scriptContent)
-    let onLoad = null
+    let onLoad: Promise<void> | null = null
     script.insertAdjacentElement('afterend', newScript)
     if (script.src !== '') {
       newScript.src = script.src
@@ -273,14 +276,6 @@ export const contentPostProcess = async (contentEl: HTMLDivElement) => {
   }
 }
 
-const waitScriptLoad = async (sc: HTMLScriptElement): Promise<void> => {
-  return new Promise((res, rej) => {
-    sc.addEventListener('load', () => {
-      res()
-    })
-  })
-}
-
 const setIframeHeight = (el: HTMLIFrameElement) => {
-  el.style.height = `${el.contentWindow.document.body.scrollHeight}px`
+  el.style.height = `${el.contentWindow?.document.body.scrollHeight}px`
 }

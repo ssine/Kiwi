@@ -20,6 +20,7 @@ import { isBinaryType } from './MimeType'
 import { Readable } from 'stream'
 import { ClientItem } from '../ui/ClientItem'
 import { renderItem } from './render'
+import { getStaticItemHTML } from '../ui/static/getStaticItemHtml'
 
 const logger = getLogger('server')
 
@@ -126,9 +127,9 @@ const serve = function serve(port: number, rootFolder: string) {
     res.json(ok(await manager.getSearchResult(req.body.input, req.cookies.token)))
   })
 
-  app.use(async (req, res, next) => {
-    const uri = decodeURIComponent(trimString(req.originalUrl.trim(), '/'))
-    logger.debug(`get static: ${uri}`)
+  app.get('/raw/:uri(*)', async (req, res) => {
+    const uri = decodeURIComponent(trimString(req.params.uri.trim(), '/'))
+    logger.debug(`get raw content of ${uri}`)
     const it = await manager.getItem(uri, req.cookies.token)
     if (it.type === 'image/svg+xml') {
       // svg is the only served non-binary item
@@ -148,6 +149,14 @@ const serve = function serve(port: number, rootFolder: string) {
     // no file, can only pipe the stream now, maybe slow, and no positioning supported (cumbersome)
     res.set('Content-Type', it.type)
     it.getContentStream!().pipe(res)
+  })
+
+  app.get('/static/:uri(*)', async (req, res) => {
+    const uri = decodeURIComponent(trimString(req.params.uri.trim(), '/'))
+    logger.debug(`get static: ${uri}`)
+    const it = await manager.getItem(uri, req.cookies.token)
+    if (!it.renderSync) await renderItem(uri, it)
+    res.send(getStaticItemHTML(uri, { ...it, state: 'full' }))
   })
 
   const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {

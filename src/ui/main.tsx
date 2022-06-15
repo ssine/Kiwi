@@ -27,13 +27,13 @@ window.onload = async () => {
 
   // theme color
   await Promise.all([loadItem(pageConfigs.primaryColor), loadItem(pageConfigs.title), loadItem(pageConfigs.subTitle)])
-  setPageColors(RGBtoHSV(CSSColorToRGBA(getItem(pageConfigs.primaryColor).content)).h)
+  setPageColors(RGBtoHSV(CSSColorToRGBA(getItem(pageConfigs.primaryColor).content!)).h)
 
   // document title & subtitle
-  const title = getItem(pageConfigs.title).content.trim()
+  const title = getItem(pageConfigs.title).content!.trim()
   document.title = title
   store.dispatch(setTitle(title))
-  store.dispatch(setSubtitle(getItem(pageConfigs.subTitle).content.trim()))
+  store.dispatch(setSubtitle(getItem(pageConfigs.subTitle).content!.trim()))
 
   // document favicon
   const link = document.createElement('link')

@@ -9,6 +9,7 @@ module.exports = {
   devtool: process.env.WEBPACK_MODE === 'production' ? 'cheap-module-source-map' : undefined,
   entry: {
     app: './src/ui/main.tsx',
+    staticPage: './src/ui/static/staticItemEntry.tsx',
   },
   resolve: {
     extensions: ['.ts', '.js', '.tsx'],
@@ -49,6 +50,7 @@ module.exports = {
   plugins: [
     new HtmlWebPackPlugin({
       title: 'Kiwi',
+      chunks: ['app']
     }),
     new MonacoWebpackPlugin(),
     new CompressionPlugin({

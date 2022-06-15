@@ -27,7 +27,9 @@ export const initMathjax = async () => {
   // @ts-ignore
   Menu.prototype.checkLoadableItems = function () {
     const menu = this.menu
+    // @ts-ignore
     for (const name of Object.keys(this.jax)) {
+      // @ts-ignore
       if (!this.jax[name]) {
         menu.findID('Settings', 'Renderer', name).disable()
       }
