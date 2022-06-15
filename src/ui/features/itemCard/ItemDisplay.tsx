@@ -50,6 +50,14 @@ export const ItemDisplay = (props: { uri: string }) => {
       },
     },
     {
+      id: 'Copy Static Link',
+      text: 'Copy Static Link',
+      iconName: 'Link',
+      onClick: () => {
+        navigator.clipboard.writeText(`${window.location.origin}/static/${encodeItemURI(uri)}`)
+      },
+    },
+    {
       id: 'Print Item',
       text: 'Print Item',
       iconName: 'Print',
