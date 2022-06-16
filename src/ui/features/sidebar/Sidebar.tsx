@@ -38,7 +38,7 @@ export const Sidebar = () => {
         style={{
           display: sidebarShow ? 'flex' : 'none',
           flexDirection: 'column',
-          width: sidebarWidth,
+          ...(isMobile ? {} : { width: sidebarWidth }),
         }}
       >
         <h1 className="site-title" id="site-title">

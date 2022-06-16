@@ -17,6 +17,7 @@ export const getStaticItemHTML = (uri: string, item: ClientItem, config: StaticC
     <html style={{ display: 'block', ...getColorScheme(config.hue) }}>
       <head>
         <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{config.title}</title>
         <script defer src="/staticPage.bundle.js" />
         <link rel="shortcut icon" href={`/raw/${pageConfigs.favicon}`} type="image/x-icon" />

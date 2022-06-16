@@ -50,7 +50,8 @@ module.exports = {
   plugins: [
     new HtmlWebPackPlugin({
       title: 'Kiwi',
-      chunks: ['app']
+      chunks: ['app'],
+      meta: { viewport: 'width=device-width, initial-scale=1, shrink-to-fit=no' },
     }),
     new MonacoWebpackPlugin(),
     new CompressionPlugin({

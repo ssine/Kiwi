@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from 'react'
 import { ItemDisplay } from './ItemDisplay'
 import { ItemEditor } from './ItemEditor'
-import { getItemCardDiv, getPositionToDocument } from '../../Common'
+import { getItemCardDiv, getPositionToDocument, isMobile } from '../../Common'
 import { useAppSelector } from '../../store'
 import { getItemFromState } from '../global/item'
 import { smoothLayoutChange } from './operations'
@@ -44,7 +44,7 @@ export const ItemCard = (props: { uri: string }) => {
     <div
       className={`item${fullScreen ? ' kiwi-fullscreen-item' : ''}`}
       id={`kiwi-itemcard-${uri}`}
-      style={{ width: fullScreen ? '100%' : itemWidth }}
+      style={{ width: fullScreen ? '100%' : isMobile ? '100vw' : itemWidth }}
     >
       {render()}
     </div>

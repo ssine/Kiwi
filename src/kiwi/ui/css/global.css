@@ -282,29 +282,29 @@ frame {
 
 @font-face {
   font-family: OpenSans;
-  src: url('/kiwi/ui/webfont/OpenSans-Regular.ttf');
+  src: url('/raw/kiwi/ui/webfont/OpenSans-Regular.ttf');
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/webfont/constan.ttf');
+  src: url('/raw/kiwi/ui/webfont/constan.ttf');
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/webfont/constanb.ttf');
+  src: url('/raw/kiwi/ui/webfont/constanb.ttf');
   font-weight: bold;
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/webfont/constani.ttf');
+  src: url('/raw/kiwi/ui/webfont/constani.ttf');
   font-style: italic;
 }
 
 @font-face {
   font-family: Constantia;
-  src: url('/kiwi/ui/webfont/constanz.ttf');
+  src: url('/raw/kiwi/ui/webfont/constanz.ttf');
   font-weight: bold;
   font-style: italic;
 }
@@ -349,6 +349,10 @@ mjx-container[display='true'] {
 }
 
 @media (max-width: 1024px) {
+  #static-page-root {
+    max-width: 100vw;
+  }
+
   .static-item {
     width: 100%;
   }
@@ -357,6 +361,7 @@ mjx-container[display='true'] {
 @media (min-width: 1024px) {
   .static-item {
     width: 750px;
+    max-width: 100%;
     margin-left: auto;
     margin-right: auto;
   }
