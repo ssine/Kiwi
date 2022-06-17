@@ -252,7 +252,7 @@ export const moveItem = async (fromUri: string, toUri: string): Promise<void> =>
   const state = store.getState()
   const item = getItemFromState(state, fromUri)
   if (isBinaryType(item.type)) {
-    await saveItem({ uri: toUri, item, file: new File([await (await fetch(`/${fromUri}`)).blob()], '') })
+    await saveItem({ uri: toUri, item, file: new File([await (await fetch(`/raw/${fromUri}`)).blob()], '') })
   } else {
     await saveItem({ uri: toUri, item })
   }
