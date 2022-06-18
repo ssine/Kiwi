@@ -1,7 +1,7 @@
 import { createAction, CaseReducer, PayloadAction } from '@reduxjs/toolkit'
 import { WritableDraft } from 'immer/dist/internal'
 import { RootState } from '..'
-import { arrayEqual, resolveURI, suggestedURIToTitle } from '../../../core/Common'
+import { arrayEqual, resolveURI, suggestedURIToTitle, uriCumSum } from '../../../core/Common'
 import { ItemNotExistsError } from '../../../core/Error'
 import { isBinaryType } from '../../../core/MimeType'
 import * as api from '../../api'
@@ -82,6 +82,13 @@ export const displayItemReducer: CaseReducer<RootState, PayloadAction<DisplayIte
     mode: action.payload.mode || 'display',
     fullScreen: false,
   }
+  uriCumSum(uri)
+    .slice(0, -1)
+    .forEach(seg => {
+      state.indexTree.stateMap[seg] = state.indexTree.stateMap[seg]
+        ? { ...state.indexTree.stateMap[seg], expand: true }
+        : { expand: true, dragOverCount: 0 }
+    })
 }
 
 export const closeItem = createAction<string>('closeItem')
@@ -136,8 +143,10 @@ export const initItemReducer: CaseReducer<RootState, PayloadAction<InitItemPaylo
 export const saveItem = async (arg: SaveItemPayload) => {
   store.dispatch(saveItemPending({ uri: arg.uri, item: arg.item }))
   const { uri, item, file } = arg
+  if (!item) return
   let rendered: ClientItem
   if (isBinaryType(item.type)) {
+    if (!file) return
     rendered = await api.putBinaryItem(uri, item, file)
   } else {
     rendered = await api.putItem(uri, item)
@@ -264,7 +273,7 @@ export const moveTree = async (fromUri: string, toUri: string): Promise<void> =>
   const numFromSegments = fromUri.split('/').length
   for (const uri of Object.keys(state.items)) {
     if (uri === fromUri) {
-      const fromName = uri.split('/').pop()
+      const fromName = uri.split('/').pop() as string
       await moveItem(uri, resolveURI(toUri, fromName))
     } else if (uri.startsWith(`${fromUri}/`)) {
       const fromName = uri
