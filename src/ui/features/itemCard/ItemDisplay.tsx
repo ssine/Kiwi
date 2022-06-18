@@ -165,8 +165,7 @@ export const ItemDisplay = (props: { uri: string }) => {
       </div>
       {item.type === 'text/html' ? (
         <iframe
-          src={`/${uri}`}
-          srcDoc={item.content}
+          src={`/raw/${uri}`}
           // @ts-ignore
           ref={contentRef}
           frameBorder="0"
