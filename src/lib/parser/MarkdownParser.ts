@@ -57,7 +57,7 @@ class MarkdownParser extends Parser {
     })
     const $ = cheerio.load(html)
     // @ts-ignore
-    $('embed,img,video,audio').attr('src', (i: number, src: string) => {
+    $('embed,img,video,audio,iframe').attr('src', (i: number, src: string) => {
       if (isURL(src)) return src
       return `/raw/${src}`
     })
