@@ -366,3 +366,19 @@ mjx-container[display='true'] {
     margin-right: auto;
   }
 }
+
+/*
+body,
+embed {
+  cursor: url('/raw/kiwi/ui/cursor/purple/normal.cur'), auto;
+}
+input,
+textarea {
+  cursor: url('/raw/kiwi/ui/cursor/purple/input.cur'), auto;
+}
+button,
+.tc-btn-invisible,
+.tc-tiddlylink {
+  cursor: url('/raw/kiwi/ui/cursor/purple/normal.cur'), auto;
+}
+*/
