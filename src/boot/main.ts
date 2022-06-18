@@ -6,6 +6,11 @@ import { initLogger } from '../core/Log'
 const args = yargs
   .command('serve [folder]', 'serve wiki files in a folder', yargs => {
     yargs
+      .option('host', {
+        alias: 'h',
+        describe: 'host name to listen on',
+        default: '0.0.0.0',
+      })
       .option('port', {
         alias: 'p',
         describe: 'local port to listen on',
@@ -92,7 +97,7 @@ async function run() {
     const auth = new AuthManager()
     const manager = ItemManager.getInstance()
     await manager.init(storage, systemStorage, auth, renderItem)
-    serve(args.port, args.folder)
+    serve(args.host, args.port, args.folder)
   } else if (args._[0] === 'migrate') {
     await migrateTiddlyWiki(args.from, args.to)
   }

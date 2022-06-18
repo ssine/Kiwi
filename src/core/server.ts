@@ -45,7 +45,7 @@ const manager = ItemManager.getInstance()
 
 const ok = (data?: any) => ({ code: 0, data: data })
 
-const serve = function serve(port: number, rootFolder: string) {
+const serve = function serve(host: string, port: number, rootFolder: string) {
   // serve built-in assets
   app.use('/kiwi/', express.static(resolve(__dirname, '../kiwi')))
 
@@ -200,7 +200,7 @@ const serve = function serve(port: number, rootFolder: string) {
   }
   app.use(errorHandler)
 
-  server.listen(port, () => logger.info(`Server running on port ${port}`))
+  server.listen(port, host, () => logger.info(`Server running on port ${port}`))
 }
 
 export { app, serve, itemRouteTable }
