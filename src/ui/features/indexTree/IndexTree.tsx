@@ -1,6 +1,6 @@
 import './IndexTree.css'
 import React from 'react'
-import { isBinaryType, isContentType, MIME } from '../../../core/MimeType'
+import { isBinaryType, isContentType, isTextType, MIME } from '../../../core/MimeType'
 import { MessageType, showMessage } from '../messageList/messageListSlice'
 import { resolveURI } from '../../../core/Common'
 import { store, useAppDispatch, useAppSelector } from '../../store'
@@ -161,6 +161,21 @@ const processDroppedContent = async (ev: React.DragEvent<HTMLDivElement>, zoneUr
           })
         } else if (isContentType(file.type as MIME)) {
           const basename = file.name.substring(0, file.name.lastIndexOf('.')) || file.name
+          const targetUri = resolveURI(`${zoneUri}${inside ? '/' : ''}`, basename)
+          await saveItem({
+            uri: targetUri,
+            item: {
+              title: basename,
+              state: 'bare',
+              type: file.type as MIME,
+              content: await file.text(),
+              header: { createTime: Date.now() },
+              renderSync: false,
+              renderedHTML: '',
+            },
+          })
+        } else if (isTextType(file.type as MIME)) {
+          const basename = file.name
           const targetUri = resolveURI(`${zoneUri}${inside ? '/' : ''}`, basename)
           await saveItem({
             uri: targetUri,
