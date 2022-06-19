@@ -232,7 +232,7 @@ export const contentPostProcess = async (contentEl: HTMLElement) => {
       }
       return
     }
-    if (isLinkInternal(el)) {
+    if (isLinkInternal(el) && !(el.getAttribute('href') || '').startsWith('http')) {
       const elUri = decodeURIComponent(el.getAttribute('href')!)
       const missing = !getItem(elUri)
       el.onclick = async evt => {
