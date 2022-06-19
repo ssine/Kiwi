@@ -3,11 +3,8 @@ import ReactDOM from 'react-dom'
 import { store } from '../store'
 import { getItem } from '../api'
 import { StaticItemPage } from './staticItemPage'
-import { getColorScheme, isLinkInternal, waitScriptLoad } from '../Common'
+import { isLinkInternal, waitScriptLoad } from '../Common'
 import { typesetMath } from '../mathjax'
-import { setPageColors, CSSColorToRGBA, RGBtoHSV } from '../Common'
-import { pageConfigs } from '../../boot/config'
-import { loadItem } from '../features/global/item'
 
 const contentPostProcess = async () => {
   const contentEl = document.getElementById('static-page-root')!
@@ -22,7 +19,7 @@ const contentPostProcess = async () => {
       }
       return
     }
-    if (isLinkInternal(el)) {
+    if (isLinkInternal(el) && !(el.getAttribute('href') || '').startsWith('http')) {
       const elUri = decodeURIComponent(el.getAttribute('href')!)
       el.setAttribute('href', `/static/${elUri}`)
       el.classList.add('item-link')

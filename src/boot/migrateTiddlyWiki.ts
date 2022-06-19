@@ -28,12 +28,11 @@ export const migrateTiddlyWiki = async (from: string, to: string) => {
     if (sourceFile.startsWith('$')) continue
     if (sourceFile.endsWith('.tid')) {
       const content = (await fs.promises.readFile(path.join(from, sourceFile))).toString()
-      const lines = content.split('\n')
+      const lines = content.split(/(\n|\r\n)/)
       const firstBlank = lines.indexOf('')
       const metaLines = lines.slice(0, firstBlank)
       const sourceMeta = Object.fromEntries(metaLines.map(l => l.split(':').map(v => v.trim())))
       const sourceContent = lines.slice(firstBlank + 1).join('\n')
-      if (sourceMeta.type !== 'text/vnd.tiddlywiki') continue
       const targetContent = sourceContent
         .replace(/\n#+ /g, ss => '\n' + '  '.repeat(ss.length - 2) + '1.' + ' ') // ordered lists
         .replace(/\n\*+ /g, ss => '\n' + '  '.repeat(ss.length - 2) + '-' + ' ') // unordered lists
@@ -59,7 +58,6 @@ export const migrateTiddlyWiki = async (from: string, to: string) => {
         .replace(/\[img\[[\s\S]+?\]\]/g, ss => {
           return `![](${suggestedTitleToURI(ss.slice(5, ss.length - 2))})`
         }) //image
-
       await saveItem(to, suggestedTitleToURI(sourceMeta.title), {
         title: sourceMeta.title,
         type: 'text/markdown',
