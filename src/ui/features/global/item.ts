@@ -6,7 +6,7 @@ import { ItemNotExistsError } from '../../../core/Error'
 import { isBinaryType } from '../../../core/MimeType'
 import * as api from '../../api'
 import { ClientItem } from '../../ClientItem'
-import { getItemCardDiv, scrollToElement } from '../../Common'
+import { getCookie, getItemCardDiv, scrollToElement } from '../../Common'
 import { store } from '../../store'
 import { IndexNode } from '../indexTree/indexTreeSlice'
 
@@ -246,6 +246,18 @@ export const displayItem = async (uri: string, mode?: 'edit' | 'display') => {
   setTimeout(() => {
     scrollToElement(getItemCardDiv(uri))
   }, 10)
+}
+
+export const displayOrCreateItem = async (uri: string) => {
+  const state = store.getState()
+  if (getItemFromState(state, uri)) {
+    await displayItem(uri)
+    return
+  }
+  if (!getCookie('token')) return
+  const newUri = await createItem(uri)
+  await displayItem(newUri)
+  return newUri
 }
 
 export const deleteItem = async (uri: string, newUri?: string) => {

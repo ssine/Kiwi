@@ -14,6 +14,7 @@ import {
   createItem,
   deleteItem,
   displayItem,
+  displayOrCreateItem,
   duplicateItem,
   getItem,
   getItemFromState,
@@ -103,7 +104,7 @@ export const ItemDisplay = (props: { uri: string }) => {
             }))}
             getKey={i => i.uri}
             renderer={i => i.name}
-            onItemClick={i => displayItem(i.uri)}
+            onItemClick={i => displayOrCreateItem(i.uri)}
           />
         </div>
         <div className="item-controls" style={{ display: 'flex' }}>
@@ -225,7 +226,7 @@ export const contentPostProcess = async (contentEl: HTMLElement) => {
           evt.cancelBubble = true
           evt.stopPropagation()
           evt.preventDefault()
-          displayItem(el.href.baseVal)
+          displayOrCreateItem(el.href.baseVal)
           return false
         }
         el.classList.add('item-link')
