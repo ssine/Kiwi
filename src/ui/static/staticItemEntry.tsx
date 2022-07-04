@@ -5,6 +5,7 @@ import { getItem } from '../api'
 import { StaticItemPage } from './staticItemPage'
 import { isLinkInternal, waitScriptLoad } from '../Common'
 import { typesetMath } from '../mathjax'
+import { isURL } from '../../core/Common'
 
 const contentPostProcess = async () => {
   const contentEl = document.getElementById('static-page-root')!
@@ -19,8 +20,10 @@ const contentPostProcess = async () => {
       }
       return
     }
-    if (isLinkInternal(el) && !(el.getAttribute('href') || '').startsWith('http')) {
-      const elUri = decodeURIComponent(el.getAttribute('href')!)
+    if (isLinkInternal(el)) {
+      const href = el.getAttribute('href') || ''
+      if (isURL(href)) return
+      const elUri = decodeURIComponent(href)
       el.setAttribute('href', `/static/${elUri}`)
       el.classList.add('item-link')
     } else {

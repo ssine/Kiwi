@@ -3,7 +3,7 @@ import { Breadcrumb } from '../../components/basic/Breadcrumb/Breadcrumb'
 import { PrimaryButton } from '../../components/basic/Button/PrimaryButton'
 import { IconButton } from '../../components/basic/Button/IconButton'
 import { getCookie, getItemCardDiv, isLinkInternal, isMobile, waitScriptLoad } from '../../Common'
-import { encodeItemURI, resolveURI, timeFormat } from '../../../core/Common'
+import { encodeItemURI, isURL, resolveURI, timeFormat } from '../../../core/Common'
 import { MenuButton } from '../../components/basic/Button/MenuButton'
 import { AttachDirection, Callout } from '../../components/basic/Callout/Callout'
 import { typesetMath } from '../../mathjax'
@@ -233,8 +233,10 @@ export const contentPostProcess = async (contentEl: HTMLElement) => {
       }
       return
     }
-    if (isLinkInternal(el) && !(el.getAttribute('href') || '').startsWith('http')) {
-      const elUri = decodeURIComponent(el.getAttribute('href')!)
+    if (isLinkInternal(el)) {
+      const href = el.getAttribute('href') || ''
+      if (isURL(href)) return
+      const elUri = decodeURIComponent(href)
       const missing = !getItem(elUri)
       el.onclick = async evt => {
         evt.cancelBubble = true
