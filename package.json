@@ -21,7 +21,7 @@
     "build:ui_prod": "webpack --mode=production",
     "build:doc": "typedoc src --out build/doc --exclude src/ui/**/*",
     "watch:ui": "webpack --mode=development --watch",
-    "watch:core": "tsc-watch --noClear --onFirstSuccess \"shx cp -r src/kiwi build/\" --onSuccess \"node --experimental-vm-modules build/boot/main.js serve ./data\"",
+    "watch:core": "tsc-watch --noClear --onFirstSuccess \"shx cp -r src/kiwi build/\" --onSuccess \"node --experimental-vm-modules build/boot/main.js serve -p 31000 ./data\"",
     "analyze": "webpack-bundle-analyzer --port 8080 build/browser/stats.json",
     "prepublishOnly": "shx rm -rf build && concurrently 'npm:build:core' 'npm:build:ui_prod'",
     "publish_": "npm --registry https://registry.npmjs.org/ publish",

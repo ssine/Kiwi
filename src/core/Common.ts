@@ -85,7 +85,7 @@ function resolveURI(from: string | null, to: string): string {
 }
 
 function isURL(url: string): boolean {
-  return /^(https?|ftp|file|mailto|tel|sms):\/\//.test(url)
+  return /^((https?|ftp|file):\/\/)|((mailto|tel|sms):)/.test(url)
 }
 
 function suggestedURIToTitle(uri: string): string {
