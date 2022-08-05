@@ -23,6 +23,7 @@ export const getStaticItemHTML = (uri: string, item: ClientItem, config: StaticC
         <link rel="shortcut icon" href={`/raw/${pageConfigs.favicon}`} type="image/x-icon" />
         <link rel="stylesheet" href="/raw/kiwi/ui/css/global.css"></link>
         <link rel="stylesheet" href="/raw/kiwi/ui/css/fabric-icons.css" />
+        <link rel="stylesheet" href="/raw/kiwi/ui/css/solarized-light.css" />
       </head>
       <body>
         <div style={{ display: 'flex', flexDirection: 'row', marginTop: 10, marginLeft: 20 }}>
