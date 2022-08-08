@@ -1,10 +1,9 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { ItemCard } from '../itemCard/ItemCard'
-import { defaultItemsURI } from '../../../boot/config'
 import { argMin } from '../../../core/Common'
 import { createReparentableSpace } from 'react-reparenting'
-import { useAppSelector } from '../../store'
-import { displayItem, getItem, loadItem } from '../global/item'
+import { store, useAppSelector } from '../../store'
+import { displayItem } from '../global/item'
 import { getItemCardDiv } from '../../Common'
 
 const { Reparentable, sendReparentableChild } = createReparentableSpace()
@@ -99,10 +98,9 @@ const displayInitItems = async () => {
     // have uris in hash
     await displayItem(decodeURIComponent(window.location.hash.substring(1)))
   } else {
-    // render default items
-    await loadItem(defaultItemsURI)
-    getItem(defaultItemsURI)
-      .content.split('\n')
-      .forEach(uri => uri && displayItem(uri))
+    const defaultItems = store.getState().config.info.defaultItems
+    for (const uri of defaultItems) {
+      await displayItem(uri)
+    }
   }
 }

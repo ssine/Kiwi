@@ -8,39 +8,31 @@ import { language as mdLang } from 'monaco-editor/esm/vs/basic-languages/markdow
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { App } from './App'
-import { setPageColors, CSSColorToRGBA, RGBtoHSV } from './Common'
-import { pageConfigs } from '../boot/config'
 import { ScriptApi } from './ScriptApi'
-import { getItem, initItems, loadItem } from './features/global/item'
+import { initItems } from './features/global/item'
 import { store } from './store'
-import { setSubtitle, setTitle } from './features/global/title'
+import { setMainConfig } from './features/global/config'
+import { getMainConfig } from './api'
 
 window.onload = async () => {
-  await initItems()
-  initMonacoEditor()
-
   // fabric icons
   const fabricFontStyle = document.createElement('link')
   fabricFontStyle.rel = 'stylesheet'
   fabricFontStyle.href = '/kiwi/ui/css/fabric-icons.css'
   document.head.append(fabricFontStyle)
 
-  // theme color
-  await Promise.all([loadItem(pageConfigs.primaryColor), loadItem(pageConfigs.title), loadItem(pageConfigs.subTitle)])
-  setPageColors(RGBtoHSV(CSSColorToRGBA(getItem(pageConfigs.primaryColor).content!)).h)
-
-  // document title & subtitle
-  const title = getItem(pageConfigs.title).content!.trim()
-  document.title = title
-  store.dispatch(setTitle(title))
-  store.dispatch(setSubtitle(getItem(pageConfigs.subTitle).content!.trim()))
-
   // document favicon
   const link = document.createElement('link')
   link.type = 'image/x-icon'
   link.rel = 'shortcut icon'
-  link.href = '/raw/' + pageConfigs.favicon
+  link.id = 'favicon-link'
   document.getElementsByTagName('head')[0].appendChild(link)
+
+  await initItems()
+  initMonacoEditor()
+
+  const config = await getMainConfig()
+  store.dispatch(setMainConfig(config))
 
   // render!
   const rootDiv = document.createElement('div')

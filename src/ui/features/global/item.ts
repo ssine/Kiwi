@@ -4,11 +4,13 @@ import { RootState } from '..'
 import { arrayEqual, resolveURI, suggestedURIToTitle, uriCumSum } from '../../../core/Common'
 import { ItemNotExistsError } from '../../../core/Error'
 import { isBinaryType } from '../../../core/MimeType'
+import { mainConfigURIs } from '../../../boot/config'
 import * as api from '../../api'
 import { ClientItem } from '../../ClientItem'
 import { getCookie, getItemCardDiv, scrollToElement } from '../../Common'
 import { store } from '../../store'
 import { IndexNode } from '../indexTree/indexTreeSlice'
+import { setMainConfig } from './config'
 
 type SaveItemPayload = {
   uri: string
@@ -51,6 +53,13 @@ export const saveItemFufilledReducer: CaseReducer<RootState, PayloadAction<[Save
 
   if (!oldItem || oldItem.title !== item.title) {
     state.indexTree.root = generateNodeState(Object.keys(Object.assign({}, state.systemItems, state.items)))
+  }
+
+  if (mainConfigURIs.includes(req.uri)) {
+    ;(async () => {
+      const config = await api.getMainConfig()
+      store.dispatch(setMainConfig(config))
+    })()
   }
 }
 

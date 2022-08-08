@@ -1,5 +1,6 @@
 import { combineReducers, createReducer, Reducer } from '@reduxjs/toolkit'
 import { ClientItem } from '../ClientItem'
+import { getMainConfig, MainConfig } from '../../core/config'
 import {
   closeItem,
   closeItemReducer,
@@ -16,7 +17,6 @@ import {
   saveItemPending,
   saveItemPendingReducer,
 } from './global/item'
-import { setSubtitle, setSubtitleReducer, setTitle, setTitleReducer } from './global/title'
 import { itemFlowSlice, ItemFlowState } from './itemFlow/itemFlowSlice'
 import { sidebarSlice, SidebarState } from './sidebar/sidebarSlice'
 import { indexTreeSlice, IndexTreeState } from './indexTree/indexTreeSlice'
@@ -27,6 +27,7 @@ import {
   setItemMode,
   setItemModeReducer,
 } from './itemCard/operations'
+import { setMainConfig, setMainConfigReducer } from './global/config'
 
 export type RootState = {
   // uri -> item
@@ -53,8 +54,8 @@ export type RootState = {
   itemFlow: ItemFlowState
 
   messages: MessageListState
-  siteTitle: string
-  siteSubtitle: string
+
+  config: MainConfig
 }
 
 export const zeroState: RootState = {
@@ -66,13 +67,11 @@ export const zeroState: RootState = {
   sidebar: sidebarSlice.getInitialState(),
   itemFlow: itemFlowSlice.getInitialState(),
   messages: messageListSlice.getInitialState(),
-  siteSubtitle: '',
-  siteTitle: '',
+  config: getMainConfig(null),
 }
 
 const globalActionTypes = [
-  setTitle,
-  setSubtitle,
+  setMainConfig,
   saveItemPending,
   saveItemFufilled,
   saveItemFailed,
@@ -85,8 +84,7 @@ const globalActionTypes = [
 ].map(act => act.toString())
 
 const globalReducer = createReducer(zeroState, builder => {
-  builder.addCase(setTitle, setTitleReducer)
-  builder.addCase(setSubtitle, setSubtitleReducer)
+  builder.addCase(setMainConfig, setMainConfigReducer)
   builder.addCase(saveItemPending, saveItemPendingReducer)
   builder.addCase(saveItemFufilled, saveItemFufilledReducer)
   builder.addCase(saveItemFailed, saveItemFailedReducer)
@@ -111,7 +109,6 @@ export const rootReducer: Reducer<RootState> = (state, action) => {
     systemItems: state => (state ? state : zeroState.systemItems),
     tagMap: state => (state ? state : zeroState.tagMap),
     opened: state => (state ? state : zeroState.opened),
-    siteSubtitle: state => (state ? state : zeroState.siteSubtitle),
-    siteTitle: state => (state ? state : zeroState.siteTitle),
+    config: state => (state ? state : zeroState.config),
   })(state, action)
 }

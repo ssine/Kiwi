@@ -1,0 +1,16 @@
+# This is a sample config with all the options and their default value
+# Feel free to try out different configs by editing and saving this item
+# Create a backup of these values by commenting them out if you want
+version: 0.8.0
+info:
+  title: Kiwi
+  subtitle: A flat file personal wiki
+  defaultItems:
+    - kiwi/doc/zh/hello-there
+appearance:
+  favicon: kiwi/ui/icon/favicon.ico
+  primaryColor: '#7e489d'
+render:
+  plugin:
+    paths:
+      - /kiwi/plugins

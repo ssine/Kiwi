@@ -20,7 +20,6 @@ import { isBinaryType } from './MimeType'
 import { Readable } from 'stream'
 import { ClientItem } from '../ui/ClientItem'
 import { renderItem } from './render'
-import { pageConfigs } from '../boot/config'
 import { getStaticItemHTML, StaticConfig } from '../ui/static/getStaticItemHtml'
 import { CSSColorToRGBA, RGBtoHSV } from '../ui/Common'
 
@@ -124,6 +123,10 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     res.json(ok(result))
   })
 
+  app.post('/get-main-config', async (req, res) => {
+    res.json(ok(manager.mainConfig))
+  })
+
   app.post('/get-search-result', async (req, res) => {
     logger.info(`search request ${req.body.input} got`)
     res.json(ok(await manager.getSearchResult(req.body.input, req.cookies.token)))
@@ -181,10 +184,9 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       })
     )
     const config: StaticConfig = {
-      hue:
-        RGBtoHSV(CSSColorToRGBA((await manager.getItem(pageConfigs.primaryColor, req.cookies.token)).content!)).h || 0,
-      title: (await manager.getItem(pageConfigs.title, req.cookies.token)).content!,
-      subTitle: (await manager.getItem(pageConfigs.subTitle, req.cookies.token)).content!,
+      hue: RGBtoHSV(CSSColorToRGBA(manager.mainConfig.appearance.primaryColor)).h || 0,
+      title: manager.mainConfig.info.title,
+      subTitle: manager.mainConfig.info.subtitle,
       paths: (uri !== 'index' ? [{ uri: '/static/index', title: 'Index' }] : []).concat(...paths),
     }
     res.send(getStaticItemHTML(uri, { ...it, state: 'full' }, config))

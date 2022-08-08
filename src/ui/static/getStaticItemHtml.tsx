@@ -3,7 +3,7 @@ import * as ReactDOMServer from 'react-dom/server'
 import { ClientItem } from '../ClientItem'
 import { StaticItemPage } from './staticItemPage'
 import { getColorScheme } from '../Common'
-import { pageConfigs } from '../../boot/config'
+import { ItemManager } from '../../core/ItemManager'
 
 export type StaticConfig = {
   hue: number
@@ -11,6 +11,8 @@ export type StaticConfig = {
   subTitle: string
   paths: { uri: string; title: string }[]
 }
+
+const manager = ItemManager.getInstance()
 
 export const getStaticItemHTML = (uri: string, item: ClientItem, config: StaticConfig) => {
   return ReactDOMServer.renderToString(
@@ -20,7 +22,7 @@ export const getStaticItemHTML = (uri: string, item: ClientItem, config: StaticC
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{config.title}</title>
         <script defer src="/staticPage.bundle.js" />
-        <link rel="shortcut icon" href={`/raw/${pageConfigs.favicon}`} type="image/x-icon" />
+        <link rel="shortcut icon" href={`/raw/${manager.mainConfig.appearance.favicon}`} type="image/x-icon" />
         <link rel="stylesheet" href="/raw/kiwi/ui/css/global.css"></link>
         <link rel="stylesheet" href="/raw/kiwi/ui/css/fabric-icons.css" />
         <link rel="stylesheet" href="/raw/kiwi/ui/css/solarized-light.css" />

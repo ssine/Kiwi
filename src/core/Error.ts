@@ -58,3 +58,8 @@ export class UploadFileError extends KiwiError {
 export class InvalidURIError extends KiwiError {
   code = 8
 }
+
+@register
+export class InvalidArgumentError extends KiwiError {
+  code = 9
+}

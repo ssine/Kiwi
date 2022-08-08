@@ -4,8 +4,8 @@
  */
 import { createHash } from 'crypto'
 import { ServerItem } from './ServerItem'
-import { safeLoad as loadYaml } from 'js-yaml'
 import { PasswordIncorrectError, UserNotExistsError } from './Error'
+import { SecretConfig } from './config'
 
 interface UserAccount {
   name: string
@@ -22,8 +22,8 @@ class AuthManager {
   /**
    * Initialize User Manager with stored accounts
    */
-  init(storage: ServerItem) {
-    const data: { name: string; token?: string; password?: string }[] = loadYaml(storage.content!) || []
+  init(config: SecretConfig) {
+    const data = config.users
     this.accounts = data
       .filter(act => act.name && (act.token || act.password))
       .map(act => ({

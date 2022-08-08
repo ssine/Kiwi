@@ -18,8 +18,8 @@ import { RecentList } from '../recentList/RecentList'
 
 export const Sidebar = () => {
   const dispatch = useAppDispatch()
-  const title = useAppSelector(s => s.siteTitle)
-  const subtitle = useAppSelector(s => s.siteSubtitle)
+  const title = useAppSelector(s => s.config.info.title)
+  const subtitle = useAppSelector(s => s.config.info.subtitle)
   const displaiedUris = useAppSelector(s => s.opened.uris)
   const sidebarWidth = useAppSelector(s => s.sidebar.width)
   const sidebarShow = useAppSelector(s => s.sidebar.show)

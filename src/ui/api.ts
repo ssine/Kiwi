@@ -1,3 +1,4 @@
+import { MainConfig } from '../core/config'
 import { constructErrorFromCode } from '../core/Error'
 import { ClientItem } from './ClientItem'
 import { MessageType, showMessage } from './features/messageList/messageListSlice'
@@ -76,6 +77,10 @@ export const putBinaryItem = async (uri: string, item: ClientItem, file: File): 
 
 export const deleteItem = async (uri: string): Promise<void> => {
   return postJSON('/delete-item', { uri: uri })
+}
+
+export const getMainConfig = async (): Promise<MainConfig> => {
+  return postJSON('/get-main-config', {})
 }
 
 export const getSearchResult = async (input: string): Promise<string[]> => {

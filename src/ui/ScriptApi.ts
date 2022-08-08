@@ -1,6 +1,4 @@
-import { pageConfigs } from '../boot/config'
 import { ClientItem } from './ClientItem'
-import { CSSColorToRGBA, HSVtoRGB, RGBtoCSSColor, RGBtoHSV, setPageColors } from './Common'
 import * as common from './Common'
 import * as coreCommon from '../core/Common'
 import { createItem, deleteItem, getItem, loadItem, saveItem } from './features/global/item'
@@ -29,20 +27,6 @@ export const ScriptApi = {
   getAllItems: () => {
     const state = store.getState()
     return state.items
-  },
-
-  getThemeHue: (): string => {
-    return RGBtoHSV(CSSColorToRGBA(getItem(pageConfigs.primaryColor).content!.trim())).h
-  },
-  // hue: [0, 1]
-  setThemeHue: (hue: number) => {
-    setPageColors(hue)
-  },
-  // hue: [0, 1]
-  saveThemeHue: async (hue: number) => {
-    const item = getItem(pageConfigs.primaryColor)
-    item.content = RGBtoCSSColor(HSVtoRGB({ h: hue, s: 1, v: 1 }))
-    return saveItem({ uri: pageConfigs.primaryColor, item })
   },
 
   tools: Object.assign({}, coreCommon, common),

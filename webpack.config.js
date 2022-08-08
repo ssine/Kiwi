@@ -13,6 +13,7 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js', '.tsx'],
+    fallback: { buffer: false },
   },
   output: {
     globalObject: 'self',

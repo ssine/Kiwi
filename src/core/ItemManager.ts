@@ -6,10 +6,12 @@
 import { ServerItem } from './ServerItem'
 import { AuthManager } from './AuthManager'
 import { getLogger } from './Log'
-import { usersURI } from '../boot/config'
+import { mainConfigURIs, secretConfigURIs } from '../boot/config'
 import { StorageProvider } from './Storage'
 import { ItemNotExistsError, NoReadPermissionError, NoWritePermissionError } from './Error'
 import { resolveURI } from './Common'
+import { getMainConfig, getSecretConfig, MainConfig, SecretConfig } from './config'
+import { identity } from 'lodash'
 
 const logger = getLogger('itemm')
 
@@ -22,6 +24,8 @@ export class ItemManager {
   storage!: StorageProvider
   systemStorage!: StorageProvider
   auth!: AuthManager
+  mainConfig!: MainConfig
+  secretConfig!: SecretConfig
 
   async init(
     storage: StorageProvider,
@@ -34,11 +38,20 @@ export class ItemManager {
     this.auth = auth
     await this.systemStorage.init()
     await this.storage.init()
-    this.auth.init((await this.storage.getItem(usersURI)) || (await this.systemStorage.getItem(usersURI))!)
+    await this.updateConfig()
+    this.auth.init(this.secretConfig)
     await Promise.all(Object.entries(await this.systemStorage.getAllItems()).map(entry => render(...entry)))
   }
 
+  async updateConfig() {
+    const getFirstItemFromList = async (uris: string[]) =>
+      (await Promise.all(uris.map(u => this.storage.getItem(u)))).find(identity)
+    this.mainConfig = getMainConfig(await getFirstItemFromList(mainConfigURIs))
+    this.secretConfig = getSecretConfig(await getFirstItemFromList(secretConfigURIs))
+  }
+
   async getItem(uri: string, token: string, noAuth?: boolean): Promise<ServerItem> {
+    if (secretConfigURIs.includes(uri)) throw new ItemNotExistsError(`item ${uri} not exists`)
     const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))
     if (!item) throw new ItemNotExistsError(`item ${uri} not exists`)
     if (!noAuth) {
@@ -69,14 +82,22 @@ export class ItemManager {
     if (!item.header.author && author !== 'anonymous') {
       item.header.author = author
     }
-    return await this.storage.putItem(uri, item)
+    const newItem = await this.storage.putItem(uri, item)
+    if (mainConfigURIs.includes(uri)) {
+      await this.updateConfig()
+    }
+    return newItem
   }
 
   async deleteItem(uri: string, token: string, noAuth?: boolean): Promise<void> {
     const item = await this.storage.getItem(uri)
     if (!item) throw new ItemNotExistsError(`item to delete (${uri}) not exists`)
     if (!noAuth && !this.auth.hasWritePermission(token, item)) throw new NoWritePermissionError()
-    return this.storage.deleteItem(uri)
+    this.storage.deleteItem(uri)
+    if (mainConfigURIs.includes(uri)) {
+      await this.updateConfig()
+    }
+    return
   }
 
   async getSystemItems(): Promise<Record<string, ServerItem>> {
@@ -94,7 +115,7 @@ export class ItemManager {
 
     const bannedNodes: Node = { name: '', childs: {} }
 
-    const addNode = (uri: string) => {
+    const addToBannedNode = (uri: string) => {
       let cur = bannedNodes
       for (const name of uri.split('/')) {
         // abort if a banned parent exists
@@ -128,7 +149,8 @@ export class ItemManager {
 
     Object.entries(items)
       .filter(([uri, item]) => !this.auth.hasReadPermission(token, item))
-      .forEach(([uri, item]) => addNode(uri))
+      .forEach(([uri, item]) => addToBannedNode(uri))
+    secretConfigURIs.forEach(uri => addToBannedNode(uri))
 
     return Object.fromEntries(Object.entries(items).filter(([uri, item]) => !isBanned(uri)))
   }

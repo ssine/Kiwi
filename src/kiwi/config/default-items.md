@@ -1,1 +1,0 @@
-kiwi/doc/zh/hello-there
