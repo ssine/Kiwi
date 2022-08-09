@@ -166,6 +166,10 @@ const resolveModuleUri = async (from: string, to: string) => {
 const loadKiwiModule = async (uri: string, ctx: vm.Context) => {
   const item = await ScriptApi.getItem(uri)
   // @ts-ignore
+  if (!vm.SourceTextModule) {
+    throw new Error('Cannot import module. Pass --experimental-vm-modules flag to node to enable this feature.')
+  }
+  // @ts-ignore
   const module = new vm.SourceTextModule(
     ts.transpile(item.content || '', {
       target: ts.ScriptTarget.ES2021,
