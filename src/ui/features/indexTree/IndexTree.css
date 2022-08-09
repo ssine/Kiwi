@@ -38,3 +38,12 @@
 .kiwi-indextree-hovereffect:hover {
   background-color: var(--blockColor);
 }
+
+.kiwi-indextree-rearblock {
+  height: 1.4rem;
+  width: 1.4rem;
+  line-height: 1.4rem;
+  font-size: 0.7rem;
+  text-align: center;
+  color: rgb(96, 94, 92);
+}

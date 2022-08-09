@@ -8,6 +8,7 @@ export type IndexNode = {
 export type NodeState = {
   expand: boolean
   dragOverCount: number
+  isHover: boolean
 }
 
 export type IndexTreeState = {
@@ -21,7 +22,7 @@ const initialState: IndexTreeState = {
     childs: [],
   },
   stateMap: {
-    '/': { expand: true, dragOverCount: 0 },
+    '/': { expand: true, dragOverCount: 0, isHover: false },
   },
 }
 
@@ -38,25 +39,32 @@ export const indexTreeSlice = createSlice({
     addNodeDragCount(state, action: PayloadAction<{ uri: string; amount: number }>) {
       const { uri, amount } = action.payload
       if (!state.stateMap[uri]) {
-        state.stateMap[uri] = { dragOverCount: 0, expand: false }
+        state.stateMap[uri] = { dragOverCount: 0, expand: false, isHover: false }
       }
       state.stateMap[uri].dragOverCount += amount
     },
     setNodeDragCount(state, action: PayloadAction<{ uri: string; count: number }>) {
       const { uri, count } = action.payload
       if (!state.stateMap[uri]) {
-        state.stateMap[uri] = { dragOverCount: 0, expand: false }
+        state.stateMap[uri] = { dragOverCount: 0, expand: false, isHover: false }
       }
       state.stateMap[uri].dragOverCount = count
     },
     switchNodeExpand(state, action: PayloadAction<string>) {
       const uri = action.payload
       if (!state.stateMap[uri]) {
-        state.stateMap[uri] = { dragOverCount: 0, expand: false }
+        state.stateMap[uri] = { dragOverCount: 0, expand: false, isHover: false }
       }
       state.stateMap[uri].expand = !state.stateMap[uri].expand
+    },
+    setIsHover(state, action: PayloadAction<{ uri: string; isHover: boolean }>) {
+      const { uri, isHover } = action.payload
+      if (!state.stateMap[uri]) {
+        state.stateMap[uri] = { dragOverCount: 0, expand: false, isHover: false }
+      }
+      state.stateMap[uri].isHover = isHover
     },
   },
 })
 
-export const { setRoot, addNodeDragCount, setNodeDragCount, switchNodeExpand } = indexTreeSlice.actions
+export const { setRoot, addNodeDragCount, setNodeDragCount, switchNodeExpand, setIsHover } = indexTreeSlice.actions

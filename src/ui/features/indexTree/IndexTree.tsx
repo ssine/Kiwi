@@ -4,7 +4,15 @@ import { isBinaryType, isContentType, isTextType, MIME } from '../../../core/Mim
 import { MessageType, showMessage } from '../messageList/messageListSlice'
 import { resolveURI } from '../../../core/Common'
 import { store, useAppDispatch, useAppSelector } from '../../store'
-import { addNodeDragCount, IndexNode, NodeState, setNodeDragCount, setRoot, switchNodeExpand } from './indexTreeSlice'
+import {
+  addNodeDragCount,
+  IndexNode,
+  NodeState,
+  setIsHover,
+  setNodeDragCount,
+  setRoot,
+  switchNodeExpand,
+} from './indexTreeSlice'
 import { createItem, displayItem, moveTree, saveItem } from '../global/item'
 
 const INDENT_WIDTH = 15
@@ -19,7 +27,7 @@ export const IndexTree = () => {
   const getItem = (uri: string) => items[uri] || systemItems[uri]
 
   const _renderTree = (node: IndexNode, level: number): JSX.Element[] => {
-    let nodeList = []
+    let nodeList: any[] = []
     const hasChild = Object.keys(node.childs).length > 0
     const nodeState = getNodeState(stateMap, node.uri)
 
@@ -62,6 +70,12 @@ export const IndexTree = () => {
         onDragLeave={ev => {
           dispatch(addNodeDragCount({ uri: node.uri, amount: -1 }))
         }}
+        onMouseEnter={ev => {
+          dispatch(setIsHover({ uri: node.uri, isHover: true }))
+        }}
+        onMouseLeave={ev => {
+          dispatch(setIsHover({ uri: node.uri, isHover: false }))
+        }}
         onDrop={async ev => {
           ev.preventDefault()
           ev.persist()
@@ -69,7 +83,7 @@ export const IndexTree = () => {
           dispatch(setNodeDragCount({ uri: node.uri, count: 0 }))
           await processDroppedContent(ev, node.uri, dropInside)
         }}
-        onClick={async _ => {
+        onClick={async ev => {
           if (!getItem(node.uri)) {
             await createItem(node.uri)
             displayItem(node.uri, 'edit')
@@ -107,7 +121,18 @@ export const IndexTree = () => {
             <></>
           )}
         </div>
-        {getItem(node.uri) ? getItem(node.uri).title : node.uri.split('/').pop()}
+        <div style={{ flexGrow: 1 }}>{getItem(node.uri) ? getItem(node.uri).title : node.uri.split('/').pop()}</div>
+        {nodeState.isHover && (
+          <div
+            className={`kiwi-indextree-hovereffect kiwi-indextree-rearblock ms-Icon ms-Icon--Add`}
+            onClick={async ev => {
+              ev.stopPropagation()
+              ev.preventDefault()
+              const newUri = await createItem(resolveURI(node.uri + '/', 'new-item'))
+              displayItem(newUri)
+            }}
+          ></div>
+        )}
       </div>
     )
 
@@ -145,6 +170,7 @@ const processDroppedContent = async (ev: React.DragEvent<HTMLDivElement>, zoneUr
       const d = ev.dataTransfer.items[i]
       if (d.kind === 'file') {
         const file = d.getAsFile()
+        if (!file) continue
         if (isBinaryType(file.type as MIME)) {
           const targetUri = resolveURI(`${zoneUri}${inside ? '/' : ''}`, file.name)
           await saveItem({
@@ -214,5 +240,5 @@ const findNodeinTree = (root: IndexNode, uri: string): IndexNode | null => {
 }
 
 const getNodeState = (state: Record<string, NodeState>, uri: string) => {
-  return state[uri] || { dragOverCount: 0, expand: false }
+  return state[uri] || { dragOverCount: 0, expand: false, isHover: false }
 }

@@ -95,8 +95,8 @@ export const displayItemReducer: CaseReducer<RootState, PayloadAction<DisplayIte
     .slice(0, -1)
     .forEach(seg => {
       state.indexTree.stateMap[seg] = state.indexTree.stateMap[seg]
-        ? { ...state.indexTree.stateMap[seg], expand: true }
-        : { expand: true, dragOverCount: 0 }
+        ? { ...state.indexTree.stateMap[seg], expand: true, isHover: false }
+        : { expand: true, dragOverCount: 0, isHover: false }
     })
 }
 
