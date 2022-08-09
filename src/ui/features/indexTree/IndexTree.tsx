@@ -14,6 +14,7 @@ import {
   switchNodeExpand,
 } from './indexTreeSlice'
 import { createItem, displayItem, moveTree, saveItem } from '../global/item'
+import { getCookie } from '../../Common'
 
 const INDENT_WIDTH = 15
 
@@ -25,6 +26,7 @@ export const IndexTree = () => {
   const systemItems = useAppSelector(s => s.systemItems)
   const items = useAppSelector(s => s.items)
   const getItem = (uri: string) => items[uri] || systemItems[uri]
+  const loggedIn = getCookie('token') !== ''
 
   const _renderTree = (node: IndexNode, level: number): JSX.Element[] => {
     let nodeList: any[] = []
@@ -122,7 +124,7 @@ export const IndexTree = () => {
           )}
         </div>
         <div style={{ flexGrow: 1 }}>{getItem(node.uri) ? getItem(node.uri).title : node.uri.split('/').pop()}</div>
-        {nodeState.isHover && (
+        {loggedIn && nodeState.isHover && (
           <div
             className={`kiwi-indextree-hovereffect kiwi-indextree-rearblock ms-Icon ms-Icon--Add`}
             onClick={async ev => {
