@@ -31,7 +31,7 @@ export class ItemManager {
     storage: StorageProvider,
     systemStorage: StorageProvider,
     auth: AuthManager,
-    render: (uri: string, item: ServerItem) => Promise<void>
+    render: (uri: string, item: ServerItem, config: MainConfig) => Promise<void>
   ) {
     this.storage = storage
     this.systemStorage = systemStorage
@@ -40,7 +40,9 @@ export class ItemManager {
     await this.storage.init()
     await this.updateConfig()
     this.auth.init(this.secretConfig)
-    await Promise.all(Object.entries(await this.systemStorage.getAllItems()).map(entry => render(...entry)))
+    await Promise.all(
+      Object.entries(await this.systemStorage.getAllItems()).map(entry => render(...entry, this.mainConfig))
+    )
   }
 
   async updateConfig() {
@@ -48,6 +50,7 @@ export class ItemManager {
       (await Promise.all(uris.map(u => this.storage.getItem(u)))).find(identity)
     this.mainConfig = getMainConfig(await getFirstItemFromList(mainConfigURIs))
     this.secretConfig = getSecretConfig(await getFirstItemFromList(secretConfigURIs))
+    logger.info('config updated')
   }
 
   async getItem(uri: string, token: string, noAuth?: boolean): Promise<ServerItem> {

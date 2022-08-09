@@ -69,7 +69,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     const uri: string = req.body.uri
     logger.debug(`get item: ${uri}`)
     const it = await manager.getItem(uri, req.cookies.token)
-    if (!it.renderSync) await renderItem(uri, it)
+    if (!it.renderSync) await renderItem(uri, it, manager.mainConfig)
     res.json(ok(it))
   })
 
@@ -77,7 +77,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     const uri = req.body.uri
     const it = req.body.item
     const newItem = await manager.putItem(uri, it, req.cookies.token)
-    if (!newItem.renderSync) await renderItem(uri, newItem)
+    if (!newItem.renderSync) await renderItem(uri, newItem, manager.mainConfig)
     res.json(ok(newItem))
   })
 
@@ -95,7 +95,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       it.getContentStream = () => Readable.from(file.data)
     }
     const newItem = await manager.putItem(uri, it, req.cookies.token)
-    if (!newItem.renderSync) await renderItem(uri, newItem)
+    if (!newItem.renderSync) await renderItem(uri, newItem, manager.mainConfig)
     res.json(ok(newItem))
   })
 
@@ -165,7 +165,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       }
     }
     if (!it) return
-    if (!it.renderSync) await renderItem(uri, it)
+    if (!it.renderSync) await renderItem(uri, it, manager.mainConfig)
     const paths = await Promise.all(
       uriCumSum(uri).map(async prefix => {
         const pUri = `/static/${prefix}`

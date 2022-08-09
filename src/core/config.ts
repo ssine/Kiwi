@@ -68,7 +68,7 @@ namespace Configs {
     }
     render: {
       plugin: {
-        path: string[]
+        paths: string[]
       }
     }
   }
@@ -91,7 +91,7 @@ namespace Configs {
     },
     render: {
       plugin: {
-        path: ['/kiwi/plugins'],
+        paths: ['/kiwi/plugins'],
       },
     },
   }

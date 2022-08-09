@@ -6,6 +6,7 @@ import { ScriptApi } from '../ScriptApi'
 import { processTopLevelAwait } from './await'
 import { resolveURI } from '../Common'
 import { ItemNotExistsError } from '../Error'
+import { MainConfig } from '../config'
 
 const logger = getLogger('plugin')
 
@@ -52,9 +53,11 @@ function fieldCodeMatch(s: string): fieldCodeMatchResult {
 class ItemContext {
   ctx: vm.Context
   uri: string
+  paths: string[]
 
-  constructor(uri: string) {
+  constructor(uri: string, config: MainConfig) {
     this.uri = uri
+    this.paths = config.render.plugin.paths
     this.ctx = {}
     const kiwi: Record<string, any> = { ...ScriptApi }
     for (const name in pluginMap) {
@@ -89,7 +92,7 @@ class ItemContext {
       const res = vm.runInContext(code, this.ctx, {
         //@ts-ignore
         importModuleDynamically: async (specifier: string) => {
-          return loadKiwiModule(await resolveModuleUri(this.uri, specifier), this.ctx)
+          return loadKiwiModule(await resolveModuleUri(this.uri, specifier, this.paths), this.ctx, this.paths)
         },
       })
       if (res instanceof Promise) return await res
@@ -139,31 +142,36 @@ const processRenderPlugin = async function processRenderPlugin(
   }
 }
 
-const resolveModuleUri = async (from: string, to: string) => {
+const resolveModuleUri = async (from: string, to: string, paths: string[]) => {
+  const tryList: string[] = []
   if (to.endsWith('.ts') || to.endsWith('.js')) {
-    return resolveURI(from, to)
+    tryList.push(resolveURI(from, to))
   } else {
-    try {
-      const tsuri = resolveURI(from, `${to}.ts`)
-      await ScriptApi.getItem(tsuri)
-      return tsuri
-    } catch (e) {
-      if (e instanceof ItemNotExistsError) {
-        try {
-          const jsuri = resolveURI(from, `${to}.js`)
-          await ScriptApi.getItem(jsuri)
-          return jsuri
-        } catch (e) {
-          throw e
-        }
-      } else {
-        throw e
-      }
+    tryList.push(resolveURI(from, `${to}.ts`))
+    tryList.push(resolveURI(from, `${to}.js`))
+  }
+  for (const path of paths) {
+    if (to.endsWith('.ts') || to.endsWith('.js')) {
+      tryList.push(resolveURI(path, to))
+    } else {
+      tryList.push(resolveURI(path, `${to}.ts`))
+      tryList.push(resolveURI(path, `${to}.js`))
     }
   }
+
+  for (const tryPath of tryList) {
+    try {
+      await ScriptApi.getItem(tryPath)
+      return tryPath
+    } catch (e) {
+      if (!(e instanceof ItemNotExistsError)) throw e
+    }
+  }
+
+  throw new ItemNotExistsError(`Module ${to} not found. Searched path: ${tryList.join(', ')}.`)
 }
 
-const loadKiwiModule = async (uri: string, ctx: vm.Context) => {
+const loadKiwiModule = async (uri: string, ctx: vm.Context, paths: string[]) => {
   const item = await ScriptApi.getItem(uri)
   // @ts-ignore
   if (!vm.SourceTextModule) {
@@ -177,13 +185,13 @@ const loadKiwiModule = async (uri: string, ctx: vm.Context) => {
     {
       context: ctx,
       importModuleDynamically: async (specifier: string) => {
-        return loadKiwiModule(await resolveModuleUri(uri, specifier), ctx)
+        return loadKiwiModule(await resolveModuleUri(uri, specifier, paths), ctx, paths)
       },
     }
   )
   await module.link(async (specifier: string, referencingModule: any) => {
-    const target = await resolveModuleUri(uri, specifier)
-    return loadKiwiModule(target, referencingModule.context)
+    const target = await resolveModuleUri(uri, specifier, paths)
+    return loadKiwiModule(target, referencingModule.context, paths)
   })
   await module.evaluate()
   return module
