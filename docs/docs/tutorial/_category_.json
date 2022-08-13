@@ -1,0 +1,8 @@
+{
+  "label": "Tutorial",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Tutorials take you by the hand through a series of steps to start using Kiwi."
+  }
+}

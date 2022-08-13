@@ -1,0 +1,8 @@
+{
+  "label": "How-to",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "How-to guides are recipes. They guide you through the steps involved in addressing key problems and use-cases. They are more advanced than tutorials and assume some knowledge of how Django works."
+  }
+}

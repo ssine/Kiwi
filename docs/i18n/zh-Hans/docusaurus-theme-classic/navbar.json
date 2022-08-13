@@ -1,0 +1,30 @@
+{
+  "title": {
+    "message": "Kiwi",
+    "description": "The title in the navbar"
+  },
+  "item.label.Tutorial": {
+    "message": "Tutorial",
+    "description": "Navbar item with label Tutorial"
+  },
+  "item.label.Topic": {
+    "message": "Topic",
+    "description": "Navbar item with label Topic"
+  },
+  "item.label.How-to": {
+    "message": "How-to",
+    "description": "Navbar item with label How-to"
+  },
+  "item.label.Reference": {
+    "message": "Reference",
+    "description": "Navbar item with label Reference"
+  },
+  "item.label.Blog": {
+    "message": "Blog",
+    "description": "Navbar item with label Blog"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}
