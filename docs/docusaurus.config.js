@@ -9,7 +9,7 @@ const config = {
   title: 'Kiwi',
   tagline: 'A Flat File Personal Wiki',
   url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/Kiwi/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
