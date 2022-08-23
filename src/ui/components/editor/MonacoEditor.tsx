@@ -17,7 +17,7 @@ export const MonacoEditor = (props: MonacoEditorProps) => {
     if (containerRef.current) {
       editor = monaco.editor.create(containerRef.current, {
         ...props.options,
-        value: props.defaultValue || props.options.value || '',
+        value: props.defaultValue || props.options?.value || '',
         language: props.language,
       })
       if (props.editorDidMount) {

@@ -32,8 +32,8 @@ export const ItemEditor = (props: { uri: string }) => {
   const resizerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    moncaoContainerRef.current.addEventListener('paste', async ev => {
-      const files = ev.clipboardData.files
+    moncaoContainerRef.current?.addEventListener('paste', async ev => {
+      const files = ev.clipboardData?.files
       if (files && files.length > 0) {
         for (let idx = 0; idx < files.length; idx++) {
           const file = files[idx]
