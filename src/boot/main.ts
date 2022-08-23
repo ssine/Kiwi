@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs'
 import * as path from 'path'
-import { initLogger } from '../core/Log'
+import { getLogger, initLogger } from '../core/Log'
 
 const args = yargs
   .command('serve [folder]', 'serve wiki files in a folder', yargs => {
@@ -31,6 +31,7 @@ const args = yargs
   .help().argv as any
 
 initLogger(args.log)
+const logger = getLogger('boot')
 
 import { ItemManager } from '../core/ItemManager'
 import { serve } from '../core/server'
@@ -92,6 +93,7 @@ async function run() {
   registLib()
   if (args._[0] === 'serve') {
     // require('../core/FileSynchronizer').options.usePolling = args.usePoll
+    logger.info(`the data folder is ${path.resolve(args.folder)}`)
     const storage = new FilesystemStorage(args.folder)
     const systemStorage = new FilesystemStorage(path.resolve(__dirname, '../kiwi'), 'kiwi/')
     const auth = new AuthManager()
