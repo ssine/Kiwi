@@ -12,27 +12,37 @@ export type MonacoEditorProps = {
 
 export const MonacoEditor = (props: MonacoEditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  let editor: monaco.editor.IStandaloneCodeEditor
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
   useEffect(() => {
     if (containerRef.current) {
-      editor = monaco.editor.create(containerRef.current, {
+      editorRef.current = monaco.editor.create(containerRef.current, {
         ...props.options,
         value: props.defaultValue || props.options.value || '',
         language: props.language,
       })
       if (props.editorDidMount) {
-        props.editorDidMount(editor)
+        props.editorDidMount(editorRef.current)
       }
     }
     return () => {
-      editor.dispose()
+      editorRef.current?.dispose()
     }
   }, [])
+
   useLayoutEffect(() => {
-    if (editor) {
-      editor.layout()
+    if (editorRef.current) {
+      editorRef.current.layout()
     }
-  })
+  }, [])
+
+  useEffect(() => {
+    if (editorRef.current) {
+      const model = editorRef.current.getModel()
+      if (model) {
+        monaco.editor.setModelLanguage(model, props.language)
+      }
+    }
+  }, [props.language])
   return <div className="monaco-editor-container" style={{ height: '100%', width: '100%' }} ref={containerRef}></div>
 }
 
