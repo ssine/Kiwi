@@ -139,7 +139,7 @@ export const ItemEditor = (props: { uri: string }) => {
           iconName="RevToggleKey"
           onClick={async () => {
             await rotateOut(getItemCardDiv(originalUri))
-            dispatch(setItemMode({ uri: uri, mode: 'display' }))
+            dispatch(setItemMode({ uri: originalUri, mode: 'display' }))
             await rotateIn(getItemCardDiv(originalUri))
           }}
         />

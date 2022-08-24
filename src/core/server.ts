@@ -55,6 +55,7 @@ const requireAuth: express.RequestHandler = (req, res, next) => {
   } else if (!manager.auth.isTokenValid(req.cookies.token)) {
     throw new InvalidTokenError('Login token is invalid, please logout and login again.')
   }
+  next()
 }
 
 const ok = (data?: any) => ({ code: 0, data: data })
