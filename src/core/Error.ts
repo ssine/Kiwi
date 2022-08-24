@@ -63,3 +63,13 @@ export class InvalidURIError extends KiwiError {
 export class InvalidArgumentError extends KiwiError {
   code = 9
 }
+
+@register
+export class LoginRequiredError extends KiwiError {
+  code = 10
+}
+
+@register
+export class InvalidTokenError extends KiwiError {
+  code = 11
+}

@@ -15,7 +15,14 @@ import { trimString, uriCumSum } from './Common'
 import * as fs from 'fs'
 import { ItemManager } from './ItemManager'
 import { ServerItem } from './ServerItem'
-import { ItemNotExistsError, NoReadPermissionError, UploadFileError } from './Error'
+import {
+  InvalidTokenError,
+  ItemNotExistsError,
+  KiwiError,
+  LoginRequiredError,
+  NoReadPermissionError,
+  UploadFileError,
+} from './Error'
 import { isBinaryType } from './MimeType'
 import { Readable } from 'stream'
 import { ClientItem } from '../ui/ClientItem'
@@ -41,6 +48,14 @@ app.use(cookieParser())
 const itemRouteTable: Record<string, express.Handler> = {}
 
 const manager = ItemManager.getInstance()
+
+const requireAuth: express.RequestHandler = (req, res, next) => {
+  if (!req.cookies.token) {
+    throw new LoginRequiredError('Login is required for this request.')
+  } else if (!manager.auth.isTokenValid(req.cookies.token)) {
+    throw new InvalidTokenError('Login token is invalid, please logout and login again.')
+  }
+}
 
 const ok = (data?: any) => ({ code: 0, data: data })
 
@@ -73,7 +88,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     res.json(ok(it))
   })
 
-  app.post('/put-item', async (req, res) => {
+  app.post('/put-item', requireAuth, async (req, res) => {
     const uri = req.body.uri
     const it = req.body.item
     const newItem = await manager.putItem(uri, it, req.cookies.token)
@@ -81,7 +96,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     res.json(ok(newItem))
   })
 
-  app.post('/put-binary-item', async (req, res) => {
+  app.post('/put-binary-item', requireAuth, async (req, res) => {
     const uri = req.body.uri
     const it: ServerItem = JSON.parse(req.body.item)
     if (!req.files) throw new UploadFileError('No file uploaded')
@@ -99,7 +114,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     res.json(ok(newItem))
   })
 
-  app.post('/delete-item', async (req, res) => {
+  app.post('/delete-item', requireAuth, async (req, res) => {
     const uri = req.body.uri
     await manager.deleteItem(uri, req.cookies.token)
     res.json(ok())
@@ -193,12 +208,14 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
   })
 
   const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
-    logger.error(`error response: code: ${err.code}, stack: ${err.stack}`)
-    res.status(200).json({
-      code: err.code || -1,
-      message: err.message,
-      stack: err.stack,
-    })
+    if (err instanceof KiwiError) {
+      res.status(200).json({
+        code: err.code || -1,
+        message: err.message,
+        stack: err.stack,
+      })
+      logger.debug(`error response: code: ${err.code}, message: ${err.message}`)
+    }
   }
   app.use(errorHandler)
 

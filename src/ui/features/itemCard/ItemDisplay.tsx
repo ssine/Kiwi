@@ -132,8 +132,9 @@ export const ItemDisplay = (props: { uri: string }) => {
                   <PrimaryButton
                     title="Confirm Delete"
                     onClick={async () => {
-                      await slideOut(getItemCardDiv(uri))
+                      // TODO: concurrent slideout and delete, and reset effect if delete failed
                       await deleteItem(props.uri)
+                      await slideOut(getItemCardDiv(uri))
                     }}
                   />
                 }
