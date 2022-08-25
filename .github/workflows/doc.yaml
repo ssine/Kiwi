@@ -32,13 +32,13 @@ jobs:
         with:
           node-version: 16
       - run: npm ci
-        working-directory: ./docs
+        working-directory: ./doc
       - run: npm run build
-        working-directory: ./docs
+        working-directory: ./doc
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./docs/build/
+          path: ./doc/build/
 
   # Deployment job
   deploy:
