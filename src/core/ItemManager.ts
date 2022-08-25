@@ -39,7 +39,6 @@ export class ItemManager {
     await this.systemStorage.init()
     await this.storage.init()
     await this.updateConfig()
-    this.auth.init(this.secretConfig)
     await Promise.all(
       Object.entries(await this.systemStorage.getAllItems()).map(entry => render(...entry, this.mainConfig))
     )
@@ -50,6 +49,7 @@ export class ItemManager {
       (await Promise.all(uris.map(u => this.storage.getItem(u)))).find(identity)
     this.mainConfig = getMainConfig(await getFirstItemFromList(mainConfigURIs))
     this.secretConfig = getSecretConfig(await getFirstItemFromList(secretConfigURIs))
+    this.auth.init(this.secretConfig)
     logger.info('config updated')
   }
 
@@ -88,6 +88,15 @@ export class ItemManager {
     const newItem = await this.storage.putItem(uri, item)
     if (mainConfigURIs.includes(uri)) {
       await this.updateConfig()
+    }
+    // HACK: support secret hot reload too.
+    // The problem is that frontend token expires and thus cannot delete
+    // the original item if we hot reload the tokens.
+    // So we delay the update by 3s temporarily.
+    if (secretConfigURIs.includes(uri)) {
+      setTimeout(() => {
+        this.updateConfig()
+      }, 3000)
     }
     return newItem
   }
