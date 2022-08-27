@@ -86,7 +86,7 @@ namespace Configs {
       defaultItems: ['kiwi/doc/zh/hello-there'],
     },
     appearance: {
-      favicon: 'kiwi/ui/icon/favicon.ico',
+      favicon: 'kiwi/ui/icon/favicon.png',
       primaryColor: '#7e489d',
     },
     render: {
