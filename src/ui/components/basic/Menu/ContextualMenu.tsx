@@ -5,7 +5,7 @@ type ContextualMenuItem = {
   id: string
   text: string | JSX.Element
   iconName?: string
-  onClick: (it: ContextualMenuItem) => void
+  onClick?: (it: ContextualMenuItem) => void
 }
 
 type ContextualMenuProperty = {
@@ -29,7 +29,7 @@ class ContextualMenu extends React.Component<ContextualMenuProperty, {}> {
               className="kiwi-contextual-menu-item"
               style={this.props.styles?.button}
               onClick={ev => {
-                item.onClick(item)
+                item.onClick && item.onClick(item)
               }}
               id={item.id}
               key={item.id}

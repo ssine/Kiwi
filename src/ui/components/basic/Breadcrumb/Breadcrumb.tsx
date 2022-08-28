@@ -11,24 +11,24 @@ export const Breadcrumb = <T,>(props: {
   const { items, onItemClick, getKey, renderer } = props
   const [fold, setFold] = useState({ start: 0, end: 0 })
 
-  const ref = useRef<HTMLDivElement>()
+  const ref = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    if (ref.current.scrollWidth > ref.current.offsetWidth && fold.end < items.length) {
+    if (ref.current && ref.current.scrollWidth > ref.current.offsetWidth && fold.end < items.length) {
       setFold({ ...fold, end: fold.end + 1 })
     }
   }, [ref, fold])
 
   const renderList = (items: T[]): JSX.Element[] => {
     if (items.length === 0) return []
-    const elements = []
+    const elements: JSX.Element[] = []
     items.forEach(item => {
       elements.push(<div key={`${getKey(item)}-chevron`} className="ms-Icon ms-Icon--ChevronRight"></div>)
       elements.push(
         <button
           className="kiwi-breadcrumb-item"
           key={getKey(item)}
-          onClick={onItemClick ? () => onItemClick(item) : null}
+          onClick={onItemClick ? () => onItemClick(item) : undefined}
         >
           {renderer ? renderer(item) : item}
         </button>
@@ -52,7 +52,7 @@ export const Breadcrumb = <T,>(props: {
             return {
               id: getKey(it),
               text: renderer ? renderer(it) : String(it),
-              onClick: onItemClick ? () => onItemClick(it) : null,
+              onClick: onItemClick ? () => onItemClick(it) : undefined,
             }
           }),
           styles: {
