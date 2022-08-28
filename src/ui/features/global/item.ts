@@ -112,22 +112,30 @@ type DeleteItemPayload = {
   uri: string
   // Optional replace currently displayed item with the new one
   newUri?: string
+  newItem?: ClientItem
 }
 export const deleteItemActionCreater = createAction<DeleteItemPayload>('deleteItem')
 export const deleteItemReducer: CaseReducer<RootState, PayloadAction<DeleteItemPayload>> = (state, action) => {
-  const { uri, newUri } = action.payload
+  const { uri, newUri, newItem } = action.payload
   const item = state.items[uri]
   if (!item) return
+  const replace = newUri && newItem
   if (state.opened.uris.includes(uri)) {
-    if (newUri && newUri !== uri) {
+    if (replace) {
       state.opened.uris = state.opened.uris.map(u => (u === uri ? newUri : u))
       state.opened.items[newUri] = state.opened.items[uri]
     } else {
       state.opened.uris = state.opened.uris.filter(u => u !== uri)
     }
-    delete state.opened.items[uri]
+    if (uri !== newUri) {
+      delete state.opened.items[uri]
+    }
   }
   delete state.items[uri]
+  if (replace) {
+    state.items[newUri] = newItem
+    state.items[newUri].state = 'full'
+  }
   if (item.header.tags && item.header.tags.length > 0) {
     state.tagMap = generateTagMap(state.items)
   }
@@ -269,11 +277,11 @@ export const displayOrCreateItem = async (uri: string) => {
   return newUri
 }
 
-export const deleteItem = async (uri: string, newUri?: string) => {
+export const deleteItem = async (uri: string, newUri?: string, newItem?: ClientItem) => {
   const state = store.getState()
   if (!state.items[uri]) return
   await api.deleteItem(uri)
-  store.dispatch(deleteItemActionCreater({ uri, newUri }))
+  store.dispatch(deleteItemActionCreater({ uri, newUri, newItem }))
 }
 
 export const moveItem = async (fromUri: string, toUri: string): Promise<void> => {

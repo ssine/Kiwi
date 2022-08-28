@@ -11,6 +11,7 @@ import { deleteItem, saveItem } from '../global/item'
 import { rotateIn, rotateOut, setItemFullScreen, setItemMode } from './operations'
 import { MessageType, showMessage } from '../messageList/messageListSlice'
 import { DynamicMonacoEditor } from '../../components/editor/DynamicMonacoEditor'
+import { ClientItem } from '../../ClientItem'
 
 export const ItemEditor = (props: { uri: string }) => {
   const { uri: originalUri } = props
@@ -66,26 +67,27 @@ export const ItemEditor = (props: { uri: string }) => {
   const onSave = async () => {
     setSaving(true)
     try {
+      const item: ClientItem = {
+        title: title,
+        content: monacoRef.current.getValue(),
+        type: type,
+        state: 'full',
+        header: {
+          author: originalItem.header.author,
+          createTime: originalItem.header.createTime,
+          modifyTime: Date.now(),
+          ...entryToHeader(headerEntries),
+        },
+        renderSync: false,
+        renderedHTML: '',
+      }
+      if (originalUri !== uri || originalItem.type !== type) {
+        await deleteItem(originalUri, uri, item)
+      }
       await saveItem({
         uri,
-        item: {
-          title: title,
-          content: monacoRef.current.getValue(),
-          type: type,
-          state: 'full',
-          header: {
-            author: originalItem.header.author,
-            createTime: originalItem.header.createTime,
-            modifyTime: Date.now(),
-            ...entryToHeader(headerEntries),
-          },
-          renderSync: false,
-          renderedHTML: '',
-        },
+        item: item,
       })
-      if (originalUri !== uri) {
-        await deleteItem(originalUri, uri)
-      }
     } catch (err) {
       setSaving(false)
       return
