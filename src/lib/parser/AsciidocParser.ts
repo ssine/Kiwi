@@ -5,13 +5,18 @@ import * as cheerio from 'cheerio'
 import * as hljs from 'highlight.js'
 
 class AsciidocParser extends Parser {
-  processor: any
+  processor!: ReturnType<typeof Asciidoctor>
   init() {
     this.processor = Asciidoctor()
   }
 
   parse(kwargs: { input: string }): string {
-    const $ = cheerio.load(this.processor.convert(kwargs.input))
+    const html = this.processor
+      .convert(kwargs.input, {
+        doctype: 'book',
+      })
+      .toString()
+    const $ = cheerio.load(html)
     $('pre code')
       .toArray()
       .forEach(el => {
