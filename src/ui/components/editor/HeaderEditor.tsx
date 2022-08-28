@@ -56,7 +56,7 @@ export const HeaderEditor = (props: {
       case 'string':
         return (
           <Input
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '100%', fontSize: '1rem' }}
             value={entry.value as string}
             onChange={val => {
               entry.value = val
@@ -67,7 +67,7 @@ export const HeaderEditor = (props: {
       case 'number':
         return (
           <Input
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '100%', fontSize: '1rem' }}
             value={String(entry.value) || ''}
             onChange={val => {
               entry.value = val
@@ -92,7 +92,7 @@ export const HeaderEditor = (props: {
     <>
       <div key={'type'} style={rowStyle}>
         <div className="item-header-name" style={{ width: '20%', height: '100%' }}>
-          <Input style={{ height: '100%' }} disabled={true} value="type" />
+          <Input style={{ height: '100%', fontSize: '1rem' }} disabled={true} value="type" />
         </div>
         <Select value="enum" disabled={true} style={typeStyle}>
           <option value="enum">enum</option>
@@ -123,7 +123,7 @@ export const HeaderEditor = (props: {
         <div key={idx} style={rowStyle}>
           <div className="item-header-name" style={{ width: '20%', height: '100%' }}>
             <Input
-              style={{ height: '100%' }}
+              style={{ height: '100%', fontSize: '1rem' }}
               value={entry.name}
               onChange={val => {
                 entry.name = val
