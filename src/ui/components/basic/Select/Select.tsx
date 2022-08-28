@@ -1,3 +1,4 @@
+import { flatten } from 'lodash'
 import React, { Children, CSSProperties, PropsWithChildren, ReactElement, useState } from 'react'
 import { AttachDirection, Callout } from '../Callout/Callout'
 
@@ -7,10 +8,10 @@ const HEIGHT = 25
 
 export const Select = (props: {
   value: string
+  children: ReactElement | ReactElement[]
   onSelect?: (value: string) => void
   disabled?: boolean
   style?: CSSProperties
-  children?: ReactElement | ReactElement[]
 }) => {
   const { value, children, onSelect, disabled, style } = props
   const [calloutVisible, setCalloutVisible] = useState(false)
@@ -29,17 +30,14 @@ export const Select = (props: {
     )
   }
   const renderOptGroup = (optg: ReactElement) => {
-    return (
-      <>
-        <div
-          key={optg.props.label}
-          style={{ height: HEIGHT, width: 'calc(100% - 10px)', paddingLeft: 10, display: 'flex', alignItems: 'center' }}
-        >
-          {optg.props.label}
-        </div>
-        <div>{optg.props.children.map(opt => renderOption(opt, true))}</div>
-      </>
-    )
+    return [
+      <div
+        key={optg.props.label}
+        style={{ height: HEIGHT, width: 'calc(100% - 10px)', paddingLeft: 10, display: 'flex', alignItems: 'center' }}
+      >
+        {optg.props.label}
+      </div>,
+    ].concat(optg.props.children.map(opt => renderOption(opt, true)))
   }
 
   return (
@@ -49,13 +47,15 @@ export const Select = (props: {
       onDismiss={() => setCalloutVisible(false)}
       wrapperStyle={style}
       alignWidth={true}
-      content={options.map(opt => {
-        if (opt.type === 'option') {
-          return renderOption(opt)
-        } else if (opt.type === 'optgroup') {
-          return renderOptGroup(opt)
-        }
-      })}
+      content={flatten(
+        options.map(opt => {
+          if (opt.type === 'option') {
+            return renderOption(opt)
+          } else if (opt.type === 'optgroup') {
+            return renderOptGroup(opt)
+          }
+        })
+      )}
     >
       <button style={buttonStyle} disabled={disabled} onClick={() => setCalloutVisible(true)}>
         {value}
