@@ -1,15 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { getEmPixels, getItemCardDiv } from '../../Common'
 import { IconButton } from '../../components/basic/Button/IconButton'
 import { TitleEditorComponent } from '../../components/editor/TitleEditor'
-import { getMonacoLangFromType, MIME } from '../../../core/MimeType'
 import { HeaderEditor, HeaderEntry } from '../../components/editor/HeaderEditor'
 import { ItemHeader } from '../../../core/BaseItem'
-import { resolveURI, timeFormat } from '../../../core/Common'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { deleteItem, saveItem } from '../global/item'
 import { rotateIn, rotateOut, setItemFullScreen, setItemMode } from './operations'
-import { MessageType, showMessage } from '../messageList/messageListSlice'
 import { DynamicMonacoEditor } from '../../components/editor/DynamicMonacoEditor'
 import { ClientItem } from '../../ClientItem'
 
@@ -22,54 +19,21 @@ export const ItemEditor = (props: { uri: string }) => {
   // split parts to edit: uri, title, type, tags
   const [uri, setUri] = useState(originalUri)
   const [title, setTitle] = useState(originalItem.title)
+  const [content, setContent] = useState(originalItem.content || '')
   const [headerEntries, setHeaderEntries] = useState(headerToEntry(originalItem.header))
   const [type, setType] = useState(originalItem.type)
   const [saving, setSaving] = useState(false)
 
-  // ref to monaco editor, contents are managed by monaco editor
-  const monacoRef = useRef(null)
-  // ref to monaco editor container and resizer, used for resize
-  const moncaoContainerRef = useRef<HTMLDivElement>(null)
+  // ref to content div, used for resize
+  const contentDivRef = useRef<HTMLDivElement>(null)
   const resizerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    moncaoContainerRef.current.addEventListener('paste', async ev => {
-      const files = ev.clipboardData.files
-      if (files && files.length > 0) {
-        for (let idx = 0; idx < files.length; idx++) {
-          const file = files[idx]
-          if (file.type.indexOf('image') !== -1) {
-            const ext = file.name.match(/\.\S+?$/)[0].substring(1)
-            const time = timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())
-            const fn = `asset/${time}.${ext}`
-            showMessage({ type: MessageType.info, text: `uploading image as ${fn}`, liveSecond: 3 })
-            await saveItem({
-              uri: resolveURI(uri, fn),
-              item: {
-                title: `${time}.${ext}`,
-                state: 'bare',
-                type: file.type as MIME,
-                header: {},
-                renderSync: false,
-                renderedHTML: '',
-              },
-              file,
-            })
-            showMessage({ type: MessageType.success, text: `image saved to ${fn}`, liveSecond: 3 })
-            monacoRef.current.trigger('keyboard', 'type', { text: `![img](${fn})` })
-            ev.preventDefault()
-          }
-        }
-      }
-    })
-  }, [])
 
   const onSave = async () => {
     setSaving(true)
     try {
       const item: ClientItem = {
         title: title,
-        content: monacoRef.current.getValue(),
+        content: content,
         type: type,
         state: 'full',
         header: {
@@ -142,15 +106,17 @@ export const ItemEditor = (props: { uri: string }) => {
       </TitleEditorComponent>
       <div
         className="kiwi-edit-item-content"
-        ref={moncaoContainerRef}
-        style={{ height: parseInt(localStorage.getItem(heightKey)) || 400 }}
+        ref={contentDivRef}
+        style={{ height: parseInt(localStorage.getItem(heightKey) || '') || 400 }}
         onDragOver={evt => {
           evt.preventDefault()
         }}
       >
         <DynamicMonacoEditor
-          language={getMonacoLangFromType(type)}
-          defaultValue={originalItem.content || ''}
+          uri={uri}
+          value={content}
+          mimeType={type}
+          setValue={setContent}
           options={{
             lineDecorationsWidth: 0,
             wordWrap: 'on',
@@ -164,11 +130,6 @@ export const ItemEditor = (props: { uri: string }) => {
               },
             },
           }}
-          editorDidMount={(editor: any) => {
-            editor.layout()
-            editor.focus()
-            monacoRef.current = editor
-          }}
         />
       </div>
       <div
@@ -176,9 +137,11 @@ export const ItemEditor = (props: { uri: string }) => {
         style={{ width: '100%', height: 3, backgroundColor: 'var(--blockColorLight)', cursor: 'n-resize' }}
         draggable={false}
         onMouseDown={evt => {
+          if (!resizerRef.current) return
           const yDif = evt.pageY - (resizerRef.current.getBoundingClientRect().top + window.scrollY)
           const onResizeMouseMove = (mvEvt: MouseEvent) => {
-            const c: HTMLDivElement = moncaoContainerRef.current
+            const c = contentDivRef.current
+            if (!c) return
             const height = mvEvt.pageY - (c.getBoundingClientRect().top + window.scrollY) - yDif
             c.style.height = `${height}px`
             localStorage.setItem(heightKey, String(height))
