@@ -120,9 +120,6 @@ export const ItemEditor = (props: { uri: string }) => {
             iconName="FocusView"
             onClick={() => {
               setItemFullScreen({ uri: originalUri, fullScreen: false })
-              setTimeout(() => {
-                monacoRef.current.layout()
-              }, 0)
             }}
           />
         ) : (
@@ -130,9 +127,6 @@ export const ItemEditor = (props: { uri: string }) => {
             iconName="FullView"
             onClick={() => {
               setItemFullScreen({ uri: originalUri, fullScreen: true })
-              setTimeout(() => {
-                monacoRef.current.layout()
-              }, 0)
             }}
           />
         )}
@@ -188,7 +182,6 @@ export const ItemEditor = (props: { uri: string }) => {
             const height = mvEvt.pageY - (c.getBoundingClientRect().top + window.scrollY) - yDif
             c.style.height = `${height}px`
             localStorage.setItem(heightKey, String(height))
-            monacoRef.current.layout()
           }
           window.addEventListener('mousemove', onResizeMouseMove)
           window.addEventListener('mouseup', () => {

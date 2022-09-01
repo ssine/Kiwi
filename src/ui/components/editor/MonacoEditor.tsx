@@ -20,18 +20,17 @@ export const MonacoEditor = (props: MonacoEditorProps) => {
         value: props.defaultValue || props.options.value || '',
         language: props.language,
       })
+      new ResizeObserver(entries => {
+        if (editorRef.current) {
+          editorRef.current.layout()
+        }
+      }).observe(containerRef.current)
       if (props.editorDidMount) {
         props.editorDidMount(editorRef.current)
       }
     }
     return () => {
       editorRef.current?.dispose()
-    }
-  }, [])
-
-  useLayoutEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.layout()
     }
   }, [])
 
