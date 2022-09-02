@@ -243,6 +243,15 @@ export const waitScriptLoad = async (sc: HTMLScriptElement): Promise<void> => {
   })
 }
 
+export const stringHash = async (v: string): Promise<string> => {
+  // from https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
+  const msgUint8 = new TextEncoder().encode(v)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  return hashHex
+}
+
 export {
   isLinkInternal,
   getPositionToDocument,

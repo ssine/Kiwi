@@ -1,8 +1,8 @@
-import { defaultsDeep } from 'lodash'
+import { defaultsDeep, fromPairs, times, zip } from 'lodash'
 import { BaseItem } from './BaseItem'
 import { safeLoad as loadYaml } from 'js-yaml'
 import { InvalidArgumentError } from './Error'
-import { MIME } from './MimeType'
+import { getMimesWithProp, MIME } from './MimeType'
 import * as semver from 'semver'
 
 export type MainConfig = Configs.MainConfig
@@ -66,6 +66,9 @@ namespace Configs {
       favicon: string
       primaryColor: string
     }
+    edit: {
+      editorMap: Record<string, string>
+    }
     render: {
       plugin: {
         paths: string[]
@@ -78,6 +81,13 @@ namespace Configs {
     users: { name: string; password?: string; token?: string }[]
   }
 
+  const monacoMimes = getMimesWithProp('monacoLanguage')
+  const monacoEditorMap = fromPairs(
+    zip(
+      monacoMimes,
+      times(monacoMimes.length, () => 'monaco')
+    )
+  )
   const defaultMain_0_8_0: Main_0_8_0 = {
     version: '',
     info: {
@@ -88,6 +98,13 @@ namespace Configs {
     appearance: {
       favicon: 'kiwi/ui/icon/favicon.png',
       primaryColor: '#7e489d',
+    },
+    edit: {
+      editorMap: {
+        ...monacoEditorMap,
+        'image/jpeg': 'bitmap',
+        'image/png': 'bitmap',
+      },
     },
     render: {
       plugin: {

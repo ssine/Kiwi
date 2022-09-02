@@ -9,17 +9,20 @@ import { deleteItem, saveItem } from '../global/item'
 import { rotateIn, rotateOut, setItemFullScreen, setItemMode } from './operations'
 import { DynamicMonacoEditor } from '../../components/editor/DynamicMonacoEditor'
 import { ClientItem } from '../../ClientItem'
+import { BitmapEditor } from '../../components/editor/BitmapEditor'
 
 export const ItemEditor = (props: { uri: string }) => {
   const { uri: originalUri } = props
   const originalItem = useAppSelector(s => s.items[originalUri] || s.systemItems[originalUri])
   const fullScreen = useAppSelector(s => s.opened.items[originalUri].fullScreen)
+  const editorMap = useAppSelector(s => s.config.edit.editorMap)
   const dispatch = useAppDispatch()
 
   // split parts to edit: uri, title, type, tags
   const [uri, setUri] = useState(originalUri)
   const [title, setTitle] = useState(originalItem.title)
   const [content, setContent] = useState(originalItem.content || '')
+  const [binaryFile, setBinaryFile] = useState<File>()
   const [headerEntries, setHeaderEntries] = useState(headerToEntry(originalItem.header))
   const [type, setType] = useState(originalItem.type)
   const [saving, setSaving] = useState(false)
@@ -28,6 +31,10 @@ export const ItemEditor = (props: { uri: string }) => {
   const contentDivRef = useRef<HTMLDivElement>(null)
   const resizerRef = useRef<HTMLDivElement>(null)
 
+  const editorType = editorMap[type]
+
+  // FIXME: make saving logic more solid.
+  // e.g. currently fails on type change -> failed to save -> type change back
   const onSave = async () => {
     setSaving(true)
     try {
@@ -51,6 +58,7 @@ export const ItemEditor = (props: { uri: string }) => {
       await saveItem({
         uri,
         item: item,
+        file: binaryFile,
       })
     } catch (err) {
       setSaving(false)
@@ -112,25 +120,31 @@ export const ItemEditor = (props: { uri: string }) => {
           evt.preventDefault()
         }}
       >
-        <DynamicMonacoEditor
-          uri={uri}
-          value={content}
-          mimeType={type}
-          setValue={setContent}
-          options={{
-            lineDecorationsWidth: 0,
-            wordWrap: 'on',
-            wrappingIndent: 'same',
-            fontSize: getEmPixels(),
-            unicodeHighlight: {
-              allowedLocales: {
-                _os: true,
-                'zh-hans': true,
-                'zh-hant': true,
+        {editorType === 'monaco' ? (
+          <DynamicMonacoEditor
+            uri={uri}
+            value={content}
+            mimeType={type}
+            setValue={setContent}
+            options={{
+              lineDecorationsWidth: 0,
+              wordWrap: 'on',
+              wrappingIndent: 'same',
+              fontSize: getEmPixels(),
+              unicodeHighlight: {
+                allowedLocales: {
+                  _os: true,
+                  'zh-hans': true,
+                  'zh-hant': true,
+                },
               },
-            },
-          }}
-        />
+            }}
+          />
+        ) : editorType === 'bitmap' ? (
+          <BitmapEditor uri={uri} mimeType={type} setContent={setBinaryFile} />
+        ) : (
+          <div>No editor for this mime type!</div>
+        )}
       </div>
       <div
         ref={resizerRef}
