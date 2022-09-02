@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
+import { Resizable, ResizeCallbackData } from 'react-resizable'
 import { getEmPixels, getItemCardDiv } from '../../Common'
 import { IconButton } from '../../components/basic/Button/IconButton'
 import { TitleEditorComponent } from '../../components/editor/TitleEditor'
@@ -16,6 +17,7 @@ export const ItemEditor = (props: { uri: string }) => {
   const originalItem = useAppSelector(s => s.items[originalUri] || s.systemItems[originalUri])
   const fullScreen = useAppSelector(s => s.opened.items[originalUri].fullScreen)
   const editorMap = useAppSelector(s => s.config.edit.editorMap)
+  const defaultItemWidth = useAppSelector(s => s.itemFlow.itemWidth)
   const dispatch = useAppDispatch()
 
   // split parts to edit: uri, title, type, tags
@@ -26,10 +28,8 @@ export const ItemEditor = (props: { uri: string }) => {
   const [headerEntries, setHeaderEntries] = useState(headerToEntry(originalItem.header))
   const [type, setType] = useState(originalItem.type)
   const [saving, setSaving] = useState(false)
-
-  // ref to content div, used for resize
-  const contentDivRef = useRef<HTMLDivElement>(null)
-  const resizerRef = useRef<HTMLDivElement>(null)
+  const heightKey = fullScreen ? 'fullscreen-editor-height' : `editor-height-${uri}`
+  const [editorHeight, setEditorHeight] = useState(parseInt(localStorage.getItem(heightKey) || '') || 400)
 
   const editorType = editorMap[type]
 
@@ -68,7 +68,9 @@ export const ItemEditor = (props: { uri: string }) => {
     setSaving(false)
   }
 
-  const heightKey = fullScreen ? 'fullscreen-editor-height' : `editor-height-${uri}`
+  const onResize = (e: React.SyntheticEvent, data: ResizeCallbackData) => {
+    setEditorHeight(data.size.height)
+  }
 
   return (
     <div
@@ -112,60 +114,46 @@ export const ItemEditor = (props: { uri: string }) => {
           }}
         />
       </TitleEditorComponent>
-      <div
-        className="kiwi-edit-item-content"
-        ref={contentDivRef}
-        style={{ height: parseInt(localStorage.getItem(heightKey) || '') || 400 }}
-        onDragOver={evt => {
-          evt.preventDefault()
-        }}
+      <Resizable
+        height={editorHeight}
+        width={defaultItemWidth}
+        onResize={onResize}
+        handle={
+          <div
+            style={{ width: '100%', height: 3, backgroundColor: 'var(--blockColorLight)', cursor: 'n-resize' }}
+          ></div>
+        }
       >
-        {editorType === 'monaco' ? (
-          <DynamicMonacoEditor
-            uri={uri}
-            value={content}
-            mimeType={type}
-            setValue={setContent}
-            options={{
-              lineDecorationsWidth: 0,
-              wordWrap: 'on',
-              wrappingIndent: 'same',
-              fontSize: getEmPixels(),
-              unicodeHighlight: {
-                allowedLocales: {
-                  _os: true,
-                  'zh-hans': true,
-                  'zh-hant': true,
-                },
-              },
-            }}
-          />
-        ) : editorType === 'bitmap' ? (
-          <BitmapEditor uri={uri} mimeType={type} setContent={setBinaryFile} />
-        ) : (
-          <div>No editor for this mime type!</div>
-        )}
-      </div>
-      <div
-        ref={resizerRef}
-        style={{ width: '100%', height: 3, backgroundColor: 'var(--blockColorLight)', cursor: 'n-resize' }}
-        draggable={false}
-        onMouseDown={evt => {
-          if (!resizerRef.current) return
-          const yDif = evt.pageY - (resizerRef.current.getBoundingClientRect().top + window.scrollY)
-          const onResizeMouseMove = (mvEvt: MouseEvent) => {
-            const c = contentDivRef.current
-            if (!c) return
-            const height = mvEvt.pageY - (c.getBoundingClientRect().top + window.scrollY) - yDif
-            c.style.height = `${height}px`
-            localStorage.setItem(heightKey, String(height))
-          }
-          window.addEventListener('mousemove', onResizeMouseMove)
-          window.addEventListener('mouseup', () => {
-            window.removeEventListener('mousemove', onResizeMouseMove)
-          })
-        }}
-      ></div>
+        <div style={{ height: editorHeight, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flexGrow: 1, height: 'calc(100% - 3px)' }}>
+            {editorType === 'monaco' ? (
+              <DynamicMonacoEditor
+                uri={uri}
+                value={content}
+                mimeType={type}
+                setValue={setContent}
+                options={{
+                  lineDecorationsWidth: 0,
+                  wordWrap: 'on',
+                  wrappingIndent: 'same',
+                  fontSize: getEmPixels(),
+                  unicodeHighlight: {
+                    allowedLocales: {
+                      _os: true,
+                      'zh-hans': true,
+                      'zh-hant': true,
+                    },
+                  },
+                }}
+              />
+            ) : editorType === 'bitmap' ? (
+              <BitmapEditor uri={uri} mimeType={type} setContent={setBinaryFile} />
+            ) : (
+              <div>No editor for this mime type!</div>
+            )}
+          </div>
+        </div>
+      </Resizable>
       <div className="item-header" style={{ minHeight: 35 }}>
         <HeaderEditor type={type} setType={setType} entries={headerEntries} setEntries={setHeaderEntries} />
       </div>

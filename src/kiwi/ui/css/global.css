@@ -244,12 +244,6 @@ frame {
   width: 100%;
 }
 
-.kiwi-edit-item-content::-webkit-resizer {
-  width: 100% !important;
-  box-shadow: inset;
-  background: red;
-}
-
 .site-title {
   padding-top: 60px;
   margin-bottom: 10px;
