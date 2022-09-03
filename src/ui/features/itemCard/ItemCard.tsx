@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { ItemDisplay } from './ItemDisplay'
 import { ItemEditor } from './ItemEditor'
-import { getItemCardDiv, getPositionToDocument, isMobile } from '../../Common'
+import { getItemCardDiv, getPositionToDocument, isMobile, scrollToElement } from '../../Common'
 import { useAppSelector } from '../../store'
 import { getItemFromState } from '../global/item'
 import { scaleIn, smoothLayoutChange } from './operations'
@@ -29,6 +29,7 @@ export const ItemCard = (props: { uri: string }) => {
 
   useEffect(() => {
     const containerDiv = getItemCardDiv(uri)
+    scrollToElement(containerDiv)
     scaleIn(containerDiv)
   }, [])
 

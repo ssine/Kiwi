@@ -260,13 +260,12 @@ export const displayItem = async (uri: string, options?: { mode?: 'edit' | 'disp
   if (!getItemFromState(state, uri)) return
   const initialDisplay = !state.opened.uris.includes(uri)
   store.dispatch(displayItemActionCreater({ uri, mode: options?.mode || 'display' }))
-  setTimeout(() => {
-    const div = getItemCardDiv(uri)
-    scrollToElement(div)
-    if (!initialDisplay) {
+  if (!initialDisplay) {
+    setTimeout(() => {
+      const div = getItemCardDiv(uri)
       emphasieElement(div)
-    }
-  }, 10)
+    }, 10)
+  }
 }
 
 export const displayOrCreateItem = async (uri: string) => {
