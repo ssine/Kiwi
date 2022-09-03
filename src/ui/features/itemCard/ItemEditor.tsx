@@ -137,6 +137,12 @@ export const ItemEditor = (props: { uri: string }) => {
                   wordWrap: 'on',
                   wrappingIndent: 'same',
                   fontSize: getEmPixels(),
+                  minimap: {
+                    enabled: false,
+                  },
+                  lineNumbers: 'on',
+                  lineNumbersMinChars: 3,
+                  folding: true,
                   unicodeHighlight: {
                     allowedLocales: {
                       _os: true,
