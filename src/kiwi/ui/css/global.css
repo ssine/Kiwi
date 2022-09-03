@@ -361,6 +361,7 @@ mjx-container[display='true'] {
 
 .resizer-handle:hover {
   background-color: var(--blockColorLighter);
+  transition: background-color 400ms ease-in-out;
 }
 
 /*
