@@ -1,5 +1,6 @@
 import { createAction, CaseReducer, PayloadAction } from '@reduxjs/toolkit'
 import { WritableDraft } from 'immer/dist/internal'
+import anime from 'animejs/lib/anime.es'
 import { RootState } from '..'
 import { arrayEqual, resolveURI, suggestedURIToTitle, uriCumSum } from '../../../core/Common'
 import { ItemNotExistsError } from '../../../core/Error'
@@ -7,7 +8,7 @@ import { isBinaryType } from '../../../core/MimeType'
 import { mainConfigURIs } from '../../../boot/config'
 import * as api from '../../api'
 import { ClientItem } from '../../ClientItem'
-import { getCookie, getItemCardDiv, scrollToElement } from '../../Common'
+import { CSSColorToRGBA, getCookie, getItemCardDiv, RGBtoCSSColor, scrollToElement } from '../../Common'
 import { store } from '../../store'
 import { IndexNode } from '../indexTree/indexTreeSlice'
 import { setMainConfig } from './config'
@@ -254,14 +255,26 @@ export const duplicateItem = async (oldUri: string) => {
  * Otherwise, open in display mode.
  * Will scroll to the element, after open.
  */
-export const displayItem = async (uri: string, mode?: 'edit' | 'display') => {
+export const displayItem = async (uri: string, options?: { mode?: 'edit' | 'display'; emphasize?: boolean }) => {
   await loadItem(uri)
   let state = store.getState()
   if (!getItemFromState(state, uri)) return
-  store.dispatch(displayItemActionCreater({ uri, mode: mode || 'display' }))
+  store.dispatch(displayItemActionCreater({ uri, mode: options?.mode || 'display' }))
   state = store.getState()
   setTimeout(() => {
-    scrollToElement(getItemCardDiv(uri))
+    const div = getItemCardDiv(uri)
+    scrollToElement(div)
+    if (options?.emphasize) {
+      const originalColor = RGBtoCSSColor(
+        CSSColorToRGBA(window.getComputedStyle(document.body).getPropertyValue('--itemBackgroundColor'))
+      )
+      const emphasieColor = window.getComputedStyle(document.body).getPropertyValue('--blockColor')
+      anime({
+        targets: div,
+        backgroundColor: [originalColor, emphasieColor, originalColor],
+        easing: 'easeOutQuad',
+      })
+    }
   }, 10)
 }
 

@@ -51,7 +51,7 @@ const HSL2HSV = (h: number, s: number, l: number, v = s * Math.min(l, 1 - l) + l
 })
 
 const CSSColorToRGBA = function (col: string) {
-  const res = parseCSSColor(col)
+  const res = parseCSSColor(col.trim())
   if (!res) return { r: 0, g: 0, b: 0, a: 0 }
   if (res.type === 'rgb') {
     return {

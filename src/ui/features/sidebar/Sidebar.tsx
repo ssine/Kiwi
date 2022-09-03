@@ -55,7 +55,7 @@ export const Sidebar = () => {
                 title="New Item"
                 onClick={async () => {
                   const finalUri = await createItem('new-item')
-                  await displayItem(finalUri, 'edit')
+                  await displayItem(finalUri, { mode: 'edit' })
                 }}
                 styles={{
                   root: {
@@ -85,7 +85,7 @@ export const Sidebar = () => {
         >
           <PivotItem name="Open">
             {displaiedUris.map(uri => (
-              <div className="kiwi-active-list-item" key={uri} onClick={() => displayItem(uri)}>
+              <div className="kiwi-active-list-item" key={uri} onClick={() => displayItem(uri, { emphasize: true })}>
                 {activeTitles[uri]}
               </div>
             ))}

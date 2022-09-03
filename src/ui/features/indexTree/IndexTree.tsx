@@ -88,7 +88,7 @@ export const IndexTree = () => {
         onClick={async ev => {
           if (!getItem(node.uri)) {
             await createItem(node.uri)
-            displayItem(node.uri, 'edit')
+            displayItem(node.uri, { mode: 'edit' })
           } else {
             displayItem(node.uri)
           }
