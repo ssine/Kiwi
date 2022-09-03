@@ -7,8 +7,8 @@ export type ItemFlowState = {
 }
 
 const initialState: ItemFlowState = {
-  displayMode: (localStorage.getItem('displayMode') as FlowDisplayMode) || 'center',
-  itemWidth: parseInt(localStorage.getItem('itemWidth')) || 750,
+  displayMode: (localStorage.getItem('displayMode') as FlowDisplayMode) || 'flow',
+  itemWidth: parseInt(localStorage.getItem('itemWidth') || '') || 750,
 }
 
 export const itemFlowSlice = createSlice({

@@ -56,7 +56,6 @@ const contentPostProcess = async () => {
 }
 
 const main = async () => {
-  console.log(store.getState())
   const uri = decodeURIComponent(window.location.pathname.slice(8))
   const item = await getItem(uri)
   await contentPostProcess()

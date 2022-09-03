@@ -11,7 +11,6 @@ export const ResizeHandle = React.forwardRef(
     ref: LegacyRef<HTMLDivElement>
   ) => {
     const { orientation, thickness, handleAxis, showDots, ...rest } = props
-    console.log(rest)
     return (
       <div
         ref={ref}

@@ -23,9 +23,7 @@ export const ItemFlow = () => {
 
   const updateFlow = () => {
     let tmpFlows: string[][] = []
-    if (displayMode === 'center') {
-      tmpFlows = [uris]
-    } else {
+    if (displayMode === 'flow') {
       const heights = []
       for (let idx = 0; idx < getNumColumns(showSidebar, sidebarWidth, itemWidth); idx++) {
         tmpFlows.push([])
@@ -71,7 +69,7 @@ export const ItemFlow = () => {
   return displayMode === 'flow' ? (
     <div
       className="item-flow-container"
-      style={{ marginLeft: (showSidebar ? sidebarWidth : 0) + 30, display: 'flex', marginTop: 25 }}
+      style={{ marginLeft: showSidebar ? sidebarWidth : 0, display: 'flex', marginTop: 25 }}
     >
       {[...flows, [] /* add an empty column to avoid remounting of elements sent to new column */].map((flow, idx) => (
         <div style={{ marginLeft: 30 }} key={idx}>
@@ -84,12 +82,7 @@ export const ItemFlow = () => {
       ))}
     </div>
   ) : (
-    <div className="item-flow-container" style={{ margin: '25px auto', display: 'flex' }}>
-      <div style={{ margin: '0 auto' }}>
-        <Reparentable id="0">{flows[0]?.map(uri => <ItemCard key={uri} uri={uri} />) || null}</Reparentable>
-        <Reparentable id="1">{null}</Reparentable>
-      </div>
-    </div>
+    <div>unknown flow type {displayMode}!</div>
   )
 }
 
