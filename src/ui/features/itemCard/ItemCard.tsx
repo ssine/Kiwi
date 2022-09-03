@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { ItemDisplay } from './ItemDisplay'
 import { ItemEditor } from './ItemEditor'
 import { getItemCardDiv, getPositionToDocument, isMobile } from '../../Common'
@@ -19,17 +19,18 @@ export const ItemCard = (props: { uri: string }) => {
     ;(async () => {
       const containerDiv = getItemCardDiv(uri)
       if (containerDiv) {
-        if (lastPositoinRef.current.left === 0 && lastPositoinRef.current.top === 0) {
-          // initial scale in
-          await scaleIn(containerDiv)
-        } else {
-          // flip smooth
+        if (lastPositoinRef.current.left !== 0 || lastPositoinRef.current.top !== 0) {
           await smoothLayoutChange(containerDiv, lastPositoinRef.current)
         }
         lastPositoinRef.current = getPositionToDocument(containerDiv)
       }
     })()
   })
+
+  useEffect(() => {
+    const containerDiv = getItemCardDiv(uri)
+    scaleIn(containerDiv)
+  }, [])
 
   if (!item) {
     return <div id={`kiwi-itemcard-${uri}`}></div>
