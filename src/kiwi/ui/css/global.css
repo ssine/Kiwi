@@ -94,8 +94,6 @@ button:active {
     top: 0;
     bottom: 0;
     float: left;
-    padding-left: 20px;
-    width: calc((100% - 750px) / 2 - 40px);
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -359,6 +357,10 @@ mjx-container[display='true'] {
     margin-left: auto;
     margin-right: auto;
   }
+}
+
+.resizer-handle:hover {
+  background-color: var(--blockColorLighter);
 }
 
 /*

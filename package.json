@@ -33,6 +33,9 @@
   },
   "author": "Sine Liu",
   "license": "ISC",
+  "overrides": {
+    "@types/react": "^18.0.0"
+  },
   "devDependencies": {
     "@kooneko/livereload-webpack-plugin": "^1.2.0",
     "@loadable/component": "^5.15.2",

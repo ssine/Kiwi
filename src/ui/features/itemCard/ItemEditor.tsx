@@ -11,6 +11,7 @@ import { rotateIn, rotateOut, setItemFullScreen, setItemMode } from './operation
 import { DynamicMonacoEditor } from '../../components/editor/DynamicMonacoEditor'
 import { ClientItem } from '../../ClientItem'
 import { BitmapEditor } from '../../components/editor/BitmapEditor'
+import { ResizeHandle } from '../../components/ResizeHandle'
 
 export const ItemEditor = (props: { uri: string }) => {
   const { uri: originalUri } = props
@@ -118,11 +119,9 @@ export const ItemEditor = (props: { uri: string }) => {
         height={editorHeight}
         width={defaultItemWidth}
         onResize={onResize}
-        handle={
-          <div
-            style={{ width: '100%', height: 3, backgroundColor: 'var(--blockColorLight)', cursor: 'n-resize' }}
-          ></div>
-        }
+        handle={(handleAxis, ref) => (
+          <ResizeHandle ref={ref} handleAxis={handleAxis} thickness={2} orientation="horizontal" showDots={false} />
+        )}
       >
         <div style={{ height: editorHeight, display: 'flex', flexDirection: 'column' }}>
           <div style={{ flexGrow: 1, height: 'calc(100% - 3px)' }}>

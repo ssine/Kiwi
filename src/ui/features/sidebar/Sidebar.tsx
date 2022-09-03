@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { Resizable, ResizeCallbackData } from 'react-resizable'
 import { FlowDisplayMode, getCookie, isMobile } from '../../Common'
 import { IconButton } from '../../components/basic/Button/IconButton'
 import { Pivot, PivotItem } from '../../components/basic/Pivot/Pivot'
@@ -7,14 +8,14 @@ import LoginForm from '../../components/LoginForm'
 import { SearchBar } from '../../components/SearchBar'
 import { Slider } from '../../components/basic/Slider/Slider'
 import { Select } from '../../components/basic/Select/Select'
-import { SidebarSwitch } from './SidebarSwitch'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { shallowEqual } from 'react-redux'
-import { setSidebarWidth } from './sidebarSlice'
+import { hideSidebar, setSidebarWidth, showSidebar } from './sidebarSlice'
 import { setDisplayMode, setItemWidth } from '../itemFlow/itemFlowSlice'
 import { createItem, displayItem, getItemFromState } from '../global/item'
 import { IndexTree } from '../indexTree/IndexTree'
 import { RecentList } from '../recentList/RecentList'
+import { ResizeHandle } from '../../components/ResizeHandle'
 
 export const Sidebar = () => {
   const dispatch = useAppDispatch()
@@ -29,102 +30,122 @@ export const Sidebar = () => {
     s => Object.fromEntries(displaiedUris.map(uri => [uri, getItemFromState(s, uri).title])),
     shallowEqual
   )
-
+  const [resizerWidth, setResizerWidth] = useState(sidebarShow ? sidebarWidth : 0)
+  const onResize = (e: React.SyntheticEvent, data: ResizeCallbackData) => {
+    console.log(data.size.width, sidebarWidth)
+    setResizerWidth(data.size.width)
+    if (data.size.width > 330) {
+      if (!sidebarShow) {
+        dispatch(showSidebar())
+      }
+      dispatch(setSidebarWidth(data.size.width))
+    } else if (data.size.width < 50 && sidebarShow) {
+      dispatch(hideSidebar())
+    }
+  }
   return (
     <div>
-      <SidebarSwitch />
-      <div
-        className="kiwi-sidebar"
-        style={{
-          display: sidebarShow ? 'flex' : 'none',
-          flexDirection: 'column',
-          ...(isMobile ? {} : { width: sidebarWidth }),
-        }}
+      <Resizable
+        height={0}
+        width={resizerWidth}
+        onResize={onResize}
+        handle={(handleAxis, ref) => (
+          <ResizeHandle ref={ref} handleAxis={handleAxis} thickness={5} orientation="vertical" showDots={true} />
+        )}
       >
-        <h1 className="site-title" id="site-title">
-          {title}
-        </h1>
-        <div className="site-subtitle" id="site-subtitle">
-          {subtitle}
-        </div>
-        <div className="page-controls">
-          {getCookie('token') !== '' ? (
-            <>
-              <IconButton
-                iconName="Add"
-                title="New Item"
-                onClick={async () => {
-                  const finalUri = await createItem('new-item')
-                  await displayItem(finalUri, { mode: 'edit' })
-                }}
-                styles={{
-                  root: {
-                    width: isMobile ? '10vw' : 30,
-                    height: isMobile ? '10vw' : 30,
-                    fontSize: isMobile ? '5vw' : 20,
-                  },
-                }}
-              />
-            </>
-          ) : (
-            <></>
-          )}
-        </div>
-        <SearchBar />
-        <Pivot
-          styles={{
-            panel: { flexGrow: 1, overflow: 'auto', marginTop: 5 },
-            root: {
-              marginTop: 10,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'auto',
-              flexGrow: 1,
-            },
-          }}
+        <div
+          className="kiwi-sidebar"
+          style={{ display: 'flex', flexDirection: 'row', width: sidebarWidth, overflow: 'hidden' }}
         >
-          <PivotItem name="Open">
-            {displaiedUris.map(uri => (
-              <div className="kiwi-active-list-item" key={uri} onClick={() => displayItem(uri)}>
-                {activeTitles[uri]}
-              </div>
-            ))}
-          </PivotItem>
-          <PivotItem name="Index">
-            <IndexTree />
-          </PivotItem>
-          <PivotItem name="Recent">
-            <RecentList />
-          </PivotItem>
-          <PivotItem name="Action">
-            <Banner text="Account" />
-            <LoginForm />
-            <Banner text="UI" />
-            <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>Item Width</div>
-            <Slider value={itemWidth} onChange={val => dispatch(setItemWidth(parseInt(val)))} range={[350, 1500]} />
-            <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>Sidebar Width</div>
-            <Slider
-              value={sidebarWidth}
-              onChange={val => dispatch(setSidebarWidth(parseInt(val)))}
-              range={[200, 700]}
-            />
-            <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>Flow Type</div>
-            <Select
-              value={
-                {
-                  center: 'Center',
-                  flow: 'Flow',
-                }[displayMode]
-              }
-              style={{ height: 23 }}
-              onSelect={val => dispatch(setDisplayMode(val as FlowDisplayMode))}
+          <div
+            style={{
+              flexGrow: 2,
+              display: sidebarShow ? 'flex' : 'none',
+              flexDirection: 'column',
+              paddingLeft: 20,
+              paddingRight: 10,
+            }}
+          >
+            <h1 className="site-title" id="site-title">
+              {title}
+            </h1>
+            <div className="site-subtitle" id="site-subtitle">
+              {subtitle}
+            </div>
+            <div className="page-controls">
+              {getCookie('token') !== '' ? (
+                <>
+                  <IconButton
+                    iconName="Add"
+                    title="New Item"
+                    onClick={async () => {
+                      const finalUri = await createItem('new-item')
+                      await displayItem(finalUri, { mode: 'edit' })
+                    }}
+                    styles={{
+                      root: {
+                        width: isMobile ? '10vw' : 30,
+                        height: isMobile ? '10vw' : 30,
+                        fontSize: isMobile ? '5vw' : 20,
+                      },
+                    }}
+                  />
+                </>
+              ) : (
+                <></>
+              )}
+            </div>
+            <SearchBar />
+            <Pivot
+              styles={{
+                panel: { flexGrow: 1, overflow: 'auto', marginTop: 5 },
+                root: {
+                  marginTop: 10,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'auto',
+                  flexGrow: 1,
+                },
+              }}
             >
-              <option value="center">Center</option>
-              <option value="flow">Flow</option>
-            </Select>
-          </PivotItem>
-        </Pivot>
-      </div>
+              <PivotItem name="Open">
+                {displaiedUris.map(uri => (
+                  <div className="kiwi-active-list-item" key={uri} onClick={() => displayItem(uri)}>
+                    {activeTitles[uri]}
+                  </div>
+                ))}
+              </PivotItem>
+              <PivotItem name="Index">
+                <IndexTree />
+              </PivotItem>
+              <PivotItem name="Recent">
+                <RecentList />
+              </PivotItem>
+              <PivotItem name="Action">
+                <Banner text="Account" />
+                <LoginForm />
+                <Banner text="UI" />
+                <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>Item Width</div>
+                <Slider value={itemWidth} onChange={val => dispatch(setItemWidth(parseInt(val)))} range={[350, 1500]} />
+                <div style={{ textAlign: 'center', margin: '10px 0 10px 0' }}>Flow Type</div>
+                <Select
+                  value={
+                    {
+                      center: 'Center',
+                      flow: 'Flow',
+                    }[displayMode]
+                  }
+                  style={{ height: 23 }}
+                  onSelect={val => dispatch(setDisplayMode(val as FlowDisplayMode))}
+                >
+                  <option value="center">Center</option>
+                  <option value="flow">Flow</option>
+                </Select>
+              </PivotItem>
+            </Pivot>
+          </div>
+        </div>
+      </Resizable>
     </div>
   )
 }
