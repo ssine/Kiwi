@@ -19,8 +19,15 @@ export const ItemCard = (props: { uri: string }) => {
     ;(async () => {
       const containerDiv = getItemCardDiv(uri)
       if (containerDiv) {
+        const newPosition = getPositionToDocument(containerDiv)
         if (lastPositoinRef.current.left !== 0 || lastPositoinRef.current.top !== 0) {
-          await smoothLayoutChange(containerDiv, lastPositoinRef.current)
+          if (
+            Math.abs(lastPositoinRef.current.left - newPosition.left) +
+              Math.abs(lastPositoinRef.current.top - newPosition.top) >
+            30
+          ) {
+            await smoothLayoutChange(containerDiv, lastPositoinRef.current)
+          }
         }
         lastPositoinRef.current = getPositionToDocument(containerDiv)
       }

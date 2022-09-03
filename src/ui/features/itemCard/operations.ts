@@ -102,7 +102,10 @@ export const scaleIn = async (el: HTMLElement) => {
       ],
       duration: 150,
       easing: 'easeOutCubic',
-      complete: () => res(null),
+      complete: () => {
+        el.style.transform = ''
+        res(null)
+      },
     })
   })
 }
@@ -128,11 +131,14 @@ export const FLIPOperation = async (el: HTMLElement, dx: number, dy: number) => 
  */
 export const smoothLayoutChange = async (el: HTMLElement, lastPosition: { left: number; top: number }) => {
   if (!el) return
+  // do not overlap with existing transformations
+  if (el.style.transform) return
   el.style.transform = ''
   const newPosition = getPositionToDocument(el)
   const dy = lastPosition.top - newPosition.top
   const dx = lastPosition.left - newPosition.left
   await FLIPOperation(el, dx, dy)
+  el.style.transform = ''
 }
 
 export const printItem = (uri: string) => {
