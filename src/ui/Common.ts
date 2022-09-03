@@ -1,5 +1,7 @@
+import { isNumber } from 'lodash'
 import parseCSSColor from 'parse-css-color'
 import { uriCumSum } from '../core/Common'
+import anime from 'animejs'
 
 /**
  * Check if a link is external of internal
@@ -146,8 +148,12 @@ function HSVtoRGB(color: { h: number; s: number; v: number }) {
   }
 }
 
-function RGBtoCSSColor(rgb: { r: number; g: number; b: number }): string {
-  return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
+function RGBtoCSSColor(rgb: { r: number; g: number; b: number; a?: number }): string {
+  if (isNumber(rgb.a)) {
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${rgb.a})`
+  } else {
+    return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
+  }
 }
 
 function setPageColors(hue: number) {
@@ -250,6 +256,34 @@ export const stringHash = async (v: string): Promise<string> => {
   const hashArray = Array.from(new Uint8Array(hashBuffer))
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
   return hashHex
+}
+
+export const emphasieElement = async (el: HTMLElement) => {
+  return new Promise((res, rej) => {
+    const mask = document.createElement('div')
+    mask.style.zIndex = '1000'
+    mask.style.position = 'absolute'
+    const box = getPositionToDocument(el)
+    const rect = el.getBoundingClientRect()
+    mask.style.top = `${Math.round(box.top)}px`
+    mask.style.left = `${Math.round(box.left)}px`
+    mask.style.width = `${Math.round(rect.width)}px`
+    mask.style.height = `${Math.round(rect.height)}px`
+    document.body.appendChild(mask)
+    const emphasieColor = CSSColorToRGBA(window.getComputedStyle(document.body).getPropertyValue('--lineColor'))
+    anime({
+      targets: mask,
+      backgroundColor: [
+        { value: RGBtoCSSColor({ ...emphasieColor, a: 0 }), duration: 0 },
+        { value: RGBtoCSSColor({ ...emphasieColor, a: 0.7 }), easing: 'easeOutCubic' },
+        { value: RGBtoCSSColor({ ...emphasieColor, a: 0 }), easing: 'easeInCubic' },
+      ],
+      complete: () => {
+        document.body.removeChild(mask)
+        res(null)
+      },
+    })
+  })
 }
 
 export {

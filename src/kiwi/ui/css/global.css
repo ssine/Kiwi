@@ -8,7 +8,6 @@
   --blockColorLight: white;
   --blockColorLighter: white;
   --areaColor: white;
-  --itemBackgroundColor: white;
   /* the lightest color for backgrounds */
   --serifFont: Constantia, 'Times New Roman', Times, serif;
   --sansSerifFont: OpenSans, Arial, Helvetica, sans-serif;
@@ -142,7 +141,7 @@ button:active {
 
 .item {
   margin-bottom: 25px;
-  background-color: var(--itemBackgroundColor);
+  background-color: white;
   box-shadow: rgba(0, 0, 0, 0.133) 0px 3.2px 7.2px 0px, rgba(0, 0, 0, 0.11) 0px 0.6px 1.8px 0px;
 }
 

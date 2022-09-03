@@ -2,7 +2,7 @@ import { CaseReducer, createAction, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '..'
 import { getItemCardDiv, getPositionToDocument, scrollToElement } from '../../Common'
 import { store } from '../../store'
-import anime from 'animejs/lib/anime.es'
+import anime from 'animejs'
 
 type setItemFullScreenPayload = {
   uri: string
