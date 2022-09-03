@@ -254,16 +254,16 @@ export const duplicateItem = async (oldUri: string) => {
  * Otherwise, open in display mode.
  * Will scroll to the element, after open.
  */
-export const displayItem = async (uri: string, options?: { mode?: 'edit' | 'display'; emphasize?: boolean }) => {
+export const displayItem = async (uri: string, options?: { mode?: 'edit' | 'display' }) => {
   await loadItem(uri)
   let state = store.getState()
   if (!getItemFromState(state, uri)) return
+  const initialDisplay = !state.opened.uris.includes(uri)
   store.dispatch(displayItemActionCreater({ uri, mode: options?.mode || 'display' }))
-  state = store.getState()
   setTimeout(() => {
     const div = getItemCardDiv(uri)
     scrollToElement(div)
-    if (options?.emphasize) {
+    if (!initialDisplay) {
       emphasieElement(div)
     }
   }, 10)

@@ -85,7 +85,7 @@ export const Sidebar = () => {
         >
           <PivotItem name="Open">
             {displaiedUris.map(uri => (
-              <div className="kiwi-active-list-item" key={uri} onClick={() => displayItem(uri, { emphasize: true })}>
+              <div className="kiwi-active-list-item" key={uri} onClick={() => displayItem(uri)}>
                 {activeTitles[uri]}
               </div>
             ))}
