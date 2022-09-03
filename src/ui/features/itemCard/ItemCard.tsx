@@ -4,7 +4,7 @@ import { ItemEditor } from './ItemEditor'
 import { getItemCardDiv, getPositionToDocument, isMobile } from '../../Common'
 import { useAppSelector } from '../../store'
 import { getItemFromState } from '../global/item'
-import { smoothLayoutChange } from './operations'
+import { scaleIn, smoothLayoutChange } from './operations'
 
 export const ItemCard = (props: { uri: string }) => {
   // display / edit / save
@@ -19,7 +19,13 @@ export const ItemCard = (props: { uri: string }) => {
     ;(async () => {
       const containerDiv = getItemCardDiv(uri)
       if (containerDiv) {
-        await smoothLayoutChange(containerDiv, lastPositoinRef.current)
+        if (lastPositoinRef.current.left === 0 && lastPositoinRef.current.top === 0) {
+          // initial scale in
+          await scaleIn(containerDiv)
+        } else {
+          // flip smooth
+          await smoothLayoutChange(containerDiv, lastPositoinRef.current)
+        }
         lastPositoinRef.current = getPositionToDocument(containerDiv)
       }
     })()

@@ -8,7 +8,7 @@ import { MenuButton } from '../../components/basic/Button/MenuButton'
 import { AttachDirection, Callout } from '../../components/basic/Callout/Callout'
 import { typesetMath } from '../../mathjax'
 import { useAppDispatch, useAppSelector } from '../../store'
-import { printItem, rotateIn, rotateOut, setItemFullScreen, setItemMode, slideOut } from './operations'
+import { printItem, rotateIn, rotateOut, scaleOut, setItemFullScreen, setItemMode } from './operations'
 import {
   closeItem,
   createItem,
@@ -134,7 +134,7 @@ export const ItemDisplay = (props: { uri: string }) => {
                     onClick={async () => {
                       // TODO: concurrent slideout and delete, and reset effect if delete failed
                       await deleteItem(props.uri)
-                      await slideOut(getItemCardDiv(uri))
+                      await scaleOut(getItemCardDiv(uri))
                     }}
                   />
                 }
@@ -154,7 +154,7 @@ export const ItemDisplay = (props: { uri: string }) => {
           <IconButton
             iconName="Cancel"
             onClick={async () => {
-              await slideOut(getItemCardDiv(uri))
+              await scaleOut(getItemCardDiv(uri))
               dispatch(closeItem(uri))
             }}
           />

@@ -72,14 +72,36 @@ export const rotateIn = async (el: HTMLElement) => {
 /**
  * Animation: slide 400px while fading out
  */
-export const slideOut = async (el: HTMLElement) => {
+export const scaleOut = async (el: HTMLElement) => {
   return new Promise((res, rej) => {
     anime({
       targets: el,
-      translateX: -400,
+      scale: 0,
       opacity: 0,
-      duration: 100,
-      easing: 'easeOutQuad',
+      duration: 150,
+      easing: 'easeInCubic',
+      complete: () => res(null),
+    })
+  })
+}
+
+export const scaleIn = async (el: HTMLElement) => {
+  return new Promise((res, rej) => {
+    anime({
+      targets: el,
+      keyframes: [
+        {
+          scale: 0,
+          opacity: 0,
+          duration: 0,
+        },
+        {
+          scale: 1,
+          opacity: 1,
+        },
+      ],
+      duration: 150,
+      easing: 'easeOutCubic',
       complete: () => res(null),
     })
   })
@@ -108,10 +130,6 @@ export const smoothLayoutChange = async (el: HTMLElement, lastPosition: { left: 
   if (!el) return
   el.style.transform = ''
   const newPosition = getPositionToDocument(el)
-  if (lastPosition.left === 0) {
-    await FLIPOperation(el, newPosition.left, 0)
-    return
-  }
   const dy = lastPosition.top - newPosition.top
   const dx = lastPosition.left - newPosition.left
   await FLIPOperation(el, dx, dy)
