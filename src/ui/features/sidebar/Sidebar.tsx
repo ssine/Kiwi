@@ -52,7 +52,7 @@ export const Sidebar = () => {
       >
         <div
           className="kiwi-sidebar"
-          style={{ display: 'flex', flexDirection: 'row', width: sidebarWidth, overflow: 'hidden' }}
+          style={{ display: 'flex', flexDirection: 'row', width: sidebarShow ? sidebarWidth : 5, overflow: 'hidden' }}
         >
           <div
             style={{
