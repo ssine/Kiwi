@@ -57,6 +57,10 @@ button:active {
   color: white;
 }
 
+a {
+  line-break: anywhere;
+}
+
 @media (max-width: 641px) {
   :root {
     font-size: 4vw;
