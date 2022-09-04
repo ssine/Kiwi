@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { store } from '../store'
+import { iframeResizer } from 'iframe-resizer'
 import { getItem } from '../api'
 import { StaticItemPage } from './staticItemPage'
 import { isLinkInternal, waitScriptLoad } from '../Common'
@@ -53,9 +54,26 @@ const contentPostProcess = async () => {
   if (contentEl.innerText.includes('$')) {
     typesetMath()
   }
+
+  const itemEl = document.getElementsByClassName('item-content')[0]
+  if (itemEl instanceof HTMLIFrameElement) {
+    const innerDoc = itemEl.contentWindow?.document
+    if (!innerDoc) return
+    const contentJs = await getItem('kiwi/ui/js/iframeResizer.contentWindow.js')
+    const script = innerDoc.createElement('script')
+    script.innerHTML = contentJs.content || ''
+    innerDoc.body.appendChild(script)
+    // @ts-ignore
+    iframeResizer({ heightCalculationMethod: 'lowestElement', scrolling: 'omit' }, itemEl)
+    return
+  }
 }
 
 const main = async () => {
+  // Do not remove this.
+  // There are hidden dependences on the react store, and we have to access it
+  // to prevent webpack from removing it from bundle.
+  console.log(store.getState())
   const uri = decodeURIComponent(window.location.pathname.slice(8))
   const item = await getItem(uri)
   await contentPostProcess()

@@ -14,7 +14,13 @@ export const StaticItemPage = (props: { uri: string; item: ClientItem }) => {
           </h2>
         </div>
         {item.type === 'text/html' ? (
-          <iframe src={`/raw/${uri}`} srcDoc={item.content} frameBorder="0" style={{ width: '100%', maxHeight: 800 }} />
+          <iframe
+            className="item-content"
+            src={`/raw/${uri}`}
+            srcDoc={item.content}
+            frameBorder="0"
+            style={{ width: '100%' }}
+          />
         ) : (
           <div className="item-content" dangerouslySetInnerHTML={{ __html: item.renderedHTML }} />
         )}

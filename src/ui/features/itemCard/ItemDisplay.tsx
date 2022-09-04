@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { iframeResizer } from 'iframe-resizer'
 import { Breadcrumb } from '../../components/basic/Breadcrumb/Breadcrumb'
 import { PrimaryButton } from '../../components/basic/Button/PrimaryButton'
 import { IconButton } from '../../components/basic/Button/IconButton'
@@ -172,7 +173,7 @@ export const ItemDisplay = (props: { uri: string }) => {
           ref={contentRef}
           frameBorder="0"
           onLoad={() => setIframeHeight(contentRef.current as HTMLIFrameElement)}
-          style={{ width: '100%', maxHeight: 800 }}
+          style={{ width: '100%' }}
         />
       ) : (
         // @ts-ignore
@@ -217,6 +218,7 @@ export const ItemDisplay = (props: { uri: string }) => {
 }
 
 export const contentPostProcess = async (contentEl: HTMLElement) => {
+  if (!(contentEl instanceof HTMLElement)) return
   const links = contentEl.querySelectorAll('a')
   links.forEach((el: HTMLAnchorElement | SVGAElement) => {
     if (el instanceof SVGAElement) {
@@ -288,5 +290,12 @@ export const contentPostProcess = async (contentEl: HTMLElement) => {
 }
 
 const setIframeHeight = (el: HTMLIFrameElement) => {
-  el.style.height = `${el.contentWindow?.document.body.scrollHeight}px`
+  const innerDoc = el.contentWindow?.document
+  if (!innerDoc) return
+  const contentJs = getItem('kiwi/ui/js/iframeResizer.contentWindow.js')
+  const script = innerDoc.createElement('script')
+  script.innerHTML = contentJs.content || ''
+  innerDoc.body.appendChild(script)
+  // @ts-ignore
+  iframeResizer({ heightCalculationMethod: 'lowestElement', scrolling: 'omit' }, el)
 }
