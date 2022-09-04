@@ -20,21 +20,28 @@ export const ItemCard = (props: { uri: string }) => {
       const containerDiv = getItemCardDiv(uri)
       if (containerDiv) {
         const newPosition = getPositionToDocument(containerDiv)
-        if (lastPositoinRef.current.left !== 0 || lastPositoinRef.current.top !== 0) {
-          if (
-            Math.abs(lastPositoinRef.current.left - newPosition.left) +
-              Math.abs(lastPositoinRef.current.top - newPosition.top) >
-            30
-          ) {
-            await smoothLayoutChange(containerDiv, lastPositoinRef.current)
-          }
+        if (lastPositoinRef.current.left === 0 && lastPositoinRef.current.top === 0) {
+          // initial showup is handled later
+          lastPositoinRef.current = newPosition
+          return
         }
+        if (
+          Math.abs(lastPositoinRef.current.left - newPosition.left) +
+            Math.abs(lastPositoinRef.current.top - newPosition.top) <
+          20
+        ) {
+          // small change, no animation, save computing power
+          lastPositoinRef.current = newPosition
+          return
+        }
+
+        await smoothLayoutChange(containerDiv, lastPositoinRef.current)
         lastPositoinRef.current = getPositionToDocument(containerDiv)
       }
     })()
   })
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const containerDiv = getItemCardDiv(uri)
     scrollToElement(containerDiv)
     scaleIn(containerDiv)
