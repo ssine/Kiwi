@@ -71,6 +71,7 @@ export const ItemEditor = (props: { uri: string }) => {
 
   const onResize = (e: React.SyntheticEvent, data: ResizeCallbackData) => {
     setEditorHeight(data.size.height)
+    localStorage.setItem(heightKey, String(data.size.height))
   }
 
   return (
