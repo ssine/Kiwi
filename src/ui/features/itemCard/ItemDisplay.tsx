@@ -173,7 +173,7 @@ export const ItemDisplay = (props: { uri: string }) => {
           ref={contentRef}
           frameBorder="0"
           onLoad={() => setIframeHeight(contentRef.current as HTMLIFrameElement)}
-          style={{ width: '100%' }}
+          style={{ width: '100%', maxHeight: 2000 }}
         />
       ) : (
         // @ts-ignore
