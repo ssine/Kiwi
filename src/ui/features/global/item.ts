@@ -263,6 +263,7 @@ export const displayItem = async (uri: string, options?: { mode?: 'edit' | 'disp
   if (!initialDisplay) {
     setTimeout(() => {
       const div = getItemCardDiv(uri)
+      scrollToElement(div)
       emphasieElement(div)
     }, 10)
   }
