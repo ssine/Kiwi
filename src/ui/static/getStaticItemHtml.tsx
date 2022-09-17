@@ -20,7 +20,7 @@ export const getStaticItemHTML = (uri: string, item: ClientItem, config: StaticC
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{config.title}</title>
+        <title>{item.title + ' - ' + config.title}</title>
         <script defer src="/staticPage.bundle.js" />
         <link rel="shortcut icon" href={`/raw/${manager.mainConfig.appearance.favicon}`} type="image/x-icon" />
         <link rel="stylesheet" href="/raw/kiwi/ui/css/global.css"></link>
