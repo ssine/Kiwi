@@ -2,23 +2,25 @@ import React from 'react'
 import * as ReactDOMServer from 'react-dom/server'
 import { ClientItem } from '../ClientItem'
 import { StaticItemPage } from './staticItemPage'
-import { getColorScheme } from '../Common'
+import { CSSColorToRGBA, getColorScheme, RGBtoHSV } from '../Common'
 import { state } from '../../core/state'
 
 export type StaticConfig = {
-  hue: number
-  title: string
-  subTitle: string
   paths: { uri: string; title: string }[]
 }
 
 export const getStaticItemHTML = (uri: string, item: ClientItem, config: StaticConfig) => {
   return ReactDOMServer.renderToString(
-    <html style={{ display: 'block', ...getColorScheme(config.hue) }}>
+    <html
+      style={{
+        display: 'block',
+        ...getColorScheme(RGBtoHSV(CSSColorToRGBA(state.mainConfig.appearance.primaryColor)).h || 0),
+      }}
+    >
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{item.title + ' - ' + config.title}</title>
+        <title>{item.title + ' - ' + state.mainConfig.info.title}</title>
         <script defer src="/staticPage.bundle.js" />
         <link rel="shortcut icon" href={`/raw/${state.mainConfig.appearance.favicon}`} type="image/x-icon" />
         <link rel="stylesheet" href="/raw/kiwi/ui/css/global.css"></link>

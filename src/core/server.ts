@@ -47,8 +47,6 @@ app.use(
 app.use(bodyParser.json({ limit: '5mb' }))
 app.use(cookieParser())
 
-const itemRouteTable: Record<string, express.Handler> = {}
-
 const requireAuth: express.RequestHandler = (req, res, next) => {
   if (!req.cookies.token) {
     throw new LoginRequiredError('Login is required for this request.')
@@ -85,7 +83,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     const uri: string = req.body.uri
     logger.debug(`get item: ${uri}`)
     const it = await ItemManager.getItem(uri, req.cookies.token)
-    if (!it.renderSync) await renderItem(uri, it, state.mainConfig)
+    if (!it.renderSync) await renderItem(uri, it)
     res.json(ok(it))
   })
 
@@ -93,7 +91,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     const uri = req.body.uri
     const it = req.body.item
     const newItem = await ItemManager.putItem(uri, it, req.cookies.token)
-    if (!newItem.renderSync) await renderItem(uri, newItem, state.mainConfig)
+    if (!newItem.renderSync) await renderItem(uri, newItem)
     res.json(ok(newItem))
   })
 
@@ -111,7 +109,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       it.getContentStream = () => Readable.from(file.data)
     }
     const newItem = await ItemManager.putItem(uri, it, req.cookies.token)
-    if (!newItem.renderSync) await renderItem(uri, newItem, state.mainConfig)
+    if (!newItem.renderSync) await renderItem(uri, newItem)
     res.json(ok(newItem))
   })
 
@@ -181,7 +179,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       }
     }
     if (!it) return
-    if (!it.renderSync) await renderItem(uri, it, state.mainConfig)
+    if (!it.renderSync) await renderItem(uri, it)
     const paths = await Promise.all(
       uriCumSum(uri).map(async prefix => {
         const pUri = `/static/${prefix}`
@@ -200,9 +198,6 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       })
     )
     const config: StaticConfig = {
-      hue: RGBtoHSV(CSSColorToRGBA(state.mainConfig.appearance.primaryColor)).h || 0,
-      title: state.mainConfig.info.title,
-      subTitle: state.mainConfig.info.subtitle,
       paths: (uri !== 'index' ? [{ uri: '/static/index', title: 'Index' }] : []).concat(...paths),
     }
     res.send(getStaticItemHTML(uri, { ...it, state: 'full' }, config))
@@ -223,4 +218,4 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
   server.listen(port, host, () => logger.info(`Server running on port ${port}`))
 }
 
-export { app, serve, itemRouteTable }
+export { app, serve }

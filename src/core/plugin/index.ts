@@ -55,11 +55,9 @@ function fieldCodeMatch(s: string): fieldCodeMatchResult {
 class ItemContext {
   ctx: vm.Context
   uri: string
-  paths: string[]
 
-  constructor(uri: string, config: MainConfig) {
+  constructor(uri: string) {
     this.uri = uri
-    this.paths = config.render.plugin.paths
     this.ctx = {}
     const kiwi: Record<string, any> = { ...ScriptApi }
     for (const name in state.pluginMap) {
@@ -91,10 +89,11 @@ class ItemContext {
           code = potentialWrappedCode
         }
       }
+      const paths = state.mainConfig.render.plugin.paths
       const res = vm.runInContext(code, this.ctx, {
         //@ts-ignore
         importModuleDynamically: async (specifier: string) => {
-          return loadKiwiModule(await resolveModuleUri(this.uri, specifier, this.paths), this.ctx, this.paths)
+          return loadKiwiModule(await resolveModuleUri(this.uri, specifier, paths), this.ctx, paths)
         },
       })
       if (res instanceof Promise) return await res

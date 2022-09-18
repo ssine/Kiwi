@@ -1,4 +1,4 @@
-import { observable, reaction } from 'mobx'
+import { observable } from 'mobx'
 import { MainConfig, SecretConfig } from './config'
 import { MIME } from './MimeType'
 import { Parser } from './Parser'
