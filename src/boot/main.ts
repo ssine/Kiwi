@@ -43,6 +43,7 @@ import ListPlugin from '../lib/plugin/ListPlugin'
 import SVGPlugin from '../lib/plugin/SVGPlugin'
 import CSSEscapePlugin from '../lib/plugin/CSSEscapePlugin'
 import { FilesystemStorage } from '../lib/storage/FilesystemStorage'
+import { renderItem } from '../core/render'
 import PlaintextParser from '../lib/parser/PlaintextParser'
 import { migrateTiddlyWiki } from './migrateTiddlyWiki'
 import { state } from '../core/state'
@@ -107,6 +108,8 @@ async function run() {
     registLib()
     await updateConfig()
     updateUUIDLookup()
+    // render system items for caching
+    await Promise.all(Object.entries(await systemStorage.getAllItems()).map(entry => renderItem(...entry)))
     serve(args.host, args.port, args.folder)
   } else if (args._[0] === 'migrate') {
     await migrateTiddlyWiki(args.from, args.to)

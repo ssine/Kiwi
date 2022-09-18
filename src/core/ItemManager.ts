@@ -53,6 +53,9 @@ export class ItemManager {
       item.header.author = author
     }
     const newItem = await state.storage.putItem(uri, item)
+    runInAction(() => {
+      delete state.renderCache[uri]
+    })
     // HACK: refactor to mobx side effects later
     setImmediate(async () => {
       if (mainConfigURIs.includes(uri)) {
@@ -78,6 +81,9 @@ export class ItemManager {
     if (!item) throw new ItemNotExistsError(`item to delete (${uri}) not exists`)
     if (!noAuth && !AuthManager.hasWritePermission(token, item)) throw new NoWritePermissionError()
     state.storage.deleteItem(uri)
+    runInAction(() => {
+      delete state.renderCache[uri]
+    })
     setImmediate(async () => {
       if (mainConfigURIs.includes(uri)) {
         await updateConfig()

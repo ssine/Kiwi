@@ -117,13 +117,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
 
   app.post('/get-system-items', async (req, res) => {
     const items = await ItemManager.getSystemItems()
-    const result: Record<string, Partial<ClientItem>> = {}
-    await Promise.all(
-      Object.entries(items).map(async ([uri, item]) => {
-        result[uri] = await toClientItem(uri, item)
-      })
-    )
-    res.json(ok(result))
+    res.json(ok(items))
   })
 
   app.post('/get-skinny-items', async (req, res) => {
