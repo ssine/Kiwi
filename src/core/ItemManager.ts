@@ -11,11 +11,15 @@ import { resolveURI } from './Common'
 import { state } from './state'
 import { AuthManager } from './AuthManager'
 import { updateConfig } from './config'
+import { runInAction } from 'mobx'
+import { ClientItem } from '../ui/ClientItem'
+import { renderItem } from './render'
 
 const logger = getLogger('itemm')
 
 export class ItemManager {
   static async getItem(uri: string, token: string, noAuth?: boolean): Promise<ServerItem> {
+    uri = transformUUID(uri)
     if (secretConfigURIs.includes(uri)) throw new ItemNotExistsError(`item ${uri} not exists`)
     const item = (await state.storage.getItem(uri)) || (await state.systemStorage.getItem(uri))
     if (!item) throw new ItemNotExistsError(`item ${uri} not exists`)
@@ -33,6 +37,7 @@ export class ItemManager {
   }
 
   static async putItem(uri: string, item: ServerItem, token: string, noAuth?: boolean): Promise<ServerItem> {
+    uri = transformUUID(uri)
     if (!noAuth) {
       // check write permission up to root
       let uriToCheck = uri
@@ -48,29 +53,37 @@ export class ItemManager {
       item.header.author = author
     }
     const newItem = await state.storage.putItem(uri, item)
-    if (mainConfigURIs.includes(uri)) {
-      await updateConfig()
-    }
-    // HACK: support secret hot reload too.
-    // The problem is that frontend token expires and thus cannot delete
-    // the original item if we hot reload the tokens.
-    // So we delay the update by 3s temporarily.
-    if (secretConfigURIs.includes(uri)) {
-      setTimeout(() => {
-        updateConfig()
-      }, 3000)
-    }
+    // HACK: refactor to mobx side effects later
+    setImmediate(async () => {
+      if (mainConfigURIs.includes(uri)) {
+        await updateConfig()
+      }
+      // HACK: support secret hot reload too.
+      // The problem is that frontend token expires and thus cannot delete
+      // the original item if we hot reload the tokens.
+      // So we delay the update by 3s temporarily.
+      if (secretConfigURIs.includes(uri)) {
+        setTimeout(() => {
+          updateConfig()
+        }, 3000)
+      }
+      await updateUUIDLookup()
+    })
     return newItem
   }
 
   static async deleteItem(uri: string, token: string, noAuth?: boolean): Promise<void> {
+    uri = transformUUID(uri)
     const item = await state.storage.getItem(uri)
     if (!item) throw new ItemNotExistsError(`item to delete (${uri}) not exists`)
     if (!noAuth && !AuthManager.hasWritePermission(token, item)) throw new NoWritePermissionError()
     state.storage.deleteItem(uri)
-    if (mainConfigURIs.includes(uri)) {
-      await updateConfig()
-    }
+    setImmediate(async () => {
+      if (mainConfigURIs.includes(uri)) {
+        await updateConfig()
+      }
+      await updateUUIDLookup()
+    })
     return
   }
 
@@ -133,7 +146,7 @@ export class ItemManager {
     const items = await ItemManager.getAllItems(token, noAuth)
     const result: Record<string, Partial<ServerItem>> = {}
     for (const k in items) {
-      const { content, renderedHTML, renderSync, getContentStream, ...rest } = items[k]
+      const { content, getContentStream, ...rest } = items[k]
       result[k] = rest
     }
     return result
@@ -150,4 +163,25 @@ export class ItemManager {
     logger.info(`${res.length} result for search ${input} found`)
     return Object.keys(res)
   }
+}
+
+export const updateUUIDLookup = async () => {
+  const items = await state.storage.getAllItems()
+  const table = Object.fromEntries(
+    Object.entries(items)
+      .filter(tp => tp[1].header.uuid)
+      .map(([uri, item]) => [item.header.uuid, uri])
+  )
+  runInAction(() => {
+    state.uuidLookup = table
+  })
+}
+
+export const transformUUID = (id: string, config?: { prependSlash?: boolean }) => {
+  id = id.trim()
+  return state.uuidLookup[id] ? (config?.prependSlash ? '/' : '') + state.uuidLookup[id] : id
+}
+
+export const toClientItem = async (uri: string, item: ServerItem): Promise<ClientItem> => {
+  return { ...item, renderedHTML: await renderItem(uri, item), renderSync: true, state: 'full' }
 }

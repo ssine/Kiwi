@@ -10,4 +10,6 @@ export interface ClientItem extends BaseItem {
    * and is discarded if edit was canceled
    */
   new?: boolean
+  renderSync: boolean
+  renderedHTML: string
 }

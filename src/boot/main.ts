@@ -43,11 +43,11 @@ import ListPlugin from '../lib/plugin/ListPlugin'
 import SVGPlugin from '../lib/plugin/SVGPlugin'
 import CSSEscapePlugin from '../lib/plugin/CSSEscapePlugin'
 import { FilesystemStorage } from '../lib/storage/FilesystemStorage'
-import { renderItem } from '../core/render'
 import PlaintextParser from '../lib/parser/PlaintextParser'
 import { migrateTiddlyWiki } from './migrateTiddlyWiki'
 import { state } from '../core/state'
 import { updateConfig } from '../core/config'
+import { updateUUIDLookup } from '../core/ItemManager'
 
 function registLib() {
   const md = new MarkdownParser()
@@ -101,13 +101,12 @@ async function run() {
       state.parserMap = new Map()
       state.pluginMap = {}
       state.accounts = []
+      state.uuidLookup = {}
+      state.renderCache = {}
     })
     registLib()
     await updateConfig()
-    // render system items
-    await Promise.all(
-      Object.entries(await systemStorage.getAllItems()).map(entry => renderItem(...entry, state.mainConfig))
-    )
+    updateUUIDLookup()
     serve(args.host, args.port, args.folder)
   } else if (args._[0] === 'migrate') {
     await migrateTiddlyWiki(args.from, args.to)

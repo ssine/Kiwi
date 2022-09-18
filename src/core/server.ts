@@ -13,7 +13,7 @@ import { MIME } from './MimeType'
 import { resolve } from 'path'
 import { trimString, uriCumSum } from './Common'
 import * as fs from 'fs'
-import { ItemManager } from './ItemManager'
+import { ItemManager, toClientItem } from './ItemManager'
 import { ServerItem } from './ServerItem'
 import {
   InvalidTokenError,
@@ -28,7 +28,6 @@ import { Readable } from 'stream'
 import { ClientItem } from '../ui/ClientItem'
 import { renderItem } from './render'
 import { getStaticItemHTML, StaticConfig } from '../ui/static/getStaticItemHtml'
-import { CSSColorToRGBA, RGBtoHSV } from '../ui/Common'
 import { AuthManager } from './AuthManager'
 import { state } from './state'
 
@@ -83,16 +82,14 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     const uri: string = req.body.uri
     logger.debug(`get item: ${uri}`)
     const it = await ItemManager.getItem(uri, req.cookies.token)
-    if (!it.renderSync) await renderItem(uri, it)
-    res.json(ok(it))
+    res.json(ok(await toClientItem(uri, it)))
   })
 
   app.post('/put-item', requireAuth, async (req, res) => {
     const uri = req.body.uri
     const it = req.body.item
     const newItem = await ItemManager.putItem(uri, it, req.cookies.token)
-    if (!newItem.renderSync) await renderItem(uri, newItem)
-    res.json(ok(newItem))
+    res.json(ok(await toClientItem(uri, newItem)))
   })
 
   app.post('/put-binary-item', requireAuth, async (req, res) => {
@@ -109,8 +106,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       it.getContentStream = () => Readable.from(file.data)
     }
     const newItem = await ItemManager.putItem(uri, it, req.cookies.token)
-    if (!newItem.renderSync) await renderItem(uri, newItem)
-    res.json(ok(newItem))
+    res.json(ok(await toClientItem(uri, newItem)))
   })
 
   app.post('/delete-item', requireAuth, async (req, res) => {
@@ -122,10 +118,12 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
   app.post('/get-system-items', async (req, res) => {
     const items = await ItemManager.getSystemItems()
     const result: Record<string, Partial<ClientItem>> = {}
-    for (const [uri, item] of Object.entries(items)) {
-      result[uri] = { ...item, state: 'full' }
-    }
-    res.json(ok(items))
+    await Promise.all(
+      Object.entries(items).map(async ([uri, item]) => {
+        result[uri] = await toClientItem(uri, item)
+      })
+    )
+    res.json(ok(result))
   })
 
   app.post('/get-skinny-items', async (req, res) => {
@@ -179,7 +177,6 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       }
     }
     if (!it) return
-    if (!it.renderSync) await renderItem(uri, it)
     const paths = await Promise.all(
       uriCumSum(uri).map(async prefix => {
         const pUri = `/static/${prefix}`
@@ -200,7 +197,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     const config: StaticConfig = {
       paths: (uri !== 'index' ? [{ uri: '/static/index', title: 'Index' }] : []).concat(...paths),
     }
-    res.send(getStaticItemHTML(uri, { ...it, state: 'full' }, config))
+    res.send(getStaticItemHTML(uri, await toClientItem(uri, it), config))
   })
 
   const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {

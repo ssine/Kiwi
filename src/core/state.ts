@@ -18,6 +18,8 @@ export type GlobalState = {
   mainConfig: MainConfig
   secretConfig: SecretConfig
   accounts: UserAccount[]
+  uuidLookup: { [uuid: string]: string }
+  renderCache: { [uri: string]: string }
 }
 
 export const state = observable({}) as GlobalState

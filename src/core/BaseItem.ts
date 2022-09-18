@@ -14,6 +14,4 @@ export interface BaseItem {
   type: MIME
   header: ItemHeader
   content?: string
-  renderedHTML: string
-  renderSync: boolean
 }

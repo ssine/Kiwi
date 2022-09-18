@@ -63,8 +63,6 @@ export const migrateTiddlyWiki = async (from: string, to: string) => {
         type: 'text/markdown',
         header: convertMeta(sourceMeta),
         content: targetContent,
-        renderedHTML: '',
-        renderSync: false,
       })
     } else if (sourceFile.endsWith('.meta')) {
       const content = (await fs.promises.readFile(path.join(from, sourceFile))).toString()
@@ -73,8 +71,6 @@ export const migrateTiddlyWiki = async (from: string, to: string) => {
         title: sourceMeta.title,
         type: sourceMeta.type,
         header: convertMeta(sourceMeta),
-        renderedHTML: '',
-        renderSync: false,
         content: await (
           await fs.promises.readFile(path.join(from, sourceFile.slice(0, sourceFile.length - 5)))
         ).toString(),
