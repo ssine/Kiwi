@@ -1,9 +1,29 @@
-import { defaultsDeep, fromPairs, times, zip } from 'lodash'
+import { defaultsDeep, fromPairs, identity, times, zip } from 'lodash'
 import { BaseItem } from './BaseItem'
 import { safeLoad as loadYaml } from 'js-yaml'
 import { InvalidArgumentError } from './Error'
 import { getMimesWithProp, MIME } from './MimeType'
 import * as semver from 'semver'
+import { state } from './state'
+import { mainConfigURIs, secretConfigURIs } from '../boot/config'
+import { runInAction } from 'mobx'
+
+/**
+ * TODO: backend modules used by frontend cannot use winston logging
+ * see https://github.com/winstonjs/winston/issues/287
+ * wait for fix on winston side for now.
+ */
+
+export const updateConfig = async () => {
+  const getFirstItemFromList = async (uris: string[]) =>
+    (await Promise.all(uris.map(u => state.storage.getItem(u)))).find(identity)
+  const mainConfig = getMainConfig(await getFirstItemFromList(mainConfigURIs))
+  const secretConfig = getSecretConfig(await getFirstItemFromList(secretConfigURIs))
+  runInAction(() => {
+    state.mainConfig = mainConfig
+    state.secretConfig = secretConfig
+  })
+}
 
 export type MainConfig = Configs.MainConfig
 export type SecretConfig = Configs.SecretConfig
@@ -34,6 +54,9 @@ const loadConfig = (item: BaseItem): any => {
   return loader(item.content)
 }
 
+/**
+ * Keep tracks of all historical config definitions and how to convert them to current config
+ */
 namespace Configs {
   export const convertPastMain = (config: any): MainConfig => {
     const version = config.version as string

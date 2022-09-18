@@ -4,65 +4,27 @@
  */
 
 import { ServerItem } from './ServerItem'
-import { AuthManager } from './AuthManager'
 import { getLogger } from './Log'
 import { mainConfigURIs, secretConfigURIs } from '../boot/config'
-import { StorageProvider } from './Storage'
 import { ItemNotExistsError, NoReadPermissionError, NoWritePermissionError } from './Error'
 import { resolveURI } from './Common'
-import { getMainConfig, getSecretConfig, MainConfig, SecretConfig } from './config'
-import { identity } from 'lodash'
+import { state } from './state'
+import { AuthManager } from './AuthManager'
+import { updateConfig } from './config'
 
 const logger = getLogger('itemm')
 
-/**
- * Provides a uniform api for managing items on both frontend and backend side.
- * Try to be stateless.
- */
 export class ItemManager {
-  static instance?: ItemManager
-  storage!: StorageProvider
-  systemStorage!: StorageProvider
-  auth!: AuthManager
-  mainConfig!: MainConfig
-  secretConfig!: SecretConfig
-
-  async init(
-    storage: StorageProvider,
-    systemStorage: StorageProvider,
-    auth: AuthManager,
-    render: (uri: string, item: ServerItem, config: MainConfig) => Promise<void>
-  ) {
-    this.storage = storage
-    this.systemStorage = systemStorage
-    this.auth = auth
-    await this.systemStorage.init()
-    await this.storage.init()
-    await this.updateConfig()
-    await Promise.all(
-      Object.entries(await this.systemStorage.getAllItems()).map(entry => render(...entry, this.mainConfig))
-    )
-  }
-
-  async updateConfig() {
-    const getFirstItemFromList = async (uris: string[]) =>
-      (await Promise.all(uris.map(u => this.storage.getItem(u)))).find(identity)
-    this.mainConfig = getMainConfig(await getFirstItemFromList(mainConfigURIs))
-    this.secretConfig = getSecretConfig(await getFirstItemFromList(secretConfigURIs))
-    this.auth.init(this.secretConfig)
-    logger.info('config updated')
-  }
-
-  async getItem(uri: string, token: string, noAuth?: boolean): Promise<ServerItem> {
+  static async getItem(uri: string, token: string, noAuth?: boolean): Promise<ServerItem> {
     if (secretConfigURIs.includes(uri)) throw new ItemNotExistsError(`item ${uri} not exists`)
-    const item = (await this.storage.getItem(uri)) || (await this.systemStorage.getItem(uri))
+    const item = (await state.storage.getItem(uri)) || (await state.systemStorage.getItem(uri))
     if (!item) throw new ItemNotExistsError(`item ${uri} not exists`)
     if (!noAuth) {
       // check read permission up to root
       let uriToCheck = uri
       while (uriToCheck) {
-        const itemToCheck = (await this.storage.getItem(uriToCheck)) || (await this.systemStorage.getItem(uriToCheck))
-        if (itemToCheck && !this.auth.hasReadPermission(token, itemToCheck))
+        const itemToCheck = (await state.storage.getItem(uriToCheck)) || (await state.systemStorage.getItem(uriToCheck))
+        if (itemToCheck && !AuthManager.hasReadPermission(token, itemToCheck))
           throw new NoReadPermissionError(`no read permission to ${uri}!`)
         uriToCheck = resolveURI(uriToCheck, '.')
       }
@@ -70,24 +32,24 @@ export class ItemManager {
     return item
   }
 
-  async putItem(uri: string, item: ServerItem, token: string, noAuth?: boolean): Promise<ServerItem> {
+  static async putItem(uri: string, item: ServerItem, token: string, noAuth?: boolean): Promise<ServerItem> {
     if (!noAuth) {
       // check write permission up to root
       let uriToCheck = uri
       while (uriToCheck) {
-        const itemToCheck = await this.storage.getItem(uriToCheck)
-        if (itemToCheck && !this.auth.hasWritePermission(token, itemToCheck))
+        const itemToCheck = await state.storage.getItem(uriToCheck)
+        if (itemToCheck && !AuthManager.hasWritePermission(token, itemToCheck))
           throw new NoWritePermissionError(`no write permission to ${uri}!`)
         uriToCheck = resolveURI(uriToCheck, '.')
       }
     }
-    const author = this.auth.getUserNameFromToken(token)
+    const author = AuthManager.getUserNameFromToken(token)
     if (!item.header.author && author !== 'anonymous') {
       item.header.author = author
     }
-    const newItem = await this.storage.putItem(uri, item)
+    const newItem = await state.storage.putItem(uri, item)
     if (mainConfigURIs.includes(uri)) {
-      await this.updateConfig()
+      await updateConfig()
     }
     // HACK: support secret hot reload too.
     // The problem is that frontend token expires and thus cannot delete
@@ -95,29 +57,29 @@ export class ItemManager {
     // So we delay the update by 3s temporarily.
     if (secretConfigURIs.includes(uri)) {
       setTimeout(() => {
-        this.updateConfig()
+        updateConfig()
       }, 3000)
     }
     return newItem
   }
 
-  async deleteItem(uri: string, token: string, noAuth?: boolean): Promise<void> {
-    const item = await this.storage.getItem(uri)
+  static async deleteItem(uri: string, token: string, noAuth?: boolean): Promise<void> {
+    const item = await state.storage.getItem(uri)
     if (!item) throw new ItemNotExistsError(`item to delete (${uri}) not exists`)
-    if (!noAuth && !this.auth.hasWritePermission(token, item)) throw new NoWritePermissionError()
-    this.storage.deleteItem(uri)
+    if (!noAuth && !AuthManager.hasWritePermission(token, item)) throw new NoWritePermissionError()
+    state.storage.deleteItem(uri)
     if (mainConfigURIs.includes(uri)) {
-      await this.updateConfig()
+      await updateConfig()
     }
     return
   }
 
-  async getSystemItems(): Promise<Record<string, ServerItem>> {
-    return this.systemStorage.getAllItems()
+  static async getSystemItems(): Promise<Record<string, ServerItem>> {
+    return state.systemStorage.getAllItems()
   }
 
-  async getAllItems(token: string, noAuth?: boolean): Promise<Record<string, ServerItem>> {
-    const items = await this.storage.getAllItems()
+  static async getAllItems(token: string, noAuth?: boolean): Promise<Record<string, ServerItem>> {
+    const items = await state.storage.getAllItems()
     if (noAuth) return items
 
     type Node = {
@@ -160,15 +122,15 @@ export class ItemManager {
     }
 
     Object.entries(items)
-      .filter(([uri, item]) => !this.auth.hasReadPermission(token, item))
+      .filter(([uri, item]) => !AuthManager.hasReadPermission(token, item))
       .forEach(([uri, item]) => addToBannedNode(uri))
     secretConfigURIs.forEach(uri => addToBannedNode(uri))
 
     return Object.fromEntries(Object.entries(items).filter(([uri, item]) => !isBanned(uri)))
   }
 
-  async getSkinnyItems(token: string, noAuth?: boolean): Promise<Record<string, Partial<ServerItem>>> {
-    const items = await this.getAllItems(token, noAuth)
+  static async getSkinnyItems(token: string, noAuth?: boolean): Promise<Record<string, Partial<ServerItem>>> {
+    const items = await ItemManager.getAllItems(token, noAuth)
     const result: Record<string, Partial<ServerItem>> = {}
     for (const k in items) {
       const { content, renderedHTML, renderSync, getContentStream, ...rest } = items[k]
@@ -177,8 +139,8 @@ export class ItemManager {
     return result
   }
 
-  async getSearchResult(input: string, token: string, noAuth?: boolean): Promise<string[]> {
-    const items = await this.getAllItems(token, noAuth)
+  static async getSearchResult(input: string, token: string, noAuth?: boolean): Promise<string[]> {
+    const items = await ItemManager.getAllItems(token, noAuth)
     const res: Record<string, ServerItem> = {}
     const pattern = new RegExp(input, 'gim')
     for (const k in items) {
@@ -187,9 +149,5 @@ export class ItemManager {
     }
     logger.info(`${res.length} result for search ${input} found`)
     return Object.keys(res)
-  }
-
-  static getInstance(): ItemManager {
-    return ItemManager.instance || (ItemManager.instance = new ItemManager())
   }
 }

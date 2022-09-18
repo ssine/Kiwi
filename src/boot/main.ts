@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs'
 import * as path from 'path'
+import { runInAction } from 'mobx'
 import { getLogger, initLogger } from '../core/Log'
 
 const args = yargs
@@ -16,10 +17,6 @@ const args = yargs
         describe: 'local port to listen on',
         default: 8000,
       })
-      .option('use-poll', {
-        describe: 'use polling on listening for fs events, more robust but inefficient',
-        default: false,
-      })
   })
   .command('migrate [from] [to]', 'migrate from tw folder')
   .option('log', {
@@ -33,7 +30,6 @@ const args = yargs
 initLogger(args.log)
 const logger = getLogger('boot')
 
-import { ItemManager } from '../core/ItemManager'
 import { serve } from '../core/server'
 import MarkdownParser from '../lib/parser/MarkdownParser'
 import WikitextParser from '../lib/parser/WikitextParser'
@@ -47,10 +43,11 @@ import ListPlugin from '../lib/plugin/ListPlugin'
 import SVGPlugin from '../lib/plugin/SVGPlugin'
 import CSSEscapePlugin from '../lib/plugin/CSSEscapePlugin'
 import { FilesystemStorage } from '../lib/storage/FilesystemStorage'
-import { AuthManager } from '../core/AuthManager'
 import { renderItem } from '../core/render'
 import PlaintextParser from '../lib/parser/PlaintextParser'
 import { migrateTiddlyWiki } from './migrateTiddlyWiki'
+import { state } from '../core/state'
+import { updateConfig } from '../core/config'
 
 function registLib() {
   const md = new MarkdownParser()
@@ -90,15 +87,27 @@ function registLib() {
 }
 
 async function run() {
-  registLib()
   if (args._[0] === 'serve') {
-    // require('../core/FileSynchronizer').options.usePolling = args.usePoll
     logger.info(`the data folder is ${path.resolve(args.folder)}`)
+
+    // initialize and populate global state
     const storage = new FilesystemStorage(args.folder)
     const systemStorage = new FilesystemStorage(path.resolve(__dirname, '../kiwi'), 'kiwi/')
-    const auth = new AuthManager()
-    const manager = ItemManager.getInstance()
-    await manager.init(storage, systemStorage, auth, renderItem)
+    await storage.init()
+    await systemStorage.init()
+    runInAction(() => {
+      state.storage = storage
+      state.systemStorage = systemStorage
+      state.parserMap = new Map()
+      state.pluginMap = {}
+      state.accounts = []
+    })
+    registLib()
+    await updateConfig()
+    // render system items
+    await Promise.all(
+      Object.entries(await systemStorage.getAllItems()).map(entry => renderItem(...entry, state.mainConfig))
+    )
     serve(args.host, args.port, args.folder)
   } else if (args._[0] === 'migrate') {
     await migrateTiddlyWiki(args.from, args.to)

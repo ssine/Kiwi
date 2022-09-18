@@ -29,6 +29,8 @@ import { ClientItem } from '../ui/ClientItem'
 import { renderItem } from './render'
 import { getStaticItemHTML, StaticConfig } from '../ui/static/getStaticItemHtml'
 import { CSSColorToRGBA, RGBtoHSV } from '../ui/Common'
+import { AuthManager } from './AuthManager'
+import { state } from './state'
 
 const logger = getLogger('server')
 
@@ -47,12 +49,10 @@ app.use(cookieParser())
 
 const itemRouteTable: Record<string, express.Handler> = {}
 
-const manager = ItemManager.getInstance()
-
 const requireAuth: express.RequestHandler = (req, res, next) => {
   if (!req.cookies.token) {
     throw new LoginRequiredError('Login is required for this request.')
-  } else if (!manager.auth.isTokenValid(req.cookies.token)) {
+  } else if (!AuthManager.isTokenValid(req.cookies.token)) {
     throw new InvalidTokenError('Login token is invalid, please logout and login again.')
   }
   next()
@@ -77,23 +77,23 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
   )
 
   app.post('/login', async (req, res) => {
-    const result = manager.auth.login(req.body.name, req.body.password)
+    const result = AuthManager.login(req.body.name, req.body.password)
     res.json(ok(result))
   })
 
   app.post('/get-item', async (req, res) => {
     const uri: string = req.body.uri
     logger.debug(`get item: ${uri}`)
-    const it = await manager.getItem(uri, req.cookies.token)
-    if (!it.renderSync) await renderItem(uri, it, manager.mainConfig)
+    const it = await ItemManager.getItem(uri, req.cookies.token)
+    if (!it.renderSync) await renderItem(uri, it, state.mainConfig)
     res.json(ok(it))
   })
 
   app.post('/put-item', requireAuth, async (req, res) => {
     const uri = req.body.uri
     const it = req.body.item
-    const newItem = await manager.putItem(uri, it, req.cookies.token)
-    if (!newItem.renderSync) await renderItem(uri, newItem, manager.mainConfig)
+    const newItem = await ItemManager.putItem(uri, it, req.cookies.token)
+    if (!newItem.renderSync) await renderItem(uri, newItem, state.mainConfig)
     res.json(ok(newItem))
   })
 
@@ -110,19 +110,19 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     } else {
       it.getContentStream = () => Readable.from(file.data)
     }
-    const newItem = await manager.putItem(uri, it, req.cookies.token)
-    if (!newItem.renderSync) await renderItem(uri, newItem, manager.mainConfig)
+    const newItem = await ItemManager.putItem(uri, it, req.cookies.token)
+    if (!newItem.renderSync) await renderItem(uri, newItem, state.mainConfig)
     res.json(ok(newItem))
   })
 
   app.post('/delete-item', requireAuth, async (req, res) => {
     const uri = req.body.uri
-    await manager.deleteItem(uri, req.cookies.token)
+    await ItemManager.deleteItem(uri, req.cookies.token)
     res.json(ok())
   })
 
   app.post('/get-system-items', async (req, res) => {
-    const items = await manager.getSystemItems()
+    const items = await ItemManager.getSystemItems()
     const result: Record<string, Partial<ClientItem>> = {}
     for (const [uri, item] of Object.entries(items)) {
       result[uri] = { ...item, state: 'full' }
@@ -131,7 +131,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
   })
 
   app.post('/get-skinny-items', async (req, res) => {
-    const items = await manager.getSkinnyItems(req.cookies.token)
+    const items = await ItemManager.getSkinnyItems(req.cookies.token)
     const result: Record<string, Partial<ClientItem>> = {}
     for (const [uri, item] of Object.entries(items)) {
       result[uri] = { ...item, state: 'bare' }
@@ -140,18 +140,18 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
   })
 
   app.post('/get-main-config', async (req, res) => {
-    res.json(ok(manager.mainConfig))
+    res.json(ok(state.mainConfig))
   })
 
   app.post('/get-search-result', async (req, res) => {
     logger.info(`search request ${req.body.input} got`)
-    res.json(ok(await manager.getSearchResult(req.body.input, req.cookies.token)))
+    res.json(ok(await ItemManager.getSearchResult(req.body.input, req.cookies.token)))
   })
 
   app.get(/^\/raw\/(.+)/, async (req, res) => {
     const uri = decodeURIComponent(trimString(req.params[0].trim(), '/'))
     logger.debug(`get raw content of ${uri}`)
-    const it = await manager.getItem(uri, req.cookies.token)
+    const it = await ItemManager.getItem(uri, req.cookies.token)
     if (!isBinaryType(it.type)) {
       // svg is the only served non-binary item
       res.contentType(it.type).send(it.content)
@@ -172,7 +172,7 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
     logger.debug(`get static: ${uri}`)
     let it: ServerItem | null = null
     try {
-      it = await manager.getItem(uri, req.cookies.token)
+      it = await ItemManager.getItem(uri, req.cookies.token)
     } catch (err) {
       if (err instanceof ItemNotExistsError) {
         res.status(404).send('Item Not Exists')
@@ -181,12 +181,12 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       }
     }
     if (!it) return
-    if (!it.renderSync) await renderItem(uri, it, manager.mainConfig)
+    if (!it.renderSync) await renderItem(uri, it, state.mainConfig)
     const paths = await Promise.all(
       uriCumSum(uri).map(async prefix => {
         const pUri = `/static/${prefix}`
         try {
-          const pItem = await manager.getItem(prefix, req.cookies.token)
+          const pItem = await ItemManager.getItem(prefix, req.cookies.token)
           return {
             uri: pUri,
             title: pItem.title,
@@ -200,9 +200,9 @@ const serve = function serve(host: string, port: number, rootFolder: string) {
       })
     )
     const config: StaticConfig = {
-      hue: RGBtoHSV(CSSColorToRGBA(manager.mainConfig.appearance.primaryColor)).h || 0,
-      title: manager.mainConfig.info.title,
-      subTitle: manager.mainConfig.info.subtitle,
+      hue: RGBtoHSV(CSSColorToRGBA(state.mainConfig.appearance.primaryColor)).h || 0,
+      title: state.mainConfig.info.title,
+      subTitle: state.mainConfig.info.subtitle,
       paths: (uri !== 'index' ? [{ uri: '/static/index', title: 'Index' }] : []).concat(...paths),
     }
     res.send(getStaticItemHTML(uri, { ...it, state: 'full' }, config))

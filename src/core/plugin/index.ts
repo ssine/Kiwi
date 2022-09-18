@@ -7,12 +7,12 @@ import { processTopLevelAwait } from './await'
 import { resolveURI } from '../Common'
 import { ItemNotExistsError } from '../Error'
 import { MainConfig } from '../config'
+import { state } from '../state'
+import { runInAction } from 'mobx'
 
 const logger = getLogger('plugin')
 
 type renderFunction = (...args: any[]) => Promise<string>
-
-const pluginMap: { [name: string]: RenderPlugin } = {}
 
 abstract class RenderPlugin {
   abstract init(): void
@@ -23,9 +23,11 @@ abstract class RenderPlugin {
     return ''
   }
   register() {
-    for (const name of this.getNames()) {
-      pluginMap[name] = this
-    }
+    runInAction(() => {
+      for (const name of this.getNames()) {
+        state.pluginMap[name] = this
+      }
+    })
     logger.debug(`plugin ${this.getNames()[0]} registered.`)
   }
 }
@@ -60,14 +62,14 @@ class ItemContext {
     this.paths = config.render.plugin.paths
     this.ctx = {}
     const kiwi: Record<string, any> = { ...ScriptApi }
-    for (const name in pluginMap) {
-      kiwi[name] = pluginMap[name].getFunctionForItem(uri)
+    for (const name in state.pluginMap) {
+      kiwi[name] = state.pluginMap[name].getFunctionForItem(uri)
     }
     kiwi.uri = uri
 
     // TODO: deprecated this
-    for (const name in pluginMap) {
-      this.ctx[name] = pluginMap[name].getFunctionForItem(uri)
+    for (const name in state.pluginMap) {
+      this.ctx[name] = state.pluginMap[name].getFunctionForItem(uri)
     }
     this.ctx['currentURI'] = uri
 

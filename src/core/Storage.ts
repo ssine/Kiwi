@@ -2,7 +2,7 @@
  * Storage modules provide a two way mapping between an item and its serialized representation.
  */
 import { Readable } from 'stream'
-import { isBinaryType, MIME } from './MimeType'
+import { MIME } from './MimeType'
 import { ServerItem } from './ServerItem'
 
 interface StorageProvider {

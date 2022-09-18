@@ -1,12 +1,9 @@
 import { MIME } from './MimeType'
 import { getLogger } from './Log'
+import { state } from './state'
+import { runInAction } from 'mobx'
 
 const logger = getLogger('parser')
-
-/**
- * Map recording all registered parsers
- */
-const parserMap = new Map<MIME, Parser>()
 
 /**
  * Interface of all content parsers
@@ -35,10 +32,12 @@ abstract class Parser {
    * Ask to be called on content with supported types
    */
   register() {
-    for (const type of this.supportedTypes()) {
-      parserMap.set(type, this)
-      logger.debug(`Parser for type ${type} registered.`)
-    }
+    runInAction(() => {
+      for (const type of this.supportedTypes()) {
+        state.parserMap.set(type, this)
+        logger.debug(`Parser for type ${type} registered.`)
+      }
+    })
   }
 }
 
@@ -46,7 +45,7 @@ abstract class Parser {
  * Parse a content and return html <div>
  */
 const parse = function parse(kwargs: { input: string; uri: string; type: MIME }): string {
-  const parser = parserMap.get(kwargs.type)
+  const parser = state.parserMap.get(kwargs.type)
   if (!parser) {
     logger.info(`Parser for type ${kwargs.type} not found, empty string returned.`)
     return ''
