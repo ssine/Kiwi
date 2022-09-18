@@ -56,11 +56,14 @@ class MarkdownParser extends Parser {
       return `${$1}="${resolveURI(kwargs.uri, $2)}"`
     })
     const $ = cheerio.load(html)
-    // @ts-ignore
-    $('embed,img,video,audio,iframe').attr('src', (i: number, src: string) => {
-      if (isURL(src)) return src
-      return `/raw/${src}`
-    })
+    $('embed,img,video,audio,iframe')
+      .filter(':not([kiwi-raw])')
+      // @ts-ignore
+      .attr('src', (i: number, src: string) => {
+        if (isURL(src)) return src
+        return `/raw/${src}`
+      })
+      .attr('kiwi-raw', '')
     return $.html($('body'))
   }
 

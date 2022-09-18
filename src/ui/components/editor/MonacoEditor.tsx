@@ -6,6 +6,7 @@ import { MessageType, showMessage } from '../../features/messageList/messageList
 import { resolveURI, timeFormat } from '../../../core/Common'
 import { saveItem } from '../../features/global/item'
 import { getMonacoLangFromType, MIME } from '../../../core/MimeType'
+import { v4 as uuidv4 } from 'uuid'
 
 export type MonacoEditorProps = {
   uri: string
@@ -97,20 +98,21 @@ const onMonacoFilePaste = async (ev: ClipboardEvent, editor: monaco.editor.IStan
       const time = timeFormat('YYYY-MM-DD-HH-mm-ss-SSS', new Date())
       const fn = `asset/${time}.${ext}`
       showMessage({ type: MessageType.info, text: `uploading image as ${fn}`, liveSecond: 3 })
+      const uuid = uuidv4()
       await saveItem({
         uri: resolveURI(uri, fn),
         item: {
           title: `${time}.${ext}`,
           state: 'bare',
           type: file.type as MIME,
-          header: {},
+          header: { uuid },
           renderSync: false,
           renderedHTML: '',
         },
         file,
       })
       showMessage({ type: MessageType.success, text: `image saved to ${fn}`, liveSecond: 3 })
-      editor.trigger('keyboard', 'type', { text: `![img](${fn})` })
+      editor.trigger('keyboard', 'type', { text: `{{transclude('${uuid}')}}` })
       ev.preventDefault()
     }
   }

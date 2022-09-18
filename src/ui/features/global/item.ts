@@ -11,6 +11,7 @@ import { emphasieElement, getCookie, getItemCardDiv, scrollToElement } from '../
 import { store } from '../../store'
 import { IndexNode } from '../indexTree/indexTreeSlice'
 import { setMainConfig } from './config'
+import { v4 as uuidv4 } from 'uuid'
 
 type SaveItemPayload = {
   uri: string
@@ -155,9 +156,12 @@ export const initItemReducer: CaseReducer<RootState, PayloadAction<InitItemPaylo
 }
 
 /**
- *
+ * Save a given item. Generate an uuid by default if there isn't one.
  */
 export const saveItem = async (arg: SaveItemPayload) => {
+  if (arg.item && !arg.item.header.uuid) {
+    arg.item.header.uuid = uuidv4()
+  }
   store.dispatch(saveItemPending({ uri: arg.uri, item: arg.item }))
   const { uri, item, file } = arg
   if (!item) return
