@@ -22,9 +22,9 @@ interface StorageProvider {
   putItem: (uri: string, item: ServerItem) => Promise<ServerItem>
 
   /**
-   * Delete an item from storage, all the child items gets deleted too.
+   * Delete an item from storage.
    */
-  deleteItem: (uri: string) => Promise<void>
+  deleteItem: (uri: string, type?: MIME) => Promise<void>
 
   /**
    * Get a mapping from uri to items of all items

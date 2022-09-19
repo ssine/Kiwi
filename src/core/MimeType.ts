@@ -81,7 +81,6 @@ export const getMonacoLangFromType = (type: MIME): string | null => {
 /**
  * extensions: file extension, content types should have only one extension to avoid multiple mapping
  * monacoLanguage: language id in monaco editor for intellisense
- * editorClass: class of item in item content type selection when editing
  */
 const MimeProps = {
   'application/octet-stream': {
@@ -96,91 +95,76 @@ const MimeProps = {
     tags: ['text'],
     extensions: ['json'],
     monacoLanguage: 'json',
-    editorClass: 'code',
   },
   'text/plain': {
     tags: ['text', 'content'],
     extensions: ['txt'],
-    editorClass: 'content',
     monacoLanguage: 'plain',
   },
   'text/markdown': {
     tags: ['text', 'content'],
     extensions: ['md'],
-    editorClass: 'content',
     monacoLanguage: 'markdown',
   },
   'text/html': {
     tags: ['text', 'content'],
     extensions: ['html'],
-    editorClass: 'content',
     monacoLanguage: 'html',
   },
   'text/css': {
     tags: ['text'],
     extensions: ['css'],
     monacoLanguage: 'css',
-    editorClass: 'code',
   },
   'text/asciidoc': {
     tags: ['text', 'content'],
     extensions: ['adoc'],
-    editorClass: 'content',
     monacoLanguage: 'asciidoc',
   },
   'text/wikitext': {
     tags: ['text', 'content'],
     extensions: ['wiki'],
-    editorClass: 'content',
     monacoLanguage: 'wikitext',
   },
   'text/yaml': {
     tags: ['text'],
     extensions: ['yml', 'yaml'],
     monacoLanguage: 'yaml',
-    editorClass: 'code',
   },
   'text/x-c': {
     tags: ['text'],
     extensions: ['c'],
     monacoLanguage: 'cpp',
-    editorClass: 'code',
   },
   'text/x-cpp': {
     tags: ['text'],
     extensions: ['cc', 'cpp'],
     monacoLanguage: 'cpp',
-    editorClass: 'code',
   },
   'text/x-python': {
     tags: ['text'],
     extensions: ['py'],
     monacoLanguage: 'python',
-    editorClass: 'code',
   },
   'text/x-java': {
     tags: ['text'],
     extensions: ['java'],
     monacoLanguage: 'java',
-    editorClass: 'code',
   },
   'text/x-go': {
     tags: ['text'],
     extensions: ['go'],
-    editorClass: 'code',
     monacoLanguage: 'go',
   },
   'text/javascript': {
     tags: ['text'],
     extensions: ['js', 'jsx'],
     monacoLanguage: 'javascript',
-    editorClass: 'code',
   },
   'text/x-typescript': {
     tags: ['text'],
     extensions: ['ts', 'tsx'],
     monacoLanguage: 'typescript',
-    editorClass: 'code',
   },
   'image/gif': {
     tags: ['binary'],

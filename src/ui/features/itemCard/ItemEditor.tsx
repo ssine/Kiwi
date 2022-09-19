@@ -37,25 +37,22 @@ export const ItemEditor = (props: { uri: string }) => {
   // FIXME: make saving logic more solid.
   // e.g. currently fails on type change -> failed to save -> type change back
   const onSave = async () => {
+    const item: ClientItem = {
+      title: title,
+      content: content,
+      type: type,
+      state: 'full',
+      header: {
+        author: originalItem.header.author,
+        createTime: originalItem.header.createTime,
+        modifyTime: Date.now(),
+        ...entryToHeader(headerEntries),
+      },
+      renderSync: false,
+      renderedHTML: '',
+    }
     setSaving(true)
     try {
-      const item: ClientItem = {
-        title: title,
-        content: content,
-        type: type,
-        state: 'full',
-        header: {
-          author: originalItem.header.author,
-          createTime: originalItem.header.createTime,
-          modifyTime: Date.now(),
-          ...entryToHeader(headerEntries),
-        },
-        renderSync: false,
-        renderedHTML: '',
-      }
-      if (originalUri !== uri || originalItem.type !== type) {
-        await deleteItem(originalUri, uri, item)
-      }
       await saveItem({
         uri,
         item: item,
@@ -65,6 +62,10 @@ export const ItemEditor = (props: { uri: string }) => {
       setSaving(false)
       return
     }
+    if (originalUri !== uri) {
+      await deleteItem(originalUri, uri, item)
+    }
+    // REVIEW: must be set after deleteItem replaces the old uri.
     dispatch(setItemMode({ uri: uri, mode: 'display' }))
     setSaving(false)
   }

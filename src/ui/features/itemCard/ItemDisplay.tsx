@@ -26,7 +26,9 @@ import { MessageType, showMessage } from '../messageList/messageListSlice'
 export const ItemDisplay = (props: { uri: string }) => {
   const { uri } = props
   const dispatch = useAppDispatch()
+  const editorMap = useAppSelector(s => s.config.edit.editorMap)
   const item = useAppSelector(s => getItemFromState(s, uri))
+  console.log('display item ', uri, item)
   const fullScreen = useAppSelector(s => s.opened.items[uri].fullScreen)
   const tags = useAppSelector(s =>
     (item.header.tags || []).map(tag => ({
@@ -142,14 +144,16 @@ export const ItemDisplay = (props: { uri: string }) => {
               >
                 <IconButton iconName="Delete" onClick={() => setDeleteCalloutVisible(true)} />
               </Callout>
-              <IconButton
-                iconName="Edit"
-                onClick={async () => {
-                  await rotateOut(getItemCardDiv(uri))
-                  dispatch(setItemMode({ uri, mode: 'edit' }))
-                  await rotateIn(getItemCardDiv(uri))
-                }}
-              />
+              {editorMap[item.type] && (
+                <IconButton
+                  iconName="Edit"
+                  onClick={async () => {
+                    await rotateOut(getItemCardDiv(uri))
+                    dispatch(setItemMode({ uri, mode: 'edit' }))
+                    await rotateIn(getItemCardDiv(uri))
+                  }}
+                />
+              )}
             </>
           )}
           <IconButton

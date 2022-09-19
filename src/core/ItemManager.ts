@@ -52,6 +52,12 @@ export class ItemManager {
     if (!item.header.author && author !== 'anonymous') {
       item.header.author = author
     }
+    const oldItem = await state.storage.getItem(uri)
+    if (oldItem && oldItem.type !== item.type) {
+      // in filesystem case, uri together with file type determins a file
+      // so we have to remove the other one first to avoid confusion later
+      await state.storage.deleteItem(uri, oldItem.type)
+    }
     const newItem = await state.storage.putItem(uri, item)
     runInAction(() => {
       delete state.renderCache[uri]

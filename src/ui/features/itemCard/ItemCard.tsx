@@ -14,6 +14,7 @@ export const ItemCard = (props: { uri: string }) => {
   const mode = useAppSelector(s => s.opened.items[uri]?.mode)
   const fullScreen = useAppSelector(s => s.opened.items[uri]?.fullScreen)
   const lastPositoinRef = useRef({ left: 0, top: 0 })
+  console.log('item card called', uri, item)
 
   useLayoutEffect(() => {
     ;(async () => {
