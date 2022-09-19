@@ -14,7 +14,7 @@ const logger = getLogger('parser')
  * @todo support for table of contents
  * @todo Provide the register api to impls later, just hard code it now
  */
-abstract class Parser {
+export abstract class Parser {
   /**
    * Initialize the parser
    */
@@ -44,7 +44,7 @@ abstract class Parser {
 /**
  * Parse a content and return html <div>
  */
-const parse = function parse(kwargs: { input: string; uri: string; type: MIME }): string {
+export const parse = function parse(kwargs: { input: string; uri: string; type: MIME }): string {
   const parser = state.parserMap.get(kwargs.type)
   if (!parser) {
     logger.info(`Parser for type ${kwargs.type} not found, empty string returned.`)
@@ -53,4 +53,7 @@ const parse = function parse(kwargs: { input: string; uri: string; type: MIME })
   return parser.parse(kwargs)
 }
 
-export { Parser, parse }
+export const htmlPostProcess = async (html: string): Promise<string> => {
+  // TODO: unify html post processing
+  return html
+}

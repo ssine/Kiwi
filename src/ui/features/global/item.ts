@@ -2,8 +2,8 @@ import { createAction, CaseReducer, PayloadAction } from '@reduxjs/toolkit'
 import { WritableDraft } from 'immer/dist/internal'
 import { RootState } from '..'
 import { arrayEqual, resolveURI, suggestedURIToTitle, uriCumSum } from '../../../core/Common'
-import { ItemNotExistsError } from '../../../core/Error'
-import { isBinaryType } from '../../../core/MimeType'
+import { InvalidURIError, ItemNotExistsError } from '../../../core/Error'
+import { getTypeFromFileExt, isBinaryType, isContentType } from '../../../core/MimeType'
 import { mainConfigURIs } from '../../../boot/config'
 import * as api from '../../api'
 import { ClientItem } from '../../ClientItem'
@@ -12,18 +12,20 @@ import { store } from '../../store'
 import { IndexNode } from '../indexTree/indexTreeSlice'
 import { setMainConfig } from './config'
 import { v4 as uuidv4 } from 'uuid'
+import { last } from 'lodash'
+import { MessageType, showMessage } from '../messageList/messageListSlice'
 
 type SaveItemPayload = {
   uri: string
-  item?: ClientItem
+  item: ClientItem
   file?: File
 }
 
 /**
  * Save an item to **Local Store**
  */
-export const saveItemPending = createAction<SaveItemPayload>('saveItemPending')
-export const saveItemPendingReducer: CaseReducer<RootState, PayloadAction<SaveItemPayload>> = (state, action) => {
+export const saveItemPending = createAction<{ uri: string }>('saveItemPending')
+export const saveItemPendingReducer: CaseReducer<RootState, PayloadAction<{ uri: string }>> = (state, action) => {
   if (!state.items[action.payload.uri]) return
   const item = state.items[action.payload.uri]
   switch (item.state) {
@@ -36,8 +38,8 @@ export const saveItemPendingReducer: CaseReducer<RootState, PayloadAction<SaveIt
   }
 }
 
-export const saveItemFufilled = createAction<[SaveItemPayload, ClientItem]>('saveItemFufilled')
-export const saveItemFufilledReducer: CaseReducer<RootState, PayloadAction<[SaveItemPayload, ClientItem]>> = (
+export const saveItemFufilled = createAction<[{ uri: string }, ClientItem]>('saveItemFufilled')
+export const saveItemFufilledReducer: CaseReducer<RootState, PayloadAction<[{ uri: string }, ClientItem]>> = (
   state,
   action
 ) => {
@@ -113,14 +115,13 @@ type DeleteItemPayload = {
   uri: string
   // Optional replace currently displayed item with the new one
   newUri?: string
-  newItem?: ClientItem
 }
 export const deleteItemActionCreater = createAction<DeleteItemPayload>('deleteItem')
 export const deleteItemReducer: CaseReducer<RootState, PayloadAction<DeleteItemPayload>> = (state, action) => {
-  const { uri, newUri, newItem } = action.payload
+  const { uri, newUri } = action.payload
   const item = state.items[uri]
   if (!item) return
-  const replace = newUri && newItem
+  const replace = newUri
   if (state.opened.uris.includes(uri)) {
     if (replace) {
       state.opened.uris = state.opened.uris.map(u => (u === uri ? newUri : u))
@@ -134,7 +135,6 @@ export const deleteItemReducer: CaseReducer<RootState, PayloadAction<DeleteItemP
   }
   delete state.items[uri]
   if (replace) {
-    state.items[newUri] = newItem
     state.items[newUri].state = 'full'
   }
   if (item.header.tags && item.header.tags.length > 0) {
@@ -159,10 +159,23 @@ export const initItemReducer: CaseReducer<RootState, PayloadAction<InitItemPaylo
  * Save a given item. Generate an uuid by default if there isn't one.
  */
 export const saveItem = async (arg: SaveItemPayload) => {
+  if (!isContentType(arg.item.type)) {
+    const ext = last(arg.uri.split('.'))
+    if (!ext) {
+      const err = `A valid extension is required for mime type ${arg.item.type}.`
+      showMessage({ type: MessageType.error, text: err, liveSecond: 5 })
+      throw new InvalidURIError(err)
+    }
+    if (getTypeFromFileExt(ext) !== arg.item.type) {
+      const err = `Mime type ${arg.item.type} cannot be inferred from uri extension ${ext}.`
+      showMessage({ type: MessageType.error, text: err, liveSecond: 5 })
+      throw new InvalidURIError(err)
+    }
+  }
   if (arg.item && !arg.item.header.uuid) {
     arg.item.header.uuid = uuidv4()
   }
-  store.dispatch(saveItemPending({ uri: arg.uri, item: arg.item }))
+  store.dispatch(saveItemPending({ uri: arg.uri }))
   const { uri, item, file } = arg
   if (!item) return
   let rendered: ClientItem
@@ -172,7 +185,7 @@ export const saveItem = async (arg: SaveItemPayload) => {
   } else {
     rendered = await api.putItem(uri, item)
   }
-  store.dispatch(saveItemFufilled([arg, rendered]))
+  store.dispatch(saveItemFufilled([{ uri }, rendered]))
 }
 
 /**
@@ -285,11 +298,18 @@ export const displayOrCreateItem = async (uri: string) => {
   return newUri
 }
 
-export const deleteItem = async (uri: string, newUri?: string, newItem?: ClientItem) => {
+/**
+ * Delete an item
+ * @param uri uri of item to delete
+ * @param newUri replace the deleted item with a new one in the river, the item must already exists
+ */
+export const deleteItem = async (uri: string, newUri?: string) => {
   const state = store.getState()
   if (!state.items[uri]) return
-  await api.deleteItem(uri)
-  store.dispatch(deleteItemActionCreater({ uri, newUri, newItem }))
+  try {
+    await api.deleteItem(uri)
+  } catch {}
+  store.dispatch(deleteItemActionCreater({ uri, newUri }))
 }
 
 export const moveItem = async (fromUri: string, toUri: string): Promise<void> => {

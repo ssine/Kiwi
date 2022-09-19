@@ -35,9 +35,9 @@ class FilesystemStorage implements StorageProvider {
     return (this.allItems[uri] = await saveItem(this.rootPath, uri, item))
   }
 
-  async deleteItem(uri: string): Promise<void> {
+  async deleteItem(uri: string, type?: MIME): Promise<void> {
     if (this.allItems[uri]) {
-      await deleteItem(this.rootPath, uri, this.allItems[uri].type)
+      await deleteItem(this.rootPath, uri, type || this.allItems[uri].type)
       delete this.allItems[uri]
     }
   }

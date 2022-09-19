@@ -104,8 +104,7 @@ export const HeaderEditor = (props: {
           }}
           style={valueStyle}
         >
-          {['content', 'code'].map(group => {
-            const types = getMimesWhichPropEquals('editorClass', group)
+          {Object.entries(editorTypes).map(([group, types]) => {
             return (
               <optgroup key={group} label={group}>
                 {types.map(type => (
@@ -176,4 +175,20 @@ export const HeaderEditor = (props: {
       </div>
     </>
   )
+}
+
+const editorTypes = {
+  content: ['text/plain', 'text/markdown', 'text/html', 'text/asciidoc', 'text/wikitext'],
+  image: ['image/x-icon', 'image/jpeg', 'image/png'],
+  code: [
+    'application/json',
+    'text/css',
+    'text/yaml',
+    'text/x-c',
+    'text/x-cpp',
+    'text/x-python',
+    'text/x-java',
+    'text/javascript',
+    'text/x-typescript',
+  ],
 }
