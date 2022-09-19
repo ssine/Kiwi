@@ -44,7 +44,6 @@ export const saveItemFufilledReducer: CaseReducer<RootState, PayloadAction<[{ ur
   action
 ) => {
   const [req, item] = action.payload
-  console.log('save item: ', item)
   const oldItem = state.items[req.uri]
   state.items[req.uri] = item
   state.items[req.uri].state = 'full'
@@ -65,7 +64,6 @@ export const saveItemFufilledReducer: CaseReducer<RootState, PayloadAction<[{ ur
       store.dispatch(setMainConfig(config))
     })()
   }
-  console.log('after save: ', state.items[req.uri])
 }
 
 export const saveItemFailed = createAction<SaveItemPayload>('saveItemFailed')
@@ -117,14 +115,13 @@ type DeleteItemPayload = {
   uri: string
   // Optional replace currently displayed item with the new one
   newUri?: string
-  newItem?: ClientItem
 }
 export const deleteItemActionCreater = createAction<DeleteItemPayload>('deleteItem')
 export const deleteItemReducer: CaseReducer<RootState, PayloadAction<DeleteItemPayload>> = (state, action) => {
-  const { uri, newUri, newItem } = action.payload
+  const { uri, newUri } = action.payload
   const item = state.items[uri]
   if (!item) return
-  const replace = newUri && newItem
+  const replace = newUri
   if (state.opened.uris.includes(uri)) {
     if (replace) {
       state.opened.uris = state.opened.uris.map(u => (u === uri ? newUri : u))
@@ -138,7 +135,6 @@ export const deleteItemReducer: CaseReducer<RootState, PayloadAction<DeleteItemP
   }
   delete state.items[uri]
   if (replace) {
-    state.items[newUri] = newItem
     state.items[newUri].state = 'full'
   }
   if (item.header.tags && item.header.tags.length > 0) {
@@ -302,13 +298,18 @@ export const displayOrCreateItem = async (uri: string) => {
   return newUri
 }
 
-export const deleteItem = async (uri: string, newUri?: string, newItem?: ClientItem) => {
+/**
+ * Delete an item
+ * @param uri uri of item to delete
+ * @param newUri replace the deleted item with a new one in the river, the item must already exists
+ */
+export const deleteItem = async (uri: string, newUri?: string) => {
   const state = store.getState()
   if (!state.items[uri]) return
   try {
     await api.deleteItem(uri)
   } catch {}
-  store.dispatch(deleteItemActionCreater({ uri, newUri, newItem }))
+  store.dispatch(deleteItemActionCreater({ uri, newUri }))
 }
 
 export const moveItem = async (fromUri: string, toUri: string): Promise<void> => {

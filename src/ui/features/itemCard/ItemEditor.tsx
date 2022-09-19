@@ -63,7 +63,7 @@ export const ItemEditor = (props: { uri: string }) => {
       return
     }
     if (originalUri !== uri) {
-      await deleteItem(originalUri, uri, item)
+      await deleteItem(originalUri, uri)
     }
     // REVIEW: must be set after deleteItem replaces the old uri.
     dispatch(setItemMode({ uri: uri, mode: 'display' }))

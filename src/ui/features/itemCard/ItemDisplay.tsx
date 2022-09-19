@@ -28,7 +28,6 @@ export const ItemDisplay = (props: { uri: string }) => {
   const dispatch = useAppDispatch()
   const editorMap = useAppSelector(s => s.config.edit.editorMap)
   const item = useAppSelector(s => getItemFromState(s, uri))
-  console.log('display item ', uri, item)
   const fullScreen = useAppSelector(s => s.opened.items[uri].fullScreen)
   const tags = useAppSelector(s =>
     (item.header.tags || []).map(tag => ({
