@@ -12,6 +12,8 @@ import { DynamicMonacoEditor } from '../../components/editor/DynamicMonacoEditor
 import { ClientItem } from '../../ClientItem'
 import { BitmapEditor } from '../../components/editor/BitmapEditor'
 import { ResizeHandle } from '../../components/ResizeHandle'
+import { getFileExtFromType, getTypeFromFileExt, isContentType, MIME } from '../../../core/MimeType'
+import { last } from 'lodash'
 
 export const ItemEditor = (props: { uri: string }) => {
   const { uri: originalUri } = props
@@ -31,6 +33,44 @@ export const ItemEditor = (props: { uri: string }) => {
   const [saving, setSaving] = useState(false)
   const heightKey = fullScreen ? 'fullscreen-editor-height' : `editor-height-${uri}`
   const [editorHeight, setEditorHeight] = useState(parseInt(localStorage.getItem(heightKey) || '') || 400)
+
+  const setItemType = (t: MIME) => {
+    setType(t)
+    if (isContentType(t)) {
+      // content types don't have extensions in general,
+      // so if any known extention exists, remove it.
+      const ext = last(uri.split('.'))
+      if (ext && getTypeFromFileExt(ext) === type) {
+        setUri(uri.substring(0, uri.lastIndexOf('.')))
+      }
+      return
+    }
+    // non-content types requires a uri postfix to be set
+    const ext = getFileExtFromType(t)
+    if (!ext) return // not supported
+    const lastSlash = uri.lastIndexOf('/')
+    const lastDot = uri.lastIndexOf('.')
+    if (lastDot === -1 || (lastSlash !== -1 && lastSlash > lastDot)) {
+      // no current postfix on this uri, just add it
+      setUri(`${uri}.${ext}`)
+      return
+    }
+    const originalExtType = getTypeFromFileExt(uri.substring(lastDot + 1))
+    if (originalExtType) {
+      // some known extention exists
+      if (originalExtType !== t) {
+        // change it to new one
+        setUri(`${uri.substring(0, lastDot)}.${ext}`)
+        return
+      } else {
+        // do nothing
+        return
+      }
+    } else {
+      // unknown extension (or not an extension perhaps), append to it
+      setUri(`${uri}.${ext}`)
+    }
+  }
 
   const editorType = editorMap[type]
 
@@ -162,7 +202,7 @@ export const ItemEditor = (props: { uri: string }) => {
         </div>
       </Resizable>
       <div className="item-header" style={{ minHeight: 35 }}>
-        <HeaderEditor type={type} setType={setType} entries={headerEntries} setEntries={setHeaderEntries} />
+        <HeaderEditor type={type} setType={setItemType} entries={headerEntries} setEntries={setHeaderEntries} />
       </div>
     </div>
   )
