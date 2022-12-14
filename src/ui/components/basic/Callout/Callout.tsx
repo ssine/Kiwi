@@ -11,6 +11,7 @@ type CalloutProperty = {
   style?: React.CSSProperties
   wrapperStyle?: React.CSSProperties
   content?: React.ReactNode
+  children: React.ReactNode
 }
 
 enum AttachDirection {
@@ -44,11 +45,11 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
       direction: this.props.direction,
     }
     this.scrollCallback = (ev: Event) => {
-      this.props.onDismiss(ev)
+      this.props.onDismiss && this.props.onDismiss(ev)
     }
     this.clickCallback = (ev: MouseEvent) => {
-      const targetRect = this.target.current.getBoundingClientRect()
-      if (
+      const targetRect = this.target.current?.getBoundingClientRect()
+      if (targetRect &&
         !(
           targetRect.left < ev.clientX &&
           ev.clientX < targetRect.left + targetRect.width &&
@@ -56,7 +57,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
           ev.clientY < targetRect.top + targetRect.height
         )
       ) {
-        this.props.onDismiss(ev)
+        this.props.onDismiss && this.props.onDismiss(ev)
       }
     }
   }
@@ -73,6 +74,7 @@ class Callout extends React.Component<CalloutProperty, { direction: AttachDirect
           ? 'bottom'
           : 'top'
 
+      if (!this.content.current || !this.target.current) return
       if (this.content.current.offsetHeight < this.content.current.scrollHeight) {
         const boundingRect = this.target.current.getBoundingClientRect()
         const upperHeight = boundingRect.top

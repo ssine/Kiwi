@@ -6,7 +6,7 @@ import { displayItem } from '../features/global/item'
 
 export const SearchBar = () => {
   const [isSearching, setIsSearching] = useState(false)
-  const [searchResults, setSearchResults] = useState([])
+  const [searchResults, setSearchResults] = useState<string[]>([])
 
   return (
     <Callout

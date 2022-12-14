@@ -1,7 +1,7 @@
 import React from 'react'
 import './Pivot.css'
 
-const PivotItem: React.FC<{ name: string }> = props => {
+const PivotItem: React.FC<{ name: string; children: React.ReactNode }> = props => {
   return <div>{props.children}</div>
 }
 
@@ -10,6 +10,7 @@ type PivotProperty = {
     root?: React.CSSProperties
     panel?: React.CSSProperties
   }
+  children: React.ReactNode
 }
 
 type PivotState = {
@@ -25,8 +26,8 @@ class Pivot extends React.Component<PivotProperty, PivotState> {
   }
 
   render() {
-    const tabNames = []
-    const tabPanels = []
+    const tabNames: any[] = []
+    const tabPanels: any[] = []
     React.Children.forEach(this.props.children, (child, idx) => {
       tabNames.push((child as React.ReactElement<{ name: string }>).props.name)
       tabPanels.push((child as React.ReactElement<{ children: any[] }>).props.children)

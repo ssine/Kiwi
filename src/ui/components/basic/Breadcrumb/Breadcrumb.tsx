@@ -30,7 +30,7 @@ export const Breadcrumb = <T,>(props: {
           key={getKey(item)}
           onClick={onItemClick ? () => onItemClick(item) : undefined}
         >
-          {renderer ? renderer(item) : item}
+          {renderer ? <>renderer(item)</> : <>item</>}
         </button>
       )
     })
