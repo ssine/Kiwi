@@ -19,15 +19,19 @@ const args = yargs
       })
   })
   .command('migrate [from] [to]', 'migrate from tw folder')
-  .option('log', {
-    alias: 'l',
+  .option('log-level', {
+    alias: 'll',
     describe: 'log level, possible levels: trace, debug, info, warn, severe',
     default: 'info',
+  })
+  .option('log-path', {
+    alias: 'lp',
+    describe: 'path to write log files to, leave empty to disable writing log to path',
   })
   .demandCommand()
   .help().argv as any
 
-initLogger(args.log)
+initLogger(args.logLevel, args.logPath)
 const logger = getLogger('boot')
 
 import { serve } from '../core/server'

@@ -111,11 +111,12 @@ const processRenderPlugin = async function processRenderPlugin(
 ): Promise<string> {
   try {
     const fieldCall = async (s: string): Promise<string> => {
-      logger.silly(`eval field code call ${he.decode(s).slice(2, -2)}`)
+      const code = he.decode(s).slice(2, -2).trim()
+      logger.silly(`eval field code call ${code.length < 30 ? code : code.slice(0, 30) + '......'}`)
       let res = ''
       try {
-        if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(he.decode(s).slice(3, -2))
-        else res = await ctx.eval(he.decode(s).slice(2, -2))
+        if (/d[\s]/.test(s.slice(2, 4))) await ctx.eval(code.slice(1))
+        else res = await ctx.eval(code)
       } catch (err) {
         res = String(err)
       }

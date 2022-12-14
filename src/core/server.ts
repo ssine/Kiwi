@@ -26,10 +26,10 @@ import {
 import { isBinaryType } from './MimeType'
 import { Readable } from 'stream'
 import { ClientItem } from '../ui/ClientItem'
-import { renderItem } from './render'
 import { getStaticItemHTML, StaticConfig } from '../ui/static/getStaticItemHtml'
 import { AuthManager } from './AuthManager'
 import { state } from './state'
+import { logger as ExpressLogger } from 'express-winston'
 
 const logger = getLogger('server')
 
@@ -45,6 +45,13 @@ app.use(
 )
 app.use(bodyParser.json({ limit: '5mb' }))
 app.use(cookieParser())
+app.use(
+  ExpressLogger({
+    winstonInstance: logger,
+    level: 'debug',
+    msg: 'HTTP {{req.method}} {{res.statusCode}} {{res.responseTime}}ms {{req.url}} from {{req.ip}}',
+  })
+)
 
 const requireAuth: express.RequestHandler = (req, res, next) => {
   if (!req.cookies.token) {
